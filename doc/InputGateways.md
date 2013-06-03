@@ -26,6 +26,7 @@ koennten wir fuer die Kommunikation mit den Meisten Netzwerken verwenden, denn:
 * YES - Yahoo Instant messanger (https://github.com/masihyeganeh/yahoomessenger-js, nativ, libpurple)
 * YES - ICQ (OSCAR - https://github.com/mscdex/node-oscar, nativ, libpurple)
 * YES - Microsoft Lync  (UCWA - http://ucwa.lync.com/about/about-ucwa, web api)
+* YES - Steam (https://github.com/Overv/SteamWebAPI)
 
 ### Less known ###
 * YES - MyspaceIM (libpurple)
