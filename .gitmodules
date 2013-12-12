@@ -1,0 +1,3 @@
+[submodule "libpurple-wrapper"]
+	path = libpurple-wrapper
+	url = https://github.com/PaulFreund/libpurple-wrapper.git
