@@ -1,6 +1,8 @@
 import std.stdio;
 
-extern (Windows): int TestFunction();
+
+extern (C) int TestFunction();
+
 
 int main(string[] argv)
 {

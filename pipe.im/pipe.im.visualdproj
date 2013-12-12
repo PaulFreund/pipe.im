@@ -49,7 +49,7 @@
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
-  <outdir>$(SolutionDir)$(Configuration)\</outdir>
+  <outdir>$(SolutionDir)\$(Configuration)\</outdir>
   <objdir>$(OutDir)</objdir>
   <objname />
   <libname />
@@ -84,7 +84,7 @@
   <objfiles />
   <linkswitches />
   <libfiles>libpurple-wrapper-omf.lib</libfiles>
-  <libpaths>$(SolutionDir)$(Configuration)\</libpaths>
+  <libpaths>$(SolutionDir)\$(Configuration)</libpaths>
   <deffile />
   <resfile />
   <exefile>$(OutDir)\$(ProjectName).exe</exefile>
@@ -143,7 +143,7 @@
   <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
-  <outdir>$(SolutionDir)$(Configuration)\</outdir>
+  <outdir>$(SolutionDir)\$(Configuration)\</outdir>
   <objdir>$(OutDir)</objdir>
   <objname />
   <libname />
@@ -178,7 +178,7 @@
   <objfiles />
   <linkswitches />
   <libfiles>libpurple-wrapper-omf.lib</libfiles>
-  <libpaths>$(SolutionDir)$(Configuration)\</libpaths>
+  <libpaths>$(SolutionDir)\libpurple-wrapper\$(Configuration)</libpaths>
   <deffile />
   <resfile />
   <exefile>$(OutDir)\$(ProjectName).exe</exefile>
