@@ -83,14 +83,14 @@
   <cv2pdbOptions />
   <objfiles />
   <linkswitches />
-  <libfiles>libpurple-wrapper-omf.lib</libfiles>
-  <libpaths>$(SolutionDir)\$(Configuration)</libpaths>
+  <libfiles />
+  <libpaths />
   <deffile />
   <resfile />
   <exefile>$(OutDir)\$(ProjectName).exe</exefile>
   <useStdLibPath>1</useStdLibPath>
   <additionalOptions />
-  <preBuildCommand>$(ProjectDir)\win32deps\coffimplib.exe $(SolutionDir)\$(Configuration)\libpurple-wrapper.lib $(SolutionDir)\$(Configuration)\libpurple-wrapper-omf.lib</preBuildCommand>
+  <preBuildCommand />
   <postBuildCommand />
   <filesToClean>*.obj;*.cmd;*.build;*.json;*.dep</filesToClean>
  </Config>
@@ -177,18 +177,33 @@
   <cv2pdbOptions />
   <objfiles />
   <linkswitches />
-  <libfiles>libpurple-wrapper-omf.lib</libfiles>
-  <libpaths>$(SolutionDir)\libpurple-wrapper\$(Configuration)</libpaths>
+  <libfiles />
+  <libpaths />
   <deffile />
   <resfile />
   <exefile>$(OutDir)\$(ProjectName).exe</exefile>
   <useStdLibPath>1</useStdLibPath>
   <additionalOptions />
-  <preBuildCommand>$(ProjectDir)\win32deps\coffimplib.exe $(SolutionDir)\$(Configuration)\libpurple-wrapper.lib $(SolutionDir)\$(Configuration)\libpurple-wrapper-omf.lib</preBuildCommand>
+  <preBuildCommand />
   <postBuildCommand />
   <filesToClean>*.obj;*.cmd;*.build;*.json;*.dep</filesToClean>
  </Config>
  <Folder name="pipe.im">
+  <Folder name="derelict">
+   <Folder name="purple">
+    <File path="derelict\purple\functions.d" />
+    <File path="derelict\purple\purple.d" />
+    <File path="derelict\purple\types.d" />
+   </Folder>
+   <Folder name="util">
+    <File path="derelict\util\exception.d" />
+    <File path="derelict\util\loader.d" />
+    <File path="derelict\util\sharedlib.d" />
+    <File path="derelict\util\system.d" />
+    <File path="derelict\util\wintypes.d" />
+    <File path="derelict\util\xtypes.d" />
+   </Folder>
+  </Folder>
   <File path="main.d" />
  </Folder>
 </DProject>

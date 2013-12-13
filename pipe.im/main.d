@@ -1,12 +1,14 @@
 import std.stdio;
 
-
-extern (C) int TestFunction();
-
+import derelict.glib.glib;
+import derelict.purple.purple;
 
 int main(string[] argv)
 {
+    DerelictGlib.load();
+    DerelictPurple.load();
+
     writeln("Hello D-World!");
-    TestFunction();
+    purple_core_init("pipe.im");
     return 0;
 }
