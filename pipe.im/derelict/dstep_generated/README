@@ -1,5 +1,0 @@
-All .d files are generated with dstep:
-
-for header in *.h; do echo $header; dstep `pkg-config --cflags purple` -I/usr/local/lib/clang/3.1/include $header; done;
-
-
