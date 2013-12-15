@@ -25,6 +25,7 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
 */
+
 module derelict.glib.glib;
 
 public {
@@ -63,3 +64,181 @@ __gshared DerelictGlibLoader DerelictGlib;
 shared static this() {
     DerelictGlib = new DerelictGlibLoader();
 }
+
+
+/*
+
+typedef void* gpointer;
+typedef char   gchar;
+typedef short  gshort;
+typedef long   glong;
+typedef int    gint;
+typedef gint   gboolean;
+
+typedef unsigned char   guchar;
+typedef unsigned short  gushort;
+typedef unsigned long   gulong;
+typedef unsigned int    guint;
+
+typedef float   gfloat;
+typedef double  gdouble;
+
+typedef signed int gssize;
+typedef unsigned int gsize;
+
+G_GNUC_EXTENSION typedef signed long long gint64;
+G_GNUC_EXTENSION typedef unsigned long long guint64;
+
+typedef struct _GString         GString;
+
+struct _GString
+{
+gchar  *str;
+gsize len;
+gsize allocated_len;
+};
+
+void	 g_free	          (gpointer	 mem);
+
+typedef enum
+{
+G_IO_STATUS_ERROR,
+G_IO_STATUS_NORMAL,
+G_IO_STATUS_EOF,
+G_IO_STATUS_AGAIN
+} GIOStatus;
+
+typedef enum
+{
+G_SEEK_CUR,
+G_SEEK_SET,
+G_SEEK_END
+} GSeekType;
+
+typedef struct _GError GError;
+
+struct _GError
+{
+GQuark       domain;
+gint         code;
+gchar       *message;
+};
+
+typedef enum
+{
+G_IO_FLAG_APPEND = 1 << 0,
+G_IO_FLAG_NONBLOCK = 1 << 1,
+G_IO_FLAG_IS_READABLE = 1 << 2,
+G_IO_FLAG_IS_WRITABLE = 1 << 3,	
+    G_IO_FLAG_IS_SEEKABLE = 1 << 4,	
+    G_IO_FLAG_MASK = (1 << 5) - 1,
+    G_IO_FLAG_GET_MASK = G_IO_FLAG_MASK,
+    G_IO_FLAG_SET_MASK = G_IO_FLAG_APPEND | G_IO_FLAG_NONBLOCK
+} GIOFlags;
+
+struct _GIOFuncs
+{
+    GIOStatus (*io_read)           (GIOChannel   *channel, 
+                                    gchar        *buf, 
+                                    gsize         count,
+                                    gsize        *bytes_read,
+                                    GError      **err);
+    GIOStatus (*io_write)          (GIOChannel   *channel, 
+                                    const gchar  *buf, 
+                                    gsize         count,
+                                    gsize        *bytes_written,
+                                    GError      **err);
+    GIOStatus (*io_seek)           (GIOChannel   *channel, 
+                                    gint64        offset, 
+                                    GSeekType     type,
+                                    GError      **err);
+    GIOStatus  (*io_close)         (GIOChannel   *channel,
+                                    GError      **err);
+    GSource*   (*io_create_watch)  (GIOChannel   *channel,
+                                    GIOCondition  condition);
+    void       (*io_free)          (GIOChannel   *channel);
+    GIOStatus  (*io_set_flags)     (GIOChannel   *channel,
+                                    GIOFlags      flags,
+                                    GError      **err);
+    GIOFlags   (*io_get_flags)     (GIOChannel   *channel);
+};
+typedef struct _GIOFuncs        GIOFuncs;
+
+typedef enum 
+{
+    G_IO_IN	GLIB_SYSDEF_POLLIN,
+        G_IO_OUT	GLIB_SYSDEF_POLLOUT,
+        G_IO_PRI	GLIB_SYSDEF_POLLPRI,
+        G_IO_ERR	GLIB_SYSDEF_POLLERR,
+        G_IO_HUP	GLIB_SYSDEF_POLLHUP,
+        G_IO_NVAL	GLIB_SYSDEF_POLLNVAL
+} GIOCondition;
+
+
+typedef struct _GIConv *GIConv;
+
+
+struct _GIOChannel
+{
+    gint ref_count;
+    GIOFuncs *funcs;
+
+    gchar *encoding;
+    GIConv read_cd;
+    GIConv write_cd;
+    gchar *line_term;		
+    guint line_term_len;		
+
+    gsize buf_size;
+    GString *read_buf;		
+    GString *encoded_read_buf; 
+    GString *write_buf;		
+    gchar partial_write_buf[6];
+
+    guint use_buffer     : 1;	
+    guint do_encode      : 1;	
+    guint close_on_unref : 1;	
+    guint is_readable    : 1;	
+    guint is_writeable   : 1;	
+    guint is_seekable    : 1;	
+
+    gpointer reserved1;	
+    gpointer reserved2;	
+};
+typedef struct _GIOChannel	GIOChannel;
+gint        g_io_channel_unix_get_fd (GIOChannel *channel);
+
+typedef void            (*GDestroyNotify)       (gpointer       data);
+guint     g_io_add_watch_full   (GIOChannel      *channel,
+                                 gint             priority,
+                                 GIOCondition     condition,
+                                 GIOFunc          func,
+                                 gpointer         user_data,
+                                 GDestroyNotify   notify);
+
+void        g_io_channel_unref  (GIOChannel    *channel);
+
+typedef gboolean (*GSourceFunc)       (gpointer user_data);
+guint    g_timeout_add              (guint           interval,
+                                     GSourceFunc     function,
+                                     gpointer        data);
+
+gboolean g_source_remove                     (guint          tag);
+
+gboolean g_source_remove                     (guint          tag);
+
+guint    g_timeout_add_seconds      (guint           interval,
+                                     GSourceFunc     function,
+                                     gpointer        data);
+
+GMainLoop *g_main_loop_new        (GMainContext *context,
+                                   gboolean      is_running);
+
+typedef struct _GMainContext            GMainContext;
+typedef struct _GMainLoop               GMainLoop;
+
+Complete GLIST
+
+void       g_main_loop_run        (GMainLoop    *loop);
+
+*/

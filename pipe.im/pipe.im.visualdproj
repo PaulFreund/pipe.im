@@ -190,6 +190,13 @@
  </Config>
  <Folder name="pipe.im">
   <Folder name="derelict">
+   <Folder name="glib">
+    <File path="derelict\glib\giochannel.d" />
+    <File path="derelict\glib\glist.d" />
+    <File path="derelict\glib\gmain.d" />
+    <File path="derelict\glib\glib.d" />
+    <File path="derelict\glib\gtypes.d" />
+   </Folder>
    <Folder name="purple">
     <File path="derelict\purple\functions.d" />
     <File path="derelict\purple\purple.d" />
