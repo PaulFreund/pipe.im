@@ -33,15 +33,12 @@ import derelict.glib.glibconfig;
 
 extern (C):
 
-alias da_g_spaced_primes_closest = guint function(guint num);																																																						/* da_g_spaced_primes_closest g_spaced_primes_closest; */
-
-
 extern( C ) nothrow 
 {
-	
+    alias da_g_spaced_primes_closest = guint function(guint num);	
 }
 
 __gshared
 {
-	
+    da_g_spaced_primes_closest g_spaced_primes_closest;
 }

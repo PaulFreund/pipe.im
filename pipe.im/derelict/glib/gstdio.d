@@ -37,18 +37,20 @@ extern (C):
 
 //alias statBuf GStatBuf;
 
-alias da_g_access = int function(const(gchar)* filename, int mode);																																																						/* da_g_access g_access; */
-alias da_g_chdir = int function(const(gchar)* path);																																																						/* da_g_chdir g_chdir; */
-alias da_g_unlink = int function(const(gchar)* filename);																																																						/* da_g_unlink g_unlink; */
-alias da_g_rmdir = int function(const(gchar)* filename);																																																						/* da_g_rmdir g_rmdir; */
 
 
 extern( C ) nothrow 
 {
-	
+    alias da_g_access = int function(const(gchar)* filename, int mode);																																																		
+    alias da_g_chdir = int function(const(gchar)* path);																																																					
+    alias da_g_unlink = int function(const(gchar)* filename);																																																				
+    alias da_g_rmdir = int function(const(gchar)* filename);																																																				
 }
 
 __gshared
 {
-	
+    da_g_access g_access; 
+    da_g_chdir g_chdir; 
+    da_g_unlink g_unlink; 
+    da_g_rmdir g_rmdir; 	
 }

@@ -158,35 +158,52 @@ union _GTokenValue
 	guint v_error;
 }
 
-alias da_g_scanner_new = GScanner* function(const(GScannerConfig)* config_templ);																																																						/* da_g_scanner_new g_scanner_new; */
-alias da_g_scanner_destroy = void function(GScanner* scanner);																																																						/* da_g_scanner_destroy g_scanner_destroy; */
-alias da_g_scanner_input_file = void function(GScanner* scanner, gint input_fd);																																																						/* da_g_scanner_input_file g_scanner_input_file; */
-alias da_g_scanner_sync_file_offset = void function(GScanner* scanner);																																																						/* da_g_scanner_sync_file_offset g_scanner_sync_file_offset; */
-alias da_g_scanner_input_text = void function(GScanner* scanner, const(gchar)* text, guint text_len);																																																						/* da_g_scanner_input_text g_scanner_input_text; */
-alias da_g_scanner_get_next_token = GTokenType function(GScanner* scanner);																																																						/* da_g_scanner_get_next_token g_scanner_get_next_token; */
-alias da_g_scanner_peek_next_token = GTokenType function(GScanner* scanner);																																																						/* da_g_scanner_peek_next_token g_scanner_peek_next_token; */
-alias da_g_scanner_cur_token = GTokenType function(GScanner* scanner);																																																						/* da_g_scanner_cur_token g_scanner_cur_token; */
-alias da_g_scanner_cur_value = GTokenValue function(GScanner* scanner);																																																						/* da_g_scanner_cur_value g_scanner_cur_value; */
-alias da_g_scanner_cur_line = guint function(GScanner* scanner);																																																						/* da_g_scanner_cur_line g_scanner_cur_line; */
-alias da_g_scanner_cur_position = guint function(GScanner* scanner);																																																						/* da_g_scanner_cur_position g_scanner_cur_position; */
-alias da_g_scanner_eof = gboolean function(GScanner* scanner);																																																						/* da_g_scanner_eof g_scanner_eof; */
-alias da_g_scanner_set_scope = guint function(GScanner* scanner, guint scope_id);																																																						/* da_g_scanner_set_scope g_scanner_set_scope; */
-alias da_g_scanner_scope_add_symbol = void function(GScanner* scanner, guint scope_id, const(gchar)* symbol, gpointer value);																																																						/* da_g_scanner_scope_add_symbol g_scanner_scope_add_symbol; */
-alias da_g_scanner_scope_remove_symbol = void function(GScanner* scanner, guint scope_id, const(gchar)* symbol);																																																						/* da_g_scanner_scope_remove_symbol g_scanner_scope_remove_symbol; */
-alias da_g_scanner_scope_lookup_symbol = gpointer function(GScanner* scanner, guint scope_id, const(gchar)* symbol);																																																						/* da_g_scanner_scope_lookup_symbol g_scanner_scope_lookup_symbol; */
-alias da_g_scanner_scope_foreach_symbol = void function(GScanner* scanner, guint scope_id, GHFunc func, gpointer user_data);																																																						/* da_g_scanner_scope_foreach_symbol g_scanner_scope_foreach_symbol; */
-alias da_g_scanner_lookup_symbol = gpointer function(GScanner* scanner, const(gchar)* symbol);																																																						/* da_g_scanner_lookup_symbol g_scanner_lookup_symbol; */
-alias da_g_scanner_unexp_token = void function(GScanner* scanner, GTokenType expected_token, const(gchar)* identifier_spec, const(gchar)* symbol_spec, const(gchar)* symbol_name, const(gchar)* message, gint is_error);																																																						/* da_g_scanner_unexp_token g_scanner_unexp_token; */
-alias da_g_scanner_error = void function(GScanner* scanner, const(gchar)* format, ...);																																																						/* da_g_scanner_error g_scanner_error; */
-alias da_g_scanner_warn = void function(GScanner* scanner, const(gchar)* format, ...);																																																						/* da_g_scanner_warn g_scanner_warn; */
-
-
 extern( C ) nothrow 
 {
-	
+    alias da_g_scanner_new = GScanner* function(const(GScannerConfig)* config_templ);																																			
+    alias da_g_scanner_destroy = void function(GScanner* scanner);																																								
+    alias da_g_scanner_input_file = void function(GScanner* scanner, gint input_fd);																																			
+    alias da_g_scanner_sync_file_offset = void function(GScanner* scanner);																																						
+    alias da_g_scanner_input_text = void function(GScanner* scanner, const(gchar)* text, guint text_len);																														
+    alias da_g_scanner_get_next_token = GTokenType function(GScanner* scanner);																																					
+    alias da_g_scanner_peek_next_token = GTokenType function(GScanner* scanner);																																				
+    alias da_g_scanner_cur_token = GTokenType function(GScanner* scanner);																																						
+    alias da_g_scanner_cur_value = GTokenValue function(GScanner* scanner);																																						
+    alias da_g_scanner_cur_line = guint function(GScanner* scanner);																																							
+    alias da_g_scanner_cur_position = guint function(GScanner* scanner);																																						
+    alias da_g_scanner_eof = gboolean function(GScanner* scanner);																																								
+    alias da_g_scanner_set_scope = guint function(GScanner* scanner, guint scope_id);																																			
+    alias da_g_scanner_scope_add_symbol = void function(GScanner* scanner, guint scope_id, const(gchar)* symbol, gpointer value);																								
+    alias da_g_scanner_scope_remove_symbol = void function(GScanner* scanner, guint scope_id, const(gchar)* symbol);																											
+    alias da_g_scanner_scope_lookup_symbol = gpointer function(GScanner* scanner, guint scope_id, const(gchar)* symbol);																										
+    alias da_g_scanner_scope_foreach_symbol = void function(GScanner* scanner, guint scope_id, GHFunc func, gpointer user_data);																								
+    alias da_g_scanner_lookup_symbol = gpointer function(GScanner* scanner, const(gchar)* symbol);																																
+    alias da_g_scanner_unexp_token = void function(GScanner* scanner, GTokenType expected_token, const(gchar)* identifier_spec, const(gchar)* symbol_spec, const(gchar)* symbol_name, const(gchar)* message, gint is_error);	
+    alias da_g_scanner_error = void function(GScanner* scanner, const(gchar)* format, ...);																																		
+    alias da_g_scanner_warn = void function(GScanner* scanner, const(gchar)* format, ...);																																		
 }
 
 __gshared
 {
-	
+    da_g_scanner_new g_scanner_new; 
+    da_g_scanner_destroy g_scanner_destroy; 
+    da_g_scanner_input_file g_scanner_input_file; 
+    da_g_scanner_sync_file_offset g_scanner_sync_file_offset; 
+    da_g_scanner_input_text g_scanner_input_text; 
+    da_g_scanner_get_next_token g_scanner_get_next_token; 
+    da_g_scanner_peek_next_token g_scanner_peek_next_token; 
+    da_g_scanner_cur_token g_scanner_cur_token; 
+    da_g_scanner_cur_value g_scanner_cur_value; 
+    da_g_scanner_cur_line g_scanner_cur_line; 
+    da_g_scanner_cur_position g_scanner_cur_position; 
+    da_g_scanner_eof g_scanner_eof; 
+    da_g_scanner_set_scope g_scanner_set_scope; 
+    da_g_scanner_scope_add_symbol g_scanner_scope_add_symbol; 
+    da_g_scanner_scope_remove_symbol g_scanner_scope_remove_symbol; 
+    da_g_scanner_scope_lookup_symbol g_scanner_scope_lookup_symbol; 
+    da_g_scanner_scope_foreach_symbol g_scanner_scope_foreach_symbol; 
+    da_g_scanner_lookup_symbol g_scanner_lookup_symbol; 
+    da_g_scanner_unexp_token g_scanner_unexp_token; 
+    da_g_scanner_error g_scanner_error; 
+    da_g_scanner_warn g_scanner_warn; 
 }

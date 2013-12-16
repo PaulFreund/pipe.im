@@ -92,14 +92,3 @@ union _GDoubleIEEE754
 		guint sign;
 	}
 }
-
-
-extern( C ) nothrow 
-{
-	
-}
-
-__gshared
-{
-	
-}

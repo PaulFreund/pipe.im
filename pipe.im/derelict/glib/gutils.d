@@ -66,43 +66,68 @@ struct _GDebugKey
 	guint value;
 }
 
-alias da_g_get_user_name = const(gchar)* function();																																																						/* da_g_get_user_name g_get_user_name; */
-alias da_g_get_real_name = const(gchar)* function();																																																						/* da_g_get_real_name g_get_real_name; */
-alias da_g_get_home_dir = const(gchar)* function();																																																						/* da_g_get_home_dir g_get_home_dir; */
-alias da_g_get_tmp_dir = const(gchar)* function();																																																						/* da_g_get_tmp_dir g_get_tmp_dir; */
-alias da_g_get_host_name = const(gchar)* function();																																																						/* da_g_get_host_name g_get_host_name; */
-alias da_g_get_prgname = gchar* function();																																																						/* da_g_get_prgname g_get_prgname; */
-alias da_g_set_prgname = void function(const(gchar)* prgname);																																																						/* da_g_set_prgname g_set_prgname; */
-alias da_g_get_application_name = const(gchar)* function();																																																						/* da_g_get_application_name g_get_application_name; */
-alias da_g_set_application_name = void function(const(gchar)* application_name);																																																						/* da_g_set_application_name g_set_application_name; */
-alias da_g_reload_user_special_dirs_cache = void function();																																																						/* da_g_reload_user_special_dirs_cache g_reload_user_special_dirs_cache; */
-alias da_g_get_user_data_dir = const(gchar)* function();																																																						/* da_g_get_user_data_dir g_get_user_data_dir; */
-alias da_g_get_user_config_dir = const(gchar)* function();																																																						/* da_g_get_user_config_dir g_get_user_config_dir; */
-alias da_g_get_user_cache_dir = const(gchar)* function();																																																						/* da_g_get_user_cache_dir g_get_user_cache_dir; */
-alias da_g_get_system_data_dirs = const(gchar*)* function();																																																						/* da_g_get_system_data_dirs g_get_system_data_dirs; */
-alias da_g_get_system_config_dirs = const(gchar*)* function();																																																						/* da_g_get_system_config_dirs g_get_system_config_dirs; */
-alias da_g_get_user_runtime_dir = const(gchar)* function();																																																						/* da_g_get_user_runtime_dir g_get_user_runtime_dir; */
-alias da_g_get_user_special_dir = const(gchar)* function(GUserDirectory directory);																																																						/* da_g_get_user_special_dir g_get_user_special_dir; */
-alias da_g_parse_debug_string = guint function(const(gchar)* string, const(GDebugKey)* keys, guint nkeys);																																																						/* da_g_parse_debug_string g_parse_debug_string; */
-alias da_g_snprintf = gint function(gchar* string, gulong n, const(gchar)* format, ...);																																																						/* da_g_snprintf g_snprintf; */
-alias da_g_vsnprintf = gint function(gchar* string, gulong n, const(gchar)* format, va_list args);																																																						/* da_g_vsnprintf g_vsnprintf; */
-alias da_g_nullify_pointer = void function(gpointer* nullify_location);																																																						/* da_g_nullify_pointer g_nullify_pointer; */
-alias da_g_format_size_full = gchar* function(guint64 size, GFormatSizeFlags flags);																																																						/* da_g_format_size_full g_format_size_full; */
-alias da_g_format_size = gchar* function(guint64 size);																																																						/* da_g_format_size g_format_size; */
-alias da_g_format_size_for_display = gchar* function(goffset size);																																																						/* da_g_format_size_for_display g_format_size_for_display; */
-alias da_g_atexit = void function(GVoidFunc func);																																																						/* da_g_atexit g_atexit; */
-alias da_g_find_program_in_path = gchar* function(const(gchar)* program);																																																						/* da_g_find_program_in_path g_find_program_in_path; */
-alias da_g_bit_nth_lsf = gint function(gulong mask, gint nth_bit);																																																						/* da_g_bit_nth_lsf g_bit_nth_lsf; */
-alias da_g_bit_nth_msf = gint function(gulong mask, gint nth_bit);																																																						/* da_g_bit_nth_msf g_bit_nth_msf; */
-alias da_g_bit_storage = guint function(gulong number);																																																						/* da_g_bit_storage g_bit_storage; */
-
-
 extern( C ) nothrow 
 {
-	
+    alias da_g_get_user_name = const(gchar)* function();																
+    alias da_g_get_real_name = const(gchar)* function();																
+    alias da_g_get_home_dir = const(gchar)* function();																	
+    alias da_g_get_tmp_dir = const(gchar)* function();																	
+    alias da_g_get_host_name = const(gchar)* function();																
+    alias da_g_get_prgname = gchar* function();																			
+    alias da_g_set_prgname = void function(const(gchar)* prgname);														
+    alias da_g_get_application_name = const(gchar)* function();															
+    alias da_g_set_application_name = void function(const(gchar)* application_name);									
+    alias da_g_reload_user_special_dirs_cache = void function();														
+    alias da_g_get_user_data_dir = const(gchar)* function();															
+    alias da_g_get_user_config_dir = const(gchar)* function();															
+    alias da_g_get_user_cache_dir = const(gchar)* function();															
+    alias da_g_get_system_data_dirs = const(gchar*)* function();														
+    alias da_g_get_system_config_dirs = const(gchar*)* function();														
+    alias da_g_get_user_runtime_dir = const(gchar)* function();															
+    alias da_g_get_user_special_dir = const(gchar)* function(GUserDirectory directory);									
+    alias da_g_parse_debug_string = guint function(const(gchar)* string, const(GDebugKey)* keys, guint nkeys);			
+    alias da_g_snprintf = gint function(gchar* string, gulong n, const(gchar)* format, ...);							
+    alias da_g_vsnprintf = gint function(gchar* string, gulong n, const(gchar)* format, va_list args);					
+    alias da_g_nullify_pointer = void function(gpointer* nullify_location);												
+    alias da_g_format_size_full = gchar* function(guint64 size, GFormatSizeFlags flags);								
+    alias da_g_format_size = gchar* function(guint64 size);																
+    alias da_g_format_size_for_display = gchar* function(goffset size);													
+    alias da_g_atexit = void function(GVoidFunc func);																	
+    alias da_g_find_program_in_path = gchar* function(const(gchar)* program);											
+    alias da_g_bit_nth_lsf = gint function(gulong mask, gint nth_bit);													
+    alias da_g_bit_nth_msf = gint function(gulong mask, gint nth_bit);													
+    alias da_g_bit_storage = guint function(gulong number);		
 }
 
 __gshared
 {
-	
+    da_g_get_user_name g_get_user_name; 
+    da_g_get_real_name g_get_real_name; 
+    da_g_get_home_dir g_get_home_dir; 
+    da_g_get_tmp_dir g_get_tmp_dir; 
+    da_g_get_host_name g_get_host_name; 
+    da_g_get_prgname g_get_prgname; 
+    da_g_set_prgname g_set_prgname; 
+    da_g_get_application_name g_get_application_name; 
+    da_g_set_application_name g_set_application_name; 
+    da_g_reload_user_special_dirs_cache g_reload_user_special_dirs_cache; 
+    da_g_get_user_data_dir g_get_user_data_dir; 
+    da_g_get_user_config_dir g_get_user_config_dir; 
+    da_g_get_user_cache_dir g_get_user_cache_dir; 
+    da_g_get_system_data_dirs g_get_system_data_dirs; 
+    da_g_get_system_config_dirs g_get_system_config_dirs; 
+    da_g_get_user_runtime_dir g_get_user_runtime_dir; 
+    da_g_get_user_special_dir g_get_user_special_dir; 
+    da_g_parse_debug_string g_parse_debug_string; 
+    da_g_snprintf g_snprintf; 
+    da_g_vsnprintf g_vsnprintf; 
+    da_g_nullify_pointer g_nullify_pointer; 
+    da_g_format_size_full g_format_size_full; 
+    da_g_format_size g_format_size; 
+    da_g_format_size_for_display g_format_size_for_display; 
+    da_g_atexit g_atexit; 
+    da_g_find_program_in_path g_find_program_in_path; 
+    da_g_bit_nth_lsf g_bit_nth_lsf; 
+    da_g_bit_nth_msf g_bit_nth_msf; 
+    da_g_bit_storage g_bit_storage;
 }
