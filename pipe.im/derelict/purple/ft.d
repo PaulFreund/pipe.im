@@ -114,75 +114,132 @@ struct _PurpleXfer
 	void* data;
 }
 
-alias da_purple_xfer_new = PurpleXfer* function(PurpleAccount* account, PurpleXferType type, const(char)* who);																																																						/* da_purple_xfer_new purple_xfer_new; */
-alias da_purple_xfers_get_all = GList* function();																																																						/* da_purple_xfers_get_all purple_xfers_get_all; */
-alias da_purple_xfer_ref = void function(PurpleXfer* xfer);																																																						/* da_purple_xfer_ref purple_xfer_ref; */
-alias da_purple_xfer_unref = void function(PurpleXfer* xfer);																																																						/* da_purple_xfer_unref purple_xfer_unref; */
-alias da_purple_xfer_request = void function(PurpleXfer* xfer);																																																						/* da_purple_xfer_request purple_xfer_request; */
-alias da_purple_xfer_request_accepted = void function(PurpleXfer* xfer, const(char)* filename);																																																						/* da_purple_xfer_request_accepted purple_xfer_request_accepted; */
-alias da_purple_xfer_request_denied = void function(PurpleXfer* xfer);																																																						/* da_purple_xfer_request_denied purple_xfer_request_denied; */
-alias da_purple_xfer_get_type = PurpleXferType function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_type purple_xfer_get_type; */
-alias da_purple_xfer_get_account = PurpleAccount* function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_account purple_xfer_get_account; */
-alias da_purple_xfer_get_remote_user = const(char)* function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_remote_user purple_xfer_get_remote_user; */
-alias da_purple_xfer_get_status = PurpleXferStatusType function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_status purple_xfer_get_status; */
-alias da_purple_xfer_is_canceled = gboolean function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_is_canceled purple_xfer_is_canceled; */
-alias da_purple_xfer_is_completed = gboolean function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_is_completed purple_xfer_is_completed; */
-alias da_purple_xfer_get_filename = const(char)* function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_filename purple_xfer_get_filename; */
-alias da_purple_xfer_get_local_filename = const(char)* function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_local_filename purple_xfer_get_local_filename; */
-alias da_purple_xfer_get_bytes_sent = size_t function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_bytes_sent purple_xfer_get_bytes_sent; */
-alias da_purple_xfer_get_bytes_remaining = size_t function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_bytes_remaining purple_xfer_get_bytes_remaining; */
-alias da_purple_xfer_get_size = size_t function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_size purple_xfer_get_size; */
-alias da_purple_xfer_get_progress = double function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_progress purple_xfer_get_progress; */
-alias da_purple_xfer_get_local_port = uint function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_local_port purple_xfer_get_local_port; */
-alias da_purple_xfer_get_remote_ip = const(char)* function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_remote_ip purple_xfer_get_remote_ip; */
-alias da_purple_xfer_get_remote_port = uint function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_remote_port purple_xfer_get_remote_port; */
-alias da_purple_xfer_get_start_time = time_t function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_start_time purple_xfer_get_start_time; */
-alias da_purple_xfer_get_end_time = time_t function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_end_time purple_xfer_get_end_time; */
-alias da_purple_xfer_set_completed = void function(PurpleXfer* xfer, gboolean completed);																																																						/* da_purple_xfer_set_completed purple_xfer_set_completed; */
-alias da_purple_xfer_set_message = void function(PurpleXfer* xfer, const(char)* message);																																																						/* da_purple_xfer_set_message purple_xfer_set_message; */
-alias da_purple_xfer_set_filename = void function(PurpleXfer* xfer, const(char)* filename);																																																						/* da_purple_xfer_set_filename purple_xfer_set_filename; */
-alias da_purple_xfer_set_local_filename = void function(PurpleXfer* xfer, const(char)* filename);																																																						/* da_purple_xfer_set_local_filename purple_xfer_set_local_filename; */
-alias da_purple_xfer_set_size = void function(PurpleXfer* xfer, size_t size);																																																						/* da_purple_xfer_set_size purple_xfer_set_size; */
-alias da_purple_xfer_set_bytes_sent = void function(PurpleXfer* xfer, size_t bytes_sent);																																																						/* da_purple_xfer_set_bytes_sent purple_xfer_set_bytes_sent; */
-alias da_purple_xfer_get_ui_ops = PurpleXferUiOps* function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_ui_ops purple_xfer_get_ui_ops; */
-alias da_purple_xfer_set_read_fnc = void function(PurpleXfer* xfer, gssize function (guchar**, PurpleXfer*) fnc);																																																						/* da_purple_xfer_set_read_fnc purple_xfer_set_read_fnc; */
-alias da_purple_xfer_set_write_fnc = void function(PurpleXfer* xfer, gssize function (const(guchar)*, size_t, PurpleXfer*) fnc);																																																						/* da_purple_xfer_set_write_fnc purple_xfer_set_write_fnc; */
-alias da_purple_xfer_set_ack_fnc = void function(PurpleXfer* xfer, void function (PurpleXfer*, const(guchar)*, size_t) fnc);																																																						/* da_purple_xfer_set_ack_fnc purple_xfer_set_ack_fnc; */
-alias da_purple_xfer_set_request_denied_fnc = void function(PurpleXfer* xfer, void function (PurpleXfer*) fnc);																																																						/* da_purple_xfer_set_request_denied_fnc purple_xfer_set_request_denied_fnc; */
-alias da_purple_xfer_set_init_fnc = void function(PurpleXfer* xfer, void function (PurpleXfer*) fnc);																																																						/* da_purple_xfer_set_init_fnc purple_xfer_set_init_fnc; */
-alias da_purple_xfer_set_start_fnc = void function(PurpleXfer* xfer, void function (PurpleXfer*) fnc);																																																						/* da_purple_xfer_set_start_fnc purple_xfer_set_start_fnc; */
-alias da_purple_xfer_set_end_fnc = void function(PurpleXfer* xfer, void function (PurpleXfer*) fnc);																																																						/* da_purple_xfer_set_end_fnc purple_xfer_set_end_fnc; */
-alias da_purple_xfer_set_cancel_send_fnc = void function(PurpleXfer* xfer, void function (PurpleXfer*) fnc);																																																						/* da_purple_xfer_set_cancel_send_fnc purple_xfer_set_cancel_send_fnc; */
-alias da_purple_xfer_set_cancel_recv_fnc = void function(PurpleXfer* xfer, void function (PurpleXfer*) fnc);																																																						/* da_purple_xfer_set_cancel_recv_fnc purple_xfer_set_cancel_recv_fnc; */
-alias da_purple_xfer_read = gssize function(PurpleXfer* xfer, guchar** buffer);																																																						/* da_purple_xfer_read purple_xfer_read; */
-alias da_purple_xfer_write = gssize function(PurpleXfer* xfer, const(guchar)* buffer, gsize size);																																																						/* da_purple_xfer_write purple_xfer_write; */
-alias da_purple_xfer_start = void function(PurpleXfer* xfer, int fd, const(char)* ip, uint port);																																																						/* da_purple_xfer_start purple_xfer_start; */
-alias da_purple_xfer_end = void function(PurpleXfer* xfer);																																																						/* da_purple_xfer_end purple_xfer_end; */
-alias da_purple_xfer_add = void function(PurpleXfer* xfer);																																																						/* da_purple_xfer_add purple_xfer_add; */
-alias da_purple_xfer_cancel_local = void function(PurpleXfer* xfer);																																																						/* da_purple_xfer_cancel_local purple_xfer_cancel_local; */
-alias da_purple_xfer_cancel_remote = void function(PurpleXfer* xfer);																																																						/* da_purple_xfer_cancel_remote purple_xfer_cancel_remote; */
-alias da_purple_xfer_error = void function(PurpleXferType type, PurpleAccount* account, const(char)* who, const(char)* msg);																																																						/* da_purple_xfer_error purple_xfer_error; */
-alias da_purple_xfer_update_progress = void function(PurpleXfer* xfer);																																																						/* da_purple_xfer_update_progress purple_xfer_update_progress; */
-alias da_purple_xfer_conversation_write = void function(PurpleXfer* xfer, char* message, gboolean is_error);																																																						/* da_purple_xfer_conversation_write purple_xfer_conversation_write; */
-alias da_purple_xfer_ui_ready = void function(PurpleXfer* xfer);																																																						/* da_purple_xfer_ui_ready purple_xfer_ui_ready; */
-alias da_purple_xfer_prpl_ready = void function(PurpleXfer* xfer);																																																						/* da_purple_xfer_prpl_ready purple_xfer_prpl_ready; */
-alias da_purple_xfer_get_thumbnail = gconstpointer function(const(PurpleXfer)* xfer, gsize* len);																																																						/* da_purple_xfer_get_thumbnail purple_xfer_get_thumbnail; */
-alias da_purple_xfer_get_thumbnail_mimetype = const(gchar)* function(const(PurpleXfer)* xfer);																																																						/* da_purple_xfer_get_thumbnail_mimetype purple_xfer_get_thumbnail_mimetype; */
-alias da_purple_xfer_set_thumbnail = void function(PurpleXfer* xfer, gconstpointer thumbnail, gsize size, const(gchar)* mimetype);																																																						/* da_purple_xfer_set_thumbnail purple_xfer_set_thumbnail; */
-alias da_purple_xfer_prepare_thumbnail = void function(PurpleXfer* xfer, const(gchar)* formats);																																																						/* da_purple_xfer_prepare_thumbnail purple_xfer_prepare_thumbnail; */
-alias da_purple_xfers_get_handle = void* function();																																																						/* da_purple_xfers_get_handle purple_xfers_get_handle; */
-alias da_purple_xfers_init = void function();																																																						/* da_purple_xfers_init purple_xfers_init; */
-alias da_purple_xfers_uninit = void function();																																																						/* da_purple_xfers_uninit purple_xfers_uninit; */
-alias da_purple_xfers_set_ui_ops = void function(PurpleXferUiOps* ops);																																																						/* da_purple_xfers_set_ui_ops purple_xfers_set_ui_ops; */
-alias da_purple_xfers_get_ui_ops = PurpleXferUiOps* function();																																																						/* da_purple_xfers_get_ui_ops purple_xfers_get_ui_ops; */
-
-
 extern( C ) nothrow 
 {
-	
+    alias da_purple_xfer_new = PurpleXfer* function(PurpleAccount* account, PurpleXferType type, const(char)* who);							
+    alias da_purple_xfers_get_all = GList* function();																						
+    alias da_purple_xfer_ref = void function(PurpleXfer* xfer);																				
+    alias da_purple_xfer_unref = void function(PurpleXfer* xfer);																			
+    alias da_purple_xfer_request = void function(PurpleXfer* xfer);																			
+    alias da_purple_xfer_request_accepted = void function(PurpleXfer* xfer, const(char)* filename);											
+    alias da_purple_xfer_request_denied = void function(PurpleXfer* xfer);																	
+    alias da_purple_xfer_get_type = PurpleXferType function(const(PurpleXfer)* xfer);														
+    alias da_purple_xfer_get_account = PurpleAccount* function(const(PurpleXfer)* xfer);													
+    alias da_purple_xfer_get_remote_user = const(char)* function(const(PurpleXfer)* xfer);													
+    alias da_purple_xfer_get_status = PurpleXferStatusType function(const(PurpleXfer)* xfer);												
+    alias da_purple_xfer_is_canceled = gboolean function(const(PurpleXfer)* xfer);															
+    alias da_purple_xfer_is_completed = gboolean function(const(PurpleXfer)* xfer);															
+    alias da_purple_xfer_get_filename = const(char)* function(const(PurpleXfer)* xfer);														
+    alias da_purple_xfer_get_local_filename = const(char)* function(const(PurpleXfer)* xfer);												
+    alias da_purple_xfer_get_bytes_sent = size_t function(const(PurpleXfer)* xfer);															
+    alias da_purple_xfer_get_bytes_remaining = size_t function(const(PurpleXfer)* xfer);													
+    alias da_purple_xfer_get_size = size_t function(const(PurpleXfer)* xfer);																
+    alias da_purple_xfer_get_progress = double function(const(PurpleXfer)* xfer);															
+    alias da_purple_xfer_get_local_port = uint function(const(PurpleXfer)* xfer);															
+    alias da_purple_xfer_get_remote_ip = const(char)* function(const(PurpleXfer)* xfer);													
+    alias da_purple_xfer_get_remote_port = uint function(const(PurpleXfer)* xfer);															
+    alias da_purple_xfer_get_start_time = time_t function(const(PurpleXfer)* xfer);															
+    alias da_purple_xfer_get_end_time = time_t function(const(PurpleXfer)* xfer);															
+    alias da_purple_xfer_set_completed = void function(PurpleXfer* xfer, gboolean completed);												
+    alias da_purple_xfer_set_message = void function(PurpleXfer* xfer, const(char)* message);												
+    alias da_purple_xfer_set_filename = void function(PurpleXfer* xfer, const(char)* filename);												
+    alias da_purple_xfer_set_local_filename = void function(PurpleXfer* xfer, const(char)* filename);										
+    alias da_purple_xfer_set_size = void function(PurpleXfer* xfer, size_t size);															
+    alias da_purple_xfer_set_bytes_sent = void function(PurpleXfer* xfer, size_t bytes_sent);												
+    alias da_purple_xfer_get_ui_ops = PurpleXferUiOps* function(const(PurpleXfer)* xfer);													
+    alias da_purple_xfer_set_read_fnc = void function(PurpleXfer* xfer, gssize function (guchar**, PurpleXfer*) fnc);						
+    alias da_purple_xfer_set_write_fnc = void function(PurpleXfer* xfer, gssize function (const(guchar)*, size_t, PurpleXfer*) fnc);		
+    alias da_purple_xfer_set_ack_fnc = void function(PurpleXfer* xfer, void function (PurpleXfer*, const(guchar)*, size_t) fnc);			
+    alias da_purple_xfer_set_request_denied_fnc = void function(PurpleXfer* xfer, void function (PurpleXfer*) fnc);							
+    alias da_purple_xfer_set_init_fnc = void function(PurpleXfer* xfer, void function (PurpleXfer*) fnc);									
+    alias da_purple_xfer_set_start_fnc = void function(PurpleXfer* xfer, void function (PurpleXfer*) fnc);									
+    alias da_purple_xfer_set_end_fnc = void function(PurpleXfer* xfer, void function (PurpleXfer*) fnc);									
+    alias da_purple_xfer_set_cancel_send_fnc = void function(PurpleXfer* xfer, void function (PurpleXfer*) fnc);							
+    alias da_purple_xfer_set_cancel_recv_fnc = void function(PurpleXfer* xfer, void function (PurpleXfer*) fnc);							
+    alias da_purple_xfer_read = gssize function(PurpleXfer* xfer, guchar** buffer);															
+    alias da_purple_xfer_write = gssize function(PurpleXfer* xfer, const(guchar)* buffer, gsize size);										
+    alias da_purple_xfer_start = void function(PurpleXfer* xfer, int fd, const(char)* ip, uint port);										
+    alias da_purple_xfer_end = void function(PurpleXfer* xfer);																				
+    alias da_purple_xfer_add = void function(PurpleXfer* xfer);																				
+    alias da_purple_xfer_cancel_local = void function(PurpleXfer* xfer);																	
+    alias da_purple_xfer_cancel_remote = void function(PurpleXfer* xfer);																	
+    alias da_purple_xfer_error = void function(PurpleXferType type, PurpleAccount* account, const(char)* who, const(char)* msg);			
+    alias da_purple_xfer_update_progress = void function(PurpleXfer* xfer);																	
+    alias da_purple_xfer_conversation_write = void function(PurpleXfer* xfer, char* message, gboolean is_error);							
+    alias da_purple_xfer_ui_ready = void function(PurpleXfer* xfer);																		
+    alias da_purple_xfer_prpl_ready = void function(PurpleXfer* xfer);																		
+    alias da_purple_xfer_get_thumbnail = gconstpointer function(const(PurpleXfer)* xfer, gsize* len);										
+    alias da_purple_xfer_get_thumbnail_mimetype = const(gchar)* function(const(PurpleXfer)* xfer);											
+    alias da_purple_xfer_set_thumbnail = void function(PurpleXfer* xfer, gconstpointer thumbnail, gsize size, const(gchar)* mimetype);		
+    alias da_purple_xfer_prepare_thumbnail = void function(PurpleXfer* xfer, const(gchar)* formats);										
+    alias da_purple_xfers_get_handle = void* function();																					
+    alias da_purple_xfers_init = void function();																							
+    alias da_purple_xfers_uninit = void function();																							
+    alias da_purple_xfers_set_ui_ops = void function(PurpleXferUiOps* ops);																	
+    alias da_purple_xfers_get_ui_ops = PurpleXferUiOps* function();		
 }
 
 __gshared
 {
-	
+	da_purple_xfer_new purple_xfer_new;
+	da_purple_xfers_get_all purple_xfers_get_all;
+	da_purple_xfer_ref purple_xfer_ref;
+	da_purple_xfer_unref purple_xfer_unref;
+	da_purple_xfer_request purple_xfer_request;
+	da_purple_xfer_request_accepted purple_xfer_request_accepted;
+	da_purple_xfer_request_denied purple_xfer_request_denied;
+	da_purple_xfer_get_type purple_xfer_get_type;
+	da_purple_xfer_get_account purple_xfer_get_account;
+	da_purple_xfer_get_remote_user purple_xfer_get_remote_user;
+	da_purple_xfer_get_status purple_xfer_get_status;
+	da_purple_xfer_is_canceled purple_xfer_is_canceled;
+	da_purple_xfer_is_completed purple_xfer_is_completed;
+	da_purple_xfer_get_filename purple_xfer_get_filename;
+	da_purple_xfer_get_local_filename purple_xfer_get_local_filename;
+	da_purple_xfer_get_bytes_sent purple_xfer_get_bytes_sent;
+	da_purple_xfer_get_bytes_remaining purple_xfer_get_bytes_remaining;
+	da_purple_xfer_get_size purple_xfer_get_size;
+	da_purple_xfer_get_progress purple_xfer_get_progress;
+	da_purple_xfer_get_local_port purple_xfer_get_local_port;
+	da_purple_xfer_get_remote_ip purple_xfer_get_remote_ip;
+	da_purple_xfer_get_remote_port purple_xfer_get_remote_port;
+	da_purple_xfer_get_start_time purple_xfer_get_start_time;
+	da_purple_xfer_get_end_time purple_xfer_get_end_time;
+	da_purple_xfer_set_completed purple_xfer_set_completed;
+	da_purple_xfer_set_message purple_xfer_set_message;
+	da_purple_xfer_set_filename purple_xfer_set_filename;
+	da_purple_xfer_set_local_filename purple_xfer_set_local_filename;
+	da_purple_xfer_set_size purple_xfer_set_size;
+	da_purple_xfer_set_bytes_sent purple_xfer_set_bytes_sent;
+	da_purple_xfer_get_ui_ops purple_xfer_get_ui_ops;
+	da_purple_xfer_set_read_fnc purple_xfer_set_read_fnc;
+	da_purple_xfer_set_write_fnc purple_xfer_set_write_fnc;
+	da_purple_xfer_set_ack_fnc purple_xfer_set_ack_fnc;
+	da_purple_xfer_set_request_denied_fnc purple_xfer_set_request_denied_fnc;
+	da_purple_xfer_set_init_fnc purple_xfer_set_init_fnc;
+	da_purple_xfer_set_start_fnc purple_xfer_set_start_fnc;
+	da_purple_xfer_set_end_fnc purple_xfer_set_end_fnc;
+	da_purple_xfer_set_cancel_send_fnc purple_xfer_set_cancel_send_fnc;
+	da_purple_xfer_set_cancel_recv_fnc purple_xfer_set_cancel_recv_fnc;
+	da_purple_xfer_read purple_xfer_read;
+	da_purple_xfer_write purple_xfer_write;
+	da_purple_xfer_start purple_xfer_start;
+	da_purple_xfer_end purple_xfer_end;
+	da_purple_xfer_add purple_xfer_add;
+	da_purple_xfer_cancel_local purple_xfer_cancel_local;
+	da_purple_xfer_cancel_remote purple_xfer_cancel_remote;
+	da_purple_xfer_error purple_xfer_error;
+	da_purple_xfer_update_progress purple_xfer_update_progress;
+	da_purple_xfer_conversation_write purple_xfer_conversation_write;
+	da_purple_xfer_ui_ready purple_xfer_ui_ready;
+	da_purple_xfer_prpl_ready purple_xfer_prpl_ready;
+	da_purple_xfer_get_thumbnail purple_xfer_get_thumbnail;
+	da_purple_xfer_get_thumbnail_mimetype purple_xfer_get_thumbnail_mimetype;
+	da_purple_xfer_set_thumbnail purple_xfer_set_thumbnail;
+	da_purple_xfer_prepare_thumbnail purple_xfer_prepare_thumbnail;
+	da_purple_xfers_get_handle purple_xfers_get_handle;
+	da_purple_xfers_init purple_xfers_init;
+	da_purple_xfers_uninit purple_xfers_uninit;
+	da_purple_xfers_set_ui_ops purple_xfers_set_ui_ops;
+	da_purple_xfers_get_ui_ops purple_xfers_get_ui_ops;	
 }

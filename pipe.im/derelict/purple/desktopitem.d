@@ -51,21 +51,22 @@ enum _Anonymous_0
 
 struct _PurpleDesktopItem;
 
-
-alias da_purple_desktop_item_get_type = GType function();																																																						/* da_purple_desktop_item_get_type purple_desktop_item_get_type; */
-alias da_purple_desktop_item_new_from_file = PurpleDesktopItem* function(const(char)* filename);																																																						/* da_purple_desktop_item_new_from_file purple_desktop_item_new_from_file; */
-alias da_purple_desktop_item_get_entry_type = PurpleDesktopItemType function(const(PurpleDesktopItem)* item);																																																						/* da_purple_desktop_item_get_entry_type purple_desktop_item_get_entry_type; */
-alias da_purple_desktop_item_get_string = const(char)* function(const(PurpleDesktopItem)* item, const(char)* attr);																																																						/* da_purple_desktop_item_get_string purple_desktop_item_get_string; */
-alias da_purple_desktop_item_copy = PurpleDesktopItem* function(const(PurpleDesktopItem)* item);																																																						/* da_purple_desktop_item_copy purple_desktop_item_copy; */
-alias da_purple_desktop_item_unref = void function(PurpleDesktopItem* item);																																																						/* da_purple_desktop_item_unref purple_desktop_item_unref; */
-
-
 extern( C ) nothrow 
 {
-	
+	alias da_purple_desktop_item_get_type = GType function();																
+    alias da_purple_desktop_item_new_from_file = PurpleDesktopItem* function(const(char)* filename);						
+    alias da_purple_desktop_item_get_entry_type = PurpleDesktopItemType function(const(PurpleDesktopItem)* item);			
+    alias da_purple_desktop_item_get_string = const(char)* function(const(PurpleDesktopItem)* item, const(char)* attr);		
+    alias da_purple_desktop_item_copy = PurpleDesktopItem* function(const(PurpleDesktopItem)* item);						
+    alias da_purple_desktop_item_unref = void function(PurpleDesktopItem* item);				
 }
 
 __gshared
 {
-	
+	da_purple_desktop_item_get_type purple_desktop_item_get_type;
+	da_purple_desktop_item_new_from_file purple_desktop_item_new_from_file;
+	da_purple_desktop_item_get_entry_type purple_desktop_item_get_entry_type;
+	da_purple_desktop_item_get_string purple_desktop_item_get_string;
+	da_purple_desktop_item_copy purple_desktop_item_copy;
+	da_purple_desktop_item_unref purple_desktop_item_unref;
 }
