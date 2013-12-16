@@ -42,7 +42,15 @@ alias _Anonymous_1 GUnicodeBreakType;
 alias _Anonymous_2 GUnicodeScript;
 alias _Anonymous_3 GNormalizeMode;
 
-extern __gshared const gchar* g_utf8_skip;
+extern( C ) nothrow 
+{
+    alias da_g_utf8_skip = const gchar*;
+}
+
+__gshared
+{
+    da_g_utf8_skip g_utf8_skip;
+}
 
 enum _Anonymous_0
 {

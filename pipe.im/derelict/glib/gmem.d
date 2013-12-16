@@ -36,8 +36,17 @@ extern (C):
 
 alias _GMemVTable GMemVTable;
 
-extern __gshared gboolean g_mem_gc_friendly;
-extern __gshared GMemVTable* glib_mem_profiler_table;
+extern( C ) nothrow 
+{
+    alias da_g_mem_gc_friendly = gboolean;
+    alias da_glib_mem_profiler_table = GMemVTable*;
+}
+
+__gshared
+{
+    da_g_mem_gc_friendly g_mem_gc_friendly;
+    da_glib_mem_profiler_table glib_mem_profiler_table;
+}
 
 struct _GMemVTable
 {

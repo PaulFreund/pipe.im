@@ -37,7 +37,15 @@ extern (C):
 
 alias _Anonymous_0 GAsciiType;
 
-extern __gshared const guint16* g_ascii_table;
+extern( C ) nothrow 
+{
+    alias da_g_ascii_table = const guint16*;
+}
+
+__gshared
+{
+    da_g_ascii_table g_ascii_table;
+}
 
 enum _Anonymous_0
 {

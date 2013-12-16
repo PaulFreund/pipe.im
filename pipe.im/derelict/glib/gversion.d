@@ -33,11 +33,23 @@ import derelict.glib.glibconfig;
 
 extern (C):
 
-extern __gshared const guint glib_major_version;
-extern __gshared const guint glib_minor_version;
-extern __gshared const guint glib_micro_version;
-extern __gshared const guint glib_interface_age;
-extern __gshared const guint glib_binary_age;
+extern( C ) nothrow 
+{
+    alias da_glib_major_version = const guint;
+    alias da_glib_minor_version = const guint;
+    alias da_glib_micro_version = const guint;
+    alias da_glib_interface_age = const guint;
+    alias da_glib_binary_age = const guint;
+}
+
+__gshared
+{
+    da_glib_major_version glib_major_version;
+    da_glib_minor_version glib_minor_version;
+    da_glib_micro_version glib_micro_version;
+    da_glib_interface_age glib_interface_age;
+    da_glib_binary_age glib_binary_age;
+}
 
 extern( C ) nothrow 
 {

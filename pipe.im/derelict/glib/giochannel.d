@@ -51,7 +51,15 @@ alias _Anonymous_4 GIOCondition;
 alias _Anonymous_5 GIOFlags;
 alias int function (_GIOChannel*, _Anonymous_4, void*) GIOFunc;
 
-extern __gshared GSourceFuncs g_io_watch_funcs;
+extern( C ) nothrow 
+{
+    alias da_g_io_watch_funcs = GSourceFuncs;
+}
+
+__gshared
+{
+    da_g_io_watch_funcs g_io_watch_funcs;
+}
 
 enum _Anonymous_0
 {

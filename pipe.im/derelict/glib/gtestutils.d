@@ -52,7 +52,15 @@ alias _Anonymous_3 GTestLogMsg;
 alias _Anonymous_4 GTestLogBuffer;
 alias int function (const(char)*, GLogLevelFlags, const(char)*, void*) GTestLogFatalFunc;
 
-extern __gshared const GTestConfig* g_test_config_vars;
+extern( C ) nothrow 
+{
+    alias da_g_test_config_vars = const GTestConfig*;
+}
+
+__gshared
+{
+    da_g_test_config_vars g_test_config_vars;
+}
 
 enum _Anonymous_0
 {

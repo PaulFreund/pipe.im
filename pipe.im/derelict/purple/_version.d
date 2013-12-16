@@ -33,9 +33,19 @@ import derelict.glib.glibconfig;
 
 extern (C):
 
-extern __gshared const guint purple_major_version;
-extern __gshared const guint purple_minor_version;
-extern __gshared const guint purple_micro_version;
+extern( C ) nothrow 
+{
+    alias da_purple_major_version = const guint;
+    alias da_purple_minor_version = const guint;
+    alias da_purple_micro_version = const guint;
+}
+
+__gshared
+{
+    da_purple_major_version purple_major_version;
+    da_purple_minor_version purple_minor_version;
+    da_purple_micro_version purple_micro_version;
+}
 
 extern( C ) nothrow 
 {

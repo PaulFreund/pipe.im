@@ -48,9 +48,19 @@ alias int function (void*) GSourceFunc;
 alias void function (int, int, void*) GChildWatchFunc;
 alias void function () GSourceDummyMarshal;
 
-extern __gshared GSourceFuncs g_timeout_funcs;
-extern __gshared GSourceFuncs g_child_watch_funcs;
-extern __gshared GSourceFuncs g_idle_funcs;
+extern( C ) nothrow 
+{
+    alias da_g_timeout_funcs = GSourceFuncs;
+    alias da_g_child_watch_funcs = GSourceFuncs;
+    alias da_g_idle_funcs = GSourceFuncs;
+}
+
+__gshared
+{
+    da_g_timeout_funcs g_timeout_funcs;
+    da_g_child_watch_funcs g_child_watch_funcs;
+    da_g_idle_funcs g_idle_funcs;
+}
 
 struct _GSource
 {
