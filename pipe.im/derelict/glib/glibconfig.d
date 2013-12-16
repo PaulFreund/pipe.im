@@ -145,15 +145,3 @@ struct _GParameter {
 };
 
 alias void function() GCallback;
-
-
-
-extern( C ) nothrow 
-{
-	
-}
-
-__gshared
-{
-	
-}
