@@ -48,18 +48,19 @@ struct _PurpleSoundThemeClass
 	PurpleThemeClass parent_class;
 }
 
-alias da_purple_sound_theme_get_type = GType function();																																																						/* da_purple_sound_theme_get_type purple_sound_theme_get_type; */
-alias da_purple_sound_theme_get_file = const(gchar)* function(PurpleSoundTheme* theme, const(gchar)* event);																																																						/* da_purple_sound_theme_get_file purple_sound_theme_get_file; */
-alias da_purple_sound_theme_get_file_full = gchar* function(PurpleSoundTheme* theme, const(gchar)* event);																																																						/* da_purple_sound_theme_get_file_full purple_sound_theme_get_file_full; */
-alias da_purple_sound_theme_set_file = void function(PurpleSoundTheme* theme, const(gchar)* event, const(gchar)* filename);																																																						/* da_purple_sound_theme_set_file purple_sound_theme_set_file; */
-
 
 extern( C ) nothrow 
 {
-	
+    alias da_purple_sound_theme_get_type = GType function();																		
+    alias da_purple_sound_theme_get_file = const(gchar)* function(PurpleSoundTheme* theme, const(gchar)* event);					
+    alias da_purple_sound_theme_get_file_full = gchar* function(PurpleSoundTheme* theme, const(gchar)* event);						
+    alias da_purple_sound_theme_set_file = void function(PurpleSoundTheme* theme, const(gchar)* event, const(gchar)* filename);		
 }
 
 __gshared
 {
-	
+	da_purple_sound_theme_get_type purple_sound_theme_get_type;
+	da_purple_sound_theme_get_file purple_sound_theme_get_file;
+	da_purple_sound_theme_get_file_full purple_sound_theme_get_file_full;
+	da_purple_sound_theme_set_file purple_sound_theme_set_file;
 }

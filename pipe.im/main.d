@@ -16,7 +16,7 @@ import derelict.purple.purple;
 int main(string[] argv)
 {
     DerelictGlib.load();
-    //DerelictPurple.load();
+    DerelictPurple.load();
 
     writeln("Hello D-World!");
     purple_core_init("pipe.im");

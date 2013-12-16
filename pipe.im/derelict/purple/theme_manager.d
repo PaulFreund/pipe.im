@@ -49,25 +49,33 @@ struct _PurpleThemeManagerClass
 	GObjectClass parent_class;
 }
 
-alias da_purple_theme_manager_get_type = GType function();																																																						/* da_purple_theme_manager_get_type purple_theme_manager_get_type; */
-alias da_purple_theme_manager_init = void function();																																																						/* da_purple_theme_manager_init purple_theme_manager_init; */
-alias da_purple_theme_manager_uninit = void function();																																																						/* da_purple_theme_manager_uninit purple_theme_manager_uninit; */
-alias da_purple_theme_manager_refresh = void function();																																																						/* da_purple_theme_manager_refresh purple_theme_manager_refresh; */
-alias da_purple_theme_manager_find_theme = PurpleTheme* function(const(gchar)* name, const(gchar)* type);																																																						/* da_purple_theme_manager_find_theme purple_theme_manager_find_theme; */
-alias da_purple_theme_manager_add_theme = void function(PurpleTheme* theme);																																																						/* da_purple_theme_manager_add_theme purple_theme_manager_add_theme; */
-alias da_purple_theme_manager_remove_theme = void function(PurpleTheme* theme);																																																						/* da_purple_theme_manager_remove_theme purple_theme_manager_remove_theme; */
-alias da_purple_theme_manager_register_type = void function(PurpleThemeLoader* loader);																																																						/* da_purple_theme_manager_register_type purple_theme_manager_register_type; */
-alias da_purple_theme_manager_unregister_type = void function(PurpleThemeLoader* loader);																																																						/* da_purple_theme_manager_unregister_type purple_theme_manager_unregister_type; */
-alias da_purple_theme_manager_for_each_theme = void function(PTFunc func);																																																						/* da_purple_theme_manager_for_each_theme purple_theme_manager_for_each_theme; */
-alias da_purple_theme_manager_load_theme = PurpleTheme* function(const(gchar)* theme_dir, const(gchar)* type);																																																						/* da_purple_theme_manager_load_theme purple_theme_manager_load_theme; */
-
 
 extern( C ) nothrow 
 {
-	
+    alias da_purple_theme_manager_get_type = GType function();																
+    alias da_purple_theme_manager_init = void function();																	
+    alias da_purple_theme_manager_uninit = void function();																	
+    alias da_purple_theme_manager_refresh = void function();																
+    alias da_purple_theme_manager_find_theme = PurpleTheme* function(const(gchar)* name, const(gchar)* type);				
+    alias da_purple_theme_manager_add_theme = void function(PurpleTheme* theme);											
+    alias da_purple_theme_manager_remove_theme = void function(PurpleTheme* theme);											
+    alias da_purple_theme_manager_register_type = void function(PurpleThemeLoader* loader);									
+    alias da_purple_theme_manager_unregister_type = void function(PurpleThemeLoader* loader);								
+    alias da_purple_theme_manager_for_each_theme = void function(PTFunc func);												
+    alias da_purple_theme_manager_load_theme = PurpleTheme* function(const(gchar)* theme_dir, const(gchar)* type);		
 }
 
 __gshared
 {
-	
+	da_purple_theme_manager_get_type purple_theme_manager_get_type;
+	da_purple_theme_manager_init purple_theme_manager_init;
+	da_purple_theme_manager_uninit purple_theme_manager_uninit;
+	da_purple_theme_manager_refresh purple_theme_manager_refresh;
+	da_purple_theme_manager_find_theme purple_theme_manager_find_theme;
+	da_purple_theme_manager_add_theme purple_theme_manager_add_theme;
+	da_purple_theme_manager_remove_theme purple_theme_manager_remove_theme;
+	da_purple_theme_manager_register_type purple_theme_manager_register_type;
+	da_purple_theme_manager_unregister_type purple_theme_manager_unregister_type;
+	da_purple_theme_manager_for_each_theme purple_theme_manager_for_each_theme;
+	da_purple_theme_manager_load_theme purple_theme_manager_load_theme;
 }

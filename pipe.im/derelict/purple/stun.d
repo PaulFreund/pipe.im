@@ -64,16 +64,15 @@ struct _PurpleStunNatDiscovery
 	time_t lookup_time;
 }
 
-alias da_purple_stun_discover = PurpleStunNatDiscovery* function(StunCallback cb);																																																						/* da_purple_stun_discover purple_stun_discover; */
-alias da_purple_stun_init = void function();																																																						/* da_purple_stun_init purple_stun_init; */
-
 
 extern( C ) nothrow 
 {
-	
+	alias da_purple_stun_discover = PurpleStunNatDiscovery* function(StunCallback cb);		
+    alias da_purple_stun_init = void function();		
 }
 
 __gshared
 {
-	
+	da_purple_stun_discover purple_stun_discover;
+	da_purple_stun_init purple_stun_init;
 }

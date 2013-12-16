@@ -80,29 +80,40 @@ struct _Anonymous_1
 	void function () _purple_reserved4;
 }
 
-alias da_purple_ssl_is_supported = gboolean function();																																																						/* da_purple_ssl_is_supported purple_ssl_is_supported; */
-alias da_purple_ssl_strerror = const(gchar)* function(PurpleSslErrorType error);																																																						/* da_purple_ssl_strerror purple_ssl_strerror; */
-alias da_purple_ssl_connect = PurpleSslConnection* function(PurpleAccount* account, const(char)* host, int port, PurpleSslInputFunction func, PurpleSslErrorFunction error_func, void* data);																																																						/* da_purple_ssl_connect purple_ssl_connect; */
-alias da_purple_ssl_connect_with_ssl_cn = PurpleSslConnection* function(PurpleAccount* account, const(char)* host, int port, PurpleSslInputFunction func, PurpleSslErrorFunction error_func, const(char)* ssl_host, void* data);																																																						/* da_purple_ssl_connect_with_ssl_cn purple_ssl_connect_with_ssl_cn; */
-alias da_purple_ssl_connect_fd = PurpleSslConnection* function(PurpleAccount* account, int fd, PurpleSslInputFunction func, PurpleSslErrorFunction error_func, void* data);																																																						/* da_purple_ssl_connect_fd purple_ssl_connect_fd; */
-alias da_purple_ssl_connect_with_host_fd = PurpleSslConnection* function(PurpleAccount* account, int fd, PurpleSslInputFunction func, PurpleSslErrorFunction error_func, const(char)* host, void* data);																																																						/* da_purple_ssl_connect_with_host_fd purple_ssl_connect_with_host_fd; */
-alias da_purple_ssl_input_add = void function(PurpleSslConnection* gsc, PurpleSslInputFunction func, void* data);																																																						/* da_purple_ssl_input_add purple_ssl_input_add; */
-alias da_purple_ssl_close = void function(PurpleSslConnection* gsc);																																																						/* da_purple_ssl_close purple_ssl_close; */
-alias da_purple_ssl_read = size_t function(PurpleSslConnection* gsc, void* buffer, size_t len);																																																						/* da_purple_ssl_read purple_ssl_read; */
-alias da_purple_ssl_write = size_t function(PurpleSslConnection* gsc, const(void)* buffer, size_t len);																																																						/* da_purple_ssl_write purple_ssl_write; */
-alias da_purple_ssl_get_peer_certificates = GList* function(PurpleSslConnection* gsc);																																																						/* da_purple_ssl_get_peer_certificates purple_ssl_get_peer_certificates; */
-alias da_purple_ssl_set_ops = void function(PurpleSslOps* ops);																																																						/* da_purple_ssl_set_ops purple_ssl_set_ops; */
-alias da_purple_ssl_get_ops = PurpleSslOps* function();																																																						/* da_purple_ssl_get_ops purple_ssl_get_ops; */
-alias da_purple_ssl_init = void function();																																																						/* da_purple_ssl_init purple_ssl_init; */
-alias da_purple_ssl_uninit = void function();																																																						/* da_purple_ssl_uninit purple_ssl_uninit; */
-
-
 extern( C ) nothrow 
 {
-	
+	alias da_purple_ssl_is_supported = gboolean function();																																												
+    alias da_purple_ssl_strerror = const(gchar)* function(PurpleSslErrorType error);																																					
+    alias da_purple_ssl_connect = PurpleSslConnection* function(PurpleAccount* account, const(char)* host, int port, PurpleSslInputFunction func, PurpleSslErrorFunction error_func, void* data);										
+    alias da_purple_ssl_connect_with_ssl_cn = PurpleSslConnection* function(PurpleAccount* account, const(char)* host, int port, PurpleSslInputFunction func, PurpleSslErrorFunction error_func, const(char)* ssl_host, void* data);	
+    alias da_purple_ssl_connect_fd = PurpleSslConnection* function(PurpleAccount* account, int fd, PurpleSslInputFunction func, PurpleSslErrorFunction error_func, void* data);															
+    alias da_purple_ssl_connect_with_host_fd = PurpleSslConnection* function(PurpleAccount* account, int fd, PurpleSslInputFunction func, PurpleSslErrorFunction error_func, const(char)* host, void* data);							
+    alias da_purple_ssl_input_add = void function(PurpleSslConnection* gsc, PurpleSslInputFunction func, void* data);																													
+    alias da_purple_ssl_close = void function(PurpleSslConnection* gsc);																																								
+    alias da_purple_ssl_read = size_t function(PurpleSslConnection* gsc, void* buffer, size_t len);																																		
+    alias da_purple_ssl_write = size_t function(PurpleSslConnection* gsc, const(void)* buffer, size_t len);																																
+    alias da_purple_ssl_get_peer_certificates = GList* function(PurpleSslConnection* gsc);																																				
+    alias da_purple_ssl_set_ops = void function(PurpleSslOps* ops);																																										
+    alias da_purple_ssl_get_ops = PurpleSslOps* function();																																												
+    alias da_purple_ssl_init = void function();																																															
+    alias da_purple_ssl_uninit = void function();
 }
 
 __gshared
 {
-	
+	da_purple_ssl_is_supported purple_ssl_is_supported;
+	da_purple_ssl_strerror purple_ssl_strerror;
+	da_purple_ssl_connect purple_ssl_connect;
+	da_purple_ssl_connect_with_ssl_cn purple_ssl_connect_with_ssl_cn;
+	da_purple_ssl_connect_fd purple_ssl_connect_fd;
+	da_purple_ssl_connect_with_host_fd purple_ssl_connect_with_host_fd;
+	da_purple_ssl_input_add purple_ssl_input_add;
+	da_purple_ssl_close purple_ssl_close;
+	da_purple_ssl_read purple_ssl_read;
+	da_purple_ssl_write purple_ssl_write;
+	da_purple_ssl_get_peer_certificates purple_ssl_get_peer_certificates;
+	da_purple_ssl_set_ops purple_ssl_set_ops;
+	da_purple_ssl_get_ops purple_ssl_get_ops;
+	da_purple_ssl_init purple_ssl_init;
+	da_purple_ssl_uninit purple_ssl_uninit;
 }
