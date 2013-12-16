@@ -78,22 +78,26 @@ enum _PurpleCmdFlag
 	PURPLE_CMD_FLAG_ALLOW_WRONG_ARGS = 8
 }
 
-alias da_purple_cmd_register = PurpleCmdId function(const(gchar)* cmd, const(gchar)* args, PurpleCmdPriority p, PurpleCmdFlag f, const(gchar)* prpl_id, PurpleCmdFunc func, const(gchar)* helpstr, void* data);																																																						/* da_purple_cmd_register purple_cmd_register; */
-alias da_purple_cmd_unregister = void function(PurpleCmdId id);																																																						/* da_purple_cmd_unregister purple_cmd_unregister; */
-alias da_purple_cmd_do_command = PurpleCmdStatus function(PurpleConversation* conv, const(gchar)* cmdline, const(gchar)* markup, gchar** errormsg);																																																						/* da_purple_cmd_do_command purple_cmd_do_command; */
-alias da_purple_cmd_list = GList* function(PurpleConversation* conv);																																																						/* da_purple_cmd_list purple_cmd_list; */
-alias da_purple_cmd_help = GList* function(PurpleConversation* conv, const(gchar)* cmd);																																																						/* da_purple_cmd_help purple_cmd_help; */
-alias da_purple_cmds_get_handle = gpointer function();																																																						/* da_purple_cmds_get_handle purple_cmds_get_handle; */
-alias da_purple_cmds_init = void function();																																																						/* da_purple_cmds_init purple_cmds_init; */
-alias da_purple_cmds_uninit = void function();																																																						/* da_purple_cmds_uninit purple_cmds_uninit; */
-
-
 extern( C ) nothrow 
 {
-	
+	alias da_purple_cmd_register = PurpleCmdId function(const(gchar)* cmd, const(gchar)* args, PurpleCmdPriority p, PurpleCmdFlag f, const(gchar)* prpl_id, PurpleCmdFunc func, const(gchar)* helpstr, void* data);	
+    alias da_purple_cmd_unregister = void function(PurpleCmdId id);																																					
+    alias da_purple_cmd_do_command = PurpleCmdStatus function(PurpleConversation* conv, const(gchar)* cmdline, const(gchar)* markup, gchar** errormsg);																
+    alias da_purple_cmd_list = GList* function(PurpleConversation* conv);																																			
+    alias da_purple_cmd_help = GList* function(PurpleConversation* conv, const(gchar)* cmd);																														
+    alias da_purple_cmds_get_handle = gpointer function();																																							
+    alias da_purple_cmds_init = void function();																																									
+    alias da_purple_cmds_uninit = void function();																																									
 }
 
 __gshared
 {
-	
+	da_purple_cmd_register purple_cmd_register;
+	da_purple_cmd_unregister purple_cmd_unregister;
+	da_purple_cmd_do_command purple_cmd_do_command;
+	da_purple_cmd_list purple_cmd_list;
+	da_purple_cmd_help purple_cmd_help;
+	da_purple_cmds_get_handle purple_cmds_get_handle;
+	da_purple_cmds_init purple_cmds_init;
+	da_purple_cmds_uninit purple_cmds_uninit;
 }

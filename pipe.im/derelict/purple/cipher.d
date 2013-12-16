@@ -96,49 +96,78 @@ struct _PurpleCipherContext;
 
 struct _PurpleCipher;
 
-
-alias da_purple_cipher_get_name = const(gchar)* function(PurpleCipher* cipher);																																																						/* da_purple_cipher_get_name purple_cipher_get_name; */
-alias da_purple_cipher_get_capabilities = guint function(PurpleCipher* cipher);																																																						/* da_purple_cipher_get_capabilities purple_cipher_get_capabilities; */
-alias da_purple_cipher_digest_region = gboolean function(const(gchar)* name, const(guchar)* data, size_t data_len, size_t in_len, guchar* digest, size_t* out_len);																																																						/* da_purple_cipher_digest_region purple_cipher_digest_region; */
-alias da_purple_ciphers_find_cipher = PurpleCipher* function(const(gchar)* name);																																																						/* da_purple_ciphers_find_cipher purple_ciphers_find_cipher; */
-alias da_purple_ciphers_register_cipher = PurpleCipher* function(const(gchar)* name, PurpleCipherOps* ops);																																																						/* da_purple_ciphers_register_cipher purple_ciphers_register_cipher; */
-alias da_purple_ciphers_unregister_cipher = gboolean function(PurpleCipher* cipher);																																																						/* da_purple_ciphers_unregister_cipher purple_ciphers_unregister_cipher; */
-alias da_purple_ciphers_get_ciphers = GList* function();																																																						/* da_purple_ciphers_get_ciphers purple_ciphers_get_ciphers; */
-alias da_purple_ciphers_get_handle = gpointer function();																																																						/* da_purple_ciphers_get_handle purple_ciphers_get_handle; */
-alias da_purple_ciphers_init = void function();																																																						/* da_purple_ciphers_init purple_ciphers_init; */
-alias da_purple_ciphers_uninit = void function();																																																						/* da_purple_ciphers_uninit purple_ciphers_uninit; */
-alias da_purple_cipher_context_set_option = void function(PurpleCipherContext* context, const(gchar)* name, gpointer value);																																																						/* da_purple_cipher_context_set_option purple_cipher_context_set_option; */
-alias da_purple_cipher_context_get_option = gpointer function(PurpleCipherContext* context, const(gchar)* name);																																																						/* da_purple_cipher_context_get_option purple_cipher_context_get_option; */
-alias da_purple_cipher_context_new = PurpleCipherContext* function(PurpleCipher* cipher, void* extra);																																																						/* da_purple_cipher_context_new purple_cipher_context_new; */
-alias da_purple_cipher_context_new_by_name = PurpleCipherContext* function(const(gchar)* name, void* extra);																																																						/* da_purple_cipher_context_new_by_name purple_cipher_context_new_by_name; */
-alias da_purple_cipher_context_reset = void function(PurpleCipherContext* context, gpointer extra);																																																						/* da_purple_cipher_context_reset purple_cipher_context_reset; */
-alias da_purple_cipher_context_destroy = void function(PurpleCipherContext* context);																																																						/* da_purple_cipher_context_destroy purple_cipher_context_destroy; */
-alias da_purple_cipher_context_set_iv = void function(PurpleCipherContext* context, guchar* iv, size_t len);																																																						/* da_purple_cipher_context_set_iv purple_cipher_context_set_iv; */
-alias da_purple_cipher_context_append = void function(PurpleCipherContext* context, const(guchar)* data, size_t len);																																																						/* da_purple_cipher_context_append purple_cipher_context_append; */
-alias da_purple_cipher_context_digest = gboolean function(PurpleCipherContext* context, size_t in_len, guchar* digest, size_t* out_len);																																																						/* da_purple_cipher_context_digest purple_cipher_context_digest; */
-alias da_purple_cipher_context_digest_to_str = gboolean function(PurpleCipherContext* context, size_t in_len, gchar* digest_s, size_t* out_len);																																																						/* da_purple_cipher_context_digest_to_str purple_cipher_context_digest_to_str; */
-alias da_purple_cipher_context_encrypt = gint function(PurpleCipherContext* context, const(guchar)* data, size_t len, guchar* output, size_t* outlen);																																																						/* da_purple_cipher_context_encrypt purple_cipher_context_encrypt; */
-alias da_purple_cipher_context_decrypt = gint function(PurpleCipherContext* context, const(guchar)* data, size_t len, guchar* output, size_t* outlen);																																																						/* da_purple_cipher_context_decrypt purple_cipher_context_decrypt; */
-alias da_purple_cipher_context_set_salt = void function(PurpleCipherContext* context, guchar* salt);																																																						/* da_purple_cipher_context_set_salt purple_cipher_context_set_salt; */
-alias da_purple_cipher_context_get_salt_size = size_t function(PurpleCipherContext* context);																																																						/* da_purple_cipher_context_get_salt_size purple_cipher_context_get_salt_size; */
-alias da_purple_cipher_context_set_key = void function(PurpleCipherContext* context, const(guchar)* key);																																																						/* da_purple_cipher_context_set_key purple_cipher_context_set_key; */
-alias da_purple_cipher_context_get_key_size = size_t function(PurpleCipherContext* context);																																																						/* da_purple_cipher_context_get_key_size purple_cipher_context_get_key_size; */
-alias da_purple_cipher_context_set_batch_mode = void function(PurpleCipherContext* context, PurpleCipherBatchMode mode);																																																						/* da_purple_cipher_context_set_batch_mode purple_cipher_context_set_batch_mode; */
-alias da_purple_cipher_context_get_batch_mode = PurpleCipherBatchMode function(PurpleCipherContext* context);																																																						/* da_purple_cipher_context_get_batch_mode purple_cipher_context_get_batch_mode; */
-alias da_purple_cipher_context_get_block_size = size_t function(PurpleCipherContext* context);																																																						/* da_purple_cipher_context_get_block_size purple_cipher_context_get_block_size; */
-alias da_purple_cipher_context_set_key_with_len = void function(PurpleCipherContext* context, const(guchar)* key, size_t len);																																																						/* da_purple_cipher_context_set_key_with_len purple_cipher_context_set_key_with_len; */
-alias da_purple_cipher_context_set_data = void function(PurpleCipherContext* context, gpointer data);																																																						/* da_purple_cipher_context_set_data purple_cipher_context_set_data; */
-alias da_purple_cipher_context_get_data = gpointer function(PurpleCipherContext* context);																																																						/* da_purple_cipher_context_get_data purple_cipher_context_get_data; */
-alias da_purple_cipher_http_digest_calculate_session_key = gchar* function(const(gchar)* algorithm, const(gchar)* username, const(gchar)* realm, const(gchar)* password, const(gchar)* nonce, const(gchar)* client_nonce);																																																						/* da_purple_cipher_http_digest_calculate_session_key purple_cipher_http_digest_calculate_session_key; */
-alias da_purple_cipher_http_digest_calculate_response = gchar* function(const(gchar)* algorithm, const(gchar)* method, const(gchar)* digest_uri, const(gchar)* qop, const(gchar)* entity, const(gchar)* nonce, const(gchar)* nonce_count, const(gchar)* client_nonce, const(gchar)* session_key);																																																						/* da_purple_cipher_http_digest_calculate_response purple_cipher_http_digest_calculate_response; */
-
-
 extern( C ) nothrow 
 {
-	
+    alias da_purple_cipher_get_name = const(gchar)* function(PurpleCipher* cipher);																																														                                
+    alias da_purple_cipher_get_capabilities = guint function(PurpleCipher* cipher);																																														                                
+    alias da_purple_cipher_digest_region = gboolean function(const(gchar)* name, const(guchar)* data, size_t data_len, size_t in_len, guchar* digest, size_t* out_len);																									                                
+    alias da_purple_ciphers_find_cipher = PurpleCipher* function(const(gchar)* name);																																													                                
+    alias da_purple_ciphers_register_cipher = PurpleCipher* function(const(gchar)* name, PurpleCipherOps* ops);																																							                                
+    alias da_purple_ciphers_unregister_cipher = gboolean function(PurpleCipher* cipher);																																												                                
+    alias da_purple_ciphers_get_ciphers = GList* function();																																																			                                
+    alias da_purple_ciphers_get_handle = gpointer function();																																																			                                
+    alias da_purple_ciphers_init = void function();																																																						                                
+    alias da_purple_ciphers_uninit = void function();																																																					                                
+    alias da_purple_cipher_context_set_option = void function(PurpleCipherContext* context, const(gchar)* name, gpointer value);																																		                                
+    alias da_purple_cipher_context_get_option = gpointer function(PurpleCipherContext* context, const(gchar)* name);																																					                                
+    alias da_purple_cipher_context_new = PurpleCipherContext* function(PurpleCipher* cipher, void* extra);																																								                                
+    alias da_purple_cipher_context_new_by_name = PurpleCipherContext* function(const(gchar)* name, void* extra);																																						                                
+    alias da_purple_cipher_context_reset = void function(PurpleCipherContext* context, gpointer extra);																																									                                
+    alias da_purple_cipher_context_destroy = void function(PurpleCipherContext* context);																																												                                
+    alias da_purple_cipher_context_set_iv = void function(PurpleCipherContext* context, guchar* iv, size_t len);																																						                                
+    alias da_purple_cipher_context_append = void function(PurpleCipherContext* context, const(guchar)* data, size_t len);																																				                                
+    alias da_purple_cipher_context_digest = gboolean function(PurpleCipherContext* context, size_t in_len, guchar* digest, size_t* out_len);																															                                
+    alias da_purple_cipher_context_digest_to_str = gboolean function(PurpleCipherContext* context, size_t in_len, gchar* digest_s, size_t* out_len);																													                                
+    alias da_purple_cipher_context_encrypt = gint function(PurpleCipherContext* context, const(guchar)* data, size_t len, guchar* output, size_t* outlen);																												                                
+    alias da_purple_cipher_context_decrypt = gint function(PurpleCipherContext* context, const(guchar)* data, size_t len, guchar* output, size_t* outlen);																												                                
+    alias da_purple_cipher_context_set_salt = void function(PurpleCipherContext* context, guchar* salt);																																								                                
+    alias da_purple_cipher_context_get_salt_size = size_t function(PurpleCipherContext* context);																																										                                
+    alias da_purple_cipher_context_set_key = void function(PurpleCipherContext* context, const(guchar)* key);																																							                                
+    alias da_purple_cipher_context_get_key_size = size_t function(PurpleCipherContext* context);																																										                                
+    alias da_purple_cipher_context_set_batch_mode = void function(PurpleCipherContext* context, PurpleCipherBatchMode mode);																																			                                
+    alias da_purple_cipher_context_get_batch_mode = PurpleCipherBatchMode function(PurpleCipherContext* context);																																						                                
+    alias da_purple_cipher_context_get_block_size = size_t function(PurpleCipherContext* context);																																										                                
+    alias da_purple_cipher_context_set_key_with_len = void function(PurpleCipherContext* context, const(guchar)* key, size_t len);																																		                                
+    alias da_purple_cipher_context_set_data = void function(PurpleCipherContext* context, gpointer data);																																								                                
+    alias da_purple_cipher_context_get_data = gpointer function(PurpleCipherContext* context);																																											                                
+    alias da_purple_cipher_http_digest_calculate_session_key = gchar* function(const(gchar)* algorithm, const(gchar)* username, const(gchar)* realm, const(gchar)* password, const(gchar)* nonce, const(gchar)* client_nonce);											                                
+    alias da_purple_cipher_http_digest_calculate_response = gchar* function(const(gchar)* algorithm, const(gchar)* method, const(gchar)* digest_uri, const(gchar)* qop, const(gchar)* entity, const(gchar)* nonce, const(gchar)* nonce_count, const(gchar)* client_nonce, const(gchar)* session_key);		
 }
 
 __gshared
 {
-	
+	da_purple_cipher_get_name purple_cipher_get_name;
+	da_purple_cipher_get_capabilities purple_cipher_get_capabilities;
+	da_purple_cipher_digest_region purple_cipher_digest_region;
+	da_purple_ciphers_find_cipher purple_ciphers_find_cipher;
+	da_purple_ciphers_register_cipher purple_ciphers_register_cipher;
+	da_purple_ciphers_unregister_cipher purple_ciphers_unregister_cipher;
+	da_purple_ciphers_get_ciphers purple_ciphers_get_ciphers;
+	da_purple_ciphers_get_handle purple_ciphers_get_handle;
+	da_purple_ciphers_init purple_ciphers_init;
+	da_purple_ciphers_uninit purple_ciphers_uninit;
+	da_purple_cipher_context_set_option purple_cipher_context_set_option;
+	da_purple_cipher_context_get_option purple_cipher_context_get_option;
+	da_purple_cipher_context_new purple_cipher_context_new;
+	da_purple_cipher_context_new_by_name purple_cipher_context_new_by_name;
+	da_purple_cipher_context_reset purple_cipher_context_reset;
+	da_purple_cipher_context_destroy purple_cipher_context_destroy;
+	da_purple_cipher_context_set_iv purple_cipher_context_set_iv;
+	da_purple_cipher_context_append purple_cipher_context_append;
+	da_purple_cipher_context_digest purple_cipher_context_digest;
+	da_purple_cipher_context_digest_to_str purple_cipher_context_digest_to_str;
+	da_purple_cipher_context_encrypt purple_cipher_context_encrypt;
+	da_purple_cipher_context_decrypt purple_cipher_context_decrypt;
+	da_purple_cipher_context_set_salt purple_cipher_context_set_salt;
+	da_purple_cipher_context_get_salt_size purple_cipher_context_get_salt_size;
+	da_purple_cipher_context_set_key purple_cipher_context_set_key;
+	da_purple_cipher_context_get_key_size purple_cipher_context_get_key_size;
+	da_purple_cipher_context_set_batch_mode purple_cipher_context_set_batch_mode;
+	da_purple_cipher_context_get_batch_mode purple_cipher_context_get_batch_mode;
+	da_purple_cipher_context_get_block_size purple_cipher_context_get_block_size;
+	da_purple_cipher_context_set_key_with_len purple_cipher_context_set_key_with_len;
+	da_purple_cipher_context_set_data purple_cipher_context_set_data;
+	da_purple_cipher_context_get_data purple_cipher_context_get_data;
+	da_purple_cipher_http_digest_calculate_session_key purple_cipher_http_digest_calculate_session_key;
+	da_purple_cipher_http_digest_calculate_response purple_cipher_http_digest_calculate_response;
 }
