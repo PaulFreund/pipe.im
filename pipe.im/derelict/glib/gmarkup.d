@@ -83,30 +83,44 @@ struct _GMarkupParser
 
 struct _GMarkupParseContext;
 
-
-alias da_g_markup_error_quark = GQuark function();																																																						/* da_g_markup_error_quark g_markup_error_quark; */
-alias da_g_markup_parse_context_new = GMarkupParseContext* function(const(GMarkupParser)* parser, GMarkupParseFlags flags, gpointer user_data, GDestroyNotify user_data_dnotify);																																																						/* da_g_markup_parse_context_new g_markup_parse_context_new; */
-alias da_g_markup_parse_context_free = void function(GMarkupParseContext* context);																																																						/* da_g_markup_parse_context_free g_markup_parse_context_free; */
-alias da_g_markup_parse_context_parse = gboolean function(GMarkupParseContext* context, const(gchar)* text, gssize text_len, GError** error);																																																						/* da_g_markup_parse_context_parse g_markup_parse_context_parse; */
-alias da_g_markup_parse_context_push = void function(GMarkupParseContext* context, const(GMarkupParser)* parser, gpointer user_data);																																																						/* da_g_markup_parse_context_push g_markup_parse_context_push; */
-alias da_g_markup_parse_context_pop = gpointer function(GMarkupParseContext* context);																																																						/* da_g_markup_parse_context_pop g_markup_parse_context_pop; */
-alias da_g_markup_parse_context_end_parse = gboolean function(GMarkupParseContext* context, GError** error);																																																						/* da_g_markup_parse_context_end_parse g_markup_parse_context_end_parse; */
-alias da_g_markup_parse_context_get_element = const(gchar)* function(GMarkupParseContext* context);																																																						/* da_g_markup_parse_context_get_element g_markup_parse_context_get_element; */
-alias da_g_markup_parse_context_get_element_stack = const(GSList)* function(GMarkupParseContext* context);																																																						/* da_g_markup_parse_context_get_element_stack g_markup_parse_context_get_element_stack; */
-alias da_g_markup_parse_context_get_position = void function(GMarkupParseContext* context, gint* line_number, gint* char_number);																																																						/* da_g_markup_parse_context_get_position g_markup_parse_context_get_position; */
-alias da_g_markup_parse_context_get_user_data = gpointer function(GMarkupParseContext* context);																																																						/* da_g_markup_parse_context_get_user_data g_markup_parse_context_get_user_data; */
-alias da_g_markup_escape_text = gchar* function(const(gchar)* text, gssize length);																																																						/* da_g_markup_escape_text g_markup_escape_text; */
-alias da_g_markup_printf_escaped = gchar* function(const(char)* format, ...);																																																						/* da_g_markup_printf_escaped g_markup_printf_escaped; */
-alias da_g_markup_vprintf_escaped = gchar* function(const(char)* format, va_list args);																																																						/* da_g_markup_vprintf_escaped g_markup_vprintf_escaped; */
-alias da_g_markup_collect_attributes = gboolean function(const(gchar)* element_name, const(gchar*)* attribute_names, const(gchar*)* attribute_values, GError** error, GMarkupCollectType first_type, const(gchar)* first_attr, ...);																																																						/* da_g_markup_collect_attributes g_markup_collect_attributes; */
-
-
 extern( C ) nothrow 
 {
-	
+    alias da_g_markup_error_quark = GQuark function();																																																
+    alias da_g_markup_parse_context_new = GMarkupParseContext* function(const(GMarkupParser)* parser, GMarkupParseFlags flags, gpointer user_data, GDestroyNotify user_data_dnotify);																
+    alias da_g_markup_parse_context_free = void function(GMarkupParseContext* context);																																								
+    alias da_g_markup_parse_context_parse = gboolean function(GMarkupParseContext* context, const(gchar)* text, gssize text_len, GError** error);																									
+    alias da_g_markup_parse_context_push = void function(GMarkupParseContext* context, const(GMarkupParser)* parser, gpointer user_data);																											
+    alias da_g_markup_parse_context_pop = gpointer function(GMarkupParseContext* context);																																							
+    alias da_g_markup_parse_context_end_parse = gboolean function(GMarkupParseContext* context, GError** error);																																	
+    alias da_g_markup_parse_context_get_element = const(gchar)* function(GMarkupParseContext* context);																																				
+    alias da_g_markup_parse_context_get_element_stack = const(GSList)* function(GMarkupParseContext* context);																																		
+    alias da_g_markup_parse_context_get_position = void function(GMarkupParseContext* context, gint* line_number, gint* char_number);																												
+    alias da_g_markup_parse_context_get_user_data = gpointer function(GMarkupParseContext* context);																																				
+    alias da_g_markup_escape_text = gchar* function(const(gchar)* text, gssize length);																																								
+    alias da_g_markup_printf_escaped = gchar* function(const(char)* format, ...);																																									
+    alias da_g_markup_vprintf_escaped = gchar* function(const(char)* format, va_list args);																																							
+    alias da_g_markup_collect_attributes = gboolean function(const(gchar)* element_name, const(gchar*)* attribute_names, const(gchar*)* attribute_values, GError** error, GMarkupCollectType first_type, const(gchar)* first_attr, ...);			
 }
 
 __gshared
 {
-	
+    da_g_markup_error_quark g_markup_error_quark; 
+    da_g_markup_parse_context_new g_markup_parse_context_new; 
+    da_g_markup_parse_context_free g_markup_parse_context_free; 
+    da_g_markup_parse_context_parse g_markup_parse_context_parse; 
+    da_g_markup_parse_context_push g_markup_parse_context_push; 
+    da_g_markup_parse_context_pop g_markup_parse_context_pop; 
+    da_g_markup_parse_context_end_parse g_markup_parse_context_end_parse; 
+    da_g_markup_parse_context_get_element g_markup_parse_context_get_element; 
+    da_g_markup_parse_context_get_element_stack g_markup_parse_context_get_element_stack; 
+    da_g_markup_parse_context_get_position g_markup_parse_context_get_position; 
+    da_g_markup_parse_context_get_user_data g_markup_parse_context_get_user_data; 
+    da_g_markup_escape_text g_markup_escape_text; 
+    da_g_markup_printf_escaped g_markup_printf_escaped; 
+    da_g_markup_vprintf_escaped g_markup_vprintf_escaped; 
+    da_g_markup_collect_attributes g_markup_collect_attributes; 
 }
+
+
+
+

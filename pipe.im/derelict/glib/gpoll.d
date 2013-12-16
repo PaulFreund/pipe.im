@@ -44,15 +44,12 @@ struct _GPollFD
 	gushort revents;
 }
 
-alias da_g_poll = gint function(GPollFD* fds, guint nfds, gint timeout);																																																						/* da_g_poll g_poll; */
-
-
 extern( C ) nothrow 
 {
-	
+    alias da_g_poll = gint function(GPollFD* fds, guint nfds, gint timeout);	
 }
 
 __gshared
 {
-	
+    da_g_poll g_poll;
 }

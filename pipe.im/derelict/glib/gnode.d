@@ -67,40 +67,71 @@ struct _GNode
 	GNode* children;
 }
 
-alias da_g_node_new = GNode* function(gpointer data);																																																						/* da_g_node_new g_node_new; */
-alias da_g_node_destroy = void function(GNode* root);																																																						/* da_g_node_destroy g_node_destroy; */
-alias da_g_node_unlink = void function(GNode* node);																																																						/* da_g_node_unlink g_node_unlink; */
-alias da_g_node_copy_deep = GNode* function(GNode* node, GCopyFunc copy_func, gpointer data);																																																						/* da_g_node_copy_deep g_node_copy_deep; */
-alias da_g_node_copy = GNode* function(GNode* node);																																																						/* da_g_node_copy g_node_copy; */
-alias da_g_node_insert = GNode* function(GNode* parent, gint position, GNode* node);																																																						/* da_g_node_insert g_node_insert; */
-alias da_g_node_insert_before = GNode* function(GNode* parent, GNode* sibling, GNode* node);																																																						/* da_g_node_insert_before g_node_insert_before; */
-alias da_g_node_insert_after = GNode* function(GNode* parent, GNode* sibling, GNode* node);																																																						/* da_g_node_insert_after g_node_insert_after; */
-alias da_g_node_prepend = GNode* function(GNode* parent, GNode* node);																																																						/* da_g_node_prepend g_node_prepend; */
-alias da_g_node_n_nodes = guint function(GNode* root, GTraverseFlags flags);																																																						/* da_g_node_n_nodes g_node_n_nodes; */
-alias da_g_node_get_root = GNode* function(GNode* node);																																																						/* da_g_node_get_root g_node_get_root; */
-alias da_g_node_is_ancestor = gboolean function(GNode* node, GNode* descendant);																																																						/* da_g_node_is_ancestor g_node_is_ancestor; */
-alias da_g_node_depth = guint function(GNode* node);																																																						/* da_g_node_depth g_node_depth; */
-alias da_g_node_find = GNode* function(GNode* root, GTraverseType order, GTraverseFlags flags, gpointer data);																																																						/* da_g_node_find g_node_find; */
-alias da_g_node_traverse = void function(GNode* root, GTraverseType order, GTraverseFlags flags, gint max_depth, GNodeTraverseFunc func, gpointer data);																																																						/* da_g_node_traverse g_node_traverse; */
-alias da_g_node_max_height = guint function(GNode* root);																																																						/* da_g_node_max_height g_node_max_height; */
-alias da_g_node_children_foreach = void function(GNode* node, GTraverseFlags flags, GNodeForeachFunc func, gpointer data);																																																						/* da_g_node_children_foreach g_node_children_foreach; */
-alias da_g_node_reverse_children = void function(GNode* node);																																																						/* da_g_node_reverse_children g_node_reverse_children; */
-alias da_g_node_n_children = guint function(GNode* node);																																																						/* da_g_node_n_children g_node_n_children; */
-alias da_g_node_nth_child = GNode* function(GNode* node, guint n);																																																						/* da_g_node_nth_child g_node_nth_child; */
-alias da_g_node_last_child = GNode* function(GNode* node);																																																						/* da_g_node_last_child g_node_last_child; */
-alias da_g_node_find_child = GNode* function(GNode* node, GTraverseFlags flags, gpointer data);																																																						/* da_g_node_find_child g_node_find_child; */
-alias da_g_node_child_position = gint function(GNode* node, GNode* child);																																																						/* da_g_node_child_position g_node_child_position; */
-alias da_g_node_child_index = gint function(GNode* node, gpointer data);																																																						/* da_g_node_child_index g_node_child_index; */
-alias da_g_node_first_sibling = GNode* function(GNode* node);																																																						/* da_g_node_first_sibling g_node_first_sibling; */
-alias da_g_node_last_sibling = GNode* function(GNode* node);																																																						/* da_g_node_last_sibling g_node_last_sibling; */
 
 
 extern( C ) nothrow 
 {
-	
+	alias da_g_node_new = GNode* function(gpointer data);																											
+    alias da_g_node_destroy = void function(GNode* root);																											
+    alias da_g_node_unlink = void function(GNode* node);																											
+    alias da_g_node_copy_deep = GNode* function(GNode* node, GCopyFunc copy_func, gpointer data);																	
+    alias da_g_node_copy = GNode* function(GNode* node);																											
+    alias da_g_node_insert = GNode* function(GNode* parent, gint position, GNode* node);																			
+    alias da_g_node_insert_before = GNode* function(GNode* parent, GNode* sibling, GNode* node);																	
+    alias da_g_node_insert_after = GNode* function(GNode* parent, GNode* sibling, GNode* node);																		
+    alias da_g_node_prepend = GNode* function(GNode* parent, GNode* node);																							
+    alias da_g_node_n_nodes = guint function(GNode* root, GTraverseFlags flags);																					
+    alias da_g_node_get_root = GNode* function(GNode* node);																										
+    alias da_g_node_is_ancestor = gboolean function(GNode* node, GNode* descendant);																				
+    alias da_g_node_depth = guint function(GNode* node);																											
+    alias da_g_node_find = GNode* function(GNode* root, GTraverseType order, GTraverseFlags flags, gpointer data);													
+    alias da_g_node_traverse = void function(GNode* root, GTraverseType order, GTraverseFlags flags, gint max_depth, GNodeTraverseFunc func, gpointer data);		
+    alias da_g_node_max_height = guint function(GNode* root);																										
+    alias da_g_node_children_foreach = void function(GNode* node, GTraverseFlags flags, GNodeForeachFunc func, gpointer data);										
+    alias da_g_node_reverse_children = void function(GNode* node);																									
+    alias da_g_node_n_children = guint function(GNode* node);																										
+    alias da_g_node_nth_child = GNode* function(GNode* node, guint n);																								
+    alias da_g_node_last_child = GNode* function(GNode* node);																										
+    alias da_g_node_find_child = GNode* function(GNode* node, GTraverseFlags flags, gpointer data);																	
+    alias da_g_node_child_position = gint function(GNode* node, GNode* child);																						
+    alias da_g_node_child_index = gint function(GNode* node, gpointer data);																						
+    alias da_g_node_first_sibling = GNode* function(GNode* node);																									
+    alias da_g_node_last_sibling = GNode* function(GNode* node);																									
 }
 
 __gshared
 {
-	
+	da_g_node_new g_node_new; 
+    da_g_node_destroy g_node_destroy; 
+    da_g_node_unlink g_node_unlink; 
+    da_g_node_copy_deep g_node_copy_deep; 
+    da_g_node_copy g_node_copy; 
+    da_g_node_insert g_node_insert; 
+    da_g_node_insert_before g_node_insert_before; 
+    da_g_node_insert_after g_node_insert_after; 
+    da_g_node_prepend g_node_prepend; 
+    da_g_node_n_nodes g_node_n_nodes; 
+    da_g_node_get_root g_node_get_root; 
+    da_g_node_is_ancestor g_node_is_ancestor; 
+    da_g_node_depth g_node_depth; 
+    da_g_node_find g_node_find; 
+    da_g_node_traverse g_node_traverse; 
+    da_g_node_max_height g_node_max_height; 
+    da_g_node_children_foreach g_node_children_foreach; 
+    da_g_node_reverse_children g_node_reverse_children; 
+    da_g_node_n_children g_node_n_children; 
+    da_g_node_nth_child g_node_nth_child; 
+    da_g_node_last_child g_node_last_child; 
+    da_g_node_find_child g_node_find_child; 
+    da_g_node_child_position g_node_child_position; 
+    da_g_node_child_index g_node_child_index; 
+    da_g_node_first_sibling g_node_first_sibling; 
+    da_g_node_last_sibling g_node_last_sibling; 
 }
+
+
+
+
+
+
+
