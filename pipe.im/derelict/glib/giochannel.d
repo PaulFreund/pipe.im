@@ -36,6 +36,7 @@ import derelict.glib.gquark;
 import derelict.glib.gunicode;
 import derelict.glib.gmain;
 import derelict.glib.gconvert;
+import derelict.glib.gpoll;
 import core.stdc.config;
 import core.stdc.string;
 
@@ -197,7 +198,12 @@ extern( C ) nothrow
     alias da_g_io_channel_error_from_errno = GIOChannelError function(gint en);																										
     alias da_g_io_channel_unix_new = GIOChannel* function(int fd);																													
     alias da_g_io_channel_unix_get_fd = gint function(GIOChannel* channel);																											
-
+    alias da_g_io_channel_win32_make_pollfd = void function(GIOChannel *channel, GIOCondition condition, GPollFD *fd);
+    alias da_g_io_channel_win32_poll = gint function(GPollFD *fds, gint n_fds, gint timeout_);
+    alias da_g_io_channel_win32_new_messages = GIOChannel* function(gsize hwnd);
+    alias da_g_io_channel_win32_new_fd = GIOChannel* function(gint fd);
+    alias da_g_io_channel_win32_get_fd = gint function(GIOChannel *channel);
+    alias da_g_io_channel_win32_new_socket = GIOChannel* function(gint socket);
 }
 
 __gshared
@@ -240,4 +246,10 @@ __gshared
     da_g_io_channel_error_from_errno g_io_channel_error_from_errno; 
     da_g_io_channel_unix_new g_io_channel_unix_new; 
     da_g_io_channel_unix_get_fd g_io_channel_unix_get_fd; 
+    da_g_io_channel_win32_make_pollfd g_io_channel_win32_make_pollfd;
+    da_g_io_channel_win32_poll g_io_channel_win32_poll;
+    da_g_io_channel_win32_new_messages g_io_channel_win32_new_messages;
+    da_g_io_channel_win32_new_fd g_io_channel_win32_new_fd;
+    da_g_io_channel_win32_get_fd g_io_channel_win32_get_fd;
+    da_g_io_channel_win32_new_socket g_io_channel_win32_new_socket;
 }

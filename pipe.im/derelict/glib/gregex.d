@@ -135,7 +135,8 @@ extern( C ) nothrow
     alias da_g_regex_unref = void function(GRegex* regex);																																													
     alias da_g_regex_get_pattern = const(gchar)* function(const(GRegex)* regex);																																							
     alias da_g_regex_get_max_backref = gint function(const(GRegex)* regex);																																									
-    alias da_g_regex_get_capture_count = gint function(const(GRegex)* regex);																																								
+    alias da_g_regex_get_capture_count = gint function(const(GRegex)* regex);		
+    alias da_g_regex_get_has_cr_or_lf = gboolean function(const GRegex *regex);
     alias da_g_regex_get_string_number = gint function(const(GRegex)* regex, const(gchar)* name);																																			
     alias da_g_regex_escape_string = gchar* function(const(gchar)* string, gint length);																																					
     alias da_g_regex_escape_nul = gchar* function(const(gchar)* string, gint length);																																						
@@ -179,6 +180,7 @@ __gshared
     da_g_regex_get_pattern g_regex_get_pattern; 
     da_g_regex_get_max_backref g_regex_get_max_backref; 
     da_g_regex_get_capture_count g_regex_get_capture_count; 
+    da_g_regex_get_has_cr_or_lf g_regex_get_has_cr_or_lf;
     da_g_regex_get_string_number g_regex_get_string_number; 
     da_g_regex_escape_string g_regex_escape_string; 
     da_g_regex_escape_nul g_regex_escape_nul; 

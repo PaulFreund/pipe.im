@@ -30,6 +30,7 @@ module derelict.glib.gmappedfile;
 
 import derelict.glib.gtypes;
 import derelict.glib.glibconfig;
+import derelict.glib.garray;
 import derelict.glib.gerror;
 import core.stdc.config;
 
@@ -48,7 +49,8 @@ extern( C ) nothrow
     alias da_g_mapped_file_get_contents = gchar* function(GMappedFile* file);											
     alias da_g_mapped_file_ref = GMappedFile* function(GMappedFile* file);												
     alias da_g_mapped_file_unref = void function(GMappedFile* file);													
-    alias da_g_mapped_file_free = void function(GMappedFile* file);														
+    alias da_g_mapped_file_free = void function(GMappedFile* file);	
+    alias da_g_mapped_file_get_bytes = GBytes* function(GMappedFile* file);
 }
 
 __gshared
@@ -60,6 +62,7 @@ __gshared
     da_g_mapped_file_ref g_mapped_file_ref; 
     da_g_mapped_file_unref g_mapped_file_unref; 
     da_g_mapped_file_free g_mapped_file_free; 
+    da_g_mapped_file_get_bytes g_mapped_file_get_bytes;
 }
 
 

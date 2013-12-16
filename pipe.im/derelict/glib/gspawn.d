@@ -80,21 +80,25 @@ enum _Anonymous_1
 extern( C ) nothrow 
 {
     alias da_g_spawn_error_quark = GQuark function();																																																					                                
+    alias da_g_spawn_exit_error_quark = GQuark function();																																																					                                
     alias da_g_spawn_async = gboolean function(const(gchar)* working_directory, gchar** argv, gchar** envp, GSpawnFlags flags, GSpawnChildSetupFunc child_setup, gpointer user_data, GPid* child_pid, GError** error);																					
     alias da_g_spawn_async_with_pipes = gboolean function(const(gchar)* working_directory, gchar** argv, gchar** envp, GSpawnFlags flags, GSpawnChildSetupFunc child_setup, gpointer user_data, GPid* child_pid, gint* standard_input, gint* standard_output, gint* standard_error, GError** error);	
     alias da_g_spawn_sync = gboolean function(const(gchar)* working_directory, gchar** argv, gchar** envp, GSpawnFlags flags, GSpawnChildSetupFunc child_setup, gpointer user_data, gchar** standard_output, gchar** standard_error, gint* exit_status, GError** error);								
     alias da_g_spawn_command_line_sync = gboolean function(const(gchar)* command_line, gchar** standard_output, gchar** standard_error, gint* exit_status, GError** error);																																
-    alias da_g_spawn_command_line_async = gboolean function(const(gchar)* command_line, GError** error);																																																
+    alias da_g_spawn_command_line_async = gboolean function(const(gchar)* command_line, GError** error);	
+    alias da_g_spawn_check_exit_status = gboolean function(gint exit_status, GError **error);
     alias da_g_spawn_close_pid = void function(GPid pid);																																																					                            
 }
 
 __gshared
 {
     da_g_spawn_error_quark g_spawn_error_quark; 
+    da_g_spawn_exit_error_quark g_spawn_exit_error_quark; 
     da_g_spawn_async g_spawn_async; 
     da_g_spawn_async_with_pipes g_spawn_async_with_pipes; 
     da_g_spawn_sync g_spawn_sync; 
     da_g_spawn_command_line_sync g_spawn_command_line_sync; 
     da_g_spawn_command_line_async g_spawn_command_line_async; 
+    da_g_spawn_check_exit_status g_spawn_check_exit_status;
     da_g_spawn_close_pid g_spawn_close_pid; 	
 }

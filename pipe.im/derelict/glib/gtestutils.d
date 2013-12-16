@@ -122,7 +122,8 @@ extern( C ) nothrow
     alias da_g_test_init = void function(int* argc, char*** argv, ...);																																						
     alias da_g_test_run = int function();																																													
     alias da_g_test_add_func = void function(const(char)* testpath, GTestFunc test_func);																																	
-    alias da_g_test_add_data_func = void function(const(char)* testpath, gconstpointer test_data, GTestDataFunc test_func);																									
+    alias da_g_test_add_data_func = void function(const(char)* testpath, gconstpointer test_data, GTestDataFunc test_func);	
+    alias da_g_test_add_data_func_full = void function(const char *testpath, gpointer test_data, GTestDataFunc test_func, GDestroyNotify data_free_func);
     alias da_g_test_fail = void function();																																													
     alias da_g_test_message = void function(const(char)* format, ...);																																						
     alias da_g_test_bug_base = void function(const(char)* uri_pattern);																																						
@@ -159,7 +160,8 @@ extern( C ) nothrow
     alias da_g_test_log_buffer_pop = GTestLogMsg* function(GTestLogBuffer* tbuffer);																																		
     alias da_g_test_log_msg_free = void function(GTestLogMsg* tmsg);																																						
     alias da_g_test_log_set_fatal_handler = void function(GTestLogFatalFunc log_func, gpointer user_data);																													
-
+    alias da_g_test_expect_message = void function(const gchar *log_domain, GLogLevelFlags log_level, const gchar *pattern);
+    alias da_g_test_assert_expected_messages_internal = void function(const char *domain, const char *file, int line, const char *func);
 }
 
 __gshared
@@ -171,6 +173,7 @@ __gshared
     da_g_test_run g_test_run; 
     da_g_test_add_func g_test_add_func; 
     da_g_test_add_data_func g_test_add_data_func; 
+    da_g_test_add_data_func_full g_test_add_data_func_full;
     da_g_test_fail g_test_fail; 
     da_g_test_message g_test_message; 
     da_g_test_bug_base g_test_bug_base; 
@@ -206,5 +209,7 @@ __gshared
     da_g_test_log_buffer_push g_test_log_buffer_push; 
     da_g_test_log_buffer_pop g_test_log_buffer_pop; 
     da_g_test_log_msg_free g_test_log_msg_free; 
-    da_g_test_log_set_fatal_handler g_test_log_set_fatal_handler; 
+    da_g_test_log_set_fatal_handler g_test_log_set_fatal_handler;
+    da_g_test_expect_message g_test_expect_message;
+    da_g_test_assert_expected_messages_internal g_test_assert_expected_messages_internal;
 }

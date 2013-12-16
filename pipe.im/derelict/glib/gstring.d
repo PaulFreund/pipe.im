@@ -31,6 +31,7 @@ module derelict.glib.gstring;
 import derelict.glib.gtypes;
 import derelict.glib.glibconfig;
 import derelict.glib.gunicode;
+import derelict.glib.garray;
 import std.c.stdarg;
 
 import core.stdc.string;
@@ -52,7 +53,8 @@ extern( C ) nothrow
 {
 	alias da_g_string_new = GString* function(const(gchar)* init);																												
     alias da_g_string_new_len = GString* function(const(gchar)* init, gssize len);																								
-    alias da_g_string_sized_new = GString* function(gsize dfl_size);																											
+    alias da_g_string_sized_new = GString* function(gsize dfl_size);					
+    alias da_g_string_free_to_bytes = GBytes* function(GString *string);
     alias da_g_string_free = gchar* function(GString* string, gboolean free_segment);																							
     alias da_g_string_equal = gboolean function(const(GString)* v, const(GString)* v2);																							
     alias da_g_string_hash = guint function(const(GString)* str);																												
@@ -92,6 +94,7 @@ __gshared
     da_g_string_new_len g_string_new_len; 
     da_g_string_sized_new g_string_sized_new; 
     da_g_string_free g_string_free; 
+    da_g_string_free_to_bytes g_string_free_to_bytes;
     da_g_string_equal g_string_equal; 
     da_g_string_hash g_string_hash; 
     da_g_string_assign g_string_assign; 

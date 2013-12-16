@@ -272,11 +272,10 @@
     <File path="derelict\purple\connection.d" />
     <File path="derelict\purple\conversation.d" />
     <File path="derelict\purple\core.d" />
-    <File path="derelict\purple\enum_types.d" />
-    <File path="derelict\purple\_debug.d" />
     <File path="derelict\purple\desktopitem.d" />
     <File path="derelict\purple\dnsquery.d" />
     <File path="derelict\purple\dnssrv.d" />
+    <File path="derelict\purple\enum_types.d" />
     <File path="derelict\purple\eventloop.d" />
     <File path="derelict\purple\ft.d" />
     <File path="derelict\purple\idle.d" />
@@ -304,22 +303,24 @@
     <File path="derelict\purple\server.d" />
     <File path="derelict\purple\signals.d" />
     <File path="derelict\purple\smiley.d" />
-    <File path="derelict\purple\sound_theme_loader.d" />
-    <File path="derelict\purple\sound_theme.d" />
     <File path="derelict\purple\sound.d" />
+    <File path="derelict\purple\sound_theme.d" />
+    <File path="derelict\purple\sound_theme_loader.d" />
     <File path="derelict\purple\sslconn.d" />
     <File path="derelict\purple\status.d" />
     <File path="derelict\purple\stringref.d" />
     <File path="derelict\purple\stun.d" />
+    <File path="derelict\purple\theme.d" />
     <File path="derelict\purple\theme_loader.d" />
     <File path="derelict\purple\theme_manager.d" />
-    <File path="derelict\purple\theme.d" />
     <File path="derelict\purple\upnp.d" />
     <File path="derelict\purple\util.d" />
     <File path="derelict\purple\value.d" />
-    <File path="derelict\purple\_version.d" />
     <File path="derelict\purple\whiteboard.d" />
+    <File path="derelict\purple\win32.d" />
     <File path="derelict\purple\xmlnode.d" />
+    <File path="derelict\purple\_debug.d" />
+    <File path="derelict\purple\_version.d" />
    </Folder>
    <Folder name="util">
     <File path="derelict\util\exception.d" />
@@ -331,5 +332,6 @@
    </Folder>
   </Folder>
   <File path="main.d" />
+  <File path="nullclient.d" />
  </Folder>
 </DProject>

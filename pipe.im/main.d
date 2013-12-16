@@ -12,13 +12,17 @@ import std.stdio;
 
 import derelict.glib.glib;
 import derelict.purple.purple;
+import nullclient;
 
 int main(string[] argv)
 {
     DerelictGlib.load();
     DerelictPurple.load();
 
-    writeln("Hello D-World!");
-    purple_core_init("pipe.im");
-    return 0;
+    writeln("pip.im initialize");
+    
+    int ret = nullclient.nullclient();
+
+    return ret;
 }
+

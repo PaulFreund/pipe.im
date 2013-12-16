@@ -202,6 +202,7 @@ extern( C ) nothrow
     alias da_g_variant_get = void function(GVariant* value, const(gchar)* format_string, ...);																									
     alias da_g_variant_new_va = GVariant* function(const(gchar)* format_string, const(gchar*)* endptr, va_list* app);																			
     alias da_g_variant_get_va = void function(GVariant* value, const(gchar)* format_string, const(gchar*)* endptr, va_list* app);																
+    alias da_g_variant_check_format_string = gboolean function(GVariant* value, const gchar* format_string, gboolean copy_only); 
     alias da_g_variant_parse = GVariant* function(const(GVariantType)* type, const(gchar)* text, const(gchar)* limit, const(gchar*)* endptr, GError** error);									
     alias da_g_variant_new_parsed = GVariant* function(const(gchar)* format, ...);																												
     alias da_g_variant_new_parsed_va = GVariant* function(const(gchar)* format, va_list* app);																									
@@ -308,6 +309,7 @@ __gshared
     da_g_variant_get g_variant_get; 
     da_g_variant_new_va g_variant_new_va; 
     da_g_variant_get_va g_variant_get_va; 
+    da_g_variant_check_format_string g_variant_check_format_string;
     da_g_variant_parse g_variant_parse; 
     da_g_variant_new_parsed g_variant_new_parsed; 
     da_g_variant_new_parsed_va g_variant_new_parsed_va; 

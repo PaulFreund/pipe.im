@@ -30,6 +30,7 @@ module derelict.glib.gslist;
 
 import derelict.glib.gtypes;
 import derelict.glib.glibconfig;
+import derelict.glib.gnode;
 
 extern (C):
 
@@ -60,7 +61,8 @@ extern( C ) nothrow
     alias da_g_slist_remove_link = GSList* function(GSList* list, GSList* link_);																																						
     alias da_g_slist_delete_link = GSList* function(GSList* list, GSList* link_);																																						
     alias da_g_slist_reverse = GSList* function(GSList* list);																																											
-    alias da_g_slist_copy = GSList* function(GSList* list);																																												
+    alias da_g_slist_copy = GSList* function(GSList* list);	
+    alias da_g_slist_copy_deep = GSList* function(GSList *list, GCopyFunc func, gpointer  user_data);
     alias da_g_slist_nth = GSList* function(GSList* list, guint n);																																										
     alias da_g_slist_find = GSList* function(GSList* list, gconstpointer data);																																							
     alias da_g_slist_find_custom = GSList* function(GSList* list, gconstpointer data, GCompareFunc func);																																
@@ -93,6 +95,7 @@ __gshared
     da_g_slist_delete_link g_slist_delete_link; 
     da_g_slist_reverse g_slist_reverse; 
     da_g_slist_copy g_slist_copy; 
+    da_g_slist_copy_deep g_slist_copy_deep;
     da_g_slist_nth g_slist_nth; 
     da_g_slist_find g_slist_find; 
     da_g_slist_find_custom g_slist_find_custom; 
