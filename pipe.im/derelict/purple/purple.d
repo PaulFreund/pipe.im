@@ -26,33 +26,6 @@ DEALINGS IN THE SOFTWARE.
 
 */
 
-
-/*
-    Template for functions:
-
-        module derelict.purple.functions;
-
-        private import derelict.purple.types;
-
-        extern( C ) nothrow {
-            alias da_NAME_FUNCTION = TYPE_RETURN function( TYPE_PARAMETER );
-        }
-
-        __gshared {
-            da_NAME_FUNCTION NAME_FUNCTION;
-        }
-
-    Template for types:
-
-        module derelict.purple.types;
-
-        private import core.stdc.config;
-
-        // gtypes.h
-        alias gint = int;
-        alias gboolean = gint;
-*/
-
 module derelict.purple.purple;
 
 public {

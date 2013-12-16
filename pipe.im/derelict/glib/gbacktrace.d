@@ -35,8 +35,8 @@ extern (C):
 
 extern( C ) nothrow 
 {
-alias da_g_on_error_query = void function(const(gchar)* prg_name);			
-alias da_g_on_error_stack_trace = void function(const(gchar)* prg_name);	
+    alias da_g_on_error_query = void function(const(gchar)* prg_name);			
+    alias da_g_on_error_stack_trace = void function(const(gchar)* prg_name);	
 }
 
 __gshared 

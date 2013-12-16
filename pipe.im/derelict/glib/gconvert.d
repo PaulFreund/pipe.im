@@ -74,21 +74,21 @@ extern( C ) nothrow
 
 __gshared
 {
-da_g_convert_error_quark g_convert_error_quark; 
-da_g_iconv_open g_iconv_open; 
-da_g_iconv g_iconv; 
-da_g_iconv_close g_iconv_close; 
-da_g_convert g_convert; 
-da_g_convert_with_iconv g_convert_with_iconv; 
-da_g_convert_with_fallback g_convert_with_fallback; 
-da_g_locale_to_utf8 g_locale_to_utf8; 
-da_g_locale_from_utf8 g_locale_from_utf8; 
-da_g_filename_to_utf8 g_filename_to_utf8; 
-da_g_filename_from_utf8 g_filename_from_utf8; 
-da_g_filename_from_uri g_filename_from_uri; 
-da_g_filename_to_uri g_filename_to_uri; 
-da_g_filename_display_name g_filename_display_name; 
-da_g_get_filename_charsets g_get_filename_charsets; 
-da_g_filename_display_basename g_filename_display_basename; 
-da_g_uri_list_extract_uris g_uri_list_extract_uris; 
+    da_g_convert_error_quark g_convert_error_quark; 
+    da_g_iconv_open g_iconv_open; 
+    da_g_iconv g_iconv; 
+    da_g_iconv_close g_iconv_close; 
+    da_g_convert g_convert; 
+    da_g_convert_with_iconv g_convert_with_iconv; 
+    da_g_convert_with_fallback g_convert_with_fallback; 
+    da_g_locale_to_utf8 g_locale_to_utf8; 
+    da_g_locale_from_utf8 g_locale_from_utf8; 
+    da_g_filename_to_utf8 g_filename_to_utf8; 
+    da_g_filename_from_utf8 g_filename_from_utf8; 
+    da_g_filename_from_uri g_filename_from_uri; 
+    da_g_filename_to_uri g_filename_to_uri; 
+    da_g_filename_display_name g_filename_display_name; 
+    da_g_get_filename_charsets g_get_filename_charsets; 
+    da_g_filename_display_basename g_filename_display_basename; 
+    da_g_uri_list_extract_uris g_uri_list_extract_uris; 
 }
