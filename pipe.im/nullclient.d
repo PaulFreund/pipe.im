@@ -19,7 +19,16 @@ import derelict.purple.eventloop;
 import derelict.purple.connection;
 import derelict.purple.plugin;
 import derelict.purple._debug;
-import derelict.purple.win32;
+
+version(Win32)
+{
+	import derelict.purple.win32;
+}
+else
+{
+	import core.sys.posix.signal;
+}
+
 import core.stdc.stdio;
 import core.stdc.time;
 import std.string;
