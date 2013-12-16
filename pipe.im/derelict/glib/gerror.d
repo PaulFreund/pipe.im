@@ -1,5 +1,10 @@
 module derelict.glib.gerror;
 
+import derelict.glib.gquark;
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import std.c.stdarg;
+
 extern (C):
 
 alias _GError GError;
@@ -13,7 +18,7 @@ struct _GError
 
 GError* g_error_new (GQuark domain, gint code, const(gchar)* format, ...);
 GError* g_error_new_literal (GQuark domain, gint code, const(gchar)* message);
-GError* g_error_new_valist (GQuark domain, gint code, const(gchar)* format, __va_list_tag* args);
+GError* g_error_new_valist (GQuark domain, gint code, const(gchar)* format, va_list args);
 void g_error_free (GError* error);
 GError* g_error_copy (const(GError)* error);
 gboolean g_error_matches (const(GError)* error, GQuark domain, gint code);

@@ -1,5 +1,8 @@
 module derelict.glib.gbytes;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.garray;
 import core.stdc.config;
 
 extern (C):

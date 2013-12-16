@@ -1,5 +1,10 @@
 module derelict.purple.certificate;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.glib.gslist;
+import derelict.glib.garray;
 import core.stdc.time;
 
 extern (C):

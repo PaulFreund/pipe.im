@@ -1,6 +1,9 @@
 module derelict.glib.gstrfuncs;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
 import core.stdc.config;
+import std.c.stdarg;
 
 extern (C):
 
@@ -57,7 +60,7 @@ gchar* g_strdown (gchar* string);
 gchar* g_strup (gchar* string);
 gchar* g_strdup (const(gchar)* str);
 gchar* g_strdup_printf (const(gchar)* format, ...);
-gchar* g_strdup_vprintf (const(gchar)* format, __va_list_tag* args);
+gchar* g_strdup_vprintf (const(gchar)* format, va_list args);
 gchar* g_strndup (const(gchar)* str, gsize n);
 gchar* g_strnfill (gsize length, gchar fill_char);
 gchar* g_strconcat (const(gchar)* string1, ...);

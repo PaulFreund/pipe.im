@@ -1,5 +1,8 @@
 module derelict.glib.gbitlock;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+
 extern (C):
 
 void g_bit_lock (gint* address, gint lock_bit);

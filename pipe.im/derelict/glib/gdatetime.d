@@ -1,5 +1,9 @@
 module derelict.glib.gdatetime;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gdate;
+import derelict.glib.gtimezone;
 import core.stdc.time;
 import core.stdc.config;
 

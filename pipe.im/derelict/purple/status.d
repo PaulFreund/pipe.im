@@ -1,6 +1,14 @@
 module derelict.purple.status;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.purple.value;
+import derelict.purple.account;
+import derelict.purple.conversation;
+import derelict.purple.blist;
 import core.stdc.time;
+import std.c.stdarg;
 
 extern (C):
 
@@ -64,7 +72,7 @@ void purple_status_type_destroy (PurpleStatusType* status_type);
 void purple_status_type_set_primary_attr (PurpleStatusType* status_type, const(char)* attr_id);
 void purple_status_type_add_attr (PurpleStatusType* status_type, const(char)* id, const(char)* name, PurpleValue* value);
 void purple_status_type_add_attrs (PurpleStatusType* status_type, const(char)* id, const(char)* name, PurpleValue* value, ...);
-void purple_status_type_add_attrs_vargs (PurpleStatusType* status_type, __va_list_tag* args);
+void purple_status_type_add_attrs_vargs (PurpleStatusType* status_type, va_list args);
 PurpleStatusPrimitive purple_status_type_get_primitive (const(PurpleStatusType)* status_type);
 const(char)* purple_status_type_get_id (const(PurpleStatusType)* status_type);
 const(char)* purple_status_type_get_name (const(PurpleStatusType)* status_type);
@@ -85,7 +93,7 @@ PurpleValue* purple_status_attr_get_value (const(PurpleStatusAttr)* attr);
 PurpleStatus* purple_status_new (PurpleStatusType* status_type, PurplePresence* presence);
 void purple_status_destroy (PurpleStatus* status);
 void purple_status_set_active (PurpleStatus* status, gboolean active);
-void purple_status_set_active_with_attrs (PurpleStatus* status, gboolean active, __va_list_tag* args);
+void purple_status_set_active_with_attrs (PurpleStatus* status, gboolean active, va_list args);
 void purple_status_set_active_with_attrs_list (PurpleStatus* status, gboolean active, GList* attrs);
 void purple_status_set_attr_boolean (PurpleStatus* status, const(char)* id, gboolean value);
 void purple_status_set_attr_int (PurpleStatus* status, const(char)* id, int value);

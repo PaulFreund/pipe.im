@@ -1,5 +1,9 @@
 module derelict.glib.gkeyfile;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gerror;
+import derelict.glib.gquark;
 import core.stdc.config;
 
 extern (C):

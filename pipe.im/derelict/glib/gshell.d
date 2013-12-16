@@ -1,5 +1,10 @@
 module derelict.glib.gshell;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gquark;
+import derelict.glib.gerror;
+
 extern (C):
 
 alias _Anonymous_0 GShellError;

@@ -1,5 +1,11 @@
 module derelict.purple.log;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.ghash;
+import derelict.glib.glist;
+import derelict.purple.conversation;
+import derelict.purple.account;
 import core.stdc.time;
 import core.stdc.config;
 import core.stdc.stdio;

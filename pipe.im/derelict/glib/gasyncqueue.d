@@ -1,5 +1,7 @@
 module derelict.glib.gasyncqueue;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
 import core.stdc.config;
 
 extern (C):

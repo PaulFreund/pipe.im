@@ -1,5 +1,8 @@
 module derelict.glib.gsequence;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+
 extern (C):
 
 alias _GSequence GSequence;

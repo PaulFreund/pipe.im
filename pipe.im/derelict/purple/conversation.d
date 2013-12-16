@@ -1,5 +1,12 @@
 module derelict.purple.conversation;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.glib.ghash;
+import derelict.purple.connection;
+import derelict.purple.account;
+import derelict.purple.buddyicon;
 import core.stdc.time;
 import core.stdc.config;
 

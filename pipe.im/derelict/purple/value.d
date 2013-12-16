@@ -1,5 +1,7 @@
 module derelict.purple.value;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
 import core.stdc.config;
 
 extern (C):

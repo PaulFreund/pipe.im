@@ -191,11 +191,6 @@
  <Folder name="pipe.im">
   <Folder name="derelict">
    <Folder name="glib">
-    <File path="derelict\glib\deprecated_gallocator.d" />
-    <File path="derelict\glib\deprecated_gcache.d" />
-    <File path="derelict\glib\deprecated_gcompletion.d" />
-    <File path="derelict\glib\deprecated_grel.d" />
-    <File path="derelict\glib\deprecated_gthread.d" />
     <File path="derelict\glib\garray.d" />
     <File path="derelict\glib\gasyncqueue.d" />
     <File path="derelict\glib\gatomic.d" />
@@ -222,6 +217,7 @@
     <File path="derelict\glib\giochannel.d" />
     <File path="derelict\glib\gkeyfile.d" />
     <File path="derelict\glib\glib.d" />
+    <File path="derelict\glib\glibconfig.d" />
     <File path="derelict\glib\glist.d" />
     <File path="derelict\glib\gmain.d" />
     <File path="derelict\glib\gmappedfile.d" />
@@ -276,6 +272,7 @@
     <File path="derelict\purple\connection.d" />
     <File path="derelict\purple\conversation.d" />
     <File path="derelict\purple\core.d" />
+    <File path="derelict\purple\enum_types.d" />
     <File path="derelict\purple\_debug.d" />
     <File path="derelict\purple\desktopitem.d" />
     <File path="derelict\purple\dnsquery.d" />

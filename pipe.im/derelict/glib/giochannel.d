@@ -1,5 +1,13 @@
 module derelict.glib.giochannel;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gstring;
+import derelict.glib.gerror;
+import derelict.glib.gquark;
+import derelict.glib.gunicode;
+import derelict.glib.gmain;
+import derelict.glib.gconvert;
 import core.stdc.config;
 import core.stdc.string;
 

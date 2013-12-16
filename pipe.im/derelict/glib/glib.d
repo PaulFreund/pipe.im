@@ -55,6 +55,7 @@ DEALINGS IN THE SOFTWARE.
 module derelict.glib.glib;
 
 public {
+    import derelict.glib.glibconfig;
     import derelict.glib.garray;
     import derelict.glib.gasyncqueue;
     import derelict.glib.gatomic;
@@ -121,11 +122,6 @@ public {
     import derelict.glib.gvarianttype;
     import derelict.glib.gvariant;
     import derelict.glib.gversion;
-    import derelict.glib.deprecated_gallocator;
-    import derelict.glib.deprecated_gcache;
-    import derelict.glib.deprecated_gcompletion;
-    import derelict.glib.deprecated_grel;
-    import derelict.glib.deprecated_gthread;
 }
 
 private {
@@ -150,8 +146,6 @@ class DerelictGlibLoader : SharedLibLoader {
     protected override void loadSymbols() {
         bindFunc(cast(void**)&_glib_get_locale_dir, "_glib_get_locale_dir");
         bindFunc(cast(void**)&g_access, "g_access");
-        bindFunc(cast(void**)&g_allocator_free, "g_allocator_free");
-        bindFunc(cast(void**)&g_allocator_new, "g_allocator_new");
         bindFunc(cast(void**)&g_array_append_vals, "g_array_append_vals");
         bindFunc(cast(void**)&g_array_free, "g_array_free");
         bindFunc(cast(void**)&g_array_get_element_size, "g_array_get_element_size");
@@ -243,7 +237,6 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_bit_storage, "g_bit_storage");
         bindFunc(cast(void**)&g_bit_trylock, "g_bit_trylock");
         bindFunc(cast(void**)&g_bit_unlock, "g_bit_unlock");
-        bindFunc(cast(void**)&g_blow_chunks, "g_blow_chunks");
         bindFunc(cast(void**)&g_bookmark_file_add_application, "g_bookmark_file_add_application");
         bindFunc(cast(void**)&g_bookmark_file_add_group, "g_bookmark_file_add_group");
         bindFunc(cast(void**)&g_bookmark_file_error_quark, "g_bookmark_file_error_quark");
@@ -317,12 +310,6 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_bytes_unref, "g_bytes_unref");
         bindFunc(cast(void**)&g_bytes_unref_to_array, "g_bytes_unref_to_array");
         bindFunc(cast(void**)&g_bytes_unref_to_data, "g_bytes_unref_to_data");
-        bindFunc(cast(void**)&g_cache_destroy, "g_cache_destroy");
-        bindFunc(cast(void**)&g_cache_insert, "g_cache_insert");
-        bindFunc(cast(void**)&g_cache_key_foreach, "g_cache_key_foreach");
-        bindFunc(cast(void**)&g_cache_new, "g_cache_new");
-        bindFunc(cast(void**)&g_cache_remove, "g_cache_remove");
-        bindFunc(cast(void**)&g_cache_value_foreach, "g_cache_value_foreach");
         bindFunc(cast(void**)&g_chdir, "g_chdir");
         bindFunc(cast(void**)&g_checksum_copy, "g_checksum_copy");
         bindFunc(cast(void**)&g_checksum_free, "g_checksum_free");
@@ -339,14 +326,6 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_chmod, "g_chmod");
         bindFunc(cast(void**)&g_clear_error, "g_clear_error");
         bindFunc(cast(void**)&g_clear_pointer, "g_clear_pointer");
-        bindFunc(cast(void**)&g_completion_add_items, "g_completion_add_items");
-        bindFunc(cast(void**)&g_completion_clear_items, "g_completion_clear_items");
-        bindFunc(cast(void**)&g_completion_complete, "g_completion_complete");
-        bindFunc(cast(void**)&g_completion_complete_utf8, "g_completion_complete_utf8");
-        bindFunc(cast(void**)&g_completion_free, "g_completion_free");
-        bindFunc(cast(void**)&g_completion_new, "g_completion_new");
-        bindFunc(cast(void**)&g_completion_remove_items, "g_completion_remove_items");
-        bindFunc(cast(void**)&g_completion_set_compare, "g_completion_set_compare");
         bindFunc(cast(void**)&g_compute_checksum_for_bytes, "g_compute_checksum_for_bytes");
         bindFunc(cast(void**)&g_compute_checksum_for_data, "g_compute_checksum_for_data");
         bindFunc(cast(void**)&g_compute_checksum_for_string, "g_compute_checksum_for_string");
@@ -354,11 +333,8 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_compute_hmac_for_string, "g_compute_hmac_for_string");
         bindFunc(cast(void**)&g_cond_broadcast, "g_cond_broadcast");
         bindFunc(cast(void**)&g_cond_clear, "g_cond_clear");
-        bindFunc(cast(void**)&g_cond_free, "g_cond_free");
         bindFunc(cast(void**)&g_cond_init, "g_cond_init");
-        bindFunc(cast(void**)&g_cond_new, "g_cond_new");
         bindFunc(cast(void**)&g_cond_signal, "g_cond_signal");
-        bindFunc(cast(void**)&g_cond_timed_wait, "g_cond_timed_wait");
         bindFunc(cast(void**)&g_cond_wait, "g_cond_wait");
         bindFunc(cast(void**)&g_cond_wait_until, "g_cond_wait_until");
         bindFunc(cast(void**)&g_convert, "g_convert");
@@ -758,10 +734,8 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_list_nth, "g_list_nth");
         bindFunc(cast(void**)&g_list_nth_data, "g_list_nth_data");
         bindFunc(cast(void**)&g_list_nth_prev, "g_list_nth_prev");
-        bindFunc(cast(void**)&g_list_pop_allocator, "g_list_pop_allocator");
         bindFunc(cast(void**)&g_list_position, "g_list_position");
         bindFunc(cast(void**)&g_list_prepend, "g_list_prepend");
-        bindFunc(cast(void**)&g_list_push_allocator, "g_list_push_allocator");
         bindFunc(cast(void**)&g_list_remove, "g_list_remove");
         bindFunc(cast(void**)&g_list_remove_all, "g_list_remove_all");
         bindFunc(cast(void**)&g_list_remove_link, "g_list_remove_link");
@@ -859,15 +833,6 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_match_info_next, "g_match_info_next");
         bindFunc(cast(void**)&g_match_info_ref, "g_match_info_ref");
         bindFunc(cast(void**)&g_match_info_unref, "g_match_info_unref");
-        bindFunc(cast(void**)&g_mem_chunk_alloc, "g_mem_chunk_alloc");
-        bindFunc(cast(void**)&g_mem_chunk_alloc0, "g_mem_chunk_alloc0");
-        bindFunc(cast(void**)&g_mem_chunk_clean, "g_mem_chunk_clean");
-        bindFunc(cast(void**)&g_mem_chunk_destroy, "g_mem_chunk_destroy");
-        bindFunc(cast(void**)&g_mem_chunk_free, "g_mem_chunk_free");
-        bindFunc(cast(void**)&g_mem_chunk_info, "g_mem_chunk_info");
-        bindFunc(cast(void**)&g_mem_chunk_new, "g_mem_chunk_new");
-        bindFunc(cast(void**)&g_mem_chunk_print, "g_mem_chunk_print");
-        bindFunc(cast(void**)&g_mem_chunk_reset, "g_mem_chunk_reset");
         bindFunc(cast(void**)&g_mem_gc_friendly, "g_mem_gc_friendly");
         bindFunc(cast(void**)&g_mem_is_system_malloc, "g_mem_is_system_malloc");
         bindFunc(cast(void**)&g_mem_profile, "g_mem_profile");
@@ -881,10 +846,8 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_mkstemp_full, "g_mkstemp_full");
         bindFunc(cast(void**)&g_mkstemp_utf8, "g_mkstemp_utf8");
         bindFunc(cast(void**)&g_mutex_clear, "g_mutex_clear");
-        bindFunc(cast(void**)&g_mutex_free, "g_mutex_free");
         bindFunc(cast(void**)&g_mutex_init, "g_mutex_init");
         bindFunc(cast(void**)&g_mutex_lock, "g_mutex_lock");
-        bindFunc(cast(void**)&g_mutex_new, "g_mutex_new");
         bindFunc(cast(void**)&g_mutex_trylock, "g_mutex_trylock");
         bindFunc(cast(void**)&g_mutex_unlock, "g_mutex_unlock");
         bindFunc(cast(void**)&g_node_child_index, "g_node_child_index");
@@ -909,9 +872,7 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_node_n_nodes, "g_node_n_nodes");
         bindFunc(cast(void**)&g_node_new, "g_node_new");
         bindFunc(cast(void**)&g_node_nth_child, "g_node_nth_child");
-        bindFunc(cast(void**)&g_node_pop_allocator, "g_node_pop_allocator");
         bindFunc(cast(void**)&g_node_prepend, "g_node_prepend");
-        bindFunc(cast(void**)&g_node_push_allocator, "g_node_push_allocator");
         bindFunc(cast(void**)&g_node_reverse_children, "g_node_reverse_children");
         bindFunc(cast(void**)&g_node_traverse, "g_node_traverse");
         bindFunc(cast(void**)&g_node_unlink, "g_node_unlink");
@@ -920,7 +881,6 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_on_error_stack_trace, "g_on_error_stack_trace");
         bindFunc(cast(void**)&g_once_impl, "g_once_impl");
         bindFunc(cast(void**)&g_once_init_enter, "g_once_init_enter");
-        bindFunc(cast(void**)&g_once_init_enter_impl, "g_once_init_enter_impl");
         bindFunc(cast(void**)&g_once_init_leave, "g_once_init_leave");
         bindFunc(cast(void**)&g_open, "g_open");
         bindFunc(cast(void**)&g_option_context_add_group, "g_option_context_add_group");
@@ -970,7 +930,6 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_printf, "g_printf");
         bindFunc(cast(void**)&g_printf_string_upper_bound, "g_printf_string_upper_bound");
         bindFunc(cast(void**)&g_private_get, "g_private_get");
-        bindFunc(cast(void**)&g_private_new, "g_private_new");
         bindFunc(cast(void**)&g_private_replace, "g_private_replace");
         bindFunc(cast(void**)&g_private_set, "g_private_set");
         bindFunc(cast(void**)&g_propagate_error, "g_propagate_error");
@@ -1086,15 +1045,6 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_regex_split_full, "g_regex_split_full");
         bindFunc(cast(void**)&g_regex_split_simple, "g_regex_split_simple");
         bindFunc(cast(void**)&g_regex_unref, "g_regex_unref");
-        bindFunc(cast(void**)&g_relation_count, "g_relation_count");
-        bindFunc(cast(void**)&g_relation_delete, "g_relation_delete");
-        bindFunc(cast(void**)&g_relation_destroy, "g_relation_destroy");
-        bindFunc(cast(void**)&g_relation_exists, "g_relation_exists");
-        bindFunc(cast(void**)&g_relation_index, "g_relation_index");
-        bindFunc(cast(void**)&g_relation_insert, "g_relation_insert");
-        bindFunc(cast(void**)&g_relation_new, "g_relation_new");
-        bindFunc(cast(void**)&g_relation_print, "g_relation_print");
-        bindFunc(cast(void**)&g_relation_select, "g_relation_select");
         bindFunc(cast(void**)&g_reload_user_special_dirs_cache, "g_reload_user_special_dirs_cache");
         bindFunc(cast(void**)&g_remove, "g_remove");
         bindFunc(cast(void**)&g_rename, "g_rename");
@@ -1207,10 +1157,8 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_slist_length, "g_slist_length");
         bindFunc(cast(void**)&g_slist_nth, "g_slist_nth");
         bindFunc(cast(void**)&g_slist_nth_data, "g_slist_nth_data");
-        bindFunc(cast(void**)&g_slist_pop_allocator, "g_slist_pop_allocator");
         bindFunc(cast(void**)&g_slist_position, "g_slist_position");
         bindFunc(cast(void**)&g_slist_prepend, "g_slist_prepend");
-        bindFunc(cast(void**)&g_slist_push_allocator, "g_slist_push_allocator");
         bindFunc(cast(void**)&g_slist_remove, "g_slist_remove");
         bindFunc(cast(void**)&g_slist_remove_all, "g_slist_remove_all");
         bindFunc(cast(void**)&g_slist_remove_link, "g_slist_remove_link");
@@ -1262,28 +1210,6 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_spawn_sync_utf8, "g_spawn_sync_utf8");
         bindFunc(cast(void**)&g_sprintf, "g_sprintf");
         bindFunc(cast(void**)&g_stat, "g_stat");
-        bindFunc(cast(void**)&g_static_mutex_free, "g_static_mutex_free");
-        bindFunc(cast(void**)&g_static_mutex_get_mutex_impl, "g_static_mutex_get_mutex_impl");
-        bindFunc(cast(void**)&g_static_mutex_init, "g_static_mutex_init");
-        bindFunc(cast(void**)&g_static_private_free, "g_static_private_free");
-        bindFunc(cast(void**)&g_static_private_get, "g_static_private_get");
-        bindFunc(cast(void**)&g_static_private_init, "g_static_private_init");
-        bindFunc(cast(void**)&g_static_private_set, "g_static_private_set");
-        bindFunc(cast(void**)&g_static_rec_mutex_free, "g_static_rec_mutex_free");
-        bindFunc(cast(void**)&g_static_rec_mutex_init, "g_static_rec_mutex_init");
-        bindFunc(cast(void**)&g_static_rec_mutex_lock, "g_static_rec_mutex_lock");
-        bindFunc(cast(void**)&g_static_rec_mutex_lock_full, "g_static_rec_mutex_lock_full");
-        bindFunc(cast(void**)&g_static_rec_mutex_trylock, "g_static_rec_mutex_trylock");
-        bindFunc(cast(void**)&g_static_rec_mutex_unlock, "g_static_rec_mutex_unlock");
-        bindFunc(cast(void**)&g_static_rec_mutex_unlock_full, "g_static_rec_mutex_unlock_full");
-        bindFunc(cast(void**)&g_static_rw_lock_free, "g_static_rw_lock_free");
-        bindFunc(cast(void**)&g_static_rw_lock_init, "g_static_rw_lock_init");
-        bindFunc(cast(void**)&g_static_rw_lock_reader_lock, "g_static_rw_lock_reader_lock");
-        bindFunc(cast(void**)&g_static_rw_lock_reader_trylock, "g_static_rw_lock_reader_trylock");
-        bindFunc(cast(void**)&g_static_rw_lock_reader_unlock, "g_static_rw_lock_reader_unlock");
-        bindFunc(cast(void**)&g_static_rw_lock_writer_lock, "g_static_rw_lock_writer_lock");
-        bindFunc(cast(void**)&g_static_rw_lock_writer_trylock, "g_static_rw_lock_writer_trylock");
-        bindFunc(cast(void**)&g_static_rw_lock_writer_unlock, "g_static_rw_lock_writer_unlock");
         bindFunc(cast(void**)&g_stpcpy, "g_stpcpy");
         bindFunc(cast(void**)&g_str_equal, "g_str_equal");
         bindFunc(cast(void**)&g_str_has_prefix, "g_str_has_prefix");
@@ -1404,13 +1330,9 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_test_trap_fork, "g_test_trap_fork");
         bindFunc(cast(void**)&g_test_trap_has_passed, "g_test_trap_has_passed");
         bindFunc(cast(void**)&g_test_trap_reached_timeout, "g_test_trap_reached_timeout");
-        bindFunc(cast(void**)&g_thread_create, "g_thread_create");
-        bindFunc(cast(void**)&g_thread_create_full, "g_thread_create_full");
         bindFunc(cast(void**)&g_thread_error_quark, "g_thread_error_quark");
         bindFunc(cast(void**)&g_thread_exit, "g_thread_exit");
-        bindFunc(cast(void**)&g_thread_foreach, "g_thread_foreach");
         bindFunc(cast(void**)&g_thread_functions_for_glib_use, "g_thread_functions_for_glib_use");
-        bindFunc(cast(void**)&g_thread_get_initialized, "g_thread_get_initialized");
         bindFunc(cast(void**)&g_thread_gettime, "g_thread_gettime");
         bindFunc(cast(void**)&g_thread_init_glib, "g_thread_init_glib");
         bindFunc(cast(void**)&g_thread_join, "g_thread_join");
@@ -1431,7 +1353,6 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_thread_pool_unprocessed, "g_thread_pool_unprocessed");
         bindFunc(cast(void**)&g_thread_ref, "g_thread_ref");
         bindFunc(cast(void**)&g_thread_self, "g_thread_self");
-        bindFunc(cast(void**)&g_thread_set_priority, "g_thread_set_priority");
         bindFunc(cast(void**)&g_thread_try_new, "g_thread_try_new");
         bindFunc(cast(void**)&g_thread_unref, "g_thread_unref");
         bindFunc(cast(void**)&g_thread_use_default_impl, "g_thread_use_default_impl");
@@ -1491,8 +1412,6 @@ class DerelictGlibLoader : SharedLibLoader {
         bindFunc(cast(void**)&g_try_malloc_n, "g_try_malloc_n");
         bindFunc(cast(void**)&g_try_realloc, "g_try_realloc");
         bindFunc(cast(void**)&g_try_realloc_n, "g_try_realloc_n");
-        bindFunc(cast(void**)&g_tuples_destroy, "g_tuples_destroy");
-        bindFunc(cast(void**)&g_tuples_index, "g_tuples_index");
         bindFunc(cast(void**)&g_ucs4_to_utf16, "g_ucs4_to_utf16");
         bindFunc(cast(void**)&g_ucs4_to_utf8, "g_ucs4_to_utf8");
         bindFunc(cast(void**)&g_unichar_break_type, "g_unichar_break_type");

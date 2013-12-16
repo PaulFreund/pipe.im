@@ -1,5 +1,12 @@
 module derelict.purple.sslconn;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.purple.account;
+import derelict.purple.proxy;
+import derelict.purple.certificate;
+
 extern (C):
 
 alias _Anonymous_0 PurpleSslErrorType;

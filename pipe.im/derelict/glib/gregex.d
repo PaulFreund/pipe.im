@@ -1,5 +1,10 @@
 module derelict.glib.gregex;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gstring;
+import derelict.glib.gerror;
+import derelict.glib.gquark;
 import core.stdc.string;
 import core.stdc.config;
 

@@ -1,5 +1,8 @@
 module derelict.glib.ghostutils;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+
 extern (C):
 
 gboolean g_hostname_is_non_ascii (const(gchar)* hostname);

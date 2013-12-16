@@ -1,5 +1,10 @@
 module derelict.purple.notify;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.purple.connection;
+
 extern (C):
 
 alias _PurpleNotifyUserInfoEntry PurpleNotifyUserInfoEntry;

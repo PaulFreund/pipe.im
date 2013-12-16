@@ -1,5 +1,8 @@
 module derelict.glib.gpattern;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+
 extern (C):
 
 alias _GPatternSpec GPatternSpec;

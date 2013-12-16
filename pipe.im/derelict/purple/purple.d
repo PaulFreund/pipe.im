@@ -100,7 +100,7 @@ public {
     import derelict.purple.sound_theme_loader;
     import derelict.purple.sound_theme;
     import derelict.purple.sound;
-   // import derelict.purple.sslcon;
+    import derelict.purple.sslconn;
     import derelict.purple.status;
     import derelict.purple.stringref;
     import derelict.purple.stun;
@@ -113,6 +113,7 @@ public {
     import derelict.purple._version;
     import derelict.purple.whiteboard;
     import derelict.purple.xmlnode;
+    import derelict.purple.enum_types;
 }
 
 private {

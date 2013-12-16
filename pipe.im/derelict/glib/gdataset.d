@@ -1,5 +1,9 @@
 module derelict.glib.gdataset;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gquark;
+
 extern (C):
 
 alias _GData GData;

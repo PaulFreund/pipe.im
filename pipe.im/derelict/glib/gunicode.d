@@ -1,5 +1,8 @@
 module derelict.glib.gunicode;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gerror;
 import core.stdc.config;
 
 extern (C):

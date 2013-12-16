@@ -1,5 +1,9 @@
 module derelict.purple.whiteboard;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.purple.account;
 extern (C):
 
 alias _PurpleWhiteboardPrplOps PurpleWhiteboardPrplOps;

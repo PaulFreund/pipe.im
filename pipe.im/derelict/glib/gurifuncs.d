@@ -1,5 +1,8 @@
 module derelict.glib.gurifuncs;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+
 extern (C):
 
 char* g_uri_unescape_string (const(char)* escaped_string, const(char)* illegal_characters);

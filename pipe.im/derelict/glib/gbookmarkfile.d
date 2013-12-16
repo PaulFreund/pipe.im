@@ -1,5 +1,9 @@
 module derelict.glib.gbookmarkfile;
 
+import derelict.glib.gerror;
+import derelict.glib.gtypes;
+import derelict.glib.gquark;
+import derelict.glib.glibconfig;
 import core.stdc.config;
 import core.stdc.time;
 

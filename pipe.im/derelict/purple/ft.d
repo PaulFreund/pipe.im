@@ -1,5 +1,9 @@
 module derelict.purple.ft;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.purple.account;
 import core.stdc.config;
 import core.stdc.stdio;
 import core.stdc.time;

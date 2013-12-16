@@ -1,5 +1,8 @@
 module derelict.glib.glist;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+
 extern (C):
 
 alias _GList GList;

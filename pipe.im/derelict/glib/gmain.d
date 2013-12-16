@@ -1,5 +1,10 @@
 module derelict.glib.gmain;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gslist;
+import derelict.glib.gpoll;
+import derelict.glib.gthread;
 import core.sys.posix.poll;
 import core.stdc.config;
 

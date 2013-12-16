@@ -1,5 +1,11 @@
 module derelict.purple.plugin;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.purple.pluginpref;
+import derelict.purple.signals;
+import derelict.purple.value;
 import core.stdc.config;
 
 extern (C):

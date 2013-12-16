@@ -1,5 +1,9 @@
 module derelict.glib.gtree;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gnode;
+
 extern (C):
 
 alias _GTree GTree;

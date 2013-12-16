@@ -1,12 +1,19 @@
 module derelict.glib.gtestutils;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gmessages;
+import derelict.glib.gslist;
+import derelict.glib.gstring;
+import derelict.glib.gquark;
+import derelict.glib.gerror;
 import core.stdc.config;
 import core.stdc.string;
 
 extern (C):
 
-alias GTestCase GTestCase;
-alias GTestSuite GTestSuite;
+//alias GTestCase GTestCase;
+//alias GTestSuite GTestSuite;
 alias void function () GTestFunc;
 alias void function (const(void)*) GTestDataFunc;
 alias void function (void*, const(void)*) GTestFixtureFunc;

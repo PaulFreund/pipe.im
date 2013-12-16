@@ -1,5 +1,9 @@
 module derelict.glib.gdir;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gerror;
+
 extern (C):
 
 alias _GDir GDir;

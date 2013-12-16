@@ -1,5 +1,10 @@
 module derelict.glib.gthreadpool;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gquark;
+import derelict.glib.gerror;
+
 extern (C):
 
 alias _GThreadPool GThreadPool;

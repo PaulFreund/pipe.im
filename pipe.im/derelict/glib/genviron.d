@@ -1,5 +1,8 @@
 module derelict.glib.genviron;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+
 extern (C):
 
 const(gchar)* g_getenv (const(gchar)* variable);

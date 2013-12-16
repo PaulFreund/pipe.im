@@ -1,5 +1,11 @@
 module derelict.purple.buddyicon;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.purple.account;
+import derelict.purple.blist;
+import derelict.purple.imgstore;
+import derelict.purple.prpl;
 import core.stdc.time;
 
 extern (C):

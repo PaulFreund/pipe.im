@@ -1,5 +1,10 @@
 module derelict.glib.goption;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gerror;
+import derelict.glib.gquark;
+
 extern (C):
 
 alias _GOptionContext GOptionContext;

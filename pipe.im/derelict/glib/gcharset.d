@@ -1,5 +1,8 @@
 module derelict.glib.gcharset;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+
 extern (C):
 
 gboolean g_get_charset (const(char*)* charset);

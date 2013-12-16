@@ -1,5 +1,18 @@
 module derelict.purple.account;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.ghash;
+import derelict.glib.glist;
+import derelict.glib.gslist;
+import derelict.purple.log;
+import derelict.purple.status;
+import derelict.purple.connection;
+import derelict.purple.proxy;
+import derelict.purple.privacy;
+import derelict.purple.blist;
+import derelict.purple.status;
+
 extern (C):
 
 alias _PurpleAccountUiOps PurpleAccountUiOps;

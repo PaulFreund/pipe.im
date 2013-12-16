@@ -1,6 +1,9 @@
 module derelict.glib.gmessages;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
 import core.stdc.config;
+import std.c.stdarg;
 
 extern (C):
 
@@ -21,13 +24,13 @@ enum _Anonymous_0
 	G_LOG_LEVEL_MASK = -4
 }
 
-gsize g_printf_string_upper_bound (const(gchar)* format, __va_list_tag* args);
+gsize g_printf_string_upper_bound (const(gchar)* format, va_list args);
 guint g_log_set_handler (const(gchar)* log_domain, GLogLevelFlags log_levels, GLogFunc log_func, gpointer user_data);
 void g_log_remove_handler (const(gchar)* log_domain, guint handler_id);
 void g_log_default_handler (const(gchar)* log_domain, GLogLevelFlags log_level, const(gchar)* message, gpointer unused_data);
 GLogFunc g_log_set_default_handler (GLogFunc log_func, gpointer user_data);
 void g_log (const(gchar)* log_domain, GLogLevelFlags log_level, const(gchar)* format, ...);
-void g_logv (const(gchar)* log_domain, GLogLevelFlags log_level, const(gchar)* format, __va_list_tag* args);
+void g_logv (const(gchar)* log_domain, GLogLevelFlags log_level, const(gchar)* format, va_list args);
 GLogLevelFlags g_log_set_fatal_mask (const(gchar)* log_domain, GLogLevelFlags fatal_mask);
 GLogLevelFlags g_log_set_always_fatal (GLogLevelFlags fatal_mask);
 void _g_log_fallback_handler (const(gchar)* log_domain, GLogLevelFlags log_level, const(gchar)* message, gpointer unused_data);

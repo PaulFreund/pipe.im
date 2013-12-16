@@ -1,5 +1,12 @@
 module derelict.purple.connection;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.glib.gslist;
+import derelict.purple.plugin;
+import derelict.purple.account;
+import derelict.purple.sslconn;
 import core.stdc.time;
 
 extern (C):

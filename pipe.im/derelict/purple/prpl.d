@@ -1,5 +1,21 @@
 module derelict.purple.prpl;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.glib.ghash;
+import derelict.purple.account;
+import derelict.purple.blist;
+import derelict.purple.connection;
+import derelict.purple.conversation;
+import derelict.purple.notify;
+import derelict.purple.status;
+import derelict.purple.imgstore;
+import derelict.purple.roomlist;
+import derelict.purple.whiteboard;
+import derelict.purple.enum_types;
+import derelict.purple.plugin;
+import derelict.purple.ft;
 import core.stdc.time;
 import core.stdc.config;
 

@@ -1,6 +1,9 @@
 module derelict.glib.gutils;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
 import core.stdc.config;
+import std.c.stdarg;
 
 extern (C):
 
@@ -54,7 +57,7 @@ const(gchar)* g_get_user_runtime_dir ();
 const(gchar)* g_get_user_special_dir (GUserDirectory directory);
 guint g_parse_debug_string (const(gchar)* string, const(GDebugKey)* keys, guint nkeys);
 gint g_snprintf (gchar* string, gulong n, const(gchar)* format, ...);
-gint g_vsnprintf (gchar* string, gulong n, const(gchar)* format, __va_list_tag* args);
+gint g_vsnprintf (gchar* string, gulong n, const(gchar)* format, va_list args);
 void g_nullify_pointer (gpointer* nullify_location);
 gchar* g_format_size_full (guint64 size, GFormatSizeFlags flags);
 gchar* g_format_size (guint64 size);

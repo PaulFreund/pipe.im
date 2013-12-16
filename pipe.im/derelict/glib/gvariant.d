@@ -1,5 +1,11 @@
 module derelict.glib.gvariant;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gvarianttype;
+import derelict.glib.gstring;
+import derelict.glib.gerror;
+import derelict.glib.gquark;
 import core.stdc.config;
 import core.stdc.string;
 import core.stdc.stdarg;

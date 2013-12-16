@@ -1,6 +1,12 @@
 module derelict.glib.gmarkup;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gerror;
+import derelict.glib.gquark;
+import derelict.glib.gslist;
 import core.stdc.config;
+import std.c.stdarg;
 
 extern (C):
 
@@ -63,5 +69,5 @@ void g_markup_parse_context_get_position (GMarkupParseContext* context, gint* li
 gpointer g_markup_parse_context_get_user_data (GMarkupParseContext* context);
 gchar* g_markup_escape_text (const(gchar)* text, gssize length);
 gchar* g_markup_printf_escaped (const(char)* format, ...);
-gchar* g_markup_vprintf_escaped (const(char)* format, __va_list_tag* args);
+gchar* g_markup_vprintf_escaped (const(char)* format, va_list args);
 gboolean g_markup_collect_attributes (const(gchar)* element_name, const(gchar*)* attribute_names, const(gchar*)* attribute_values, GError** error, GMarkupCollectType first_type, const(gchar)* first_attr, ...);

@@ -1,5 +1,10 @@
 module derelict.glib.gstring;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gunicode;
+import std.c.stdarg;
+
 import core.stdc.string;
 import core.stdc.config;
 
@@ -40,9 +45,9 @@ GString* g_string_overwrite_len (GString* string, gsize pos, const(gchar)* val, 
 GString* g_string_erase (GString* string, gssize pos, gssize len);
 GString* g_string_ascii_down (GString* string);
 GString* g_string_ascii_up (GString* string);
-void g_string_vprintf (GString* string, const(gchar)* format, __va_list_tag* args);
+void g_string_vprintf (GString* string, const(gchar)* format, va_list args);
 void g_string_printf (GString* string, const(gchar)* format, ...);
-void g_string_append_vprintf (GString* string, const(gchar)* format, __va_list_tag* args);
+void g_string_append_vprintf (GString* string, const(gchar)* format, va_list args);
 void g_string_append_printf (GString* string, const(gchar)* format, ...);
 GString* g_string_append_uri_escaped (GString* string, const(gchar)* unescaped, const(gchar)* reserved_chars_allowed, gboolean allow_utf8);
 GString* g_string_append_c_inline (GString* gstring, gchar c);

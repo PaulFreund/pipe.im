@@ -1,5 +1,8 @@
 module derelict.glib.gversion;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+
 extern (C):
 
 extern __gshared const guint glib_major_version;

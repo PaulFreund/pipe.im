@@ -1,5 +1,8 @@
 module derelict.purple.pluginpref;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
 extern (C):
 
 alias _PurplePluginPrefFrame PurplePluginPrefFrame;

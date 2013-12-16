@@ -1,5 +1,7 @@
 module derelict.glib.gpoll;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
 import core.sys.posix.poll;
 
 extern (C):

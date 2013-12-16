@@ -1,5 +1,15 @@
 module derelict.purple.blist;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.ghash;
+import derelict.glib.gslist;
+import derelict.glib.glist;
+import derelict.purple.buddyicon;
+import derelict.purple.account;
+import derelict.purple.status;
+import derelict.purple.enum_types;
+
 extern (C):
 
 alias _PurpleBuddyList PurpleBuddyList;
