@@ -1,5 +1,8 @@
 module derelict.purple.upnp;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+
 extern (C):
 
 alias _UPnPMappingAddRemove UPnPMappingAddRemove;

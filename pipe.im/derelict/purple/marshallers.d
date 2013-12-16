@@ -1,5 +1,8 @@
 module derelict.purple.marshallers;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+
 extern (C):
 
 void purple_smarshal_VOID__POINTER_POINTER_OBJECT (GClosure* closure, GValue* return_value, guint n_param_values, const(GValue)* param_values, gpointer invocation_hint, gpointer marshal_data);

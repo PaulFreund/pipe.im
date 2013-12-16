@@ -1,5 +1,10 @@
 module derelict.purple.dnsquery;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gslist;
+import derelict.purple.account;
+
 extern (C):
 
 alias _PurpleDnsQueryData PurpleDnsQueryData;

@@ -1,5 +1,13 @@
 module derelict.purple.util;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.glib.gdataset;
+import derelict.purple.account;
+import derelict.purple.signals;
+import derelict.purple.notify;
+import derelict.purple.xmlnode;
 import core.stdc.config;
 import core.stdc.time;
 import core.stdc.stdio;

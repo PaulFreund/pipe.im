@@ -1,5 +1,8 @@
 module derelict.purple.prefs;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
 extern (C):
 
 alias _PurplePrefType PurplePrefType;

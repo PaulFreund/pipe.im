@@ -1,8 +1,11 @@
 module derelict.purple.core;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.ghash;
+
 extern (C):
 
-alias PurpleCore PurpleCore;
 alias _Anonymous_0 PurpleCoreUiOps;
 
 struct _Anonymous_0

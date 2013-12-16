@@ -1,5 +1,8 @@
 module derelict.purple._version;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+
 extern (C):
 
 extern __gshared const guint purple_major_version;

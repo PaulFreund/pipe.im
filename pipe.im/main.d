@@ -11,7 +11,7 @@ import std.stdio;
 
 
 import derelict.glib.glib;
-//fit import derelict.purple.purple;
+import derelict.purple.purple;
 
 int main(string[] argv)
 {

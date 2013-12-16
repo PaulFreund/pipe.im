@@ -1,5 +1,9 @@
 module derelict.purple.accountopt;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.purple.prefs;
 extern (C):
 
 alias _Anonymous_0 PurpleAccountOption;

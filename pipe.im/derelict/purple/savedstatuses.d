@@ -1,5 +1,10 @@
 module derelict.purple.savedstatuses;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.purple.status;
+import derelict.purple.account;
 import core.stdc.time;
 
 extern (C):

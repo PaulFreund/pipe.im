@@ -1,5 +1,9 @@
 module derelict.purple.mime;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gstring;
+import derelict.glib.glist;
 import core.stdc.config;
 import core.stdc.string;
 

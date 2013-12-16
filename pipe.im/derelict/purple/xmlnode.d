@@ -1,5 +1,8 @@
 module derelict.purple.xmlnode;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.ghash;
 import core.stdc.config;
 
 extern (C):

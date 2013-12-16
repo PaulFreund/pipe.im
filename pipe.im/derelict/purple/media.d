@@ -1,6 +1,17 @@
 module derelict.purple.media;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.purple.account;
+import derelict.purple.enum_types;
+
 extern (C):
+
+alias _PurpleMediaCodec PurpleMediaCodec;
+
+struct _PurpleMediaCodec;
+
 
 alias _PurpleMedia PurpleMedia;
 

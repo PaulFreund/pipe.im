@@ -78,11 +78,10 @@ enum _Anonymous_6
 	PURPLE_MEDIA_STATE_END = 2
 }
 
-/*
+
 GType purple_media_candidate_type_get_type ();
 GType purple_media_caps_get_type ();
 GType purple_media_info_type_get_type ();
 GType purple_media_network_protocol_get_type ();
 GType purple_media_session_type_get_type ();
 GType purple_media_state_changed_get_type ();
-*/

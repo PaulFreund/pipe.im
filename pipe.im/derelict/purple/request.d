@@ -1,6 +1,13 @@
 module derelict.purple.request;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.glib.ghash;
+import derelict.purple.account;
+import derelict.purple.conversation;
 import core.stdc.config;
+import std.c.stdarg;
 
 extern (C):
 
@@ -70,23 +77,23 @@ struct _PurpleRequestField
 			gboolean multiline;
 			gboolean masked;
 			gboolean editable;
-			char* default_value;
-			char* value;
+			char* default_value_charp;
+			char* value_charp;
 		}
 		struct
 		{
-			int default_value;
-			int value;
+			int default_value_int;
+			int value_int;
 		}
 		struct
 		{
-			gboolean default_value;
-			gboolean value;
+			gboolean default_value_bool;
+			gboolean value_bool;
 		}
 		struct
 		{
-			int default_value;
-			int value;
+			int default_value_int_labels;
+			int value_int_labels;
 			GList* labels;
 		}
 		struct
@@ -119,13 +126,13 @@ struct _PurpleRequestField
 struct _Anonymous_4
 {
 	void* function (const(char)*, const(char)*, const(char)*, const(char)*, gboolean, gboolean, gchar*, const(char)*, GCallback, const(char)*, GCallback, PurpleAccount*, const(char)*, PurpleConversation*, void*) request_input;
-	void* function (const(char)*, const(char)*, const(char)*, int, const(char)*, GCallback, const(char)*, GCallback, PurpleAccount*, const(char)*, PurpleConversation*, void*, __va_list_tag*) request_choice;
-	void* function (const(char)*, const(char)*, const(char)*, int, PurpleAccount*, const(char)*, PurpleConversation*, void*, size_t, __va_list_tag*) request_action;
+	void* function (const(char)*, const(char)*, const(char)*, int, const(char)*, GCallback, const(char)*, GCallback, PurpleAccount*, const(char)*, PurpleConversation*, void*, va_list) request_choice;
+	void* function (const(char)*, const(char)*, const(char)*, int, PurpleAccount*, const(char)*, PurpleConversation*, void*, size_t, va_list) request_action;
 	void* function (const(char)*, const(char)*, const(char)*, PurpleRequestFields*, const(char)*, GCallback, const(char)*, GCallback, PurpleAccount*, const(char)*, PurpleConversation*, void*) request_fields;
 	void* function (const(char)*, const(char)*, gboolean, GCallback, GCallback, PurpleAccount*, const(char)*, PurpleConversation*, void*) request_file;
 	void function (PurpleRequestType, void*) close_request;
 	void* function (const(char)*, const(char)*, GCallback, GCallback, PurpleAccount*, const(char)*, PurpleConversation*, void*) request_folder;
-	void* function (const(char)*, const(char)*, const(char)*, int, PurpleAccount*, const(char)*, PurpleConversation*, gconstpointer, gsize, void*, size_t, __va_list_tag*) request_action_with_icon;
+	void* function (const(char)*, const(char)*, const(char)*, int, PurpleAccount*, const(char)*, PurpleConversation*, gconstpointer, gsize, void*, size_t, va_list) request_action_with_icon;
 	void function () _purple_reserved1;
 	void function () _purple_reserved2;
 	void function () _purple_reserved3;
@@ -223,11 +230,11 @@ gboolean purple_request_field_account_get_show_all (const(PurpleRequestField)* f
 PurpleFilterAccountFunc purple_request_field_account_get_filter (const(PurpleRequestField)* field);
 void* purple_request_input (void* handle, const(char)* title, const(char)* primary, const(char)* secondary, const(char)* default_value, gboolean multiline, gboolean masked, gchar* hint, const(char)* ok_text, GCallback ok_cb, const(char)* cancel_text, GCallback cancel_cb, PurpleAccount* account, const(char)* who, PurpleConversation* conv, void* user_data);
 void* purple_request_choice (void* handle, const(char)* title, const(char)* primary, const(char)* secondary, int default_value, const(char)* ok_text, GCallback ok_cb, const(char)* cancel_text, GCallback cancel_cb, PurpleAccount* account, const(char)* who, PurpleConversation* conv, void* user_data, ...);
-void* purple_request_choice_varg (void* handle, const(char)* title, const(char)* primary, const(char)* secondary, int default_value, const(char)* ok_text, GCallback ok_cb, const(char)* cancel_text, GCallback cancel_cb, PurpleAccount* account, const(char)* who, PurpleConversation* conv, void* user_data, __va_list_tag* choices);
+void* purple_request_choice_varg (void* handle, const(char)* title, const(char)* primary, const(char)* secondary, int default_value, const(char)* ok_text, GCallback ok_cb, const(char)* cancel_text, GCallback cancel_cb, PurpleAccount* account, const(char)* who, PurpleConversation* conv, void* user_data, va_list choices);
 void* purple_request_action (void* handle, const(char)* title, const(char)* primary, const(char)* secondary, int default_action, PurpleAccount* account, const(char)* who, PurpleConversation* conv, void* user_data, size_t action_count, ...);
-void* purple_request_action_varg (void* handle, const(char)* title, const(char)* primary, const(char)* secondary, int default_action, PurpleAccount* account, const(char)* who, PurpleConversation* conv, void* user_data, size_t action_count, __va_list_tag* actions);
+void* purple_request_action_varg (void* handle, const(char)* title, const(char)* primary, const(char)* secondary, int default_action, PurpleAccount* account, const(char)* who, PurpleConversation* conv, void* user_data, size_t action_count, va_list actions);
 void* purple_request_action_with_icon (void* handle, const(char)* title, const(char)* primary, const(char)* secondary, int default_action, PurpleAccount* account, const(char)* who, PurpleConversation* conv, gconstpointer icon_data, gsize icon_size, void* user_data, size_t action_count, ...);
-void* purple_request_action_with_icon_varg (void* handle, const(char)* title, const(char)* primary, const(char)* secondary, int default_action, PurpleAccount* account, const(char)* who, PurpleConversation* conv, gconstpointer icon_data, gsize icon_size, void* user_data, size_t action_count, __va_list_tag* actions);
+void* purple_request_action_with_icon_varg (void* handle, const(char)* title, const(char)* primary, const(char)* secondary, int default_action, PurpleAccount* account, const(char)* who, PurpleConversation* conv, gconstpointer icon_data, gsize icon_size, void* user_data, size_t action_count, va_list actions);
 void* purple_request_fields (void* handle, const(char)* title, const(char)* primary, const(char)* secondary, PurpleRequestFields* fields, const(char)* ok_text, GCallback ok_cb, const(char)* cancel_text, GCallback cancel_cb, PurpleAccount* account, const(char)* who, PurpleConversation* conv, void* user_data);
 void purple_request_close (PurpleRequestType type, void* uihandle);
 void purple_request_close_with_handle (void* handle);

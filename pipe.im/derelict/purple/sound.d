@@ -1,5 +1,9 @@
 module derelict.purple.sound;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.purple.account;
+
 extern (C):
 
 alias _PurpleSoundEventID PurpleSoundEventID;

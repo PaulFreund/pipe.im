@@ -1,5 +1,9 @@
 module derelict.purple.eventloop;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.gmain;
+
 extern (C):
 
 alias _Anonymous_0 PurpleInputCondition;

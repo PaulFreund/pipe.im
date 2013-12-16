@@ -1,5 +1,10 @@
 module derelict.purple.theme_manager;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.purple.theme;
+import derelict.purple.theme_loader;
+
 extern (C):
 
 alias void function (_PurpleTheme*) PTFunc;

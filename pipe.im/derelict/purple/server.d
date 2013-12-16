@@ -1,5 +1,13 @@
 module derelict.purple.server;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.ghash;
+import derelict.purple.blist;
+import derelict.purple.connection;
+import derelict.purple.conversation;
+import derelict.purple.prpl;
+import derelict.purple.account;
 import core.stdc.time;
 
 extern (C):

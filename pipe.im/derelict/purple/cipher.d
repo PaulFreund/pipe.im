@@ -1,5 +1,9 @@
 module derelict.purple.cipher;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+
 extern (C):
 
 alias _PurpleCipher PurpleCipher;

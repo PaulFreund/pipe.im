@@ -1,5 +1,10 @@
 module derelict.purple.smiley;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.purple.imgstore;
+
 extern (C):
 
 alias _PurpleSmiley PurpleSmiley;

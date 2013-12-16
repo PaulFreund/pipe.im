@@ -1,5 +1,9 @@
 module derelict.purple.sound_theme;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.purple.theme;
+
 extern (C):
 
 alias _PurpleSoundTheme PurpleSoundTheme;

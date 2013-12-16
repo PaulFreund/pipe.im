@@ -62,7 +62,7 @@ struct _PurpleLog
 	time_t time;
 	PurpleLogLogger* logger;
 	void* logger_data;
-	tm* tm;
+	core.stdc.time.tm* tm;
 }
 
 struct _PurpleLogCommonLoggerData

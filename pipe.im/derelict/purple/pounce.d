@@ -1,5 +1,12 @@
 module derelict.purple.pounce;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.ghash;
+import derelict.glib.glist;
+import derelict.purple.account;
+import derelict.purple.blist;
+
 extern (C):
 
 alias _PurplePounce PurplePounce;

@@ -1,5 +1,12 @@
 module derelict.purple.mediamanager;
 
+import derelict.glib.gtypes;
+import derelict.glib.glibconfig;
+import derelict.glib.glist;
+import derelict.purple.media;
+import derelict.purple.account;
+import derelict.purple.enum_types;
+
 extern (C):
 
 alias _PurpleMediaManager PurpleMediaManager;
