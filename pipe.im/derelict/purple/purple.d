@@ -127,7 +127,7 @@ private {
     else static if(Derelict_OS_Posix)
         enum libNames = "libpurple.so,libglib-2.0.so";
     else
-        static assert(0, "Need to implement (lib)Purple libNames for this operating system.");
+        static assert(0, "Need to implement Purple libNames for this operating system.");
 }
 
 class DerelictPurpleLoader : SharedLibLoader {

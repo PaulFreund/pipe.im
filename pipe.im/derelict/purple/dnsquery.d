@@ -26,12 +26,12 @@ struct _Anonymous_0
 struct _PurpleDnsQueryData;
 
 
-PurpleDnsQueryData* purple_dnsquery_a_account (PurpleAccount* account, const(char)* hostname, int port, PurpleDnsQueryConnectFunction callback, gpointer data);
-PurpleDnsQueryData* purple_dnsquery_a (const(char)* hostname, int port, PurpleDnsQueryConnectFunction callback, gpointer data);
-void purple_dnsquery_destroy (PurpleDnsQueryData* query_data);
-void purple_dnsquery_set_ui_ops (PurpleDnsQueryUiOps* ops);
-PurpleDnsQueryUiOps* purple_dnsquery_get_ui_ops ();
-char* purple_dnsquery_get_host (PurpleDnsQueryData* query_data);
-ushort purple_dnsquery_get_port (PurpleDnsQueryData* query_data);
-void purple_dnsquery_init ();
-void purple_dnsquery_uninit ();
+alias da_purple_dnsquery_a_account = PurpleDnsQueryData* function(PurpleAccount* account, const(char)* hostname, int port, PurpleDnsQueryConnectFunction callback, gpointer data);																																																						/* da_purple_dnsquery_a_account purple_dnsquery_a_account; */
+alias da_purple_dnsquery_a = PurpleDnsQueryData* function(const(char)* hostname, int port, PurpleDnsQueryConnectFunction callback, gpointer data);																																																						/* da_purple_dnsquery_a purple_dnsquery_a; */
+alias da_purple_dnsquery_destroy = void function(PurpleDnsQueryData* query_data);																																																						/* da_purple_dnsquery_destroy purple_dnsquery_destroy; */
+alias da_purple_dnsquery_set_ui_ops = void function(PurpleDnsQueryUiOps* ops);																																																						/* da_purple_dnsquery_set_ui_ops purple_dnsquery_set_ui_ops; */
+alias da_purple_dnsquery_get_ui_ops = PurpleDnsQueryUiOps* function();																																																						/* da_purple_dnsquery_get_ui_ops purple_dnsquery_get_ui_ops; */
+alias da_purple_dnsquery_get_host = char* function(PurpleDnsQueryData* query_data);																																																						/* da_purple_dnsquery_get_host purple_dnsquery_get_host; */
+alias da_purple_dnsquery_get_port = ushort function(PurpleDnsQueryData* query_data);																																																						/* da_purple_dnsquery_get_port purple_dnsquery_get_port; */
+alias da_purple_dnsquery_init = void function();																																																						/* da_purple_dnsquery_init purple_dnsquery_init; */
+alias da_purple_dnsquery_uninit = void function();																																																						/* da_purple_dnsquery_uninit purple_dnsquery_uninit; */

@@ -19,4 +19,4 @@ struct _PurpleSoundThemeLoaderClass
 	PurpleThemeLoaderClass parent_class;
 }
 
-GType purple_sound_theme_loader_get_type ();
+alias da_purple_sound_theme_loader_get_type = GType function();																																																						/* da_purple_sound_theme_loader_get_type purple_sound_theme_loader_get_type; */

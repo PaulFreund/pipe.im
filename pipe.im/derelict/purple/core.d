@@ -23,14 +23,14 @@ struct _Anonymous_0
 struct PurpleCore;
 
 
-gboolean purple_core_init (const(char)* ui);
-void purple_core_quit ();
-gboolean purple_core_quit_cb (gpointer unused);
-const(char)* purple_core_get_version ();
-const(char)* purple_core_get_ui ();
-PurpleCore* purple_get_core ();
-void purple_core_set_ui_ops (PurpleCoreUiOps* ops);
-PurpleCoreUiOps* purple_core_get_ui_ops ();
-gboolean purple_core_migrate ();
-gboolean purple_core_ensure_single_instance ();
-GHashTable* purple_core_get_ui_info ();
+alias da_purple_core_init = gboolean function(const(char)* ui);																																																						/* da_purple_core_init purple_core_init; */
+alias da_purple_core_quit = void function();																																																						/* da_purple_core_quit purple_core_quit; */
+alias da_purple_core_quit_cb = gboolean function(gpointer unused);																																																						/* da_purple_core_quit_cb purple_core_quit_cb; */
+alias da_purple_core_get_version = const(char)* function();																																																						/* da_purple_core_get_version purple_core_get_version; */
+alias da_purple_core_get_ui = const(char)* function();																																																						/* da_purple_core_get_ui purple_core_get_ui; */
+alias da_purple_get_core = PurpleCore* function();																																																						/* da_purple_get_core purple_get_core; */
+alias da_purple_core_set_ui_ops = void function(PurpleCoreUiOps* ops);																																																						/* da_purple_core_set_ui_ops purple_core_set_ui_ops; */
+alias da_purple_core_get_ui_ops = PurpleCoreUiOps* function();																																																						/* da_purple_core_get_ui_ops purple_core_get_ui_ops; */
+alias da_purple_core_migrate = gboolean function();																																																						/* da_purple_core_migrate purple_core_migrate; */
+alias da_purple_core_ensure_single_instance = gboolean function();																																																						/* da_purple_core_ensure_single_instance purple_core_ensure_single_instance; */
+alias da_purple_core_get_ui_info = GHashTable* function();																																																						/* da_purple_core_get_ui_info purple_core_get_ui_info; */

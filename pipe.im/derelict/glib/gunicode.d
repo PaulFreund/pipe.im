@@ -213,68 +213,68 @@ enum _Anonymous_3
 	G_NORMALIZE_NFKC = 3
 }
 
-guint32 g_unicode_script_to_iso15924 (GUnicodeScript script);
-GUnicodeScript g_unicode_script_from_iso15924 (guint32 iso15924);
-gboolean g_unichar_isalnum (gunichar c);
-gboolean g_unichar_isalpha (gunichar c);
-gboolean g_unichar_iscntrl (gunichar c);
-gboolean g_unichar_isdigit (gunichar c);
-gboolean g_unichar_isgraph (gunichar c);
-gboolean g_unichar_islower (gunichar c);
-gboolean g_unichar_isprint (gunichar c);
-gboolean g_unichar_ispunct (gunichar c);
-gboolean g_unichar_isspace (gunichar c);
-gboolean g_unichar_isupper (gunichar c);
-gboolean g_unichar_isxdigit (gunichar c);
-gboolean g_unichar_istitle (gunichar c);
-gboolean g_unichar_isdefined (gunichar c);
-gboolean g_unichar_iswide (gunichar c);
-gboolean g_unichar_iswide_cjk (gunichar c);
-gboolean g_unichar_iszerowidth (gunichar c);
-gboolean g_unichar_ismark (gunichar c);
-gunichar g_unichar_toupper (gunichar c);
-gunichar g_unichar_tolower (gunichar c);
-gunichar g_unichar_totitle (gunichar c);
-gint g_unichar_digit_value (gunichar c);
-gint g_unichar_xdigit_value (gunichar c);
-GUnicodeType g_unichar_type (gunichar c);
-GUnicodeBreakType g_unichar_break_type (gunichar c);
-gint g_unichar_combining_class (gunichar uc);
-gboolean g_unichar_get_mirror_char (gunichar ch, gunichar* mirrored_ch);
-GUnicodeScript g_unichar_get_script (gunichar ch);
-gboolean g_unichar_validate (gunichar ch);
-gboolean g_unichar_compose (gunichar a, gunichar b, gunichar* ch);
-gboolean g_unichar_decompose (gunichar ch, gunichar* a, gunichar* b);
-gsize g_unichar_fully_decompose (gunichar ch, gboolean compat, gunichar* result, gsize result_len);
-void g_unicode_canonical_ordering (gunichar* string, gsize len);
-gunichar* g_unicode_canonical_decomposition (gunichar ch, gsize* result_len);
-gunichar g_utf8_get_char (const(gchar)* p);
-gunichar g_utf8_get_char_validated (const(gchar)* p, gssize max_len);
-gchar* g_utf8_offset_to_pointer (const(gchar)* str, glong offset);
-glong g_utf8_pointer_to_offset (const(gchar)* str, const(gchar)* pos);
-gchar* g_utf8_prev_char (const(gchar)* p);
-gchar* g_utf8_find_next_char (const(gchar)* p, const(gchar)* end);
-gchar* g_utf8_find_prev_char (const(gchar)* str, const(gchar)* p);
-glong g_utf8_strlen (const(gchar)* p, gssize max);
-gchar* g_utf8_substring (const(gchar)* str, glong start_pos, glong end_pos);
-gchar* g_utf8_strncpy (gchar* dest, const(gchar)* src, gsize n);
-gchar* g_utf8_strchr (const(gchar)* p, gssize len, gunichar c);
-gchar* g_utf8_strrchr (const(gchar)* p, gssize len, gunichar c);
-gchar* g_utf8_strreverse (const(gchar)* str, gssize len);
-gunichar2* g_utf8_to_utf16 (const(gchar)* str, glong len, glong* items_read, glong* items_written, GError** error);
-gunichar* g_utf8_to_ucs4 (const(gchar)* str, glong len, glong* items_read, glong* items_written, GError** error);
-gunichar* g_utf8_to_ucs4_fast (const(gchar)* str, glong len, glong* items_written);
-gunichar* g_utf16_to_ucs4 (const(gunichar2)* str, glong len, glong* items_read, glong* items_written, GError** error);
-gchar* g_utf16_to_utf8 (const(gunichar2)* str, glong len, glong* items_read, glong* items_written, GError** error);
-gunichar2* g_ucs4_to_utf16 (const(gunichar)* str, glong len, glong* items_read, glong* items_written, GError** error);
-gchar* g_ucs4_to_utf8 (const(gunichar)* str, glong len, glong* items_read, glong* items_written, GError** error);
-gint g_unichar_to_utf8 (gunichar c, gchar* outbuf);
-gboolean g_utf8_validate (const(gchar)* str, gssize max_len, const(gchar*)* end);
-gchar* g_utf8_strup (const(gchar)* str, gssize len);
-gchar* g_utf8_strdown (const(gchar)* str, gssize len);
-gchar* g_utf8_casefold (const(gchar)* str, gssize len);
-gchar* g_utf8_normalize (const(gchar)* str, gssize len, GNormalizeMode mode);
-gint g_utf8_collate (const(gchar)* str1, const(gchar)* str2);
-gchar* g_utf8_collate_key (const(gchar)* str, gssize len);
-gchar* g_utf8_collate_key_for_filename (const(gchar)* str, gssize len);
-gchar* _g_utf8_make_valid (const(gchar)* name);
+alias da_g_unicode_script_to_iso15924 = guint32 function(GUnicodeScript script);																																																						/* da_g_unicode_script_to_iso15924 g_unicode_script_to_iso15924; */
+alias da_g_unicode_script_from_iso15924 = GUnicodeScript function(guint32 iso15924);																																																						/* da_g_unicode_script_from_iso15924 g_unicode_script_from_iso15924; */
+alias da_g_unichar_isalnum = gboolean function(gunichar c);																																																						/* da_g_unichar_isalnum g_unichar_isalnum; */
+alias da_g_unichar_isalpha = gboolean function(gunichar c);																																																						/* da_g_unichar_isalpha g_unichar_isalpha; */
+alias da_g_unichar_iscntrl = gboolean function(gunichar c);																																																						/* da_g_unichar_iscntrl g_unichar_iscntrl; */
+alias da_g_unichar_isdigit = gboolean function(gunichar c);																																																						/* da_g_unichar_isdigit g_unichar_isdigit; */
+alias da_g_unichar_isgraph = gboolean function(gunichar c);																																																						/* da_g_unichar_isgraph g_unichar_isgraph; */
+alias da_g_unichar_islower = gboolean function(gunichar c);																																																						/* da_g_unichar_islower g_unichar_islower; */
+alias da_g_unichar_isprint = gboolean function(gunichar c);																																																						/* da_g_unichar_isprint g_unichar_isprint; */
+alias da_g_unichar_ispunct = gboolean function(gunichar c);																																																						/* da_g_unichar_ispunct g_unichar_ispunct; */
+alias da_g_unichar_isspace = gboolean function(gunichar c);																																																						/* da_g_unichar_isspace g_unichar_isspace; */
+alias da_g_unichar_isupper = gboolean function(gunichar c);																																																						/* da_g_unichar_isupper g_unichar_isupper; */
+alias da_g_unichar_isxdigit = gboolean function(gunichar c);																																																						/* da_g_unichar_isxdigit g_unichar_isxdigit; */
+alias da_g_unichar_istitle = gboolean function(gunichar c);																																																						/* da_g_unichar_istitle g_unichar_istitle; */
+alias da_g_unichar_isdefined = gboolean function(gunichar c);																																																						/* da_g_unichar_isdefined g_unichar_isdefined; */
+alias da_g_unichar_iswide = gboolean function(gunichar c);																																																						/* da_g_unichar_iswide g_unichar_iswide; */
+alias da_g_unichar_iswide_cjk = gboolean function(gunichar c);																																																						/* da_g_unichar_iswide_cjk g_unichar_iswide_cjk; */
+alias da_g_unichar_iszerowidth = gboolean function(gunichar c);																																																						/* da_g_unichar_iszerowidth g_unichar_iszerowidth; */
+alias da_g_unichar_ismark = gboolean function(gunichar c);																																																						/* da_g_unichar_ismark g_unichar_ismark; */
+alias da_g_unichar_toupper = gunichar function(gunichar c);																																																						/* da_g_unichar_toupper g_unichar_toupper; */
+alias da_g_unichar_tolower = gunichar function(gunichar c);																																																						/* da_g_unichar_tolower g_unichar_tolower; */
+alias da_g_unichar_totitle = gunichar function(gunichar c);																																																						/* da_g_unichar_totitle g_unichar_totitle; */
+alias da_g_unichar_digit_value = gint function(gunichar c);																																																						/* da_g_unichar_digit_value g_unichar_digit_value; */
+alias da_g_unichar_xdigit_value = gint function(gunichar c);																																																						/* da_g_unichar_xdigit_value g_unichar_xdigit_value; */
+alias da_g_unichar_type = GUnicodeType function(gunichar c);																																																						/* da_g_unichar_type g_unichar_type; */
+alias da_g_unichar_break_type = GUnicodeBreakType function(gunichar c);																																																						/* da_g_unichar_break_type g_unichar_break_type; */
+alias da_g_unichar_combining_class = gint function(gunichar uc);																																																						/* da_g_unichar_combining_class g_unichar_combining_class; */
+alias da_g_unichar_get_mirror_char = gboolean function(gunichar ch, gunichar* mirrored_ch);																																																						/* da_g_unichar_get_mirror_char g_unichar_get_mirror_char; */
+alias da_g_unichar_get_script = GUnicodeScript function(gunichar ch);																																																						/* da_g_unichar_get_script g_unichar_get_script; */
+alias da_g_unichar_validate = gboolean function(gunichar ch);																																																						/* da_g_unichar_validate g_unichar_validate; */
+alias da_g_unichar_compose = gboolean function(gunichar a, gunichar b, gunichar* ch);																																																						/* da_g_unichar_compose g_unichar_compose; */
+alias da_g_unichar_decompose = gboolean function(gunichar ch, gunichar* a, gunichar* b);																																																						/* da_g_unichar_decompose g_unichar_decompose; */
+alias da_g_unichar_fully_decompose = gsize function(gunichar ch, gboolean compat, gunichar* result, gsize result_len);																																																						/* da_g_unichar_fully_decompose g_unichar_fully_decompose; */
+alias da_g_unicode_canonical_ordering = void function(gunichar* string, gsize len);																																																						/* da_g_unicode_canonical_ordering g_unicode_canonical_ordering; */
+alias da_g_unicode_canonical_decomposition = gunichar* function(gunichar ch, gsize* result_len);																																																						/* da_g_unicode_canonical_decomposition g_unicode_canonical_decomposition; */
+alias da_g_utf8_get_char = gunichar function(const(gchar)* p);																																																						/* da_g_utf8_get_char g_utf8_get_char; */
+alias da_g_utf8_get_char_validated = gunichar function(const(gchar)* p, gssize max_len);																																																						/* da_g_utf8_get_char_validated g_utf8_get_char_validated; */
+alias da_g_utf8_offset_to_pointer = gchar* function(const(gchar)* str, glong offset);																																																						/* da_g_utf8_offset_to_pointer g_utf8_offset_to_pointer; */
+alias da_g_utf8_pointer_to_offset = glong function(const(gchar)* str, const(gchar)* pos);																																																						/* da_g_utf8_pointer_to_offset g_utf8_pointer_to_offset; */
+alias da_g_utf8_prev_char = gchar* function(const(gchar)* p);																																																						/* da_g_utf8_prev_char g_utf8_prev_char; */
+alias da_g_utf8_find_next_char = gchar* function(const(gchar)* p, const(gchar)* end);																																																						/* da_g_utf8_find_next_char g_utf8_find_next_char; */
+alias da_g_utf8_find_prev_char = gchar* function(const(gchar)* str, const(gchar)* p);																																																						/* da_g_utf8_find_prev_char g_utf8_find_prev_char; */
+alias da_g_utf8_strlen = glong function(const(gchar)* p, gssize max);																																																						/* da_g_utf8_strlen g_utf8_strlen; */
+alias da_g_utf8_substring = gchar* function(const(gchar)* str, glong start_pos, glong end_pos);																																																						/* da_g_utf8_substring g_utf8_substring; */
+alias da_g_utf8_strncpy = gchar* function(gchar* dest, const(gchar)* src, gsize n);																																																						/* da_g_utf8_strncpy g_utf8_strncpy; */
+alias da_g_utf8_strchr = gchar* function(const(gchar)* p, gssize len, gunichar c);																																																						/* da_g_utf8_strchr g_utf8_strchr; */
+alias da_g_utf8_strrchr = gchar* function(const(gchar)* p, gssize len, gunichar c);																																																						/* da_g_utf8_strrchr g_utf8_strrchr; */
+alias da_g_utf8_strreverse = gchar* function(const(gchar)* str, gssize len);																																																						/* da_g_utf8_strreverse g_utf8_strreverse; */
+alias da_g_utf8_to_utf16 = gunichar2* function(const(gchar)* str, glong len, glong* items_read, glong* items_written, GError** error);																																																						/* da_g_utf8_to_utf16 g_utf8_to_utf16; */
+alias da_g_utf8_to_ucs4 = gunichar* function(const(gchar)* str, glong len, glong* items_read, glong* items_written, GError** error);																																																						/* da_g_utf8_to_ucs4 g_utf8_to_ucs4; */
+alias da_g_utf8_to_ucs4_fast = gunichar* function(const(gchar)* str, glong len, glong* items_written);																																																						/* da_g_utf8_to_ucs4_fast g_utf8_to_ucs4_fast; */
+alias da_g_utf16_to_ucs4 = gunichar* function(const(gunichar2)* str, glong len, glong* items_read, glong* items_written, GError** error);																																																						/* da_g_utf16_to_ucs4 g_utf16_to_ucs4; */
+alias da_g_utf16_to_utf8 = gchar* function(const(gunichar2)* str, glong len, glong* items_read, glong* items_written, GError** error);																																																						/* da_g_utf16_to_utf8 g_utf16_to_utf8; */
+alias da_g_ucs4_to_utf16 = gunichar2* function(const(gunichar)* str, glong len, glong* items_read, glong* items_written, GError** error);																																																						/* da_g_ucs4_to_utf16 g_ucs4_to_utf16; */
+alias da_g_ucs4_to_utf8 = gchar* function(const(gunichar)* str, glong len, glong* items_read, glong* items_written, GError** error);																																																						/* da_g_ucs4_to_utf8 g_ucs4_to_utf8; */
+alias da_g_unichar_to_utf8 = gint function(gunichar c, gchar* outbuf);																																																						/* da_g_unichar_to_utf8 g_unichar_to_utf8; */
+alias da_g_utf8_validate = gboolean function(const(gchar)* str, gssize max_len, const(gchar*)* end);																																																						/* da_g_utf8_validate g_utf8_validate; */
+alias da_g_utf8_strup = gchar* function(const(gchar)* str, gssize len);																																																						/* da_g_utf8_strup g_utf8_strup; */
+alias da_g_utf8_strdown = gchar* function(const(gchar)* str, gssize len);																																																						/* da_g_utf8_strdown g_utf8_strdown; */
+alias da_g_utf8_casefold = gchar* function(const(gchar)* str, gssize len);																																																						/* da_g_utf8_casefold g_utf8_casefold; */
+alias da_g_utf8_normalize = gchar* function(const(gchar)* str, gssize len, GNormalizeMode mode);																																																						/* da_g_utf8_normalize g_utf8_normalize; */
+alias da_g_utf8_collate = gint function(const(gchar)* str1, const(gchar)* str2);																																																						/* da_g_utf8_collate g_utf8_collate; */
+alias da_g_utf8_collate_key = gchar* function(const(gchar)* str, gssize len);																																																						/* da_g_utf8_collate_key g_utf8_collate_key; */
+alias da_g_utf8_collate_key_for_filename = gchar* function(const(gchar)* str, gssize len);																																																						/* da_g_utf8_collate_key_for_filename g_utf8_collate_key_for_filename; */
+alias da__g_utf8_make_valid = gchar* function(const(gchar)* name);																																																						/* da__g_utf8_make_valid _g_utf8_make_valid; */

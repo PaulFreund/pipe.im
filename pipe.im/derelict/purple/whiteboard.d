@@ -52,20 +52,20 @@ struct _PurpleWhiteboardPrplOps
 	void function () _purple_reserved4;
 }
 
-void purple_whiteboard_set_ui_ops (PurpleWhiteboardUiOps* ops);
-void purple_whiteboard_set_prpl_ops (PurpleWhiteboard* wb, PurpleWhiteboardPrplOps* ops);
-PurpleWhiteboard* purple_whiteboard_create (PurpleAccount* account, const(char)* who, int state);
-void purple_whiteboard_destroy (PurpleWhiteboard* wb);
-void purple_whiteboard_start (PurpleWhiteboard* wb);
-PurpleWhiteboard* purple_whiteboard_get_session (const(PurpleAccount)* account, const(char)* who);
-void purple_whiteboard_draw_list_destroy (GList* draw_list);
-gboolean purple_whiteboard_get_dimensions (const(PurpleWhiteboard)* wb, int* width, int* height);
-void purple_whiteboard_set_dimensions (PurpleWhiteboard* wb, int width, int height);
-void purple_whiteboard_draw_point (PurpleWhiteboard* wb, int x, int y, int color, int size);
-void purple_whiteboard_send_draw_list (PurpleWhiteboard* wb, GList* list);
-void purple_whiteboard_draw_line (PurpleWhiteboard* wb, int x1, int y1, int x2, int y2, int color, int size);
-void purple_whiteboard_clear (PurpleWhiteboard* wb);
-void purple_whiteboard_send_clear (PurpleWhiteboard* wb);
-void purple_whiteboard_send_brush (PurpleWhiteboard* wb, int size, int color);
-gboolean purple_whiteboard_get_brush (const(PurpleWhiteboard)* wb, int* size, int* color);
-void purple_whiteboard_set_brush (PurpleWhiteboard* wb, int size, int color);
+alias da_purple_whiteboard_set_ui_ops = void function(PurpleWhiteboardUiOps* ops);																																																						/* da_purple_whiteboard_set_ui_ops purple_whiteboard_set_ui_ops; */
+alias da_purple_whiteboard_set_prpl_ops = void function(PurpleWhiteboard* wb, PurpleWhiteboardPrplOps* ops);																																																						/* da_purple_whiteboard_set_prpl_ops purple_whiteboard_set_prpl_ops; */
+alias da_purple_whiteboard_create = PurpleWhiteboard* function(PurpleAccount* account, const(char)* who, int state);																																																						/* da_purple_whiteboard_create purple_whiteboard_create; */
+alias da_purple_whiteboard_destroy = void function(PurpleWhiteboard* wb);																																																						/* da_purple_whiteboard_destroy purple_whiteboard_destroy; */
+alias da_purple_whiteboard_start = void function(PurpleWhiteboard* wb);																																																						/* da_purple_whiteboard_start purple_whiteboard_start; */
+alias da_purple_whiteboard_get_session = PurpleWhiteboard* function(const(PurpleAccount)* account, const(char)* who);																																																						/* da_purple_whiteboard_get_session purple_whiteboard_get_session; */
+alias da_purple_whiteboard_draw_list_destroy = void function(GList* draw_list);																																																						/* da_purple_whiteboard_draw_list_destroy purple_whiteboard_draw_list_destroy; */
+alias da_purple_whiteboard_get_dimensions = gboolean function(const(PurpleWhiteboard)* wb, int* width, int* height);																																																						/* da_purple_whiteboard_get_dimensions purple_whiteboard_get_dimensions; */
+alias da_purple_whiteboard_set_dimensions = void function(PurpleWhiteboard* wb, int width, int height);																																																						/* da_purple_whiteboard_set_dimensions purple_whiteboard_set_dimensions; */
+alias da_purple_whiteboard_draw_point = void function(PurpleWhiteboard* wb, int x, int y, int color, int size);																																																						/* da_purple_whiteboard_draw_point purple_whiteboard_draw_point; */
+alias da_purple_whiteboard_send_draw_list = void function(PurpleWhiteboard* wb, GList* list);																																																						/* da_purple_whiteboard_send_draw_list purple_whiteboard_send_draw_list; */
+alias da_purple_whiteboard_draw_line = void function(PurpleWhiteboard* wb, int x1, int y1, int x2, int y2, int color, int size);																																																						/* da_purple_whiteboard_draw_line purple_whiteboard_draw_line; */
+alias da_purple_whiteboard_clear = void function(PurpleWhiteboard* wb);																																																						/* da_purple_whiteboard_clear purple_whiteboard_clear; */
+alias da_purple_whiteboard_send_clear = void function(PurpleWhiteboard* wb);																																																						/* da_purple_whiteboard_send_clear purple_whiteboard_send_clear; */
+alias da_purple_whiteboard_send_brush = void function(PurpleWhiteboard* wb, int size, int color);																																																						/* da_purple_whiteboard_send_brush purple_whiteboard_send_brush; */
+alias da_purple_whiteboard_get_brush = gboolean function(const(PurpleWhiteboard)* wb, int* size, int* color);																																																						/* da_purple_whiteboard_get_brush purple_whiteboard_get_brush; */
+alias da_purple_whiteboard_set_brush = void function(PurpleWhiteboard* wb, int size, int color);																																																						/* da_purple_whiteboard_set_brush purple_whiteboard_set_brush; */

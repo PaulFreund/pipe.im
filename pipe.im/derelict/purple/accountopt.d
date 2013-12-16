@@ -32,31 +32,31 @@ struct _Anonymous_1
 	gboolean reverse;
 }
 
-PurpleAccountOption* purple_account_option_new (PurplePrefType type, const(char)* text, const(char)* pref_name);
-PurpleAccountOption* purple_account_option_bool_new (const(char)* text, const(char)* pref_name, gboolean default_value);
-PurpleAccountOption* purple_account_option_int_new (const(char)* text, const(char)* pref_name, int default_value);
-PurpleAccountOption* purple_account_option_string_new (const(char)* text, const(char)* pref_name, const(char)* default_value);
-PurpleAccountOption* purple_account_option_list_new (const(char)* text, const(char)* pref_name, GList* list);
-void purple_account_option_destroy (PurpleAccountOption* option);
-void purple_account_option_set_default_bool (PurpleAccountOption* option, gboolean value);
-void purple_account_option_set_default_int (PurpleAccountOption* option, int value);
-void purple_account_option_set_default_string (PurpleAccountOption* option, const(char)* value);
-void purple_account_option_set_masked (PurpleAccountOption* option, gboolean masked);
-void purple_account_option_set_list (PurpleAccountOption* option, GList* values);
-void purple_account_option_add_list_item (PurpleAccountOption* option, const(char)* key, const(char)* value);
-PurplePrefType purple_account_option_get_type (const(PurpleAccountOption)* option);
-const(char)* purple_account_option_get_text (const(PurpleAccountOption)* option);
-const(char)* purple_account_option_get_setting (const(PurpleAccountOption)* option);
-gboolean purple_account_option_get_default_bool (const(PurpleAccountOption)* option);
-int purple_account_option_get_default_int (const(PurpleAccountOption)* option);
-const(char)* purple_account_option_get_default_string (const(PurpleAccountOption)* option);
-const(char)* purple_account_option_get_default_list_value (const(PurpleAccountOption)* option);
-gboolean purple_account_option_get_masked (const(PurpleAccountOption)* option);
-GList* purple_account_option_get_list (const(PurpleAccountOption)* option);
-PurpleAccountUserSplit* purple_account_user_split_new (const(char)* text, const(char)* default_value, char sep);
-void purple_account_user_split_destroy (PurpleAccountUserSplit* split);
-const(char)* purple_account_user_split_get_text (const(PurpleAccountUserSplit)* split);
-const(char)* purple_account_user_split_get_default_value (const(PurpleAccountUserSplit)* split);
-char purple_account_user_split_get_separator (const(PurpleAccountUserSplit)* split);
-gboolean purple_account_user_split_get_reverse (const(PurpleAccountUserSplit)* split);
-void purple_account_user_split_set_reverse (PurpleAccountUserSplit* split, gboolean reverse);
+alias da_purple_account_option_new = PurpleAccountOption* function(PurplePrefType type, const(char)* text, const(char)* pref_name);																																																						/* da_purple_account_option_new purple_account_option_new; */
+alias da_purple_account_option_bool_new = PurpleAccountOption* function(const(char)* text, const(char)* pref_name, gboolean default_value);																																																						/* da_purple_account_option_bool_new purple_account_option_bool_new; */
+alias da_purple_account_option_int_new = PurpleAccountOption* function(const(char)* text, const(char)* pref_name, int default_value);																																																						/* da_purple_account_option_int_new purple_account_option_int_new; */
+alias da_purple_account_option_string_new = PurpleAccountOption* function(const(char)* text, const(char)* pref_name, const(char)* default_value);																																																						/* da_purple_account_option_string_new purple_account_option_string_new; */
+alias da_purple_account_option_list_new = PurpleAccountOption* function(const(char)* text, const(char)* pref_name, GList* list);																																																						/* da_purple_account_option_list_new purple_account_option_list_new; */
+alias da_purple_account_option_destroy = void function(PurpleAccountOption* option);																																																						/* da_purple_account_option_destroy purple_account_option_destroy; */
+alias da_purple_account_option_set_default_bool = void function(PurpleAccountOption* option, gboolean value);																																																						/* da_purple_account_option_set_default_bool purple_account_option_set_default_bool; */
+alias da_purple_account_option_set_default_int = void function(PurpleAccountOption* option, int value);																																																						/* da_purple_account_option_set_default_int purple_account_option_set_default_int; */
+alias da_purple_account_option_set_default_string = void function(PurpleAccountOption* option, const(char)* value);																																																						/* da_purple_account_option_set_default_string purple_account_option_set_default_string; */
+alias da_purple_account_option_set_masked = void function(PurpleAccountOption* option, gboolean masked);																																																						/* da_purple_account_option_set_masked purple_account_option_set_masked; */
+alias da_purple_account_option_set_list = void function(PurpleAccountOption* option, GList* values);																																																						/* da_purple_account_option_set_list purple_account_option_set_list; */
+alias da_purple_account_option_add_list_item = void function(PurpleAccountOption* option, const(char)* key, const(char)* value);																																																						/* da_purple_account_option_add_list_item purple_account_option_add_list_item; */
+alias da_purple_account_option_get_type = PurplePrefType function(const(PurpleAccountOption)* option);																																																						/* da_purple_account_option_get_type purple_account_option_get_type; */
+alias da_purple_account_option_get_text = const(char)* function(const(PurpleAccountOption)* option);																																																						/* da_purple_account_option_get_text purple_account_option_get_text; */
+alias da_purple_account_option_get_setting = const(char)* function(const(PurpleAccountOption)* option);																																																						/* da_purple_account_option_get_setting purple_account_option_get_setting; */
+alias da_purple_account_option_get_default_bool = gboolean function(const(PurpleAccountOption)* option);																																																						/* da_purple_account_option_get_default_bool purple_account_option_get_default_bool; */
+alias da_purple_account_option_get_default_int = int function(const(PurpleAccountOption)* option);																																																						/* da_purple_account_option_get_default_int purple_account_option_get_default_int; */
+alias da_purple_account_option_get_default_string = const(char)* function(const(PurpleAccountOption)* option);																																																						/* da_purple_account_option_get_default_string purple_account_option_get_default_string; */
+alias da_purple_account_option_get_default_list_value = const(char)* function(const(PurpleAccountOption)* option);																																																						/* da_purple_account_option_get_default_list_value purple_account_option_get_default_list_value; */
+alias da_purple_account_option_get_masked = gboolean function(const(PurpleAccountOption)* option);																																																						/* da_purple_account_option_get_masked purple_account_option_get_masked; */
+alias da_purple_account_option_get_list = GList* function(const(PurpleAccountOption)* option);																																																						/* da_purple_account_option_get_list purple_account_option_get_list; */
+alias da_purple_account_user_split_new = PurpleAccountUserSplit* function(const(char)* text, const(char)* default_value, char sep);																																																						/* da_purple_account_user_split_new purple_account_user_split_new; */
+alias da_purple_account_user_split_destroy = void function(PurpleAccountUserSplit* split);																																																						/* da_purple_account_user_split_destroy purple_account_user_split_destroy; */
+alias da_purple_account_user_split_get_text = const(char)* function(const(PurpleAccountUserSplit)* split);																																																						/* da_purple_account_user_split_get_text purple_account_user_split_get_text; */
+alias da_purple_account_user_split_get_default_value = const(char)* function(const(PurpleAccountUserSplit)* split);																																																						/* da_purple_account_user_split_get_default_value purple_account_user_split_get_default_value; */
+alias da_purple_account_user_split_get_separator = char function(const(PurpleAccountUserSplit)* split);																																																						/* da_purple_account_user_split_get_separator purple_account_user_split_get_separator; */
+alias da_purple_account_user_split_get_reverse = gboolean function(const(PurpleAccountUserSplit)* split);																																																						/* da_purple_account_user_split_get_reverse purple_account_user_split_get_reverse; */
+alias da_purple_account_user_split_set_reverse = void function(PurpleAccountUserSplit* split, gboolean reverse);																																																						/* da_purple_account_user_split_set_reverse purple_account_user_split_set_reverse; */

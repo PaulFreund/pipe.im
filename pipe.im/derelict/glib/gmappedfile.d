@@ -12,10 +12,10 @@ alias _GMappedFile GMappedFile;
 struct _GMappedFile;
 
 
-GMappedFile* g_mapped_file_new (const(gchar)* filename, gboolean writable, GError** error);
-GMappedFile* g_mapped_file_new_from_fd (gint fd, gboolean writable, GError** error);
-gsize g_mapped_file_get_length (GMappedFile* file);
-gchar* g_mapped_file_get_contents (GMappedFile* file);
-GMappedFile* g_mapped_file_ref (GMappedFile* file);
-void g_mapped_file_unref (GMappedFile* file);
-void g_mapped_file_free (GMappedFile* file);
+alias da_g_mapped_file_new = GMappedFile* function(const(gchar)* filename, gboolean writable, GError** error);																																																						/* da_g_mapped_file_new g_mapped_file_new; */
+alias da_g_mapped_file_new_from_fd = GMappedFile* function(gint fd, gboolean writable, GError** error);																																																						/* da_g_mapped_file_new_from_fd g_mapped_file_new_from_fd; */
+alias da_g_mapped_file_get_length = gsize function(GMappedFile* file);																																																						/* da_g_mapped_file_get_length g_mapped_file_get_length; */
+alias da_g_mapped_file_get_contents = gchar* function(GMappedFile* file);																																																						/* da_g_mapped_file_get_contents g_mapped_file_get_contents; */
+alias da_g_mapped_file_ref = GMappedFile* function(GMappedFile* file);																																																						/* da_g_mapped_file_ref g_mapped_file_ref; */
+alias da_g_mapped_file_unref = void function(GMappedFile* file);																																																						/* da_g_mapped_file_unref g_mapped_file_unref; */
+alias da_g_mapped_file_free = void function(GMappedFile* file);																																																						/* da_g_mapped_file_free g_mapped_file_free; */

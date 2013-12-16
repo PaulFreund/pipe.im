@@ -80,101 +80,101 @@ struct _PurpleAccount
 	gpointer priv;
 }
 
-PurpleAccount* purple_account_new (const(char)* username, const(char)* protocol_id);
-void purple_account_destroy (PurpleAccount* account);
-void purple_account_connect (PurpleAccount* account);
-void purple_account_set_register_callback (PurpleAccount* account, PurpleAccountRegistrationCb cb, void* user_data);
-void purple_account_register (PurpleAccount* account);
-void purple_account_unregister (PurpleAccount* account, PurpleAccountUnregistrationCb cb, void* user_data);
-void purple_account_disconnect (PurpleAccount* account);
-void purple_account_notify_added (PurpleAccount* account, const(char)* remote_user, const(char)* id, const(char)* alias_, const(char)* message);
-void purple_account_request_add (PurpleAccount* account, const(char)* remote_user, const(char)* id, const(char)* alias_, const(char)* message);
-void* purple_account_request_authorization (PurpleAccount* account, const(char)* remote_user, const(char)* id, const(char)* alias_, const(char)* message, gboolean on_list, PurpleAccountRequestAuthorizationCb auth_cb, PurpleAccountRequestAuthorizationCb deny_cb, void* user_data);
-void purple_account_request_close_with_account (PurpleAccount* account);
-void purple_account_request_close (void* ui_handle);
-void purple_account_request_password (PurpleAccount* account, GCallback ok_cb, GCallback cancel_cb, void* user_data);
-void purple_account_request_change_password (PurpleAccount* account);
-void purple_account_request_change_user_info (PurpleAccount* account);
-void purple_account_set_username (PurpleAccount* account, const(char)* username);
-void purple_account_set_password (PurpleAccount* account, const(char)* password);
-void purple_account_set_alias (PurpleAccount* account, const(char)* alias_);
-void purple_account_set_user_info (PurpleAccount* account, const(char)* user_info);
-void purple_account_set_buddy_icon_path (PurpleAccount* account, const(char)* path);
-void purple_account_set_protocol_id (PurpleAccount* account, const(char)* protocol_id);
-void purple_account_set_connection (PurpleAccount* account, PurpleConnection* gc);
-void purple_account_set_remember_password (PurpleAccount* account, gboolean value);
-void purple_account_set_check_mail (PurpleAccount* account, gboolean value);
-void purple_account_set_enabled (PurpleAccount* account, const(char)* ui, gboolean value);
-void purple_account_set_proxy_info (PurpleAccount* account, PurpleProxyInfo* info);
-void purple_account_set_privacy_type (PurpleAccount* account, PurplePrivacyType privacy_type);
-void purple_account_set_status_types (PurpleAccount* account, GList* status_types);
-void purple_account_set_status (PurpleAccount* account, const(char)* status_id, gboolean active, ...);
-void purple_account_set_status_list (PurpleAccount* account, const(char)* status_id, gboolean active, GList* attrs);
-void purple_account_set_public_alias (PurpleAccount* account, const(char)* alias_, PurpleSetPublicAliasSuccessCallback success_cb, PurpleSetPublicAliasFailureCallback failure_cb);
-void purple_account_get_public_alias (PurpleAccount* account, PurpleGetPublicAliasSuccessCallback success_cb, PurpleGetPublicAliasFailureCallback failure_cb);
-gboolean purple_account_get_silence_suppression (const(PurpleAccount)* account);
-void purple_account_set_silence_suppression (PurpleAccount* account, gboolean value);
-void purple_account_clear_settings (PurpleAccount* account);
-void purple_account_remove_setting (PurpleAccount* account, const(char)* setting);
-void purple_account_set_int (PurpleAccount* account, const(char)* name, int value);
-void purple_account_set_string (PurpleAccount* account, const(char)* name, const(char)* value);
-void purple_account_set_bool (PurpleAccount* account, const(char)* name, gboolean value);
-void purple_account_set_ui_int (PurpleAccount* account, const(char)* ui, const(char)* name, int value);
-void purple_account_set_ui_string (PurpleAccount* account, const(char)* ui, const(char)* name, const(char)* value);
-void purple_account_set_ui_bool (PurpleAccount* account, const(char)* ui, const(char)* name, gboolean value);
-gboolean purple_account_is_connected (const(PurpleAccount)* account);
-gboolean purple_account_is_connecting (const(PurpleAccount)* account);
-gboolean purple_account_is_disconnected (const(PurpleAccount)* account);
-const(char)* purple_account_get_username (const(PurpleAccount)* account);
-const(char)* purple_account_get_password (const(PurpleAccount)* account);
-const(char)* purple_account_get_alias (const(PurpleAccount)* account);
-const(char)* purple_account_get_user_info (const(PurpleAccount)* account);
-const(char)* purple_account_get_buddy_icon_path (const(PurpleAccount)* account);
-const(char)* purple_account_get_protocol_id (const(PurpleAccount)* account);
-const(char)* purple_account_get_protocol_name (const(PurpleAccount)* account);
-PurpleConnection* purple_account_get_connection (const(PurpleAccount)* account);
-const(gchar)* purple_account_get_name_for_display (const(PurpleAccount)* account);
-gboolean purple_account_get_remember_password (const(PurpleAccount)* account);
-gboolean purple_account_get_check_mail (const(PurpleAccount)* account);
-gboolean purple_account_get_enabled (const(PurpleAccount)* account, const(char)* ui);
-PurpleProxyInfo* purple_account_get_proxy_info (const(PurpleAccount)* account);
-PurplePrivacyType purple_account_get_privacy_type (const(PurpleAccount)* account);
-PurpleStatus* purple_account_get_active_status (const(PurpleAccount)* account);
-PurpleStatus* purple_account_get_status (const(PurpleAccount)* account, const(char)* status_id);
-PurpleStatusType* purple_account_get_status_type (const(PurpleAccount)* account, const(char)* id);
-PurpleStatusType* purple_account_get_status_type_with_primitive (const(PurpleAccount)* account, PurpleStatusPrimitive primitive);
-PurplePresence* purple_account_get_presence (const(PurpleAccount)* account);
-gboolean purple_account_is_status_active (const(PurpleAccount)* account, const(char)* status_id);
-GList* purple_account_get_status_types (const(PurpleAccount)* account);
-int purple_account_get_int (const(PurpleAccount)* account, const(char)* name, int default_value);
-const(char)* purple_account_get_string (const(PurpleAccount)* account, const(char)* name, const(char)* default_value);
-gboolean purple_account_get_bool (const(PurpleAccount)* account, const(char)* name, gboolean default_value);
-int purple_account_get_ui_int (const(PurpleAccount)* account, const(char)* ui, const(char)* name, int default_value);
-const(char)* purple_account_get_ui_string (const(PurpleAccount)* account, const(char)* ui, const(char)* name, const(char)* default_value);
-gboolean purple_account_get_ui_bool (const(PurpleAccount)* account, const(char)* ui, const(char)* name, gboolean default_value);
-PurpleLog* purple_account_get_log (PurpleAccount* account, gboolean create);
-void purple_account_destroy_log (PurpleAccount* account);
-void purple_account_add_buddy (PurpleAccount* account, PurpleBuddy* buddy);
-void purple_account_add_buddy_with_invite (PurpleAccount* account, PurpleBuddy* buddy, const(char)* message);
-void purple_account_add_buddies (PurpleAccount* account, GList* buddies);
-void purple_account_add_buddies_with_invite (PurpleAccount* account, GList* buddies, const(char)* message);
-void purple_account_remove_buddy (PurpleAccount* account, PurpleBuddy* buddy, PurpleGroup* group);
-void purple_account_remove_buddies (PurpleAccount* account, GList* buddies, GList* groups);
-void purple_account_remove_group (PurpleAccount* account, PurpleGroup* group);
-void purple_account_change_password (PurpleAccount* account, const(char)* orig_pw, const(char)* new_pw);
-gboolean purple_account_supports_offline_message (PurpleAccount* account, PurpleBuddy* buddy);
-const(PurpleConnectionErrorInfo)* purple_account_get_current_error (PurpleAccount* account);
-void purple_account_clear_current_error (PurpleAccount* account);
-void purple_accounts_add (PurpleAccount* account);
-void purple_accounts_remove (PurpleAccount* account);
-void purple_accounts_delete (PurpleAccount* account);
-void purple_accounts_reorder (PurpleAccount* account, gint new_index);
-GList* purple_accounts_get_all ();
-GList* purple_accounts_get_all_active ();
-PurpleAccount* purple_accounts_find (const(char)* name, const(char)* protocol);
-void purple_accounts_restore_current_statuses ();
-void purple_accounts_set_ui_ops (PurpleAccountUiOps* ops);
-PurpleAccountUiOps* purple_accounts_get_ui_ops ();
-void* purple_accounts_get_handle ();
-void purple_accounts_init ();
-void purple_accounts_uninit ();
+alias da_purple_account_new = PurpleAccount* function(const(char)* username, const(char)* protocol_id);																																																						/* da_purple_account_new purple_account_new; */
+alias da_purple_account_destroy = void function(PurpleAccount* account);																																																						/* da_purple_account_destroy purple_account_destroy; */
+alias da_purple_account_connect = void function(PurpleAccount* account);																																																						/* da_purple_account_connect purple_account_connect; */
+alias da_purple_account_set_register_callback = void function(PurpleAccount* account, PurpleAccountRegistrationCb cb, void* user_data);																																																						/* da_purple_account_set_register_callback purple_account_set_register_callback; */
+alias da_purple_account_register = void function(PurpleAccount* account);																																																						/* da_purple_account_register purple_account_register; */
+alias da_purple_account_unregister = void function(PurpleAccount* account, PurpleAccountUnregistrationCb cb, void* user_data);																																																						/* da_purple_account_unregister purple_account_unregister; */
+alias da_purple_account_disconnect = void function(PurpleAccount* account);																																																						/* da_purple_account_disconnect purple_account_disconnect; */
+alias da_purple_account_notify_added = void function(PurpleAccount* account, const(char)* remote_user, const(char)* id, const(char)* alias_, const(char)* message);																																																						/* da_purple_account_notify_added purple_account_notify_added; */
+alias da_purple_account_request_add = void function(PurpleAccount* account, const(char)* remote_user, const(char)* id, const(char)* alias_, const(char)* message);																																																						/* da_purple_account_request_add purple_account_request_add; */
+alias da_purple_account_request_authorization = void* function(PurpleAccount* account, const(char)* remote_user, const(char)* id, const(char)* alias_, const(char)* message, gboolean on_list, PurpleAccountRequestAuthorizationCb auth_cb, PurpleAccountRequestAuthorizationCb deny_cb, void* user_data);																																																						/* da_purple_account_request_authorization purple_account_request_authorization; */
+alias da_purple_account_request_close_with_account = void function(PurpleAccount* account);																																																						/* da_purple_account_request_close_with_account purple_account_request_close_with_account; */
+alias da_purple_account_request_close = void function(void* ui_handle);																																																						/* da_purple_account_request_close purple_account_request_close; */
+alias da_purple_account_request_password = void function(PurpleAccount* account, GCallback ok_cb, GCallback cancel_cb, void* user_data);																																																						/* da_purple_account_request_password purple_account_request_password; */
+alias da_purple_account_request_change_password = void function(PurpleAccount* account);																																																						/* da_purple_account_request_change_password purple_account_request_change_password; */
+alias da_purple_account_request_change_user_info = void function(PurpleAccount* account);																																																						/* da_purple_account_request_change_user_info purple_account_request_change_user_info; */
+alias da_purple_account_set_username = void function(PurpleAccount* account, const(char)* username);																																																						/* da_purple_account_set_username purple_account_set_username; */
+alias da_purple_account_set_password = void function(PurpleAccount* account, const(char)* password);																																																						/* da_purple_account_set_password purple_account_set_password; */
+alias da_purple_account_set_alias = void function(PurpleAccount* account, const(char)* alias_);																																																						/* da_purple_account_set_alias purple_account_set_alias; */
+alias da_purple_account_set_user_info = void function(PurpleAccount* account, const(char)* user_info);																																																						/* da_purple_account_set_user_info purple_account_set_user_info; */
+alias da_purple_account_set_buddy_icon_path = void function(PurpleAccount* account, const(char)* path);																																																						/* da_purple_account_set_buddy_icon_path purple_account_set_buddy_icon_path; */
+alias da_purple_account_set_protocol_id = void function(PurpleAccount* account, const(char)* protocol_id);																																																						/* da_purple_account_set_protocol_id purple_account_set_protocol_id; */
+alias da_purple_account_set_connection = void function(PurpleAccount* account, PurpleConnection* gc);																																																						/* da_purple_account_set_connection purple_account_set_connection; */
+alias da_purple_account_set_remember_password = void function(PurpleAccount* account, gboolean value);																																																						/* da_purple_account_set_remember_password purple_account_set_remember_password; */
+alias da_purple_account_set_check_mail = void function(PurpleAccount* account, gboolean value);																																																						/* da_purple_account_set_check_mail purple_account_set_check_mail; */
+alias da_purple_account_set_enabled = void function(PurpleAccount* account, const(char)* ui, gboolean value);																																																						/* da_purple_account_set_enabled purple_account_set_enabled; */
+alias da_purple_account_set_proxy_info = void function(PurpleAccount* account, PurpleProxyInfo* info);																																																						/* da_purple_account_set_proxy_info purple_account_set_proxy_info; */
+alias da_purple_account_set_privacy_type = void function(PurpleAccount* account, PurplePrivacyType privacy_type);																																																						/* da_purple_account_set_privacy_type purple_account_set_privacy_type; */
+alias da_purple_account_set_status_types = void function(PurpleAccount* account, GList* status_types);																																																						/* da_purple_account_set_status_types purple_account_set_status_types; */
+alias da_purple_account_set_status = void function(PurpleAccount* account, const(char)* status_id, gboolean active, ...);																																																						/* da_purple_account_set_status purple_account_set_status; */
+alias da_purple_account_set_status_list = void function(PurpleAccount* account, const(char)* status_id, gboolean active, GList* attrs);																																																						/* da_purple_account_set_status_list purple_account_set_status_list; */
+alias da_purple_account_set_public_alias = void function(PurpleAccount* account, const(char)* alias_, PurpleSetPublicAliasSuccessCallback success_cb, PurpleSetPublicAliasFailureCallback failure_cb);																																																						/* da_purple_account_set_public_alias purple_account_set_public_alias; */
+alias da_purple_account_get_public_alias = void function(PurpleAccount* account, PurpleGetPublicAliasSuccessCallback success_cb, PurpleGetPublicAliasFailureCallback failure_cb);																																																						/* da_purple_account_get_public_alias purple_account_get_public_alias; */
+alias da_purple_account_get_silence_suppression = gboolean function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_silence_suppression purple_account_get_silence_suppression; */
+alias da_purple_account_set_silence_suppression = void function(PurpleAccount* account, gboolean value);																																																						/* da_purple_account_set_silence_suppression purple_account_set_silence_suppression; */
+alias da_purple_account_clear_settings = void function(PurpleAccount* account);																																																						/* da_purple_account_clear_settings purple_account_clear_settings; */
+alias da_purple_account_remove_setting = void function(PurpleAccount* account, const(char)* setting);																																																						/* da_purple_account_remove_setting purple_account_remove_setting; */
+alias da_purple_account_set_int = void function(PurpleAccount* account, const(char)* name, int value);																																																						/* da_purple_account_set_int purple_account_set_int; */
+alias da_purple_account_set_string = void function(PurpleAccount* account, const(char)* name, const(char)* value);																																																						/* da_purple_account_set_string purple_account_set_string; */
+alias da_purple_account_set_bool = void function(PurpleAccount* account, const(char)* name, gboolean value);																																																						/* da_purple_account_set_bool purple_account_set_bool; */
+alias da_purple_account_set_ui_int = void function(PurpleAccount* account, const(char)* ui, const(char)* name, int value);																																																						/* da_purple_account_set_ui_int purple_account_set_ui_int; */
+alias da_purple_account_set_ui_string = void function(PurpleAccount* account, const(char)* ui, const(char)* name, const(char)* value);																																																						/* da_purple_account_set_ui_string purple_account_set_ui_string; */
+alias da_purple_account_set_ui_bool = void function(PurpleAccount* account, const(char)* ui, const(char)* name, gboolean value);																																																						/* da_purple_account_set_ui_bool purple_account_set_ui_bool; */
+alias da_purple_account_is_connected = gboolean function(const(PurpleAccount)* account);																																																						/* da_purple_account_is_connected purple_account_is_connected; */
+alias da_purple_account_is_connecting = gboolean function(const(PurpleAccount)* account);																																																						/* da_purple_account_is_connecting purple_account_is_connecting; */
+alias da_purple_account_is_disconnected = gboolean function(const(PurpleAccount)* account);																																																						/* da_purple_account_is_disconnected purple_account_is_disconnected; */
+alias da_purple_account_get_username = const(char)* function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_username purple_account_get_username; */
+alias da_purple_account_get_password = const(char)* function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_password purple_account_get_password; */
+alias da_purple_account_get_alias = const(char)* function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_alias purple_account_get_alias; */
+alias da_purple_account_get_user_info = const(char)* function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_user_info purple_account_get_user_info; */
+alias da_purple_account_get_buddy_icon_path = const(char)* function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_buddy_icon_path purple_account_get_buddy_icon_path; */
+alias da_purple_account_get_protocol_id = const(char)* function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_protocol_id purple_account_get_protocol_id; */
+alias da_purple_account_get_protocol_name = const(char)* function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_protocol_name purple_account_get_protocol_name; */
+alias da_purple_account_get_connection = PurpleConnection* function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_connection purple_account_get_connection; */
+alias da_purple_account_get_name_for_display = const(gchar)* function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_name_for_display purple_account_get_name_for_display; */
+alias da_purple_account_get_remember_password = gboolean function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_remember_password purple_account_get_remember_password; */
+alias da_purple_account_get_check_mail = gboolean function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_check_mail purple_account_get_check_mail; */
+alias da_purple_account_get_enabled = gboolean function(const(PurpleAccount)* account, const(char)* ui);																																																						/* da_purple_account_get_enabled purple_account_get_enabled; */
+alias da_purple_account_get_proxy_info = PurpleProxyInfo* function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_proxy_info purple_account_get_proxy_info; */
+alias da_purple_account_get_privacy_type = PurplePrivacyType function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_privacy_type purple_account_get_privacy_type; */
+alias da_purple_account_get_active_status = PurpleStatus* function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_active_status purple_account_get_active_status; */
+alias da_purple_account_get_status = PurpleStatus* function(const(PurpleAccount)* account, const(char)* status_id);																																																						/* da_purple_account_get_status purple_account_get_status; */
+alias da_purple_account_get_status_type = PurpleStatusType* function(const(PurpleAccount)* account, const(char)* id);																																																						/* da_purple_account_get_status_type purple_account_get_status_type; */
+alias da_purple_account_get_status_type_with_primitive = PurpleStatusType* function(const(PurpleAccount)* account, PurpleStatusPrimitive primitive);																																																						/* da_purple_account_get_status_type_with_primitive purple_account_get_status_type_with_primitive; */
+alias da_purple_account_get_presence = PurplePresence* function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_presence purple_account_get_presence; */
+alias da_purple_account_is_status_active = gboolean function(const(PurpleAccount)* account, const(char)* status_id);																																																						/* da_purple_account_is_status_active purple_account_is_status_active; */
+alias da_purple_account_get_status_types = GList* function(const(PurpleAccount)* account);																																																						/* da_purple_account_get_status_types purple_account_get_status_types; */
+alias da_purple_account_get_int = int function(const(PurpleAccount)* account, const(char)* name, int default_value);																																																						/* da_purple_account_get_int purple_account_get_int; */
+alias da_purple_account_get_string = const(char)* function(const(PurpleAccount)* account, const(char)* name, const(char)* default_value);																																																						/* da_purple_account_get_string purple_account_get_string; */
+alias da_purple_account_get_bool = gboolean function(const(PurpleAccount)* account, const(char)* name, gboolean default_value);																																																						/* da_purple_account_get_bool purple_account_get_bool; */
+alias da_purple_account_get_ui_int = int function(const(PurpleAccount)* account, const(char)* ui, const(char)* name, int default_value);																																																						/* da_purple_account_get_ui_int purple_account_get_ui_int; */
+alias da_purple_account_get_ui_string = const(char)* function(const(PurpleAccount)* account, const(char)* ui, const(char)* name, const(char)* default_value);																																																						/* da_purple_account_get_ui_string purple_account_get_ui_string; */
+alias da_purple_account_get_ui_bool = gboolean function(const(PurpleAccount)* account, const(char)* ui, const(char)* name, gboolean default_value);																																																						/* da_purple_account_get_ui_bool purple_account_get_ui_bool; */
+alias da_purple_account_get_log = PurpleLog* function(PurpleAccount* account, gboolean create);																																																						/* da_purple_account_get_log purple_account_get_log; */
+alias da_purple_account_destroy_log = void function(PurpleAccount* account);																																																						/* da_purple_account_destroy_log purple_account_destroy_log; */
+alias da_purple_account_add_buddy = void function(PurpleAccount* account, PurpleBuddy* buddy);																																																						/* da_purple_account_add_buddy purple_account_add_buddy; */
+alias da_purple_account_add_buddy_with_invite = void function(PurpleAccount* account, PurpleBuddy* buddy, const(char)* message);																																																						/* da_purple_account_add_buddy_with_invite purple_account_add_buddy_with_invite; */
+alias da_purple_account_add_buddies = void function(PurpleAccount* account, GList* buddies);																																																						/* da_purple_account_add_buddies purple_account_add_buddies; */
+alias da_purple_account_add_buddies_with_invite = void function(PurpleAccount* account, GList* buddies, const(char)* message);																																																						/* da_purple_account_add_buddies_with_invite purple_account_add_buddies_with_invite; */
+alias da_purple_account_remove_buddy = void function(PurpleAccount* account, PurpleBuddy* buddy, PurpleGroup* group);																																																						/* da_purple_account_remove_buddy purple_account_remove_buddy; */
+alias da_purple_account_remove_buddies = void function(PurpleAccount* account, GList* buddies, GList* groups);																																																						/* da_purple_account_remove_buddies purple_account_remove_buddies; */
+alias da_purple_account_remove_group = void function(PurpleAccount* account, PurpleGroup* group);																																																						/* da_purple_account_remove_group purple_account_remove_group; */
+alias da_purple_account_change_password = void function(PurpleAccount* account, const(char)* orig_pw, const(char)* new_pw);																																																						/* da_purple_account_change_password purple_account_change_password; */
+alias da_purple_account_supports_offline_message = gboolean function(PurpleAccount* account, PurpleBuddy* buddy);																																																						/* da_purple_account_supports_offline_message purple_account_supports_offline_message; */
+alias da_purple_account_get_current_error = const(PurpleConnectionErrorInfo)* function(PurpleAccount* account);																																																						/* da_purple_account_get_current_error purple_account_get_current_error; */
+alias da_purple_account_clear_current_error = void function(PurpleAccount* account);																																																						/* da_purple_account_clear_current_error purple_account_clear_current_error; */
+alias da_purple_accounts_add = void function(PurpleAccount* account);																																																						/* da_purple_accounts_add purple_accounts_add; */
+alias da_purple_accounts_remove = void function(PurpleAccount* account);																																																						/* da_purple_accounts_remove purple_accounts_remove; */
+alias da_purple_accounts_delete = void function(PurpleAccount* account);																																																						/* da_purple_accounts_delete purple_accounts_delete; */
+alias da_purple_accounts_reorder = void function(PurpleAccount* account, gint new_index);																																																						/* da_purple_accounts_reorder purple_accounts_reorder; */
+alias da_purple_accounts_get_all = GList* function();																																																						/* da_purple_accounts_get_all purple_accounts_get_all; */
+alias da_purple_accounts_get_all_active = GList* function();																																																						/* da_purple_accounts_get_all_active purple_accounts_get_all_active; */
+alias da_purple_accounts_find = PurpleAccount* function(const(char)* name, const(char)* protocol);																																																						/* da_purple_accounts_find purple_accounts_find; */
+alias da_purple_accounts_restore_current_statuses = void function();																																																						/* da_purple_accounts_restore_current_statuses purple_accounts_restore_current_statuses; */
+alias da_purple_accounts_set_ui_ops = void function(PurpleAccountUiOps* ops);																																																						/* da_purple_accounts_set_ui_ops purple_accounts_set_ui_ops; */
+alias da_purple_accounts_get_ui_ops = PurpleAccountUiOps* function();																																																						/* da_purple_accounts_get_ui_ops purple_accounts_get_ui_ops; */
+alias da_purple_accounts_get_handle = void* function();																																																						/* da_purple_accounts_get_handle purple_accounts_get_handle; */
+alias da_purple_accounts_init = void function();																																																						/* da_purple_accounts_init purple_accounts_init; */
+alias da_purple_accounts_uninit = void function();																																																						/* da_purple_accounts_uninit purple_accounts_uninit; */

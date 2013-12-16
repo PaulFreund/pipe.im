@@ -7,10 +7,10 @@ import std.c.stdarg;
 
 extern (C):
 
-gint g_printf (const(gchar)* format, ...);
-gint g_fprintf (FILE* file, const(gchar)* format, ...);
-gint g_sprintf (gchar* string, const(gchar)* format, ...);
-gint g_vprintf (const(gchar)* format, va_list args);
-gint g_vfprintf (FILE* file, const(gchar)* format, va_list args);
-gint g_vsprintf (gchar* string, const(gchar)* format, va_list args);
-gint g_vasprintf (gchar** string, const(gchar)* format, va_list args);
+alias da_g_printf = gint function(const(gchar)* format, ...);																																																						/* da_g_printf g_printf; */
+alias da_g_fprintf = gint function(FILE* file, const(gchar)* format, ...);																																																						/* da_g_fprintf g_fprintf; */
+alias da_g_sprintf = gint function(gchar* string, const(gchar)* format, ...);																																																						/* da_g_sprintf g_sprintf; */
+alias da_g_vprintf = gint function(const(gchar)* format, va_list args);																																																						/* da_g_vprintf g_vprintf; */
+alias da_g_vfprintf = gint function(FILE* file, const(gchar)* format, va_list args);																																																						/* da_g_vfprintf g_vfprintf; */
+alias da_g_vsprintf = gint function(gchar* string, const(gchar)* format, va_list args);																																																						/* da_g_vsprintf g_vsprintf; */
+alias da_g_vasprintf = gint function(gchar** string, const(gchar)* format, va_list args);																																																						/* da_g_vasprintf g_vasprintf; */

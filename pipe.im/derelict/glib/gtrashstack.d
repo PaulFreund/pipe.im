@@ -12,11 +12,7 @@ struct _GTrashStack
 	GTrashStack* next;
 }
 
-void g_trash_stack_push (GTrashStack** stack_p, gpointer data_p);
-gpointer g_trash_stack_pop (GTrashStack** stack_p);
-gpointer g_trash_stack_peek (GTrashStack** stack_p);
-guint g_trash_stack_height (GTrashStack** stack_p);
-void g_trash_stack_push (GTrashStack** stack_p, gpointer data_p);
-gpointer g_trash_stack_pop (GTrashStack** stack_p);
-gpointer g_trash_stack_peek (GTrashStack** stack_p);
-guint g_trash_stack_height (GTrashStack** stack_p);
+alias da_g_trash_stack_push = void function(GTrashStack** stack_p, gpointer data_p);																																																						/* da_g_trash_stack_push g_trash_stack_push; */
+alias da_g_trash_stack_pop = gpointer function(GTrashStack** stack_p);																																																						/* da_g_trash_stack_pop g_trash_stack_pop; */
+alias da_g_trash_stack_peek = gpointer function(GTrashStack** stack_p);																																																						/* da_g_trash_stack_peek g_trash_stack_peek; */
+alias da_g_trash_stack_height = guint function(GTrashStack** stack_p);																																																						/* da_g_trash_stack_height g_trash_stack_height; */

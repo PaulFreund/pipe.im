@@ -176,107 +176,107 @@ struct _PurpleConversation
 	GList* message_history;
 }
 
-PurpleConversation* purple_conversation_new (PurpleConversationType type, PurpleAccount* account, const(char)* name);
-void purple_conversation_destroy (PurpleConversation* conv);
-void purple_conversation_present (PurpleConversation* conv);
-PurpleConversationType purple_conversation_get_type (const(PurpleConversation)* conv);
-void purple_conversation_set_ui_ops (PurpleConversation* conv, PurpleConversationUiOps* ops);
-void purple_conversations_set_ui_ops (PurpleConversationUiOps* ops);
-PurpleConversationUiOps* purple_conversation_get_ui_ops (const(PurpleConversation)* conv);
-void purple_conversation_set_account (PurpleConversation* conv, PurpleAccount* account);
-PurpleAccount* purple_conversation_get_account (const(PurpleConversation)* conv);
-PurpleConnection* purple_conversation_get_gc (const(PurpleConversation)* conv);
-void purple_conversation_set_title (PurpleConversation* conv, const(char)* title);
-const(char)* purple_conversation_get_title (const(PurpleConversation)* conv);
-void purple_conversation_autoset_title (PurpleConversation* conv);
-void purple_conversation_set_name (PurpleConversation* conv, const(char)* name);
-const(char)* purple_conversation_get_name (const(PurpleConversation)* conv);
-const(char)* purple_conv_chat_cb_get_attribute (PurpleConvChatBuddy* cb, const(char)* key);
-GList* purple_conv_chat_cb_get_attribute_keys (PurpleConvChatBuddy* cb);
-void purple_conv_chat_cb_set_attribute (PurpleConvChat* chat, PurpleConvChatBuddy* cb, const(char)* key, const(char)* value);
-void purple_conv_chat_cb_set_attributes (PurpleConvChat* chat, PurpleConvChatBuddy* cb, GList* keys, GList* values);
-void purple_conversation_set_logging (PurpleConversation* conv, gboolean log);
-gboolean purple_conversation_is_logging (const(PurpleConversation)* conv);
-void purple_conversation_close_logs (PurpleConversation* conv);
-PurpleConvIm* purple_conversation_get_im_data (const(PurpleConversation)* conv);
-PurpleConvChat* purple_conversation_get_chat_data (const(PurpleConversation)* conv);
-void purple_conversation_set_data (PurpleConversation* conv, const(char)* key, gpointer data);
-gpointer purple_conversation_get_data (PurpleConversation* conv, const(char)* key);
-GList* purple_get_conversations ();
-GList* purple_get_ims ();
-GList* purple_get_chats ();
-PurpleConversation* purple_find_conversation_with_account (PurpleConversationType type, const(char)* name, const(PurpleAccount)* account);
-void purple_conversation_write (PurpleConversation* conv, const(char)* who, const(char)* message, PurpleMessageFlags flags, time_t mtime);
-void purple_conversation_set_features (PurpleConversation* conv, PurpleConnectionFlags features);
-PurpleConnectionFlags purple_conversation_get_features (PurpleConversation* conv);
-gboolean purple_conversation_has_focus (PurpleConversation* conv);
-void purple_conversation_update (PurpleConversation* conv, PurpleConvUpdateType type);
-void purple_conversation_foreach (void function (PurpleConversation*) func);
-GList* purple_conversation_get_message_history (PurpleConversation* conv);
-void purple_conversation_clear_message_history (PurpleConversation* conv);
-const(char)* purple_conversation_message_get_sender (PurpleConvMessage* msg);
-const(char)* purple_conversation_message_get_message (PurpleConvMessage* msg);
-PurpleMessageFlags purple_conversation_message_get_flags (PurpleConvMessage* msg);
-time_t purple_conversation_message_get_timestamp (PurpleConvMessage* msg);
-PurpleConversation* purple_conv_im_get_conversation (const(PurpleConvIm)* im);
-void purple_conv_im_set_icon (PurpleConvIm* im, PurpleBuddyIcon* icon);
-PurpleBuddyIcon* purple_conv_im_get_icon (const(PurpleConvIm)* im);
-void purple_conv_im_set_typing_state (PurpleConvIm* im, PurpleTypingState state);
-PurpleTypingState purple_conv_im_get_typing_state (const(PurpleConvIm)* im);
-void purple_conv_im_start_typing_timeout (PurpleConvIm* im, int timeout);
-void purple_conv_im_stop_typing_timeout (PurpleConvIm* im);
-guint purple_conv_im_get_typing_timeout (const(PurpleConvIm)* im);
-void purple_conv_im_set_type_again (PurpleConvIm* im, uint val);
-time_t purple_conv_im_get_type_again (const(PurpleConvIm)* im);
-void purple_conv_im_start_send_typed_timeout (PurpleConvIm* im);
-void purple_conv_im_stop_send_typed_timeout (PurpleConvIm* im);
-guint purple_conv_im_get_send_typed_timeout (const(PurpleConvIm)* im);
-void purple_conv_im_update_typing (PurpleConvIm* im);
-void purple_conv_im_write (PurpleConvIm* im, const(char)* who, const(char)* message, PurpleMessageFlags flags, time_t mtime);
-gboolean purple_conv_present_error (const(char)* who, PurpleAccount* account, const(char)* what);
-void purple_conv_im_send (PurpleConvIm* im, const(char)* message);
-void purple_conv_send_confirm (PurpleConversation* conv, const(char)* message);
-void purple_conv_im_send_with_flags (PurpleConvIm* im, const(char)* message, PurpleMessageFlags flags);
-gboolean purple_conv_custom_smiley_add (PurpleConversation* conv, const(char)* smile, const(char)* cksum_type, const(char)* chksum, gboolean remote);
-void purple_conv_custom_smiley_write (PurpleConversation* conv, const(char)* smile, const(guchar)* data, gsize size);
-void purple_conv_custom_smiley_close (PurpleConversation* conv, const(char)* smile);
-PurpleConversation* purple_conv_chat_get_conversation (const(PurpleConvChat)* chat);
-GList* purple_conv_chat_set_users (PurpleConvChat* chat, GList* users);
-GList* purple_conv_chat_get_users (const(PurpleConvChat)* chat);
-void purple_conv_chat_ignore (PurpleConvChat* chat, const(char)* name);
-void purple_conv_chat_unignore (PurpleConvChat* chat, const(char)* name);
-GList* purple_conv_chat_set_ignored (PurpleConvChat* chat, GList* ignored);
-GList* purple_conv_chat_get_ignored (const(PurpleConvChat)* chat);
-const(char)* purple_conv_chat_get_ignored_user (const(PurpleConvChat)* chat, const(char)* user);
-gboolean purple_conv_chat_is_user_ignored (const(PurpleConvChat)* chat, const(char)* user);
-void purple_conv_chat_set_topic (PurpleConvChat* chat, const(char)* who, const(char)* topic);
-const(char)* purple_conv_chat_get_topic (const(PurpleConvChat)* chat);
-void purple_conv_chat_set_id (PurpleConvChat* chat, int id);
-int purple_conv_chat_get_id (const(PurpleConvChat)* chat);
-void purple_conv_chat_write (PurpleConvChat* chat, const(char)* who, const(char)* message, PurpleMessageFlags flags, time_t mtime);
-void purple_conv_chat_send (PurpleConvChat* chat, const(char)* message);
-void purple_conv_chat_send_with_flags (PurpleConvChat* chat, const(char)* message, PurpleMessageFlags flags);
-void purple_conv_chat_add_user (PurpleConvChat* chat, const(char)* user, const(char)* extra_msg, PurpleConvChatBuddyFlags flags, gboolean new_arrival);
-void purple_conv_chat_add_users (PurpleConvChat* chat, GList* users, GList* extra_msgs, GList* flags, gboolean new_arrivals);
-void purple_conv_chat_rename_user (PurpleConvChat* chat, const(char)* old_user, const(char)* new_user);
-void purple_conv_chat_remove_user (PurpleConvChat* chat, const(char)* user, const(char)* reason);
-void purple_conv_chat_remove_users (PurpleConvChat* chat, GList* users, const(char)* reason);
-gboolean purple_conv_chat_find_user (PurpleConvChat* chat, const(char)* user);
-void purple_conv_chat_user_set_flags (PurpleConvChat* chat, const(char)* user, PurpleConvChatBuddyFlags flags);
-PurpleConvChatBuddyFlags purple_conv_chat_user_get_flags (PurpleConvChat* chat, const(char)* user);
-void purple_conv_chat_clear_users (PurpleConvChat* chat);
-void purple_conv_chat_set_nick (PurpleConvChat* chat, const(char)* nick);
-const(char)* purple_conv_chat_get_nick (PurpleConvChat* chat);
-PurpleConversation* purple_find_chat (const(PurpleConnection)* gc, int id);
-void purple_conv_chat_left (PurpleConvChat* chat);
-void purple_conv_chat_invite_user (PurpleConvChat* chat, const(char)* user, const(char)* message, gboolean confirm);
-gboolean purple_conv_chat_has_left (PurpleConvChat* chat);
-PurpleConvChatBuddy* purple_conv_chat_cb_new (const(char)* name, const(char)* alias_, PurpleConvChatBuddyFlags flags);
-PurpleConvChatBuddy* purple_conv_chat_cb_find (PurpleConvChat* chat, const(char)* name);
-const(char)* purple_conv_chat_cb_get_name (PurpleConvChatBuddy* cb);
-void purple_conv_chat_cb_destroy (PurpleConvChatBuddy* cb);
-GList* purple_conversation_get_extended_menu (PurpleConversation* conv);
-gboolean purple_conversation_do_command (PurpleConversation* conv, const(gchar)* cmdline, const(gchar)* markup, gchar** error);
-void* purple_conversations_get_handle ();
-void purple_conversations_init ();
-void purple_conversations_uninit ();
+alias da_purple_conversation_new = PurpleConversation* function(PurpleConversationType type, PurpleAccount* account, const(char)* name);																																																						/* da_purple_conversation_new purple_conversation_new; */
+alias da_purple_conversation_destroy = void function(PurpleConversation* conv);																																																						/* da_purple_conversation_destroy purple_conversation_destroy; */
+alias da_purple_conversation_present = void function(PurpleConversation* conv);																																																						/* da_purple_conversation_present purple_conversation_present; */
+alias da_purple_conversation_get_type = PurpleConversationType function(const(PurpleConversation)* conv);																																																						/* da_purple_conversation_get_type purple_conversation_get_type; */
+alias da_purple_conversation_set_ui_ops = void function(PurpleConversation* conv, PurpleConversationUiOps* ops);																																																						/* da_purple_conversation_set_ui_ops purple_conversation_set_ui_ops; */
+alias da_purple_conversations_set_ui_ops = void function(PurpleConversationUiOps* ops);																																																						/* da_purple_conversations_set_ui_ops purple_conversations_set_ui_ops; */
+alias da_purple_conversation_get_ui_ops = PurpleConversationUiOps* function(const(PurpleConversation)* conv);																																																						/* da_purple_conversation_get_ui_ops purple_conversation_get_ui_ops; */
+alias da_purple_conversation_set_account = void function(PurpleConversation* conv, PurpleAccount* account);																																																						/* da_purple_conversation_set_account purple_conversation_set_account; */
+alias da_purple_conversation_get_account = PurpleAccount* function(const(PurpleConversation)* conv);																																																						/* da_purple_conversation_get_account purple_conversation_get_account; */
+alias da_purple_conversation_get_gc = PurpleConnection* function(const(PurpleConversation)* conv);																																																						/* da_purple_conversation_get_gc purple_conversation_get_gc; */
+alias da_purple_conversation_set_title = void function(PurpleConversation* conv, const(char)* title);																																																						/* da_purple_conversation_set_title purple_conversation_set_title; */
+alias da_purple_conversation_get_title = const(char)* function(const(PurpleConversation)* conv);																																																						/* da_purple_conversation_get_title purple_conversation_get_title; */
+alias da_purple_conversation_autoset_title = void function(PurpleConversation* conv);																																																						/* da_purple_conversation_autoset_title purple_conversation_autoset_title; */
+alias da_purple_conversation_set_name = void function(PurpleConversation* conv, const(char)* name);																																																						/* da_purple_conversation_set_name purple_conversation_set_name; */
+alias da_purple_conversation_get_name = const(char)* function(const(PurpleConversation)* conv);																																																						/* da_purple_conversation_get_name purple_conversation_get_name; */
+alias da_purple_conv_chat_cb_get_attribute = const(char)* function(PurpleConvChatBuddy* cb, const(char)* key);																																																						/* da_purple_conv_chat_cb_get_attribute purple_conv_chat_cb_get_attribute; */
+alias da_purple_conv_chat_cb_get_attribute_keys = GList* function(PurpleConvChatBuddy* cb);																																																						/* da_purple_conv_chat_cb_get_attribute_keys purple_conv_chat_cb_get_attribute_keys; */
+alias da_purple_conv_chat_cb_set_attribute = void function(PurpleConvChat* chat, PurpleConvChatBuddy* cb, const(char)* key, const(char)* value);																																																						/* da_purple_conv_chat_cb_set_attribute purple_conv_chat_cb_set_attribute; */
+alias da_purple_conv_chat_cb_set_attributes = void function(PurpleConvChat* chat, PurpleConvChatBuddy* cb, GList* keys, GList* values);																																																						/* da_purple_conv_chat_cb_set_attributes purple_conv_chat_cb_set_attributes; */
+alias da_purple_conversation_set_logging = void function(PurpleConversation* conv, gboolean log);																																																						/* da_purple_conversation_set_logging purple_conversation_set_logging; */
+alias da_purple_conversation_is_logging = gboolean function(const(PurpleConversation)* conv);																																																						/* da_purple_conversation_is_logging purple_conversation_is_logging; */
+alias da_purple_conversation_close_logs = void function(PurpleConversation* conv);																																																						/* da_purple_conversation_close_logs purple_conversation_close_logs; */
+alias da_purple_conversation_get_im_data = PurpleConvIm* function(const(PurpleConversation)* conv);																																																						/* da_purple_conversation_get_im_data purple_conversation_get_im_data; */
+alias da_purple_conversation_get_chat_data = PurpleConvChat* function(const(PurpleConversation)* conv);																																																						/* da_purple_conversation_get_chat_data purple_conversation_get_chat_data; */
+alias da_purple_conversation_set_data = void function(PurpleConversation* conv, const(char)* key, gpointer data);																																																						/* da_purple_conversation_set_data purple_conversation_set_data; */
+alias da_purple_conversation_get_data = gpointer function(PurpleConversation* conv, const(char)* key);																																																						/* da_purple_conversation_get_data purple_conversation_get_data; */
+alias da_purple_get_conversations = GList* function();																																																						/* da_purple_get_conversations purple_get_conversations; */
+alias da_purple_get_ims = GList* function();																																																						/* da_purple_get_ims purple_get_ims; */
+alias da_purple_get_chats = GList* function();																																																						/* da_purple_get_chats purple_get_chats; */
+alias da_purple_find_conversation_with_account = PurpleConversation* function(PurpleConversationType type, const(char)* name, const(PurpleAccount)* account);																																																						/* da_purple_find_conversation_with_account purple_find_conversation_with_account; */
+alias da_purple_conversation_write = void function(PurpleConversation* conv, const(char)* who, const(char)* message, PurpleMessageFlags flags, time_t mtime);																																																						/* da_purple_conversation_write purple_conversation_write; */
+alias da_purple_conversation_set_features = void function(PurpleConversation* conv, PurpleConnectionFlags features);																																																						/* da_purple_conversation_set_features purple_conversation_set_features; */
+alias da_purple_conversation_get_features = PurpleConnectionFlags function(PurpleConversation* conv);																																																						/* da_purple_conversation_get_features purple_conversation_get_features; */
+alias da_purple_conversation_has_focus = gboolean function(PurpleConversation* conv);																																																						/* da_purple_conversation_has_focus purple_conversation_has_focus; */
+alias da_purple_conversation_update = void function(PurpleConversation* conv, PurpleConvUpdateType type);																																																						/* da_purple_conversation_update purple_conversation_update; */
+alias da_purple_conversation_foreach = void function(void function (PurpleConversation*) func);																																																						/* da_purple_conversation_foreach purple_conversation_foreach; */
+alias da_purple_conversation_get_message_history = GList* function(PurpleConversation* conv);																																																						/* da_purple_conversation_get_message_history purple_conversation_get_message_history; */
+alias da_purple_conversation_clear_message_history = void function(PurpleConversation* conv);																																																						/* da_purple_conversation_clear_message_history purple_conversation_clear_message_history; */
+alias da_purple_conversation_message_get_sender = const(char)* function(PurpleConvMessage* msg);																																																						/* da_purple_conversation_message_get_sender purple_conversation_message_get_sender; */
+alias da_purple_conversation_message_get_message = const(char)* function(PurpleConvMessage* msg);																																																						/* da_purple_conversation_message_get_message purple_conversation_message_get_message; */
+alias da_purple_conversation_message_get_flags = PurpleMessageFlags function(PurpleConvMessage* msg);																																																						/* da_purple_conversation_message_get_flags purple_conversation_message_get_flags; */
+alias da_purple_conversation_message_get_timestamp = time_t function(PurpleConvMessage* msg);																																																						/* da_purple_conversation_message_get_timestamp purple_conversation_message_get_timestamp; */
+alias da_purple_conv_im_get_conversation = PurpleConversation* function(const(PurpleConvIm)* im);																																																						/* da_purple_conv_im_get_conversation purple_conv_im_get_conversation; */
+alias da_purple_conv_im_set_icon = void function(PurpleConvIm* im, PurpleBuddyIcon* icon);																																																						/* da_purple_conv_im_set_icon purple_conv_im_set_icon; */
+alias da_purple_conv_im_get_icon = PurpleBuddyIcon* function(const(PurpleConvIm)* im);																																																						/* da_purple_conv_im_get_icon purple_conv_im_get_icon; */
+alias da_purple_conv_im_set_typing_state = void function(PurpleConvIm* im, PurpleTypingState state);																																																						/* da_purple_conv_im_set_typing_state purple_conv_im_set_typing_state; */
+alias da_purple_conv_im_get_typing_state = PurpleTypingState function(const(PurpleConvIm)* im);																																																						/* da_purple_conv_im_get_typing_state purple_conv_im_get_typing_state; */
+alias da_purple_conv_im_start_typing_timeout = void function(PurpleConvIm* im, int timeout);																																																						/* da_purple_conv_im_start_typing_timeout purple_conv_im_start_typing_timeout; */
+alias da_purple_conv_im_stop_typing_timeout = void function(PurpleConvIm* im);																																																						/* da_purple_conv_im_stop_typing_timeout purple_conv_im_stop_typing_timeout; */
+alias da_purple_conv_im_get_typing_timeout = guint function(const(PurpleConvIm)* im);																																																						/* da_purple_conv_im_get_typing_timeout purple_conv_im_get_typing_timeout; */
+alias da_purple_conv_im_set_type_again = void function(PurpleConvIm* im, uint val);																																																						/* da_purple_conv_im_set_type_again purple_conv_im_set_type_again; */
+alias da_purple_conv_im_get_type_again = time_t function(const(PurpleConvIm)* im);																																																						/* da_purple_conv_im_get_type_again purple_conv_im_get_type_again; */
+alias da_purple_conv_im_start_send_typed_timeout = void function(PurpleConvIm* im);																																																						/* da_purple_conv_im_start_send_typed_timeout purple_conv_im_start_send_typed_timeout; */
+alias da_purple_conv_im_stop_send_typed_timeout = void function(PurpleConvIm* im);																																																						/* da_purple_conv_im_stop_send_typed_timeout purple_conv_im_stop_send_typed_timeout; */
+alias da_purple_conv_im_get_send_typed_timeout = guint function(const(PurpleConvIm)* im);																																																						/* da_purple_conv_im_get_send_typed_timeout purple_conv_im_get_send_typed_timeout; */
+alias da_purple_conv_im_update_typing = void function(PurpleConvIm* im);																																																						/* da_purple_conv_im_update_typing purple_conv_im_update_typing; */
+alias da_purple_conv_im_write = void function(PurpleConvIm* im, const(char)* who, const(char)* message, PurpleMessageFlags flags, time_t mtime);																																																						/* da_purple_conv_im_write purple_conv_im_write; */
+alias da_purple_conv_present_error = gboolean function(const(char)* who, PurpleAccount* account, const(char)* what);																																																						/* da_purple_conv_present_error purple_conv_present_error; */
+alias da_purple_conv_im_send = void function(PurpleConvIm* im, const(char)* message);																																																						/* da_purple_conv_im_send purple_conv_im_send; */
+alias da_purple_conv_send_confirm = void function(PurpleConversation* conv, const(char)* message);																																																						/* da_purple_conv_send_confirm purple_conv_send_confirm; */
+alias da_purple_conv_im_send_with_flags = void function(PurpleConvIm* im, const(char)* message, PurpleMessageFlags flags);																																																						/* da_purple_conv_im_send_with_flags purple_conv_im_send_with_flags; */
+alias da_purple_conv_custom_smiley_add = gboolean function(PurpleConversation* conv, const(char)* smile, const(char)* cksum_type, const(char)* chksum, gboolean remote);																																																						/* da_purple_conv_custom_smiley_add purple_conv_custom_smiley_add; */
+alias da_purple_conv_custom_smiley_write = void function(PurpleConversation* conv, const(char)* smile, const(guchar)* data, gsize size);																																																						/* da_purple_conv_custom_smiley_write purple_conv_custom_smiley_write; */
+alias da_purple_conv_custom_smiley_close = void function(PurpleConversation* conv, const(char)* smile);																																																						/* da_purple_conv_custom_smiley_close purple_conv_custom_smiley_close; */
+alias da_purple_conv_chat_get_conversation = PurpleConversation* function(const(PurpleConvChat)* chat);																																																						/* da_purple_conv_chat_get_conversation purple_conv_chat_get_conversation; */
+alias da_purple_conv_chat_set_users = GList* function(PurpleConvChat* chat, GList* users);																																																						/* da_purple_conv_chat_set_users purple_conv_chat_set_users; */
+alias da_purple_conv_chat_get_users = GList* function(const(PurpleConvChat)* chat);																																																						/* da_purple_conv_chat_get_users purple_conv_chat_get_users; */
+alias da_purple_conv_chat_ignore = void function(PurpleConvChat* chat, const(char)* name);																																																						/* da_purple_conv_chat_ignore purple_conv_chat_ignore; */
+alias da_purple_conv_chat_unignore = void function(PurpleConvChat* chat, const(char)* name);																																																						/* da_purple_conv_chat_unignore purple_conv_chat_unignore; */
+alias da_purple_conv_chat_set_ignored = GList* function(PurpleConvChat* chat, GList* ignored);																																																						/* da_purple_conv_chat_set_ignored purple_conv_chat_set_ignored; */
+alias da_purple_conv_chat_get_ignored = GList* function(const(PurpleConvChat)* chat);																																																						/* da_purple_conv_chat_get_ignored purple_conv_chat_get_ignored; */
+alias da_purple_conv_chat_get_ignored_user = const(char)* function(const(PurpleConvChat)* chat, const(char)* user);																																																						/* da_purple_conv_chat_get_ignored_user purple_conv_chat_get_ignored_user; */
+alias da_purple_conv_chat_is_user_ignored = gboolean function(const(PurpleConvChat)* chat, const(char)* user);																																																						/* da_purple_conv_chat_is_user_ignored purple_conv_chat_is_user_ignored; */
+alias da_purple_conv_chat_set_topic = void function(PurpleConvChat* chat, const(char)* who, const(char)* topic);																																																						/* da_purple_conv_chat_set_topic purple_conv_chat_set_topic; */
+alias da_purple_conv_chat_get_topic = const(char)* function(const(PurpleConvChat)* chat);																																																						/* da_purple_conv_chat_get_topic purple_conv_chat_get_topic; */
+alias da_purple_conv_chat_set_id = void function(PurpleConvChat* chat, int id);																																																						/* da_purple_conv_chat_set_id purple_conv_chat_set_id; */
+alias da_purple_conv_chat_get_id = int function(const(PurpleConvChat)* chat);																																																						/* da_purple_conv_chat_get_id purple_conv_chat_get_id; */
+alias da_purple_conv_chat_write = void function(PurpleConvChat* chat, const(char)* who, const(char)* message, PurpleMessageFlags flags, time_t mtime);																																																						/* da_purple_conv_chat_write purple_conv_chat_write; */
+alias da_purple_conv_chat_send = void function(PurpleConvChat* chat, const(char)* message);																																																						/* da_purple_conv_chat_send purple_conv_chat_send; */
+alias da_purple_conv_chat_send_with_flags = void function(PurpleConvChat* chat, const(char)* message, PurpleMessageFlags flags);																																																						/* da_purple_conv_chat_send_with_flags purple_conv_chat_send_with_flags; */
+alias da_purple_conv_chat_add_user = void function(PurpleConvChat* chat, const(char)* user, const(char)* extra_msg, PurpleConvChatBuddyFlags flags, gboolean new_arrival);																																																						/* da_purple_conv_chat_add_user purple_conv_chat_add_user; */
+alias da_purple_conv_chat_add_users = void function(PurpleConvChat* chat, GList* users, GList* extra_msgs, GList* flags, gboolean new_arrivals);																																																						/* da_purple_conv_chat_add_users purple_conv_chat_add_users; */
+alias da_purple_conv_chat_rename_user = void function(PurpleConvChat* chat, const(char)* old_user, const(char)* new_user);																																																						/* da_purple_conv_chat_rename_user purple_conv_chat_rename_user; */
+alias da_purple_conv_chat_remove_user = void function(PurpleConvChat* chat, const(char)* user, const(char)* reason);																																																						/* da_purple_conv_chat_remove_user purple_conv_chat_remove_user; */
+alias da_purple_conv_chat_remove_users = void function(PurpleConvChat* chat, GList* users, const(char)* reason);																																																						/* da_purple_conv_chat_remove_users purple_conv_chat_remove_users; */
+alias da_purple_conv_chat_find_user = gboolean function(PurpleConvChat* chat, const(char)* user);																																																						/* da_purple_conv_chat_find_user purple_conv_chat_find_user; */
+alias da_purple_conv_chat_user_set_flags = void function(PurpleConvChat* chat, const(char)* user, PurpleConvChatBuddyFlags flags);																																																						/* da_purple_conv_chat_user_set_flags purple_conv_chat_user_set_flags; */
+alias da_purple_conv_chat_user_get_flags = PurpleConvChatBuddyFlags function(PurpleConvChat* chat, const(char)* user);																																																						/* da_purple_conv_chat_user_get_flags purple_conv_chat_user_get_flags; */
+alias da_purple_conv_chat_clear_users = void function(PurpleConvChat* chat);																																																						/* da_purple_conv_chat_clear_users purple_conv_chat_clear_users; */
+alias da_purple_conv_chat_set_nick = void function(PurpleConvChat* chat, const(char)* nick);																																																						/* da_purple_conv_chat_set_nick purple_conv_chat_set_nick; */
+alias da_purple_conv_chat_get_nick = const(char)* function(PurpleConvChat* chat);																																																						/* da_purple_conv_chat_get_nick purple_conv_chat_get_nick; */
+alias da_purple_find_chat = PurpleConversation* function(const(PurpleConnection)* gc, int id);																																																						/* da_purple_find_chat purple_find_chat; */
+alias da_purple_conv_chat_left = void function(PurpleConvChat* chat);																																																						/* da_purple_conv_chat_left purple_conv_chat_left; */
+alias da_purple_conv_chat_invite_user = void function(PurpleConvChat* chat, const(char)* user, const(char)* message, gboolean confirm);																																																						/* da_purple_conv_chat_invite_user purple_conv_chat_invite_user; */
+alias da_purple_conv_chat_has_left = gboolean function(PurpleConvChat* chat);																																																						/* da_purple_conv_chat_has_left purple_conv_chat_has_left; */
+alias da_purple_conv_chat_cb_new = PurpleConvChatBuddy* function(const(char)* name, const(char)* alias_, PurpleConvChatBuddyFlags flags);																																																						/* da_purple_conv_chat_cb_new purple_conv_chat_cb_new; */
+alias da_purple_conv_chat_cb_find = PurpleConvChatBuddy* function(PurpleConvChat* chat, const(char)* name);																																																						/* da_purple_conv_chat_cb_find purple_conv_chat_cb_find; */
+alias da_purple_conv_chat_cb_get_name = const(char)* function(PurpleConvChatBuddy* cb);																																																						/* da_purple_conv_chat_cb_get_name purple_conv_chat_cb_get_name; */
+alias da_purple_conv_chat_cb_destroy = void function(PurpleConvChatBuddy* cb);																																																						/* da_purple_conv_chat_cb_destroy purple_conv_chat_cb_destroy; */
+alias da_purple_conversation_get_extended_menu = GList* function(PurpleConversation* conv);																																																						/* da_purple_conversation_get_extended_menu purple_conversation_get_extended_menu; */
+alias da_purple_conversation_do_command = gboolean function(PurpleConversation* conv, const(gchar)* cmdline, const(gchar)* markup, gchar** error);																																																						/* da_purple_conversation_do_command purple_conversation_do_command; */
+alias da_purple_conversations_get_handle = void* function();																																																						/* da_purple_conversations_get_handle purple_conversations_get_handle; */
+alias da_purple_conversations_init = void function();																																																						/* da_purple_conversations_init purple_conversations_init; */
+alias da_purple_conversations_uninit = void function();																																																						/* da_purple_conversations_uninit purple_conversations_uninit; */

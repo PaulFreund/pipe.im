@@ -13,7 +13,7 @@ enum _Anonymous_0
 	PURPLE_PMP_TYPE_TCP = 1
 }
 
-void purple_pmp_init ();
-char* purple_pmp_get_public_ip ();
-gboolean purple_pmp_create_map (PurplePmpType type, ushort privateport, ushort publicport, int lifetime);
-gboolean purple_pmp_destroy_map (PurplePmpType type, ushort privateport);
+alias da_purple_pmp_init = void function();																																																						/* da_purple_pmp_init purple_pmp_init; */
+alias da_purple_pmp_get_public_ip = char* function();																																																						/* da_purple_pmp_get_public_ip purple_pmp_get_public_ip; */
+alias da_purple_pmp_create_map = gboolean function(PurplePmpType type, ushort privateport, ushort publicport, int lifetime);																																																						/* da_purple_pmp_create_map purple_pmp_create_map; */
+alias da_purple_pmp_destroy_map = gboolean function(PurplePmpType type, ushort privateport);																																																						/* da_purple_pmp_destroy_map purple_pmp_destroy_map; */

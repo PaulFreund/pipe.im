@@ -6,4 +6,4 @@ import core.stdc.config;
 
 extern (C):
 
-void g_qsort_with_data (gconstpointer pbase, gint total_elems, gsize size, GCompareDataFunc compare_func, gpointer user_data);
+alias da_g_qsort_with_data = void function(gconstpointer pbase, gint total_elems, gsize size, GCompareDataFunc compare_func, gpointer user_data);																																																						/* da_g_qsort_with_data g_qsort_with_data; */

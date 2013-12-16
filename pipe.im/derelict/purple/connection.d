@@ -99,30 +99,30 @@ struct _PurpleConnection
 	time_t last_received;
 }
 
-void purple_connection_new (PurpleAccount* account, gboolean regist, const(char)* password);
-void purple_connection_new_unregister (PurpleAccount* account, const(char)* password, PurpleAccountUnregistrationCb cb, void* user_data);
-void purple_connection_destroy (PurpleConnection* gc);
-void purple_connection_set_state (PurpleConnection* gc, PurpleConnectionState state);
-void purple_connection_set_account (PurpleConnection* gc, PurpleAccount* account);
-void purple_connection_set_display_name (PurpleConnection* gc, const(char)* name);
-void purple_connection_set_protocol_data (PurpleConnection* connection, void* proto_data);
-PurpleConnectionState purple_connection_get_state (const(PurpleConnection)* gc);
-PurpleAccount* purple_connection_get_account (const(PurpleConnection)* gc);
-PurplePlugin* purple_connection_get_prpl (const(PurpleConnection)* gc);
-const(char)* purple_connection_get_password (const(PurpleConnection)* gc);
-const(char)* purple_connection_get_display_name (const(PurpleConnection)* gc);
-void* purple_connection_get_protocol_data (const(PurpleConnection)* connection);
-void purple_connection_update_progress (PurpleConnection* gc, const(char)* text, size_t step, size_t count);
-void purple_connection_notice (PurpleConnection* gc, const(char)* text);
-void purple_connection_error (PurpleConnection* gc, const(char)* reason);
-void purple_connection_error_reason (PurpleConnection* gc, PurpleConnectionError reason, const(char)* description);
-void purple_connection_ssl_error (PurpleConnection* gc, PurpleSslErrorType ssl_error);
-gboolean purple_connection_error_is_fatal (PurpleConnectionError reason);
-void purple_connections_disconnect_all ();
-GList* purple_connections_get_all ();
-GList* purple_connections_get_connecting ();
-void purple_connections_set_ui_ops (PurpleConnectionUiOps* ops);
-PurpleConnectionUiOps* purple_connections_get_ui_ops ();
-void purple_connections_init ();
-void purple_connections_uninit ();
-void* purple_connections_get_handle ();
+alias da_purple_connection_new = void function(PurpleAccount* account, gboolean regist, const(char)* password);																																																						/* da_purple_connection_new purple_connection_new; */
+alias da_purple_connection_new_unregister = void function(PurpleAccount* account, const(char)* password, PurpleAccountUnregistrationCb cb, void* user_data);																																																						/* da_purple_connection_new_unregister purple_connection_new_unregister; */
+alias da_purple_connection_destroy = void function(PurpleConnection* gc);																																																						/* da_purple_connection_destroy purple_connection_destroy; */
+alias da_purple_connection_set_state = void function(PurpleConnection* gc, PurpleConnectionState state);																																																						/* da_purple_connection_set_state purple_connection_set_state; */
+alias da_purple_connection_set_account = void function(PurpleConnection* gc, PurpleAccount* account);																																																						/* da_purple_connection_set_account purple_connection_set_account; */
+alias da_purple_connection_set_display_name = void function(PurpleConnection* gc, const(char)* name);																																																						/* da_purple_connection_set_display_name purple_connection_set_display_name; */
+alias da_purple_connection_set_protocol_data = void function(PurpleConnection* connection, void* proto_data);																																																						/* da_purple_connection_set_protocol_data purple_connection_set_protocol_data; */
+alias da_purple_connection_get_state = PurpleConnectionState function(const(PurpleConnection)* gc);																																																						/* da_purple_connection_get_state purple_connection_get_state; */
+alias da_purple_connection_get_account = PurpleAccount* function(const(PurpleConnection)* gc);																																																						/* da_purple_connection_get_account purple_connection_get_account; */
+alias da_purple_connection_get_prpl = PurplePlugin* function(const(PurpleConnection)* gc);																																																						/* da_purple_connection_get_prpl purple_connection_get_prpl; */
+alias da_purple_connection_get_password = const(char)* function(const(PurpleConnection)* gc);																																																						/* da_purple_connection_get_password purple_connection_get_password; */
+alias da_purple_connection_get_display_name = const(char)* function(const(PurpleConnection)* gc);																																																						/* da_purple_connection_get_display_name purple_connection_get_display_name; */
+alias da_purple_connection_get_protocol_data = void* function(const(PurpleConnection)* connection);																																																						/* da_purple_connection_get_protocol_data purple_connection_get_protocol_data; */
+alias da_purple_connection_update_progress = void function(PurpleConnection* gc, const(char)* text, size_t step, size_t count);																																																						/* da_purple_connection_update_progress purple_connection_update_progress; */
+alias da_purple_connection_notice = void function(PurpleConnection* gc, const(char)* text);																																																						/* da_purple_connection_notice purple_connection_notice; */
+alias da_purple_connection_error = void function(PurpleConnection* gc, const(char)* reason);																																																						/* da_purple_connection_error purple_connection_error; */
+alias da_purple_connection_error_reason = void function(PurpleConnection* gc, PurpleConnectionError reason, const(char)* description);																																																						/* da_purple_connection_error_reason purple_connection_error_reason; */
+alias da_purple_connection_ssl_error = void function(PurpleConnection* gc, PurpleSslErrorType ssl_error);																																																						/* da_purple_connection_ssl_error purple_connection_ssl_error; */
+alias da_purple_connection_error_is_fatal = gboolean function(PurpleConnectionError reason);																																																						/* da_purple_connection_error_is_fatal purple_connection_error_is_fatal; */
+alias da_purple_connections_disconnect_all = void function();																																																						/* da_purple_connections_disconnect_all purple_connections_disconnect_all; */
+alias da_purple_connections_get_all = GList* function();																																																						/* da_purple_connections_get_all purple_connections_get_all; */
+alias da_purple_connections_get_connecting = GList* function();																																																						/* da_purple_connections_get_connecting purple_connections_get_connecting; */
+alias da_purple_connections_set_ui_ops = void function(PurpleConnectionUiOps* ops);																																																						/* da_purple_connections_set_ui_ops purple_connections_set_ui_ops; */
+alias da_purple_connections_get_ui_ops = PurpleConnectionUiOps* function();																																																						/* da_purple_connections_get_ui_ops purple_connections_get_ui_ops; */
+alias da_purple_connections_init = void function();																																																						/* da_purple_connections_init purple_connections_init; */
+alias da_purple_connections_uninit = void function();																																																						/* da_purple_connections_uninit purple_connections_uninit; */
+alias da_purple_connections_get_handle = void* function();																																																						/* da_purple_connections_get_handle purple_connections_get_handle; */

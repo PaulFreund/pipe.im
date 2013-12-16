@@ -15,9 +15,9 @@ struct _Anonymous_0
 	void function () _purple_reserved4;
 }
 
-void purple_idle_touch ();
-void purple_idle_set (time_t time);
-void purple_idle_set_ui_ops (PurpleIdleUiOps* ops);
-PurpleIdleUiOps* purple_idle_get_ui_ops ();
-void purple_idle_init ();
-void purple_idle_uninit ();
+alias da_purple_idle_touch = void function();																																																						/* da_purple_idle_touch purple_idle_touch; */
+alias da_purple_idle_set = void function(time_t time);																																																						/* da_purple_idle_set purple_idle_set; */
+alias da_purple_idle_set_ui_ops = void function(PurpleIdleUiOps* ops);																																																						/* da_purple_idle_set_ui_ops purple_idle_set_ui_ops; */
+alias da_purple_idle_get_ui_ops = PurpleIdleUiOps* function();																																																						/* da_purple_idle_get_ui_ops purple_idle_get_ui_ops; */
+alias da_purple_idle_init = void function();																																																						/* da_purple_idle_init purple_idle_init; */
+alias da_purple_idle_uninit = void function();																																																						/* da_purple_idle_uninit purple_idle_uninit; */

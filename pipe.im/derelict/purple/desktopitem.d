@@ -24,9 +24,9 @@ enum _Anonymous_0
 struct _PurpleDesktopItem;
 
 
-GType purple_desktop_item_get_type ();
-PurpleDesktopItem* purple_desktop_item_new_from_file (const(char)* filename);
-PurpleDesktopItemType purple_desktop_item_get_entry_type (const(PurpleDesktopItem)* item);
-const(char)* purple_desktop_item_get_string (const(PurpleDesktopItem)* item, const(char)* attr);
-PurpleDesktopItem* purple_desktop_item_copy (const(PurpleDesktopItem)* item);
-void purple_desktop_item_unref (PurpleDesktopItem* item);
+alias da_purple_desktop_item_get_type = GType function();																																																						/* da_purple_desktop_item_get_type purple_desktop_item_get_type; */
+alias da_purple_desktop_item_new_from_file = PurpleDesktopItem* function(const(char)* filename);																																																						/* da_purple_desktop_item_new_from_file purple_desktop_item_new_from_file; */
+alias da_purple_desktop_item_get_entry_type = PurpleDesktopItemType function(const(PurpleDesktopItem)* item);																																																						/* da_purple_desktop_item_get_entry_type purple_desktop_item_get_entry_type; */
+alias da_purple_desktop_item_get_string = const(char)* function(const(PurpleDesktopItem)* item, const(char)* attr);																																																						/* da_purple_desktop_item_get_string purple_desktop_item_get_string; */
+alias da_purple_desktop_item_copy = PurpleDesktopItem* function(const(PurpleDesktopItem)* item);																																																						/* da_purple_desktop_item_copy purple_desktop_item_copy; */
+alias da_purple_desktop_item_unref = void function(PurpleDesktopItem* item);																																																						/* da_purple_desktop_item_unref purple_desktop_item_unref; */

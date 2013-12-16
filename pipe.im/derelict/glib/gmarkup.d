@@ -56,18 +56,18 @@ struct _GMarkupParser
 struct _GMarkupParseContext;
 
 
-GQuark g_markup_error_quark ();
-GMarkupParseContext* g_markup_parse_context_new (const(GMarkupParser)* parser, GMarkupParseFlags flags, gpointer user_data, GDestroyNotify user_data_dnotify);
-void g_markup_parse_context_free (GMarkupParseContext* context);
-gboolean g_markup_parse_context_parse (GMarkupParseContext* context, const(gchar)* text, gssize text_len, GError** error);
-void g_markup_parse_context_push (GMarkupParseContext* context, const(GMarkupParser)* parser, gpointer user_data);
-gpointer g_markup_parse_context_pop (GMarkupParseContext* context);
-gboolean g_markup_parse_context_end_parse (GMarkupParseContext* context, GError** error);
-const(gchar)* g_markup_parse_context_get_element (GMarkupParseContext* context);
-const(GSList)* g_markup_parse_context_get_element_stack (GMarkupParseContext* context);
-void g_markup_parse_context_get_position (GMarkupParseContext* context, gint* line_number, gint* char_number);
-gpointer g_markup_parse_context_get_user_data (GMarkupParseContext* context);
-gchar* g_markup_escape_text (const(gchar)* text, gssize length);
-gchar* g_markup_printf_escaped (const(char)* format, ...);
-gchar* g_markup_vprintf_escaped (const(char)* format, va_list args);
-gboolean g_markup_collect_attributes (const(gchar)* element_name, const(gchar*)* attribute_names, const(gchar*)* attribute_values, GError** error, GMarkupCollectType first_type, const(gchar)* first_attr, ...);
+alias da_g_markup_error_quark = GQuark function();																																																						/* da_g_markup_error_quark g_markup_error_quark; */
+alias da_g_markup_parse_context_new = GMarkupParseContext* function(const(GMarkupParser)* parser, GMarkupParseFlags flags, gpointer user_data, GDestroyNotify user_data_dnotify);																																																						/* da_g_markup_parse_context_new g_markup_parse_context_new; */
+alias da_g_markup_parse_context_free = void function(GMarkupParseContext* context);																																																						/* da_g_markup_parse_context_free g_markup_parse_context_free; */
+alias da_g_markup_parse_context_parse = gboolean function(GMarkupParseContext* context, const(gchar)* text, gssize text_len, GError** error);																																																						/* da_g_markup_parse_context_parse g_markup_parse_context_parse; */
+alias da_g_markup_parse_context_push = void function(GMarkupParseContext* context, const(GMarkupParser)* parser, gpointer user_data);																																																						/* da_g_markup_parse_context_push g_markup_parse_context_push; */
+alias da_g_markup_parse_context_pop = gpointer function(GMarkupParseContext* context);																																																						/* da_g_markup_parse_context_pop g_markup_parse_context_pop; */
+alias da_g_markup_parse_context_end_parse = gboolean function(GMarkupParseContext* context, GError** error);																																																						/* da_g_markup_parse_context_end_parse g_markup_parse_context_end_parse; */
+alias da_g_markup_parse_context_get_element = const(gchar)* function(GMarkupParseContext* context);																																																						/* da_g_markup_parse_context_get_element g_markup_parse_context_get_element; */
+alias da_g_markup_parse_context_get_element_stack = const(GSList)* function(GMarkupParseContext* context);																																																						/* da_g_markup_parse_context_get_element_stack g_markup_parse_context_get_element_stack; */
+alias da_g_markup_parse_context_get_position = void function(GMarkupParseContext* context, gint* line_number, gint* char_number);																																																						/* da_g_markup_parse_context_get_position g_markup_parse_context_get_position; */
+alias da_g_markup_parse_context_get_user_data = gpointer function(GMarkupParseContext* context);																																																						/* da_g_markup_parse_context_get_user_data g_markup_parse_context_get_user_data; */
+alias da_g_markup_escape_text = gchar* function(const(gchar)* text, gssize length);																																																						/* da_g_markup_escape_text g_markup_escape_text; */
+alias da_g_markup_printf_escaped = gchar* function(const(char)* format, ...);																																																						/* da_g_markup_printf_escaped g_markup_printf_escaped; */
+alias da_g_markup_vprintf_escaped = gchar* function(const(char)* format, va_list args);																																																						/* da_g_markup_vprintf_escaped g_markup_vprintf_escaped; */
+alias da_g_markup_collect_attributes = gboolean function(const(gchar)* element_name, const(gchar*)* attribute_names, const(gchar*)* attribute_values, GError** error, GMarkupCollectType first_type, const(gchar)* first_attr, ...);																																																						/* da_g_markup_collect_attributes g_markup_collect_attributes; */

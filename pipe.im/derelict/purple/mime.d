@@ -18,21 +18,21 @@ struct _PurpleMimeDocument;
 struct _PurpleMimePart;
 
 
-PurpleMimeDocument* purple_mime_document_new ();
-void purple_mime_document_free (PurpleMimeDocument* doc);
-PurpleMimeDocument* purple_mime_document_parse (const(char)* buf);
-PurpleMimeDocument* purple_mime_document_parsen (const(char)* buf, gsize len);
-void purple_mime_document_write (PurpleMimeDocument* doc, GString* str);
-GList* purple_mime_document_get_fields (PurpleMimeDocument* doc);
-const(char)* purple_mime_document_get_field (PurpleMimeDocument* doc, const(char)* field);
-void purple_mime_document_set_field (PurpleMimeDocument* doc, const(char)* field, const(char)* value);
-GList* purple_mime_document_get_parts (PurpleMimeDocument* doc);
-PurpleMimePart* purple_mime_part_new (PurpleMimeDocument* doc);
-GList* purple_mime_part_get_fields (PurpleMimePart* part);
-const(char)* purple_mime_part_get_field (PurpleMimePart* part, const(char)* field);
-char* purple_mime_part_get_field_decoded (PurpleMimePart* part, const(char)* field);
-void purple_mime_part_set_field (PurpleMimePart* part, const(char)* field, const(char)* value);
-const(char)* purple_mime_part_get_data (PurpleMimePart* part);
-void purple_mime_part_get_data_decoded (PurpleMimePart* part, guchar** data, gsize* len);
-gsize purple_mime_part_get_length (PurpleMimePart* part);
-void purple_mime_part_set_data (PurpleMimePart* part, const(char)* data);
+alias da_purple_mime_document_new = PurpleMimeDocument* function();																																																						/* da_purple_mime_document_new purple_mime_document_new; */
+alias da_purple_mime_document_free = void function(PurpleMimeDocument* doc);																																																						/* da_purple_mime_document_free purple_mime_document_free; */
+alias da_purple_mime_document_parse = PurpleMimeDocument* function(const(char)* buf);																																																						/* da_purple_mime_document_parse purple_mime_document_parse; */
+alias da_purple_mime_document_parsen = PurpleMimeDocument* function(const(char)* buf, gsize len);																																																						/* da_purple_mime_document_parsen purple_mime_document_parsen; */
+alias da_purple_mime_document_write = void function(PurpleMimeDocument* doc, GString* str);																																																						/* da_purple_mime_document_write purple_mime_document_write; */
+alias da_purple_mime_document_get_fields = GList* function(PurpleMimeDocument* doc);																																																						/* da_purple_mime_document_get_fields purple_mime_document_get_fields; */
+alias da_purple_mime_document_get_field = const(char)* function(PurpleMimeDocument* doc, const(char)* field);																																																						/* da_purple_mime_document_get_field purple_mime_document_get_field; */
+alias da_purple_mime_document_set_field = void function(PurpleMimeDocument* doc, const(char)* field, const(char)* value);																																																						/* da_purple_mime_document_set_field purple_mime_document_set_field; */
+alias da_purple_mime_document_get_parts = GList* function(PurpleMimeDocument* doc);																																																						/* da_purple_mime_document_get_parts purple_mime_document_get_parts; */
+alias da_purple_mime_part_new = PurpleMimePart* function(PurpleMimeDocument* doc);																																																						/* da_purple_mime_part_new purple_mime_part_new; */
+alias da_purple_mime_part_get_fields = GList* function(PurpleMimePart* part);																																																						/* da_purple_mime_part_get_fields purple_mime_part_get_fields; */
+alias da_purple_mime_part_get_field = const(char)* function(PurpleMimePart* part, const(char)* field);																																																						/* da_purple_mime_part_get_field purple_mime_part_get_field; */
+alias da_purple_mime_part_get_field_decoded = char* function(PurpleMimePart* part, const(char)* field);																																																						/* da_purple_mime_part_get_field_decoded purple_mime_part_get_field_decoded; */
+alias da_purple_mime_part_set_field = void function(PurpleMimePart* part, const(char)* field, const(char)* value);																																																						/* da_purple_mime_part_set_field purple_mime_part_set_field; */
+alias da_purple_mime_part_get_data = const(char)* function(PurpleMimePart* part);																																																						/* da_purple_mime_part_get_data purple_mime_part_get_data; */
+alias da_purple_mime_part_get_data_decoded = void function(PurpleMimePart* part, guchar** data, gsize* len);																																																						/* da_purple_mime_part_get_data_decoded purple_mime_part_get_data_decoded; */
+alias da_purple_mime_part_get_length = gsize function(PurpleMimePart* part);																																																						/* da_purple_mime_part_get_length purple_mime_part_get_length; */
+alias da_purple_mime_part_set_data = void function(PurpleMimePart* part, const(char)* data);																																																						/* da_purple_mime_part_set_data purple_mime_part_set_data; */

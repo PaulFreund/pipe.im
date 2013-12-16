@@ -9,7 +9,7 @@ extern (C):
 
 //alias statBuf GStatBuf;
 
-int g_access (const(gchar)* filename, int mode);
-int g_chdir (const(gchar)* path);
-int g_unlink (const(gchar)* filename);
-int g_rmdir (const(gchar)* filename);
+alias da_g_access = int function(const(gchar)* filename, int mode);																																																						/* da_g_access g_access; */
+alias da_g_chdir = int function(const(gchar)* path);																																																						/* da_g_chdir g_chdir; */
+alias da_g_unlink = int function(const(gchar)* filename);																																																						/* da_g_unlink g_unlink; */
+alias da_g_rmdir = int function(const(gchar)* filename);																																																						/* da_g_rmdir g_rmdir; */

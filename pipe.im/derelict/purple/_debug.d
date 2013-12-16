@@ -28,18 +28,18 @@ struct _Anonymous_1
 	void function () _purple_reserved4;
 }
 
-void purple_debug (PurpleDebugLevel level, const(char)* category, const(char)* format, ...);
-void purple_debug_misc (const(char)* category, const(char)* format, ...);
-void purple_debug_info (const(char)* category, const(char)* format, ...);
-void purple_debug_warning (const(char)* category, const(char)* format, ...);
-void purple_debug_error (const(char)* category, const(char)* format, ...);
-void purple_debug_fatal (const(char)* category, const(char)* format, ...);
-void purple_debug_set_enabled (gboolean enabled);
-gboolean purple_debug_is_enabled ();
-void purple_debug_set_verbose (gboolean verbose);
-gboolean purple_debug_is_verbose ();
-void purple_debug_set_unsafe (gboolean unsafe);
-gboolean purple_debug_is_unsafe ();
-void purple_debug_set_ui_ops (PurpleDebugUiOps* ops);
-PurpleDebugUiOps* purple_debug_get_ui_ops ();
-void purple_debug_init ();
+alias da_purple_debug = void function(PurpleDebugLevel level, const(char)* category, const(char)* format, ...);																																																						/* da_purple_debug purple_debug; */
+alias da_purple_debug_misc = void function(const(char)* category, const(char)* format, ...);																																																						/* da_purple_debug_misc purple_debug_misc; */
+alias da_purple_debug_info = void function(const(char)* category, const(char)* format, ...);																																																						/* da_purple_debug_info purple_debug_info; */
+alias da_purple_debug_warning = void function(const(char)* category, const(char)* format, ...);																																																						/* da_purple_debug_warning purple_debug_warning; */
+alias da_purple_debug_error = void function(const(char)* category, const(char)* format, ...);																																																						/* da_purple_debug_error purple_debug_error; */
+alias da_purple_debug_fatal = void function(const(char)* category, const(char)* format, ...);																																																						/* da_purple_debug_fatal purple_debug_fatal; */
+alias da_purple_debug_set_enabled = void function(gboolean enabled);																																																						/* da_purple_debug_set_enabled purple_debug_set_enabled; */
+alias da_purple_debug_is_enabled = gboolean function();																																																						/* da_purple_debug_is_enabled purple_debug_is_enabled; */
+alias da_purple_debug_set_verbose = void function(gboolean verbose);																																																						/* da_purple_debug_set_verbose purple_debug_set_verbose; */
+alias da_purple_debug_is_verbose = gboolean function();																																																						/* da_purple_debug_is_verbose purple_debug_is_verbose; */
+alias da_purple_debug_set_unsafe = void function(gboolean unsafe);																																																						/* da_purple_debug_set_unsafe purple_debug_set_unsafe; */
+alias da_purple_debug_is_unsafe = gboolean function();																																																						/* da_purple_debug_is_unsafe purple_debug_is_unsafe; */
+alias da_purple_debug_set_ui_ops = void function(PurpleDebugUiOps* ops);																																																						/* da_purple_debug_set_ui_ops purple_debug_set_ui_ops; */
+alias da_purple_debug_get_ui_ops = PurpleDebugUiOps* function();																																																						/* da_purple_debug_get_ui_ops purple_debug_get_ui_ops; */
+alias da_purple_debug_init = void function();																																																						/* da_purple_debug_init purple_debug_init; */

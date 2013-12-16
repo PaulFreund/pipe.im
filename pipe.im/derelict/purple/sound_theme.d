@@ -20,7 +20,7 @@ struct _PurpleSoundThemeClass
 	PurpleThemeClass parent_class;
 }
 
-GType purple_sound_theme_get_type ();
-const(gchar)* purple_sound_theme_get_file (PurpleSoundTheme* theme, const(gchar)* event);
-gchar* purple_sound_theme_get_file_full (PurpleSoundTheme* theme, const(gchar)* event);
-void purple_sound_theme_set_file (PurpleSoundTheme* theme, const(gchar)* event, const(gchar)* filename);
+alias da_purple_sound_theme_get_type = GType function();																																																						/* da_purple_sound_theme_get_type purple_sound_theme_get_type; */
+alias da_purple_sound_theme_get_file = const(gchar)* function(PurpleSoundTheme* theme, const(gchar)* event);																																																						/* da_purple_sound_theme_get_file purple_sound_theme_get_file; */
+alias da_purple_sound_theme_get_file_full = gchar* function(PurpleSoundTheme* theme, const(gchar)* event);																																																						/* da_purple_sound_theme_get_file_full purple_sound_theme_get_file_full; */
+alias da_purple_sound_theme_set_file = void function(PurpleSoundTheme* theme, const(gchar)* event, const(gchar)* filename);																																																						/* da_purple_sound_theme_set_file purple_sound_theme_set_file; */

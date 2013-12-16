@@ -10,57 +10,58 @@ extern (C):
 alias void function () PurpleCallback;
 alias void function (void function (), va_list, void*, void**) PurpleSignalMarshalFunc;
 
-gulong purple_signal_register (void* instance, const(char)* signal, PurpleSignalMarshalFunc marshal, PurpleValue* ret_value, int num_values, ...);
-void purple_signal_unregister (void* instance, const(char)* signal);
-void purple_signals_unregister_by_instance (void* instance);
-void purple_signal_get_values (void* instance, const(char)* signal, PurpleValue** ret_value, int* num_values, PurpleValue*** values);
-gulong purple_signal_connect_priority (void* instance, const(char)* signal, void* handle, PurpleCallback func, void* data, int priority);
-gulong purple_signal_connect (void* instance, const(char)* signal, void* handle, PurpleCallback func, void* data);
-gulong purple_signal_connect_priority_vargs (void* instance, const(char)* signal, void* handle, PurpleCallback func, void* data, int priority);
-gulong purple_signal_connect_vargs (void* instance, const(char)* signal, void* handle, PurpleCallback func, void* data);
-void purple_signal_disconnect (void* instance, const(char)* signal, void* handle, PurpleCallback func);
-void purple_signals_disconnect_by_handle (void* handle);
-void purple_signal_emit (void* instance, const(char)* signal, ...);
-void purple_signal_emit_vargs (void* instance, const(char)* signal, va_list args);
-void* purple_signal_emit_return_1 (void* instance, const(char)* signal, ...);
-void* purple_signal_emit_vargs_return_1 (void* instance, const(char)* signal, va_list args);
-void purple_signals_init ();
-void purple_signals_uninit ();
-void purple_marshal_VOID (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_VOID__INT (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_VOID__INT_INT (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_VOID__POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_VOID__POINTER_UINT (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_VOID__POINTER_INT_INT (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_VOID__POINTER_INT_POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_VOID__POINTER_POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_VOID__POINTER_POINTER_UINT (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_VOID__POINTER_POINTER_UINT_UINT (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_VOID__POINTER_POINTER_POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_VOID__POINTER_POINTER_POINTER_UINT (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_UINT (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_VOID__POINTER_POINTER_POINTER_UINT_UINT (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_INT__INT (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_INT__INT_INT (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_INT__POINTER_POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_INT__POINTER_POINTER_POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_INT__POINTER_POINTER_POINTER_POINTER_POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_BOOLEAN__POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_BOOLEAN__POINTER_POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_BOOLEAN__POINTER_BOOLEAN (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_BOOLEAN__POINTER_POINTER_UINT (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_UINT (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_UINT (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER_POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_BOOLEAN__INT_POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_POINTER__POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_POINTER__POINTER_INT (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_POINTER__POINTER_INT64 (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_POINTER__POINTER_INT_BOOLEAN (PurpleCallback cb, va_list args, void* data, void** return_val);
-void purple_marshal_POINTER__POINTER_INT64_BOOLEAN (PurpleCallback cb, va_list args, void* data, void** return_val);
+alias da_purple_signal_register = gulong function(void* instance, const(char)* signal, PurpleSignalMarshalFunc marshal, PurpleValue* ret_value, int num_values, ...);																																																						/* da_purple_signal_register purple_signal_register; */
+alias da_purple_signal_unregister = void function(void* instance, const(char)* signal);																																																						/* da_purple_signal_unregister purple_signal_unregister; */
+alias da_purple_signals_unregister_by_instance = void function(void* instance);																																																						/* da_purple_signals_unregister_by_instance purple_signals_unregister_by_instance; */
+alias da_purple_signal_get_values = void function(void* instance, const(char)* signal, PurpleValue** ret_value, int* num_values, PurpleValue*** values);																																																						/* da_purple_signal_get_values purple_signal_get_values; */
+alias da_purple_signal_connect_priority = gulong function(void* instance, const(char)* signal, void* handle, PurpleCallback func, void* data, int priority);																																																						/* da_purple_signal_connect_priority purple_signal_connect_priority; */
+alias da_purple_signal_connect = gulong function(void* instance, const(char)* signal, void* handle, PurpleCallback func, void* data);																																																						/* da_purple_signal_connect purple_signal_connect; */
+alias da_purple_signal_connect_priority_vargs = gulong function(void* instance, const(char)* signal, void* handle, PurpleCallback func, void* data, int priority);																																																						/* da_purple_signal_connect_priority_vargs purple_signal_connect_priority_vargs; */
+alias da_purple_signal_connect_vargs = gulong function(void* instance, const(char)* signal, void* handle, PurpleCallback func, void* data);																																																						/* da_purple_signal_connect_vargs purple_signal_connect_vargs; */
+alias da_purple_signal_disconnect = void function(void* instance, const(char)* signal, void* handle, PurpleCallback func);																																																						/* da_purple_signal_disconnect purple_signal_disconnect; */
+alias da_purple_signals_disconnect_by_handle = void function(void* handle);																																																						/* da_purple_signals_disconnect_by_handle purple_signals_disconnect_by_handle; */
+alias da_purple_signal_emit = void function(void* instance, const(char)* signal, ...);																																																						/* da_purple_signal_emit purple_signal_emit; */
+alias da_purple_signal_emit_vargs = void function(void* instance, const(char)* signal, va_list args);																																																						/* da_purple_signal_emit_vargs purple_signal_emit_vargs; */
+alias da_purple_signal_emit_return_1 = void* function(void* instance, const(char)* signal, ...);																																																						/* da_purple_signal_emit_return_1 purple_signal_emit_return_1; */
+alias da_purple_signal_emit_vargs_return_1 = void* function(void* instance, const(char)* signal, va_list args);																																																						/* da_purple_signal_emit_vargs_return_1 purple_signal_emit_vargs_return_1; */
+alias da_purple_signals_init = void function();																																																						/* da_purple_signals_init purple_signals_init; */
+alias da_purple_signals_uninit = void function();																																																						/* da_purple_signals_uninit purple_signals_uninit; */
+alias da_purple_marshal_VOID = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID purple_marshal_VOID; */
+alias da_purple_marshal_VOID__INT = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID__INT purple_marshal_VOID__INT; */
+alias da_purple_marshal_VOID__INT_INT = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID__INT_INT purple_marshal_VOID__INT_INT; */
+alias da_purple_marshal_VOID__POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID__POINTER purple_marshal_VOID__POINTER; */
+alias da_purple_marshal_VOID__POINTER_UINT = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID__POINTER_UINT purple_marshal_VOID__POINTER_UINT; */
+alias da_purple_marshal_VOID__POINTER_INT_INT = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID__POINTER_INT_INT purple_marshal_VOID__POINTER_INT_INT; */
+alias da_purple_marshal_VOID__POINTER_INT_POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID__POINTER_INT_POINTER purple_marshal_VOID__POINTER_INT_POINTER; */
+alias da_purple_marshal_VOID__POINTER_POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID__POINTER_POINTER purple_marshal_VOID__POINTER_POINTER; */
+alias da_purple_marshal_VOID__POINTER_POINTER_UINT = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID__POINTER_POINTER_UINT purple_marshal_VOID__POINTER_POINTER_UINT; */
+alias da_purple_marshal_VOID__POINTER_POINTER_UINT_UINT = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID__POINTER_POINTER_UINT_UINT purple_marshal_VOID__POINTER_POINTER_UINT_UINT; */
+alias da_purple_marshal_VOID__POINTER_POINTER_POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID__POINTER_POINTER_POINTER purple_marshal_VOID__POINTER_POINTER_POINTER; */
+alias da_purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER; */
+alias da_purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_POINTER purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_POINTER; */
+alias da_purple_marshal_VOID__POINTER_POINTER_POINTER_UINT = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID__POINTER_POINTER_POINTER_UINT purple_marshal_VOID__POINTER_POINTER_POINTER_UINT; */
+alias da_purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_UINT = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_UINT purple_marshal_VOID__POINTER_POINTER_POINTER_POINTER_UINT; */
+alias da_purple_marshal_VOID__POINTER_POINTER_POINTER_UINT_UINT = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_VOID__POINTER_POINTER_POINTER_UINT_UINT purple_marshal_VOID__POINTER_POINTER_POINTER_UINT_UINT; */
+alias da_purple_marshal_INT__INT = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_INT__INT purple_marshal_INT__INT; */
+alias da_purple_marshal_INT__INT_INT = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_INT__INT_INT purple_marshal_INT__INT_INT; */
+alias da_purple_marshal_INT__POINTER_POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_INT__POINTER_POINTER purple_marshal_INT__POINTER_POINTER; */
+alias da_purple_marshal_INT__POINTER_POINTER_POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_INT__POINTER_POINTER_POINTER purple_marshal_INT__POINTER_POINTER_POINTER; */
+alias da_purple_marshal_INT__POINTER_POINTER_POINTER_POINTER_POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_INT__POINTER_POINTER_POINTER_POINTER_POINTER purple_marshal_INT__POINTER_POINTER_POINTER_POINTER_POINTER; */
+alias da_purple_marshal_BOOLEAN__POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_BOOLEAN__POINTER purple_marshal_BOOLEAN__POINTER; */
+alias da_purple_marshal_BOOLEAN__POINTER_POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_BOOLEAN__POINTER_POINTER purple_marshal_BOOLEAN__POINTER_POINTER; */
+alias da_purple_marshal_BOOLEAN__POINTER_BOOLEAN = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_BOOLEAN__POINTER_BOOLEAN purple_marshal_BOOLEAN__POINTER_BOOLEAN; */
+alias da_purple_marshal_BOOLEAN__POINTER_POINTER_POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_BOOLEAN__POINTER_POINTER_POINTER purple_marshal_BOOLEAN__POINTER_POINTER_POINTER; */
+alias da_purple_marshal_BOOLEAN__POINTER_POINTER_UINT = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_BOOLEAN__POINTER_POINTER_UINT purple_marshal_BOOLEAN__POINTER_POINTER_UINT; */
+alias da_purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_UINT = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_UINT purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_UINT; */
+alias da_purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER; */
+alias da_purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER; */
+alias da_purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_UINT = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_UINT purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_UINT; */
+alias da_purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER_POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER_POINTER purple_marshal_BOOLEAN__POINTER_POINTER_POINTER_POINTER_POINTER_POINTER; */
+alias da_purple_marshal_BOOLEAN__INT_POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_BOOLEAN__INT_POINTER purple_marshal_BOOLEAN__INT_POINTER; */
+alias da_purple_marshal_POINTER__POINTER = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_POINTER__POINTER purple_marshal_POINTER__POINTER; */
+alias da_purple_marshal_POINTER__POINTER_INT = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_POINTER__POINTER_INT purple_marshal_POINTER__POINTER_INT; */
+alias da_purple_marshal_POINTER__POINTER_INT64 = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_POINTER__POINTER_INT64 purple_marshal_POINTER__POINTER_INT64; */
+alias da_purple_marshal_POINTER__POINTER_INT_BOOLEAN = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_POINTER__POINTER_INT_BOOLEAN purple_marshal_POINTER__POINTER_INT_BOOLEAN; */
+alias da_purple_marshal_POINTER__POINTER_INT64_BOOLEAN = void function(PurpleCallback cb, va_list args, void* data, void** return_val);																																																						/* da_purple_marshal_POINTER__POINTER_INT64_BOOLEAN purple_marshal_POINTER__POINTER_INT64_BOOLEAN; */
+
 void purple_marshal_POINTER__POINTER_POINTER (PurpleCallback cb, va_list args, void* data, void** return_val);

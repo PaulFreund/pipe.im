@@ -5,8 +5,8 @@ import derelict.glib.glibconfig;
 
 extern (C):
 
-gboolean g_hostname_is_non_ascii (const(gchar)* hostname);
-gboolean g_hostname_is_ascii_encoded (const(gchar)* hostname);
-gboolean g_hostname_is_ip_address (const(gchar)* hostname);
-gchar* g_hostname_to_ascii (const(gchar)* hostname);
-gchar* g_hostname_to_unicode (const(gchar)* hostname);
+alias da_g_hostname_is_non_ascii = gboolean function(const(gchar)* hostname);																																																						/* da_g_hostname_is_non_ascii g_hostname_is_non_ascii; */
+alias da_g_hostname_is_ascii_encoded = gboolean function(const(gchar)* hostname);																																																						/* da_g_hostname_is_ascii_encoded g_hostname_is_ascii_encoded; */
+alias da_g_hostname_is_ip_address = gboolean function(const(gchar)* hostname);																																																						/* da_g_hostname_is_ip_address g_hostname_is_ip_address; */
+alias da_g_hostname_to_ascii = gchar* function(const(gchar)* hostname);																																																						/* da_g_hostname_to_ascii g_hostname_to_ascii; */
+alias da_g_hostname_to_unicode = gchar* function(const(gchar)* hostname);																																																						/* da_g_hostname_to_unicode g_hostname_to_unicode; */

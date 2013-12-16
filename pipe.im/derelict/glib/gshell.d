@@ -16,7 +16,7 @@ enum _Anonymous_0
 	G_SHELL_ERROR_FAILED = 2
 }
 
-GQuark g_shell_error_quark ();
-gchar* g_shell_quote (const(gchar)* unquoted_string);
-gchar* g_shell_unquote (const(gchar)* quoted_string, GError** error);
-gboolean g_shell_parse_argv (const(gchar)* command_line, gint* argcp, gchar*** argvp, GError** error);
+alias da_g_shell_error_quark = GQuark function();																																																						/* da_g_shell_error_quark g_shell_error_quark; */
+alias da_g_shell_quote = gchar* function(const(gchar)* unquoted_string);																																																						/* da_g_shell_quote g_shell_quote; */
+alias da_g_shell_unquote = gchar* function(const(gchar)* quoted_string, GError** error);																																																						/* da_g_shell_unquote g_shell_unquote; */
+alias da_g_shell_parse_argv = gboolean function(const(gchar)* command_line, gint* argcp, gchar*** argvp, GError** error);																																																						/* da_g_shell_parse_argv g_shell_parse_argv; */

@@ -36,5 +36,5 @@ struct _PurpleStunNatDiscovery
 	time_t lookup_time;
 }
 
-PurpleStunNatDiscovery* purple_stun_discover (StunCallback cb);
-void purple_stun_init ();
+alias da_purple_stun_discover = PurpleStunNatDiscovery* function(StunCallback cb);																																																						/* da_purple_stun_discover purple_stun_discover; */
+alias da_purple_stun_init = void function();																																																						/* da_purple_stun_init purple_stun_init; */

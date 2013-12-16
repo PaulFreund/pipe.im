@@ -16,4 +16,4 @@ struct _GPollFD
 	gushort revents;
 }
 
-gint g_poll (GPollFD* fds, guint nfds, gint timeout);
+alias da_g_poll = gint function(GPollFD* fds, guint nfds, gint timeout);																																																						/* da_g_poll g_poll; */
