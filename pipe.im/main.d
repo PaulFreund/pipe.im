@@ -19,7 +19,7 @@ int main(string[] argv)
     DerelictGlib.load();
     DerelictPurple.load();
 
-    writeln("pip.im initialize");
+    writeln("pipe.im initialize");
     
     int ret = nullclient.nullclient();
 
