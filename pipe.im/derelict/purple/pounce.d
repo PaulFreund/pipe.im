@@ -75,45 +75,73 @@ struct _PurplePounce
 	void* data;
 }
 
-alias da_purple_pounce_new = PurplePounce* function(const(char)* ui_type, PurpleAccount* pouncer, const(char)* pouncee, PurplePounceEvent event, PurplePounceOption option);																																																						/* da_purple_pounce_new purple_pounce_new; */
-alias da_purple_pounce_destroy = void function(PurplePounce* pounce);																																																						/* da_purple_pounce_destroy purple_pounce_destroy; */
-alias da_purple_pounce_destroy_all_by_account = void function(PurpleAccount* account);																																																						/* da_purple_pounce_destroy_all_by_account purple_pounce_destroy_all_by_account; */
-alias da_purple_pounce_destroy_all_by_buddy = void function(PurpleBuddy* buddy);																																																						/* da_purple_pounce_destroy_all_by_buddy purple_pounce_destroy_all_by_buddy; */
-alias da_purple_pounce_set_events = void function(PurplePounce* pounce, PurplePounceEvent events);																																																						/* da_purple_pounce_set_events purple_pounce_set_events; */
-alias da_purple_pounce_set_options = void function(PurplePounce* pounce, PurplePounceOption options);																																																						/* da_purple_pounce_set_options purple_pounce_set_options; */
-alias da_purple_pounce_set_pouncer = void function(PurplePounce* pounce, PurpleAccount* pouncer);																																																						/* da_purple_pounce_set_pouncer purple_pounce_set_pouncer; */
-alias da_purple_pounce_set_pouncee = void function(PurplePounce* pounce, const(char)* pouncee);																																																						/* da_purple_pounce_set_pouncee purple_pounce_set_pouncee; */
-alias da_purple_pounce_set_save = void function(PurplePounce* pounce, gboolean save);																																																						/* da_purple_pounce_set_save purple_pounce_set_save; */
-alias da_purple_pounce_action_register = void function(PurplePounce* pounce, const(char)* name);																																																						/* da_purple_pounce_action_register purple_pounce_action_register; */
-alias da_purple_pounce_action_set_enabled = void function(PurplePounce* pounce, const(char)* action, gboolean enabled);																																																						/* da_purple_pounce_action_set_enabled purple_pounce_action_set_enabled; */
-alias da_purple_pounce_action_set_attribute = void function(PurplePounce* pounce, const(char)* action, const(char)* attr, const(char)* value);																																																						/* da_purple_pounce_action_set_attribute purple_pounce_action_set_attribute; */
-alias da_purple_pounce_set_data = void function(PurplePounce* pounce, void* data);																																																						/* da_purple_pounce_set_data purple_pounce_set_data; */
-alias da_purple_pounce_get_events = PurplePounceEvent function(const(PurplePounce)* pounce);																																																						/* da_purple_pounce_get_events purple_pounce_get_events; */
-alias da_purple_pounce_get_options = PurplePounceOption function(const(PurplePounce)* pounce);																																																						/* da_purple_pounce_get_options purple_pounce_get_options; */
-alias da_purple_pounce_get_pouncer = PurpleAccount* function(const(PurplePounce)* pounce);																																																						/* da_purple_pounce_get_pouncer purple_pounce_get_pouncer; */
-alias da_purple_pounce_get_pouncee = const(char)* function(const(PurplePounce)* pounce);																																																						/* da_purple_pounce_get_pouncee purple_pounce_get_pouncee; */
-alias da_purple_pounce_get_save = gboolean function(const(PurplePounce)* pounce);																																																						/* da_purple_pounce_get_save purple_pounce_get_save; */
-alias da_purple_pounce_action_is_enabled = gboolean function(const(PurplePounce)* pounce, const(char)* action);																																																						/* da_purple_pounce_action_is_enabled purple_pounce_action_is_enabled; */
-alias da_purple_pounce_action_get_attribute = const(char)* function(const(PurplePounce)* pounce, const(char)* action, const(char)* attr);																																																						/* da_purple_pounce_action_get_attribute purple_pounce_action_get_attribute; */
-alias da_purple_pounce_get_data = void* function(const(PurplePounce)* pounce);																																																						/* da_purple_pounce_get_data purple_pounce_get_data; */
-alias da_purple_pounce_execute = void function(const(PurpleAccount)* pouncer, const(char)* pouncee, PurplePounceEvent events);																																																						/* da_purple_pounce_execute purple_pounce_execute; */
-alias da_purple_find_pounce = PurplePounce* function(const(PurpleAccount)* pouncer, const(char)* pouncee, PurplePounceEvent events);																																																						/* da_purple_find_pounce purple_find_pounce; */
-alias da_purple_pounces_load = gboolean function();																																																						/* da_purple_pounces_load purple_pounces_load; */
-alias da_purple_pounces_register_handler = void function(const(char)* ui, PurplePounceCb cb, void function (PurplePounce*) new_pounce, void function (PurplePounce*) free_pounce);																																																						/* da_purple_pounces_register_handler purple_pounces_register_handler; */
-alias da_purple_pounces_unregister_handler = void function(const(char)* ui);																																																						/* da_purple_pounces_unregister_handler purple_pounces_unregister_handler; */
-alias da_purple_pounces_get_all = GList* function();																																																						/* da_purple_pounces_get_all purple_pounces_get_all; */
-alias da_purple_pounces_get_all_for_ui = GList* function(const(char)* ui);																																																						/* da_purple_pounces_get_all_for_ui purple_pounces_get_all_for_ui; */
-alias da_purple_pounces_get_handle = void* function();																																																						/* da_purple_pounces_get_handle purple_pounces_get_handle; */
-alias da_purple_pounces_init = void function();																																																						/* da_purple_pounces_init purple_pounces_init; */
-alias da_purple_pounces_uninit = void function();																																																						/* da_purple_pounces_uninit purple_pounces_uninit; */
-
 
 extern( C ) nothrow 
 {
-	
+	alias da_purple_pounce_new = PurplePounce* function(const(char)* ui_type, PurpleAccount* pouncer, const(char)* pouncee, PurplePounceEvent event, PurplePounceOption option);				
+    alias da_purple_pounce_destroy = void function(PurplePounce* pounce);																														
+    alias da_purple_pounce_destroy_all_by_account = void function(PurpleAccount* account);																										
+    alias da_purple_pounce_destroy_all_by_buddy = void function(PurpleBuddy* buddy);																											
+    alias da_purple_pounce_set_events = void function(PurplePounce* pounce, PurplePounceEvent events);																							
+    alias da_purple_pounce_set_options = void function(PurplePounce* pounce, PurplePounceOption options);																						
+    alias da_purple_pounce_set_pouncer = void function(PurplePounce* pounce, PurpleAccount* pouncer);																							
+    alias da_purple_pounce_set_pouncee = void function(PurplePounce* pounce, const(char)* pouncee);																								
+    alias da_purple_pounce_set_save = void function(PurplePounce* pounce, gboolean save);																										
+    alias da_purple_pounce_action_register = void function(PurplePounce* pounce, const(char)* name);																							
+    alias da_purple_pounce_action_set_enabled = void function(PurplePounce* pounce, const(char)* action, gboolean enabled);																		
+    alias da_purple_pounce_action_set_attribute = void function(PurplePounce* pounce, const(char)* action, const(char)* attr, const(char)* value);												
+    alias da_purple_pounce_set_data = void function(PurplePounce* pounce, void* data);																											
+    alias da_purple_pounce_get_events = PurplePounceEvent function(const(PurplePounce)* pounce);																								
+    alias da_purple_pounce_get_options = PurplePounceOption function(const(PurplePounce)* pounce);																								
+    alias da_purple_pounce_get_pouncer = PurpleAccount* function(const(PurplePounce)* pounce);																									
+    alias da_purple_pounce_get_pouncee = const(char)* function(const(PurplePounce)* pounce);																									
+    alias da_purple_pounce_get_save = gboolean function(const(PurplePounce)* pounce);																											
+    alias da_purple_pounce_action_is_enabled = gboolean function(const(PurplePounce)* pounce, const(char)* action);																				
+    alias da_purple_pounce_action_get_attribute = const(char)* function(const(PurplePounce)* pounce, const(char)* action, const(char)* attr);													
+    alias da_purple_pounce_get_data = void* function(const(PurplePounce)* pounce);																												
+    alias da_purple_pounce_execute = void function(const(PurpleAccount)* pouncer, const(char)* pouncee, PurplePounceEvent events);																
+    alias da_purple_find_pounce = PurplePounce* function(const(PurpleAccount)* pouncer, const(char)* pouncee, PurplePounceEvent events);														
+    alias da_purple_pounces_load = gboolean function();																																			
+    alias da_purple_pounces_register_handler = void function(const(char)* ui, PurplePounceCb cb, void function (PurplePounce*) new_pounce, void function (PurplePounce*) free_pounce);			
+    alias da_purple_pounces_unregister_handler = void function(const(char)* ui);																												
+    alias da_purple_pounces_get_all = GList* function();																																		
+    alias da_purple_pounces_get_all_for_ui = GList* function(const(char)* ui);																													
+    alias da_purple_pounces_get_handle = void* function();																																		
+    alias da_purple_pounces_init = void function();																																				
+    alias da_purple_pounces_uninit = void function();
 }
 
 __gshared
 {
-	
+	da_purple_pounce_new purple_pounce_new;
+	da_purple_pounce_destroy purple_pounce_destroy;
+	da_purple_pounce_destroy_all_by_account purple_pounce_destroy_all_by_account;
+	da_purple_pounce_destroy_all_by_buddy purple_pounce_destroy_all_by_buddy;
+	da_purple_pounce_set_events purple_pounce_set_events;
+	da_purple_pounce_set_options purple_pounce_set_options;
+	da_purple_pounce_set_pouncer purple_pounce_set_pouncer;
+	da_purple_pounce_set_pouncee purple_pounce_set_pouncee;
+	da_purple_pounce_set_save purple_pounce_set_save;
+	da_purple_pounce_action_register purple_pounce_action_register;
+	da_purple_pounce_action_set_enabled purple_pounce_action_set_enabled;
+	da_purple_pounce_action_set_attribute purple_pounce_action_set_attribute;
+	da_purple_pounce_set_data purple_pounce_set_data;
+	da_purple_pounce_get_events purple_pounce_get_events;
+	da_purple_pounce_get_options purple_pounce_get_options;
+	da_purple_pounce_get_pouncer purple_pounce_get_pouncer;
+	da_purple_pounce_get_pouncee purple_pounce_get_pouncee;
+	da_purple_pounce_get_save purple_pounce_get_save;
+	da_purple_pounce_action_is_enabled purple_pounce_action_is_enabled;
+	da_purple_pounce_action_get_attribute purple_pounce_action_get_attribute;
+	da_purple_pounce_get_data purple_pounce_get_data;
+	da_purple_pounce_execute purple_pounce_execute;
+	da_purple_find_pounce purple_find_pounce;
+	da_purple_pounces_load purple_pounces_load;
+	da_purple_pounces_register_handler purple_pounces_register_handler;
+	da_purple_pounces_unregister_handler purple_pounces_unregister_handler;
+	da_purple_pounces_get_all purple_pounces_get_all;
+	da_purple_pounces_get_all_for_ui purple_pounces_get_all_for_ui;
+	da_purple_pounces_get_handle purple_pounces_get_handle;
+	da_purple_pounces_init purple_pounces_init;
+	da_purple_pounces_uninit purple_pounces_uninit;
 }

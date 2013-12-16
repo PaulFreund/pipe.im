@@ -126,60 +126,102 @@ struct _PurpleNotifyUserInfoEntry;
 struct _PurpleNotifyUserInfo;
 
 
-alias da_purple_notify_searchresults = void* function(PurpleConnection* gc, const(char)* title, const(char)* primary, const(char)* secondary, PurpleNotifySearchResults* results, PurpleNotifyCloseCallback cb, gpointer user_data);																																																						/* da_purple_notify_searchresults purple_notify_searchresults; */
-alias da_purple_notify_searchresults_free = void function(PurpleNotifySearchResults* results);																																																						/* da_purple_notify_searchresults_free purple_notify_searchresults_free; */
-alias da_purple_notify_searchresults_new_rows = void function(PurpleConnection* gc, PurpleNotifySearchResults* results, void* data);																																																						/* da_purple_notify_searchresults_new_rows purple_notify_searchresults_new_rows; */
-alias da_purple_notify_searchresults_button_add = void function(PurpleNotifySearchResults* results, PurpleNotifySearchButtonType type, PurpleNotifySearchResultsCallback cb);																																																						/* da_purple_notify_searchresults_button_add purple_notify_searchresults_button_add; */
-alias da_purple_notify_searchresults_button_add_labeled = void function(PurpleNotifySearchResults* results, const(char)* label, PurpleNotifySearchResultsCallback cb);																																																						/* da_purple_notify_searchresults_button_add_labeled purple_notify_searchresults_button_add_labeled; */
-alias da_purple_notify_searchresults_new = PurpleNotifySearchResults* function();																																																						/* da_purple_notify_searchresults_new purple_notify_searchresults_new; */
-alias da_purple_notify_searchresults_column_new = PurpleNotifySearchColumn* function(const(char)* title);																																																						/* da_purple_notify_searchresults_column_new purple_notify_searchresults_column_new; */
-alias da_purple_notify_searchresults_column_add = void function(PurpleNotifySearchResults* results, PurpleNotifySearchColumn* column);																																																						/* da_purple_notify_searchresults_column_add purple_notify_searchresults_column_add; */
-alias da_purple_notify_searchresults_row_add = void function(PurpleNotifySearchResults* results, GList* row);																																																						/* da_purple_notify_searchresults_row_add purple_notify_searchresults_row_add; */
-alias da_purple_notify_searchresults_get_rows_count = guint function(PurpleNotifySearchResults* results);																																																						/* da_purple_notify_searchresults_get_rows_count purple_notify_searchresults_get_rows_count; */
-alias da_purple_notify_searchresults_get_columns_count = guint function(PurpleNotifySearchResults* results);																																																						/* da_purple_notify_searchresults_get_columns_count purple_notify_searchresults_get_columns_count; */
-alias da_purple_notify_searchresults_row_get = GList* function(PurpleNotifySearchResults* results, uint row_id);																																																						/* da_purple_notify_searchresults_row_get purple_notify_searchresults_row_get; */
-alias da_purple_notify_searchresults_column_get_title = char* function(PurpleNotifySearchResults* results, uint column_id);																																																						/* da_purple_notify_searchresults_column_get_title purple_notify_searchresults_column_get_title; */
-alias da_purple_notify_message = void* function(void* handle, PurpleNotifyMsgType type, const(char)* title, const(char)* primary, const(char)* secondary, PurpleNotifyCloseCallback cb, gpointer user_data);																																																						/* da_purple_notify_message purple_notify_message; */
-alias da_purple_notify_email = void* function(void* handle, const(char)* subject, const(char)* from, const(char)* to, const(char)* url, PurpleNotifyCloseCallback cb, gpointer user_data);																																																						/* da_purple_notify_email purple_notify_email; */
-alias da_purple_notify_emails = void* function(void* handle, size_t count, gboolean detailed, const(char*)* subjects, const(char*)* froms, const(char*)* tos, const(char*)* urls, PurpleNotifyCloseCallback cb, gpointer user_data);																																																						/* da_purple_notify_emails purple_notify_emails; */
-alias da_purple_notify_formatted = void* function(void* handle, const(char)* title, const(char)* primary, const(char)* secondary, const(char)* text, PurpleNotifyCloseCallback cb, gpointer user_data);																																																						/* da_purple_notify_formatted purple_notify_formatted; */
-alias da_purple_notify_userinfo = void* function(PurpleConnection* gc, const(char)* who, PurpleNotifyUserInfo* user_info, PurpleNotifyCloseCallback cb, gpointer user_data);																																																						/* da_purple_notify_userinfo purple_notify_userinfo; */
-alias da_purple_notify_user_info_new = PurpleNotifyUserInfo* function();																																																						/* da_purple_notify_user_info_new purple_notify_user_info_new; */
-alias da_purple_notify_user_info_destroy = void function(PurpleNotifyUserInfo* user_info);																																																						/* da_purple_notify_user_info_destroy purple_notify_user_info_destroy; */
-alias da_purple_notify_user_info_get_entries = GList* function(PurpleNotifyUserInfo* user_info);																																																						/* da_purple_notify_user_info_get_entries purple_notify_user_info_get_entries; */
-alias da_purple_notify_user_info_get_text_with_newline = char* function(PurpleNotifyUserInfo* user_info, const(char)* newline);																																																						/* da_purple_notify_user_info_get_text_with_newline purple_notify_user_info_get_text_with_newline; */
-alias da_purple_notify_user_info_add_pair = void function(PurpleNotifyUserInfo* user_info, const(char)* label, const(char)* value);																																																						/* da_purple_notify_user_info_add_pair purple_notify_user_info_add_pair; */
-alias da_purple_notify_user_info_add_pair_plaintext = void function(PurpleNotifyUserInfo* user_info, const(char)* label, const(char)* value);																																																						/* da_purple_notify_user_info_add_pair_plaintext purple_notify_user_info_add_pair_plaintext; */
-alias da_purple_notify_user_info_prepend_pair = void function(PurpleNotifyUserInfo* user_info, const(char)* label, const(char)* value);																																																						/* da_purple_notify_user_info_prepend_pair purple_notify_user_info_prepend_pair; */
-alias da_purple_notify_user_info_remove_entry = void function(PurpleNotifyUserInfo* user_info, PurpleNotifyUserInfoEntry* user_info_entry);																																																						/* da_purple_notify_user_info_remove_entry purple_notify_user_info_remove_entry; */
-alias da_purple_notify_user_info_entry_new = PurpleNotifyUserInfoEntry* function(const(char)* label, const(char)* value);																																																						/* da_purple_notify_user_info_entry_new purple_notify_user_info_entry_new; */
-alias da_purple_notify_user_info_add_section_break = void function(PurpleNotifyUserInfo* user_info);																																																						/* da_purple_notify_user_info_add_section_break purple_notify_user_info_add_section_break; */
-alias da_purple_notify_user_info_prepend_section_break = void function(PurpleNotifyUserInfo* user_info);																																																						/* da_purple_notify_user_info_prepend_section_break purple_notify_user_info_prepend_section_break; */
-alias da_purple_notify_user_info_add_section_header = void function(PurpleNotifyUserInfo* user_info, const(char)* label);																																																						/* da_purple_notify_user_info_add_section_header purple_notify_user_info_add_section_header; */
-alias da_purple_notify_user_info_prepend_section_header = void function(PurpleNotifyUserInfo* user_info, const(char)* label);																																																						/* da_purple_notify_user_info_prepend_section_header purple_notify_user_info_prepend_section_header; */
-alias da_purple_notify_user_info_remove_last_item = void function(PurpleNotifyUserInfo* user_info);																																																						/* da_purple_notify_user_info_remove_last_item purple_notify_user_info_remove_last_item; */
-alias da_purple_notify_user_info_entry_get_label = const(gchar)* function(PurpleNotifyUserInfoEntry* user_info_entry);																																																						/* da_purple_notify_user_info_entry_get_label purple_notify_user_info_entry_get_label; */
-alias da_purple_notify_user_info_entry_set_label = void function(PurpleNotifyUserInfoEntry* user_info_entry, const(char)* label);																																																						/* da_purple_notify_user_info_entry_set_label purple_notify_user_info_entry_set_label; */
-alias da_purple_notify_user_info_entry_get_value = const(gchar)* function(PurpleNotifyUserInfoEntry* user_info_entry);																																																						/* da_purple_notify_user_info_entry_get_value purple_notify_user_info_entry_get_value; */
-alias da_purple_notify_user_info_entry_set_value = void function(PurpleNotifyUserInfoEntry* user_info_entry, const(char)* value);																																																						/* da_purple_notify_user_info_entry_set_value purple_notify_user_info_entry_set_value; */
-alias da_purple_notify_user_info_entry_get_type = PurpleNotifyUserInfoEntryType function(PurpleNotifyUserInfoEntry* user_info_entry);																																																						/* da_purple_notify_user_info_entry_get_type purple_notify_user_info_entry_get_type; */
-alias da_purple_notify_user_info_entry_set_type = void function(PurpleNotifyUserInfoEntry* user_info_entry, PurpleNotifyUserInfoEntryType type);																																																						/* da_purple_notify_user_info_entry_set_type purple_notify_user_info_entry_set_type; */
-alias da_purple_notify_uri = void* function(void* handle, const(char)* uri);																																																						/* da_purple_notify_uri purple_notify_uri; */
-alias da_purple_notify_close = void function(PurpleNotifyType type, void* ui_handle);																																																						/* da_purple_notify_close purple_notify_close; */
-alias da_purple_notify_close_with_handle = void function(void* handle);																																																						/* da_purple_notify_close_with_handle purple_notify_close_with_handle; */
-alias da_purple_notify_set_ui_ops = void function(PurpleNotifyUiOps* ops);																																																						/* da_purple_notify_set_ui_ops purple_notify_set_ui_ops; */
-alias da_purple_notify_get_ui_ops = PurpleNotifyUiOps* function();																																																						/* da_purple_notify_get_ui_ops purple_notify_get_ui_ops; */
-alias da_purple_notify_get_handle = void* function();																																																						/* da_purple_notify_get_handle purple_notify_get_handle; */
-alias da_purple_notify_init = void function();																																																						/* da_purple_notify_init purple_notify_init; */
-alias da_purple_notify_uninit = void function();																																																						/* da_purple_notify_uninit purple_notify_uninit; */
-
-
 extern( C ) nothrow 
 {
-	
+	alias da_purple_notify_searchresults = void* function(PurpleConnection* gc, const(char)* title, const(char)* primary, const(char)* secondary, PurpleNotifySearchResults* results, PurpleNotifyCloseCallback cb, gpointer user_data);			
+    alias da_purple_notify_searchresults_free = void function(PurpleNotifySearchResults* results);																																					
+    alias da_purple_notify_searchresults_new_rows = void function(PurpleConnection* gc, PurpleNotifySearchResults* results, void* data);																											
+    alias da_purple_notify_searchresults_button_add = void function(PurpleNotifySearchResults* results, PurpleNotifySearchButtonType type, PurpleNotifySearchResultsCallback cb);																	
+    alias da_purple_notify_searchresults_button_add_labeled = void function(PurpleNotifySearchResults* results, const(char)* label, PurpleNotifySearchResultsCallback cb);																			
+    alias da_purple_notify_searchresults_new = PurpleNotifySearchResults* function();																																								
+    alias da_purple_notify_searchresults_column_new = PurpleNotifySearchColumn* function(const(char)* title);																																		
+    alias da_purple_notify_searchresults_column_add = void function(PurpleNotifySearchResults* results, PurpleNotifySearchColumn* column);																											
+    alias da_purple_notify_searchresults_row_add = void function(PurpleNotifySearchResults* results, GList* row);																																	
+    alias da_purple_notify_searchresults_get_rows_count = guint function(PurpleNotifySearchResults* results);																																		
+    alias da_purple_notify_searchresults_get_columns_count = guint function(PurpleNotifySearchResults* results);																																	
+    alias da_purple_notify_searchresults_row_get = GList* function(PurpleNotifySearchResults* results, uint row_id);																																
+    alias da_purple_notify_searchresults_column_get_title = char* function(PurpleNotifySearchResults* results, uint column_id);																														
+    alias da_purple_notify_message = void* function(void* handle, PurpleNotifyMsgType type, const(char)* title, const(char)* primary, const(char)* secondary, PurpleNotifyCloseCallback cb, gpointer user_data);									
+    alias da_purple_notify_email = void* function(void* handle, const(char)* subject, const(char)* from, const(char)* to, const(char)* url, PurpleNotifyCloseCallback cb, gpointer user_data);														
+    alias da_purple_notify_emails = void* function(void* handle, size_t count, gboolean detailed, const(char*)* subjects, const(char*)* froms, const(char*)* tos, const(char*)* urls, PurpleNotifyCloseCallback cb, gpointer user_data);			
+    alias da_purple_notify_formatted = void* function(void* handle, const(char)* title, const(char)* primary, const(char)* secondary, const(char)* text, PurpleNotifyCloseCallback cb, gpointer user_data);											
+    alias da_purple_notify_userinfo = void* function(PurpleConnection* gc, const(char)* who, PurpleNotifyUserInfo* user_info, PurpleNotifyCloseCallback cb, gpointer user_data);																	
+    alias da_purple_notify_user_info_new = PurpleNotifyUserInfo* function();																																										
+    alias da_purple_notify_user_info_destroy = void function(PurpleNotifyUserInfo* user_info);																																						
+    alias da_purple_notify_user_info_get_entries = GList* function(PurpleNotifyUserInfo* user_info);																																				
+    alias da_purple_notify_user_info_get_text_with_newline = char* function(PurpleNotifyUserInfo* user_info, const(char)* newline);																													
+    alias da_purple_notify_user_info_add_pair = void function(PurpleNotifyUserInfo* user_info, const(char)* label, const(char)* value);																												
+    alias da_purple_notify_user_info_add_pair_plaintext = void function(PurpleNotifyUserInfo* user_info, const(char)* label, const(char)* value);																									
+    alias da_purple_notify_user_info_prepend_pair = void function(PurpleNotifyUserInfo* user_info, const(char)* label, const(char)* value);																											
+    alias da_purple_notify_user_info_remove_entry = void function(PurpleNotifyUserInfo* user_info, PurpleNotifyUserInfoEntry* user_info_entry);																										
+    alias da_purple_notify_user_info_entry_new = PurpleNotifyUserInfoEntry* function(const(char)* label, const(char)* value);																														
+    alias da_purple_notify_user_info_add_section_break = void function(PurpleNotifyUserInfo* user_info);																																			
+    alias da_purple_notify_user_info_prepend_section_break = void function(PurpleNotifyUserInfo* user_info);																																		
+    alias da_purple_notify_user_info_add_section_header = void function(PurpleNotifyUserInfo* user_info, const(char)* label);																														
+    alias da_purple_notify_user_info_prepend_section_header = void function(PurpleNotifyUserInfo* user_info, const(char)* label);																													
+    alias da_purple_notify_user_info_remove_last_item = void function(PurpleNotifyUserInfo* user_info);																																				
+    alias da_purple_notify_user_info_entry_get_label = const(gchar)* function(PurpleNotifyUserInfoEntry* user_info_entry);																															
+    alias da_purple_notify_user_info_entry_set_label = void function(PurpleNotifyUserInfoEntry* user_info_entry, const(char)* label);																												
+    alias da_purple_notify_user_info_entry_get_value = const(gchar)* function(PurpleNotifyUserInfoEntry* user_info_entry);																															
+    alias da_purple_notify_user_info_entry_set_value = void function(PurpleNotifyUserInfoEntry* user_info_entry, const(char)* value);																												
+    alias da_purple_notify_user_info_entry_get_type = PurpleNotifyUserInfoEntryType function(PurpleNotifyUserInfoEntry* user_info_entry);																											
+    alias da_purple_notify_user_info_entry_set_type = void function(PurpleNotifyUserInfoEntry* user_info_entry, PurpleNotifyUserInfoEntryType type);																								
+    alias da_purple_notify_uri = void* function(void* handle, const(char)* uri);																																									
+    alias da_purple_notify_close = void function(PurpleNotifyType type, void* ui_handle);																																							
+    alias da_purple_notify_close_with_handle = void function(void* handle);																																											
+    alias da_purple_notify_set_ui_ops = void function(PurpleNotifyUiOps* ops);																																										
+    alias da_purple_notify_get_ui_ops = PurpleNotifyUiOps* function();																																												
+    alias da_purple_notify_get_handle = void* function();																																															
+    alias da_purple_notify_init = void function();																																																	
+    alias da_purple_notify_uninit = void function();	
 }
 
 __gshared
 {
-	
+	da_purple_notify_searchresults purple_notify_searchresults;
+	da_purple_notify_searchresults_free purple_notify_searchresults_free;
+	da_purple_notify_searchresults_new_rows purple_notify_searchresults_new_rows;
+	da_purple_notify_searchresults_button_add purple_notify_searchresults_button_add;
+	da_purple_notify_searchresults_button_add_labeled purple_notify_searchresults_button_add_labeled;
+	da_purple_notify_searchresults_new purple_notify_searchresults_new;
+	da_purple_notify_searchresults_column_new purple_notify_searchresults_column_new;
+	da_purple_notify_searchresults_column_add purple_notify_searchresults_column_add;
+	da_purple_notify_searchresults_row_add purple_notify_searchresults_row_add;
+	da_purple_notify_searchresults_get_rows_count purple_notify_searchresults_get_rows_count;
+	da_purple_notify_searchresults_get_columns_count purple_notify_searchresults_get_columns_count;
+	da_purple_notify_searchresults_row_get purple_notify_searchresults_row_get;
+	da_purple_notify_searchresults_column_get_title purple_notify_searchresults_column_get_title;
+	da_purple_notify_message purple_notify_message;
+	da_purple_notify_email purple_notify_email;
+	da_purple_notify_emails purple_notify_emails;
+	da_purple_notify_formatted purple_notify_formatted;
+	da_purple_notify_userinfo purple_notify_userinfo;
+	da_purple_notify_user_info_new purple_notify_user_info_new;
+	da_purple_notify_user_info_destroy purple_notify_user_info_destroy;
+	da_purple_notify_user_info_get_entries purple_notify_user_info_get_entries;
+	da_purple_notify_user_info_get_text_with_newline purple_notify_user_info_get_text_with_newline;
+	da_purple_notify_user_info_add_pair purple_notify_user_info_add_pair;
+	da_purple_notify_user_info_add_pair_plaintext purple_notify_user_info_add_pair_plaintext;
+	da_purple_notify_user_info_prepend_pair purple_notify_user_info_prepend_pair;
+	da_purple_notify_user_info_remove_entry purple_notify_user_info_remove_entry;
+	da_purple_notify_user_info_entry_new purple_notify_user_info_entry_new;
+	da_purple_notify_user_info_add_section_break purple_notify_user_info_add_section_break;
+	da_purple_notify_user_info_prepend_section_break purple_notify_user_info_prepend_section_break;
+	da_purple_notify_user_info_add_section_header purple_notify_user_info_add_section_header;
+	da_purple_notify_user_info_prepend_section_header purple_notify_user_info_prepend_section_header;
+	da_purple_notify_user_info_remove_last_item purple_notify_user_info_remove_last_item;
+	da_purple_notify_user_info_entry_get_label purple_notify_user_info_entry_get_label;
+	da_purple_notify_user_info_entry_set_label purple_notify_user_info_entry_set_label;
+	da_purple_notify_user_info_entry_get_value purple_notify_user_info_entry_get_value;
+	da_purple_notify_user_info_entry_set_value purple_notify_user_info_entry_set_value;
+	da_purple_notify_user_info_entry_get_type purple_notify_user_info_entry_get_type;
+	da_purple_notify_user_info_entry_set_type purple_notify_user_info_entry_set_type;
+	da_purple_notify_uri purple_notify_uri;
+	da_purple_notify_close purple_notify_close;
+	da_purple_notify_close_with_handle purple_notify_close_with_handle;
+	da_purple_notify_set_ui_ops purple_notify_set_ui_ops;
+	da_purple_notify_get_ui_ops purple_notify_get_ui_ops;
+	da_purple_notify_get_handle purple_notify_get_handle;
+	da_purple_notify_init purple_notify_init;
+	da_purple_notify_uninit purple_notify_uninit;
 }
