@@ -22,3 +22,5 @@ Thumbs.db
 
 *.user
 *.filters
+
+.dub/

@@ -28,7 +28,8 @@ DEALINGS IN THE SOFTWARE.
 
 module derelict.purple.purple;
 
-public {
+public 
+{
     import derelict.purple.account;
     import derelict.purple.accountopt;
     import derelict.purple.blist;
@@ -90,7 +91,8 @@ public {
     import derelict.purple.win32;
 }
 
-private {
+private 
+{
     import derelict.util.loader;
     import derelict.util.system;
 
@@ -104,12 +106,15 @@ private {
         static assert(0, "Need to implement Purple libNames for this operating system.");
 }
 
-class DerelictPurpleLoader : SharedLibLoader {
-    public this() {
+class DerelictPurpleLoader : SharedLibLoader 
+{
+    public this() 
+    {
         super(libNames);
     }
 
-    protected override void loadSymbols() {
+    protected override void loadSymbols() 
+    {
         bindFunc(cast(void**)&_purple_oscar_convert, "_purple_oscar_convert");
         bindFunc(cast(void**)&purple_account_add_buddies, "purple_account_add_buddies");
         bindFunc(cast(void**)&purple_account_add_buddies_with_invite, "purple_account_add_buddies_with_invite");
@@ -1678,46 +1683,7 @@ class DerelictPurpleLoader : SharedLibLoader {
         bindFunc(cast(void**)&serv_send_typing, "serv_send_typing");
         bindFunc(cast(void**)&serv_set_info, "serv_set_info");
         bindFunc(cast(void**)&serv_set_permit_deny, "serv_set_permit_deny");
-        bindFunc(cast(void**)&wpurple_bind, "wpurple_bind");
-        bindFunc(cast(void**)&wpurple_cleanup, "wpurple_cleanup");
-        bindFunc(cast(void**)&wpurple_close, "wpurple_close");
-        bindFunc(cast(void**)&wpurple_connect, "wpurple_connect");
-        bindFunc(cast(void**)&wpurple_data_dir, "wpurple_data_dir");
-        bindFunc(cast(void**)&wpurple_escape_dirsep, "wpurple_escape_dirsep");
-        bindFunc(cast(void**)&wpurple_fcntl, "wpurple_fcntl");
-        bindFunc(cast(void**)&wpurple_find_and_loadproc, "wpurple_find_and_loadproc");
-        bindFunc(cast(void**)&wpurple_g_io_channel_win32_new_socket, "wpurple_g_io_channel_win32_new_socket");
-        bindFunc(cast(void**)&wpurple_get_special_folder, "wpurple_get_special_folder");
-        bindFunc(cast(void**)&wpurple_get_timezone_abbreviation, "wpurple_get_timezone_abbreviation");
-        bindFunc(cast(void**)&wpurple_get_tz_offset, "wpurple_get_tz_offset");
-        bindFunc(cast(void**)&wpurple_gethostbyname, "wpurple_gethostbyname");
-        bindFunc(cast(void**)&wpurple_gethostname, "wpurple_gethostname");
-        bindFunc(cast(void**)&wpurple_getsockname, "wpurple_getsockname");
-        bindFunc(cast(void**)&wpurple_getsockopt, "wpurple_getsockopt");
-        bindFunc(cast(void**)&wpurple_gettimeofday, "wpurple_gettimeofday");
-        bindFunc(cast(void**)&wpurple_inet_aton, "wpurple_inet_aton");
-        bindFunc(cast(void**)&wpurple_inet_ntop, "wpurple_inet_ntop");
-        bindFunc(cast(void**)&wpurple_inet_pton, "wpurple_inet_pton");
-        bindFunc(cast(void**)&wpurple_init, "wpurple_init");
-        bindFunc(cast(void**)&wpurple_install_dir, "wpurple_install_dir");
-        bindFunc(cast(void**)&wpurple_ioctl, "wpurple_ioctl");
-        bindFunc(cast(void**)&wpurple_lib_dir, "wpurple_lib_dir");
-        bindFunc(cast(void**)&wpurple_listen, "wpurple_listen");
-        bindFunc(cast(void**)&wpurple_locale_dir, "wpurple_locale_dir");
-        bindFunc(cast(void**)&wpurple_localtime_r, "wpurple_localtime_r");
-        bindFunc(cast(void**)&wpurple_read, "wpurple_read");
-        bindFunc(cast(void**)&wpurple_read_reg_dword, "wpurple_read_reg_dword");
-        bindFunc(cast(void**)&wpurple_read_reg_string, "wpurple_read_reg_string");
-        bindFunc(cast(void**)&wpurple_recv, "wpurple_recv");
-        bindFunc(cast(void**)&wpurple_rename, "wpurple_rename");
-        bindFunc(cast(void**)&wpurple_send, "wpurple_send");
-        bindFunc(cast(void**)&wpurple_sendto, "wpurple_sendto");
-        bindFunc(cast(void**)&wpurple_setsockopt, "wpurple_setsockopt");
-        bindFunc(cast(void**)&wpurple_socket, "wpurple_socket");
-        bindFunc(cast(void**)&wpurple_strerror, "wpurple_strerror");
-        bindFunc(cast(void**)&wpurple_write, "wpurple_write");
-        bindFunc(cast(void**)&wpurple_write_reg_string, "wpurple_write_reg_string");
-        bindFunc(cast(void**)&xmlnode_copy, "xmlnode_copy");
+    bindFunc(cast(void**)&xmlnode_copy, "xmlnode_copy");
         bindFunc(cast(void**)&xmlnode_free, "xmlnode_free");
         bindFunc(cast(void**)&xmlnode_from_file, "xmlnode_from_file");
         bindFunc(cast(void**)&xmlnode_from_str, "xmlnode_from_str");
@@ -1744,11 +1710,55 @@ class DerelictPurpleLoader : SharedLibLoader {
         bindFunc(cast(void**)&xmlnode_set_namespace, "xmlnode_set_namespace");
         bindFunc(cast(void**)&xmlnode_set_prefix, "xmlnode_set_prefix");
         bindFunc(cast(void**)&xmlnode_to_formatted_str, "xmlnode_to_formatted_str");
+    
+        version(Win32)
+        {
+            bindFunc(cast(void**)&wpurple_bind, "wpurple_bind");
+            bindFunc(cast(void**)&wpurple_cleanup, "wpurple_cleanup");
+            bindFunc(cast(void**)&wpurple_close, "wpurple_close");
+            bindFunc(cast(void**)&wpurple_connect, "wpurple_connect");
+            bindFunc(cast(void**)&wpurple_data_dir, "wpurple_data_dir");
+            bindFunc(cast(void**)&wpurple_escape_dirsep, "wpurple_escape_dirsep");
+            bindFunc(cast(void**)&wpurple_fcntl, "wpurple_fcntl");
+            bindFunc(cast(void**)&wpurple_find_and_loadproc, "wpurple_find_and_loadproc");
+            bindFunc(cast(void**)&wpurple_g_io_channel_win32_new_socket, "wpurple_g_io_channel_win32_new_socket");
+            bindFunc(cast(void**)&wpurple_get_special_folder, "wpurple_get_special_folder");
+            bindFunc(cast(void**)&wpurple_get_timezone_abbreviation, "wpurple_get_timezone_abbreviation");
+            bindFunc(cast(void**)&wpurple_get_tz_offset, "wpurple_get_tz_offset");
+            bindFunc(cast(void**)&wpurple_gethostbyname, "wpurple_gethostbyname");
+            bindFunc(cast(void**)&wpurple_gethostname, "wpurple_gethostname");
+            bindFunc(cast(void**)&wpurple_getsockname, "wpurple_getsockname");
+            bindFunc(cast(void**)&wpurple_getsockopt, "wpurple_getsockopt");
+            bindFunc(cast(void**)&wpurple_gettimeofday, "wpurple_gettimeofday");
+            bindFunc(cast(void**)&wpurple_inet_aton, "wpurple_inet_aton");
+            bindFunc(cast(void**)&wpurple_inet_ntop, "wpurple_inet_ntop");
+            bindFunc(cast(void**)&wpurple_inet_pton, "wpurple_inet_pton");
+            bindFunc(cast(void**)&wpurple_init, "wpurple_init");
+            bindFunc(cast(void**)&wpurple_install_dir, "wpurple_install_dir");
+            bindFunc(cast(void**)&wpurple_ioctl, "wpurple_ioctl");
+            bindFunc(cast(void**)&wpurple_lib_dir, "wpurple_lib_dir");
+            bindFunc(cast(void**)&wpurple_listen, "wpurple_listen");
+            bindFunc(cast(void**)&wpurple_locale_dir, "wpurple_locale_dir");
+            bindFunc(cast(void**)&wpurple_localtime_r, "wpurple_localtime_r");
+            bindFunc(cast(void**)&wpurple_read, "wpurple_read");
+            bindFunc(cast(void**)&wpurple_read_reg_dword, "wpurple_read_reg_dword");
+            bindFunc(cast(void**)&wpurple_read_reg_string, "wpurple_read_reg_string");
+            bindFunc(cast(void**)&wpurple_recv, "wpurple_recv");
+            bindFunc(cast(void**)&wpurple_rename, "wpurple_rename");
+            bindFunc(cast(void**)&wpurple_send, "wpurple_send");
+            bindFunc(cast(void**)&wpurple_sendto, "wpurple_sendto");
+            bindFunc(cast(void**)&wpurple_setsockopt, "wpurple_setsockopt");
+            bindFunc(cast(void**)&wpurple_socket, "wpurple_socket");
+            bindFunc(cast(void**)&wpurple_strerror, "wpurple_strerror");
+            bindFunc(cast(void**)&wpurple_write, "wpurple_write");
+            bindFunc(cast(void**)&wpurple_write_reg_string, "wpurple_write_reg_string");
+        }
     }
 }
 
 __gshared DerelictPurpleLoader DerelictPurple;
 
-shared static this() {
+shared static this() 
+{
     DerelictPurple = new DerelictPurpleLoader();
 }
