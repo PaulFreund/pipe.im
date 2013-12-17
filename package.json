@@ -1,0 +1,15 @@
+{
+	"name": "pipe.im",
+	"description": "Communication shell",
+	"homepage": "http://pipe.im",
+	"copyright": "Copyright (C) since 2013, Paul Freund",
+	"authors": [
+		"Paul Freund"
+	],
+	
+	"targetPath": "bin",
+	
+	"dependencies": {
+		"derelict-util" : "~master"
+	}
+}
