@@ -1,8 +1,8 @@
 {
 	"name": "pipe.im",
 	"description": "Communication shell",
-	"homepage": "http://pipe.im",
-	"copyright": "Copyright (C) since 2013, Paul Freund",
+	"homepage": "https://github.com/PaulFreund/pipe.im",
+	"license": "MIT",	
 	"authors": [
 		"Paul Freund"
 	],
@@ -10,6 +10,8 @@
 	"targetPath": "bin",
 	
 	"dependencies": {
+		"derelict-purple" : "~master",
+		"derelict-glib" : "~master",
 		"derelict-util" : "~master"
 	}
 }

@@ -19,8 +19,13 @@ Thumbs.db
 *.ilk
 *.sdf
 *.vsp
-
 *.user
 *.filters
 
+*.userprefs
+*.visualdproj
+*.dproj
+*.sln
+
 .dub/
+
