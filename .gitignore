@@ -27,5 +27,6 @@ Thumbs.db
 *.dproj
 *.sln
 
+AppData
 .dub/
 
