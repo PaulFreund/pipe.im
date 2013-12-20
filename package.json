@@ -8,10 +8,12 @@
 	],
 	
 	"targetPath": "bin",
+	"versions-linux": ["Derelict_Link_Static"],
+	"libs-linux": ["glib-2.0", "purple"],
 	
 	"dependencies": {
-		"derelict-purple" : "~master",
-		"derelict-glib" : "~master",
+		"derelict_extras-purple" : "~master",
+		"derelict_extras-glib" : "~master",
 		"derelict-util" : "~master"
 	}
 }

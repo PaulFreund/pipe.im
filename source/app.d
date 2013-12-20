@@ -43,8 +43,12 @@ import nullclient;
 
 int main(string[] argv)
 {
-    DerelictGlib.load();
-    DerelictPurple.load();
+    version(Derelict_Link_Static) {}
+    else
+    {
+        DerelictGlib.load();
+        DerelictPurple.load();
+    }
 
     writeln("pipe.im initialize");
     

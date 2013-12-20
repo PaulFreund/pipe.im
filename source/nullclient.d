@@ -226,17 +226,25 @@ static void init_libpurple()
 
     /* Set the uiops for the eventloop. If your client is glib-based, you can safely
     * copy this verbatim. */
-    glib_eventloops = PurpleEventLoopUiOps(
-        g_timeout_add, 
-        g_source_remove, 
-        &glib_input_add, 
-        g_source_remove, 
-        null, 
-        g_timeout_add_seconds, 
-        null, 
-        null, 
-        null
-    );
+
+	version(Derelict_Link_Static)
+	{
+	    glib_eventloops = PurpleEventLoopUiOps(
+	        &g_timeout_add, &g_source_remove, 
+	        &glib_input_add, &g_source_remove, 
+	        null, &g_timeout_add_seconds, 
+	        null, null, null
+	    );
+	}
+	else
+	{
+		glib_eventloops = PurpleEventLoopUiOps(
+			g_timeout_add, g_source_remove, 
+			&glib_input_add, g_source_remove, 
+			null, g_timeout_add_seconds, 
+			null, null, null
+		);
+	}
 
     purple_eventloop_set_ui_ops(&glib_eventloops);
 
