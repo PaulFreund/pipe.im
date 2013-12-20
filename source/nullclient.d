@@ -30,6 +30,7 @@ module nullclient;
 import derelict.glib.glib;
 import derelict.purple.purple;
 
+import core.sys.posix.signal;
 import core.stdc.stdio;
 import core.stdc.time;
 import std.string;
@@ -163,7 +164,7 @@ static void init_libpurple()
 	{
 	    glib_eventloops = PurpleEventLoopUiOps(
 	        &g_timeout_add, &g_source_remove, 
-	        &glib_input_add, &g_source_remove, 
+	        &null_input_add, &g_source_remove, 
 	        null, &g_timeout_add_seconds, 
 	        null, null, null
 	    );
