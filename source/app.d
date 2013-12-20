@@ -25,9 +25,6 @@
 */
 //###################################################################################################
 
-
-import std.stdio;
-
 /* TODO  ============================================================================
 
 * Create pipe.im pakage
@@ -36,14 +33,15 @@ import std.stdio;
 
 ===================================================================================*/ 
 
-
 import derelict.glib.glib;
 import derelict.purple.purple;
+import std.stdio;
 import nullclient;
 
 int main(string[] argv)
 {
-    version(Derelict_Link_Static) {}
+    version(Derelict_Link_Static) 
+    {}
     else
     {
         DerelictGlib.load();
