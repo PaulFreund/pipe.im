@@ -53,7 +53,7 @@ Components:
 
 # Roadmap
 
-* Sample application to interface libpurple
+* ~~Sample application to interface libpurple~~
 * Gateway API based on most basic needed functions
 * D wrapper for libpurple based on that API
 * Configuration database

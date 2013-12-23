@@ -37,6 +37,13 @@ import derelict.glib.glib;
 import derelict.purple.purple;
 import std.stdio;
 import nullclient;
+import core.thread;
+import vibe.vibe;
+
+void handleRequest(HTTPServerRequest req, HTTPServerResponse res)
+{
+	res.writeBody("Hello, World!", "text/plain");
+}
 
 int main(string[] argv)
 {
@@ -48,10 +55,22 @@ int main(string[] argv)
         DerelictPurple.load();
     }
 
+    lowerPrivileges();
+	auto settings = new HTTPServerSettings;
+	settings.port = 8080;
+	listenHTTP(settings, &handleRequest);
+
     writeln("pipe.im initialize");
     
     int ret = nullclient.nullclient();
 
-    return ret;
+    while(true)
+    {
+        //Thread.sleep( dur!("msecs")( 10 ) );  // sleep for 50 milliseconds
+        g_main_context_iteration(g_main_context_default(), 0);
+        processEvents();
+    }
+
+    return 0;
 }
 

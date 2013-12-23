@@ -96,95 +96,41 @@ extern( C ) static guint null_input_add(gint fd, PurpleInputCondition condition,
 
 static PurpleEventLoopUiOps glib_eventloops; 
 
-extern( C ) static void null_write_conv(PurpleConversation *conv, const(char)* who, const(char)* _alias, const(char)* message, PurpleMessageFlags flags, time_t mtime)
+extern( C ) static void signed_on(PurpleConnection *gc, gpointer null_)
 {
-    char *name;
-    if(_alias && *_alias)
-        name = cast(char*)_alias;
-    else if(who && *who)
-        name = cast(char*)who;
-    else
-        name = cast(char*)null;
-
-    printf("(%s) %s %s: %s\n", purple_conversation_get_name(conv), purple_utf8_strftime("(%H:%M:%S)", localtime(&mtime)), name, message);
+    printf("Connected\n");
 }
 
-static PurpleConversationUiOps null_conv_uiops;
 
-extern( C ) static void null_ui_init()
+extern( C ) static void received_im_msg(PurpleAccount *account, char *sender, char *message, PurpleConversation *conv, PurpleMessageFlags flags)
 {
-    purple_conversations_set_ui_ops(&null_conv_uiops);
+
+	if (conv==null)
+  	{
+        conv = purple_conversation_new(PurpleConversationType.PURPLE_CONV_TYPE_IM, account, sender);
+  	}
+
+	printf("(%s) %s (%s): %s\n", purple_utf8_strftime("%H:%M:%S", null), sender, purple_conversation_get_name(conv), message);
+
 }
 
-static PurpleCoreUiOps null_core_uiops;
-
-static void init_libpurple()
+int nullclient()
 {
-    //purple_util_set_user_dir("/dev/null".toStringz);
+    version(Win32) {} else { signal(SIGCHLD, SIG_IGN); }
 
     purple_debug_set_enabled(false);
 
-    null_conv_uiops = PurpleConversationUiOps 
-    (
-        null,                      /* create_conversation  */
-        null,                      /* destroy_conversation */
-        null,                      /* write_chat           */
-        null,                      /* write_im             */
-        &null_write_conv,          /* write_conv           */
-        null,                      /* chat_add_users       */
-        null,                      /* chat_rename_user     */
-        null,                      /* chat_remove_users    */
-        null,                      /* chat_update_user     */
-        null,                      /* present              */
-        null,                      /* has_focus            */
-        null,                      /* custom_smiley_add    */
-        null,                      /* custom_smiley_write  */
-        null,                      /* custom_smiley_close  */
-        null,                      /* send_confirm         */
-        null,
-        null,
-        null,
-        null
-    );
-
-    null_core_uiops = PurpleCoreUiOps(
-        null, 
-        null, 
-        &null_ui_init, 
-        null, 
-        null, 
-        null, 
-        null, 
-        null
-    );
-
-    purple_core_set_ui_ops(&null_core_uiops);
-
 	version(Derelict_Link_Static)
-	{
-	    glib_eventloops = PurpleEventLoopUiOps(
-	        &g_timeout_add, &g_source_remove, 
-	        &null_input_add, &g_source_remove, 
-	        null, &g_timeout_add_seconds, 
-	        null, null, null
-	    );
-	}
+	    glib_eventloops = PurpleEventLoopUiOps(&g_timeout_add, &g_source_remove, &null_input_add, &g_source_remove, null, &g_timeout_add_seconds, null, null, null);
 	else
-	{
-	    glib_eventloops = PurpleEventLoopUiOps(
-            g_timeout_add, g_source_remove, 
-            &null_input_add, g_source_remove, 
-            null, g_timeout_add_seconds, 
-            null, null, null
-        );
-	}
+	    glib_eventloops = PurpleEventLoopUiOps(g_timeout_add, g_source_remove, &null_input_add, g_source_remove, null, g_timeout_add_seconds, null, null, null);
 
     purple_eventloop_set_ui_ops(&glib_eventloops);
 
     if(!purple_core_init(UI_ID.toStringz))
     {
         fprintf(core.stdc.stdio.stderr, "libpurple initialization failed. Dumping core.\n" "Please report this!\n");
-        return;
+        return -1;
     }
 
     purple_set_blist(purple_blist_new());
@@ -198,24 +144,6 @@ static void init_libpurple()
     GList * list2 = purple_plugins_get_protocols();
 
     purple_pounces_load();
-}
-
-extern( C ) static void signed_on()
-{
-    printf("Connected\n");
-}
-
-static void connect_to_signals_for_demonstration_purposes_only()
-{
-    static int handle;
-    purple_signal_connect(purple_connections_get_handle(), cast(const(char)*)("signed-on".toStringz), cast(void*)(&handle), &signed_on, cast(void*)null);
-}
-
-int nullclient()
-{
-    version(Win32) {} else { signal(SIGCHLD, SIG_IGN); }
-
-    init_libpurple();
 
     printf("libpurple initialized.\n");
 
@@ -233,31 +161,38 @@ int nullclient()
         }
     }
 
-    printf("Select the protocol [0-%d]: ".toStringz, idxPlugin - 1);
-    int idxProtocol = to!int(strip(readln()));
-    char* ptrProtocol = cast(char*)g_list_nth_data(lstNames, idxProtocol);
-    string protocol = to!string(ptrProtocol);
+    version(pipeim_debug)
+    {
+        string protocol = "prpl-jabber"; 
+        string username = "pipetest@lvl3.org";
+        string password = "333333"; 
+    }
+    else
+    {
+        printf("Select the protocol [0-%d]: ".toStringz, idxPlugin - 1);
+        int idxProtocol = to!int(strip(readln()));
+        char* ptrProtocol = cast(char*)g_list_nth_data(lstNames, idxProtocol);
+        string protocol = to!string(ptrProtocol);
 
-    printf("Username: ".toStringz);
-    string username = strip(readln());
+        printf("Username: ".toStringz);
+        string username = strip(readln());
+
+        // Read password
+        printf("Password: ".toStringz);
+        string password = strip(readln());
+    }        
 
     PurpleAccount* account = purple_account_new(username.toStringz, protocol.toStringz);
-
-    // Read password
-    printf("Password: ".toStringz);
-    string password = strip(readln());
     purple_account_set_password(account, password.toStringz);
 
-    // It's necessary to enable the account first.
     purple_account_set_enabled(account, UI_ID.toStringz, true);
 
-    // Now, to connect the account(s), create a status and activate it. 
     PurpleSavedStatus* status = purple_savedstatus_new(null, PurpleStatusPrimitive.PURPLE_STATUS_AVAILABLE);
     purple_savedstatus_activate(status);
 
-    connect_to_signals_for_demonstration_purposes_only();
+    static int handle;
+    purple_signal_connect(purple_connections_get_handle(),  cast(const(char)*)"signed-on".toStringz, cast(void*)(&handle), cast(PurpleCallback)(&signed_on), cast(void*)null);
+    purple_signal_connect(purple_conversations_get_handle(), cast(const(char)*)"received-im-msg".toStringz, cast(void*)(&handle), cast(PurpleCallback)(&received_im_msg), cast(void*)null);
 
-    g_main_loop_run(g_main_loop_new(null, false));
-    
     return 0;
 }
