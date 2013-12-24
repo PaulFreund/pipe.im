@@ -29,6 +29,23 @@ module interfaces.messaging;
 
 //===================================================================================================
 
+import derelict.glib.glib;
+import derelict.purple.purple;
+import core.sys.posix.signal;
+import core.stdc.stdio;
+import std.string;
+import std.stdio;
+import std.conv;
+
+//===================================================================================================
+
+//struct Message {
+//    string text;
+//}
+
+//===================================================================================================
+
+//@Query!(Message)
 final class SystemMessaging {
 	PurpleWrapper _purple = null;
 
@@ -47,15 +64,6 @@ final class SystemMessaging {
 }
 
 //===================================================================================================
-
-
-import derelict.glib.glib;
-import derelict.purple.purple;
-import core.sys.posix.signal;
-import core.stdc.stdio;
-import std.string;
-import std.stdio;
-import std.conv;
 
 final class PurpleWrapper
 {
@@ -153,9 +161,15 @@ public:
 
     }
 
+    static string outputString;
+
 public:
     void update() {
-        g_main_context_iteration(g_main_context_default(), 0);
+        outputString = "";
+        g_main_context_iteration(g_main_context_default(), false);
+        
+        if(outputString.length != 0)
+            writeln("{ " ~ outputString ~ " }");
     }
 
 private:
@@ -216,8 +230,10 @@ private:
         if (conv==null) {
             conv = purple_conversation_new(PurpleConversationType.PURPLE_CONV_TYPE_IM, account, sender);
         }
-
-        printf("(%s) %s (%s): %s\n", purple_utf8_strftime("%H:%M:%S", null), sender, purple_conversation_get_name(conv), message);
-
+        
+        this.outputString ~= "(" ~ to!string(purple_utf8_strftime("%H:%M:%S", null)) ~ ") ";
+        this.outputString ~= to!string(sender);
+        this.outputString ~= "(" ~ to!string(purple_conversation_get_name(conv)) ~ "): ";
+        this.outputString ~= to!string(message);
     }
 }

@@ -29,6 +29,10 @@ module interfaces.webinterface;
 
 //===================================================================================================
 
+import std.stdio;
+
+//===================================================================================================
+
 final class SystemWebinterface {
 	VibeWrapper _vibe = null;
 
@@ -61,12 +65,19 @@ public:
         listenHTTP(settings, &handleRequest);
     }
 
+    static string outputString;
+
     void update() {
+        outputString = "";
         processEvents();
+
+        if(outputString.length != 0)
+            writeln("< " ~ outputString ~ " >");
     }
 
 private:
     void handleRequest(HTTPServerRequest req, HTTPServerResponse res) {
+        outputString = "Website called";
         res.writeBody("Hello, World!", "text/plain");
     }
 }
