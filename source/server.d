@@ -1,7 +1,7 @@
 //###################################################################################################
 /*
     Copyright (c) since 2013 - Paul Freund 
-    
+
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
     files (the "Software"), to deal in the Software without
@@ -10,10 +10,10 @@
     copies of the Software, and to permit persons to whom the
     Software is furnished to do so, subject to the following
     conditions:
-    
+
     The above copyright notice and this permission notice shall be
     included in all copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -25,36 +25,48 @@
 */
 //###################################################################################################
 
-import server;
-import core.thread;
-
-version(Derelict_Link_Static) 
-{}
-else
-{
-    import derelict.glib.glib;
-    import derelict.purple.purple;
-}
+module server;
 
 //===================================================================================================
 
-int main(string[] argv)
-{
-    version(Derelict_Link_Static) {}
-    else {
-        derelict.glib.glib.DerelictGlib.load();
-        derelict.purple.purple.DerelictPurple.load();
-    }
+import nitro.ecs;
+import interfaces.messaging;
+import interfaces.webinterface;
 
-	scope Server server = new Server();
+//===================================================================================================
 
-	while(server.running) {
-		server.update();
-        Thread.sleep(dur!("msecs")( 5 ));  // sleep for 50 milliseconds
-	}				   
+alias UsedSystems = TypeTuple!(SystemMessaging, SystemWebinterface);
 
-	server.destroy(); 
+//===================================================================================================
 
-    return 0;
+final class Server {
+	mixin EntityComponentSystemManager!(UsedSystems);
+
+private:
+	bool _running = true;
+
+private:
+
+public:	   
+	this() {
+		this.startup();
+	}
+
+	~this() {	
+		this.teardown();
+	}
+
+public:
+	@property bool running() const @safe nothrow {
+		return _running;
+	}
+
+public:	
+	void update() {	   
+		this.runSystems(); 
+	}
+
+	void stop() {
+		this._running = false;	  	 
+	}	
 }
-
