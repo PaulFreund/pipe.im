@@ -31,3 +31,4 @@ AppData
 .dub/
 
 core
+config.json

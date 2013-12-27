@@ -1,7 +1,7 @@
 //###################################################################################################
 /*
     Copyright (c) since 2013 - Paul Freund 
-    
+
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
     files (the "Software"), to deal in the Software without
@@ -10,10 +10,10 @@
     copies of the Software, and to permit persons to whom the
     Software is furnished to do so, subject to the following
     conditions:
-    
+
     The above copyright notice and this permission notice shall be
     included in all copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -25,16 +25,65 @@
 */
 //###################################################################################################
 
-import pipe;
+module pipe.server;
 
 //###################################################################################################
 
-int main(string[] argv)
-{
-	PipeServer server = new PipeServer();
-    server.runLoop();
-	server.destroy(); 
+import nitro;
+import pipe.core;
+import pipe.services;
 
-    return 0;
+import core.thread;
+
+//###################################################################################################
+
+alias ServerSystems = TypeTuple!(
+    SystemConfig,
+    SystemError,
+    SystemUsers,
+    SystemCmd,
+    SystemWeb,
+    SystemPurple 
+);
+
+//===================================================================================================
+
+final class PipeServer {
+	mixin EntityComponentSystemManager!(ServerSystems);
+
+private:
+	bool _running = false;
+
+public:	   
+	this() {
+        this.startup();
+        this._running = true;
+	}
+
+	~this() {	
+		this.teardown();
+	}
+
+public:
+    void runLoop() {
+        while(this.running) {
+            this.update();
+            Thread.sleep(dur!("msecs")( 5 ));  // sleep for 50 milliseconds
+        }	
+    }
+
+public:
+	@property bool running() const @safe nothrow {
+		return _running;
+	}
+
+public:	
+	void update() {	   
+		this.runSystems(); 
+	}
+
+	void stop() {
+		this._running = false;	  	 
+	}	
 }
 

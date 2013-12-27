@@ -1,7 +1,7 @@
 //###################################################################################################
 /*
     Copyright (c) since 2013 - Paul Freund 
-    
+
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
     files (the "Software"), to deal in the Software without
@@ -10,10 +10,10 @@
     copies of the Software, and to permit persons to whom the
     Software is furnished to do so, subject to the following
     conditions:
-    
+
     The above copyright notice and this permission notice shall be
     included in all copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -25,9 +25,15 @@
 */
 //###################################################################################################
 
-module interfaces.messaging;
+module purple.client;
 
-//===================================================================================================
+/*
+    Todo  
+    ====    
+    * Create API
+*/
+
+//###################################################################################################
 
 import derelict.glib.glib;
 import derelict.purple.purple;
@@ -37,42 +43,15 @@ import std.string;
 import std.stdio;
 import std.conv;
 
-//===================================================================================================
+//###################################################################################################
 
-//struct Message {
-//    string text;
-//}
+final class PurpleClient {
 
-//===================================================================================================
-
-//@Query!(Message)
-final class SystemMessaging {
-	PurpleWrapper _purple = null;
-
-	this(T)(T ecs) { 	
-		this._purple = new PurpleWrapper();	   
-		assert(this._purple !is null);	   				
-	}
-
-	~this() {
-		this._purple.destroy();
-	}
-
-	void run(T)(T ecs) {  
-		this._purple.update();
-	}
-}
-
-//===================================================================================================
-
-final class PurpleWrapper
-{
 private:
-    string UI_ID = "pipe.im";
-
+    const string UI_ID = "purple.d";
     const int PURPLE_GLIB_READ_COND = GIOCondition.G_IO_IN | GIOCondition.G_IO_HUP | GIOCondition.G_IO_ERR;
     const int PURPLE_GLIB_WRITE_COND = GIOCondition.G_IO_OUT | GIOCondition.G_IO_HUP | GIOCondition.G_IO_ERR | GIOCondition.G_IO_NVAL;
-
+    
     struct PurpleGLibIOClosure {
         PurpleInputFunction fkt;
         guint result;
@@ -81,7 +60,19 @@ private:
 
 public:
     this() {
+        version(Derelict_Link_Static) {}
+        else {
+            DerelictGlib.load();
+            DerelictPurple.load();
+        }
 
+        // TODO: Make sure config dir works
+
+        init();
+    }
+
+private:
+    void init () {
         version(Win32) {} else { signal(SIGCHLD, SIG_IGN); }
 
         purple_debug_set_enabled(false);
@@ -164,22 +155,18 @@ public:
     static string outputString;
 
 public:
-    void update() {
+    string getData() {
         outputString = "";
         g_main_context_iteration(g_main_context_default(), false);
-        
-        if(outputString.length != 0)
-            writeln("{ " ~ outputString ~ " }");
+        return outputString;
     }
 
 private:
-    extern( C ) static void purple_glib_io_destroy(gpointer data)
-    {
+    extern( C ) static void purple_glib_io_destroy(gpointer data) {
         //g_free(data);
     }
 
     extern( C ) static gboolean purple_glib_io_invoke(GIOChannel *source, GIOCondition condition, gpointer data) {
-
         PurpleGLibIOClosure *closure = cast(PurpleGLibIOClosure *)data;
         PurpleInputCondition purple_cond = cast(PurpleInputCondition)0;
 
@@ -230,7 +217,7 @@ private:
         if (conv==null) {
             conv = purple_conversation_new(PurpleConversationType.PURPLE_CONV_TYPE_IM, account, sender);
         }
-        
+
         this.outputString ~= "(" ~ to!string(purple_utf8_strftime("%H:%M:%S", null)) ~ ") ";
         this.outputString ~= to!string(sender);
         this.outputString ~= "(" ~ to!string(purple_conversation_get_name(conv)) ~ "): ";

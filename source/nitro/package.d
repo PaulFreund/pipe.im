@@ -1,6 +1,6 @@
 //###################################################################################################
 /*
-    Copyright (c) since 2013 - Paul Freund 
+    Copyright (c) since 2013 - Felix 'Zoadian' Hufnagel, Paul Freund 
 
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -25,48 +25,10 @@
 */
 //###################################################################################################
 
-module server;
+module nitro;
 
-//===================================================================================================
+//###################################################################################################
 
-import nitro.ecs;
-import interfaces.messaging;
-import interfaces.webinterface;
+public import nitro.ecs;
 
-//===================================================================================================
-
-alias UsedSystems = TypeTuple!(SystemMessaging, SystemWebinterface);
-
-//===================================================================================================
-
-final class Server {
-	mixin EntityComponentSystemManager!(UsedSystems);
-
-private:
-	bool _running = true;
-
-private:
-
-public:	   
-	this() {
-		this.startup();
-	}
-
-	~this() {	
-		this.teardown();
-	}
-
-public:
-	@property bool running() const @safe nothrow {
-		return _running;
-	}
-
-public:	
-	void update() {	   
-		this.runSystems(); 
-	}
-
-	void stop() {
-		this._running = false;	  	 
-	}	
-}
+//###################################################################################################
