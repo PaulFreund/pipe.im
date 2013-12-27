@@ -246,7 +246,13 @@ protected:
 	void startup() {
 		foreach(ref s; this._systems) {	   
 			writeln("# ", typeof(s).stringof, ".startup");
-			s = new typeof(s)(this);
+
+            static if(__traits(hasMember, typeof(s), "__ctor")) {
+                s = new typeof(s)(this);
+            }
+            else {
+                s = new typeof(s);
+            }
 		}
 	}		   
 

@@ -38,9 +38,6 @@ import std.stdio;
 
 @Query!(Message)
 final class SystemCmd {
-
-    this(T)(T ecs) {} 
-
 	void run(T)(T ecs) {  
         with(ecs) {
             foreach(e; query!(Message)()) {
