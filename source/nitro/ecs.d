@@ -208,7 +208,6 @@ mixin template EntityComponentSystemManager(SYSTEMS...) if(SYSTEMS.length > 0) {
 	private alias _ExtractQueries(SYSTEM) = Filter!(isQuery, __traits(getAttributes, SYSTEM));
 
 	private template _GEN_QUERIES(SYSTEMS...) if(SYSTEMS.length > 0) {
-		//alias P = SYSTEMS[0];
 		alias Q = _ExtractQueries!(SYSTEMS[0]);
 		static if(SYSTEMS.length > 1) {
 			alias NEXT = _GEN_QUERIES!(SYSTEMS[1..$]);

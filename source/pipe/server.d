@@ -30,15 +30,14 @@ module pipe.server;
 //###################################################################################################
 
 import nitro;
+import pipe.config;
 import pipe.core;
 import pipe.services;
-
 import core.thread;
 
 //###################################################################################################
 
 alias ServerSystems = TypeTuple!(
-    SystemConfig,
     SystemError,
     SystemUsers,
     SystemCmd,
@@ -53,6 +52,9 @@ final class PipeServer {
 
 private:
 	bool _running = false;
+
+public:
+    PipeConfig config;
 
 public:	   
 	this() {
@@ -72,12 +74,10 @@ public:
         }	
     }
 
-public:
 	@property bool running() const @safe nothrow {
 		return _running;
 	}
 
-public:	
 	void update() {	   
 		this.runSystems(); 
 	}
