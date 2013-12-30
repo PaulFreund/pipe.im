@@ -70,7 +70,7 @@ public:
     void runLoop() {
         while(this.running) {
             this.update();
-            Thread.sleep(dur!("msecs")( 5 ));  // sleep for 50 milliseconds
+            Thread.sleep(dur!("msecs")( 2 )); 
         }	
     }
 

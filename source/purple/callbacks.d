@@ -86,6 +86,132 @@ static extern(C) gboolean purple_cb_io_invoke(GIOChannel *source, GIOCondition c
 
     return true;
 }
+import std.string;
+void ConnectCallbacks(void* cbHandle, void* cbData)
+{
+    // Connection
+    auto hConnections = purple_connections_get_handle();
+    purple_signal_connect(hConnections, "signing-on", cbHandle, cast(PurpleCallback)&purple_cb_signing_on, cbData);
+    purple_signal_connect(hConnections, "signed-on", cbHandle, cast(PurpleCallback)&purple_cb_signed_on, cbData);
+    purple_signal_connect(hConnections, "signing-off", cbHandle, cast(PurpleCallback)&purple_cb_signing_off, cbData);
+    purple_signal_connect(hConnections, "signed-off", cbHandle, cast(PurpleCallback)&purple_cb_signed_off, cbData);
+    purple_signal_connect(hConnections, "connection-error", cbHandle, cast(PurpleCallback)&purple_cb_connection_error, cbData);
+    purple_signal_connect(hConnections, "autojoin", cbHandle, cast(PurpleCallback)&purple_cb_autojoin, cbData);
+
+    // Accounts
+    auto hAccounts = purple_accounts_get_handle();
+    purple_signal_connect(hAccounts, "account-connecting", cbHandle, cast(PurpleCallback)&purple_cb_account_connecting, cbData);
+    purple_signal_connect(hAccounts, "account-disabled", cbHandle, cast(PurpleCallback)&purple_cb_account_disabled, cbData);
+    purple_signal_connect(hAccounts, "account-enabled", cbHandle, cast(PurpleCallback)&purple_cb_account_enabled, cbData);
+    purple_signal_connect(hAccounts, "account-created", cbHandle, cast(PurpleCallback)&purple_cb_account_created, cbData);
+    purple_signal_connect(hAccounts, "account-destroying", cbHandle, cast(PurpleCallback)&purple_cb_account_destroying, cbData);
+    purple_signal_connect(hAccounts, "account-added", cbHandle, cast(PurpleCallback)&purple_cb_account_added, cbData);
+    purple_signal_connect(hAccounts, "account-removed", cbHandle, cast(PurpleCallback)&purple_cb_account_removed, cbData);
+    purple_signal_connect(hAccounts, "account-status-changed", cbHandle, cast(PurpleCallback)&purple_cb_account_status_changed, cbData);
+    purple_signal_connect(hAccounts, "account-actions-changed", cbHandle, cast(PurpleCallback)&purple_cb_account_actions_changed, cbData);
+    purple_signal_connect(hAccounts, "account-alias-changed", cbHandle, cast(PurpleCallback)&purple_cb_account_alias_changed, cbData);
+    purple_signal_connect(hAccounts, "account-authorization-requested", cbHandle, cast(PurpleCallback)&purple_cb_account_authorization_requested, cbData);
+    purple_signal_connect(hAccounts, "account-authorization-requested-with-message", cbHandle, cast(PurpleCallback)&purple_cb_account_authorization_requested_with_message, cbData);
+    purple_signal_connect(hAccounts, "account-authorization-denied", cbHandle, cast(PurpleCallback)&purple_cb_account_authorization_denied, cbData);
+    purple_signal_connect(hAccounts, "account-authorization-granted", cbHandle, cast(PurpleCallback)&purple_cb_account_authorization_granted, cbData);
+    purple_signal_connect(hAccounts, "account-error-changed", cbHandle, cast(PurpleCallback)&purple_cb_account_error_changed, cbData);
+    purple_signal_connect(hAccounts, "account-signed-on", cbHandle, cast(PurpleCallback)&purple_cb_account_signed_on, cbData);
+    purple_signal_connect(hAccounts, "account-signed-off", cbHandle, cast(PurpleCallback)&purple_cb_account_signed_off, cbData);
+    purple_signal_connect(hAccounts, "account-connection-error", cbHandle, cast(PurpleCallback)&purple_cb_account_connection_error, cbData);
+
+    // BuddyList
+    auto hBuddyList = purple_blist_get_handle();
+    purple_signal_connect(hBuddyList, "buddy-status-changed", cbHandle, cast(PurpleCallback)&purple_cb_buddy_status_changed, cbData);
+    purple_signal_connect(hBuddyList, "buddy-privacy-changed", cbHandle, cast(PurpleCallback)&purple_cb_buddy_privacy_changed, cbData);
+    purple_signal_connect(hBuddyList, "buddy-idle-changed", cbHandle, cast(PurpleCallback)&purple_cb_buddy_idle_changed, cbData);
+    purple_signal_connect(hBuddyList, "buddy-signed-on", cbHandle, cast(PurpleCallback)&purple_cb_buddy_signed_on, cbData);
+    purple_signal_connect(hBuddyList, "buddy-signed-off", cbHandle, cast(PurpleCallback)&purple_cb_buddy_signed_off, cbData);
+    purple_signal_connect(hBuddyList, "buddy-got-login-time", cbHandle, cast(PurpleCallback)&purple_cb_buddy_got_login_time, cbData);
+    purple_signal_connect(hBuddyList, "blist-node-added", cbHandle, cast(PurpleCallback)&purple_cb_blist_node_added, cbData);
+    purple_signal_connect(hBuddyList, "blist-node-removed", cbHandle, cast(PurpleCallback)&purple_cb_blist_node_removed, cbData);
+    purple_signal_connect(hBuddyList, "buddy-added", cbHandle, cast(PurpleCallback)&purple_cb_buddy_added, cbData);
+    purple_signal_connect(hBuddyList, "buddy-removed", cbHandle, cast(PurpleCallback)&purple_cb_buddy_removed, cbData);
+    purple_signal_connect(hBuddyList, "buddy-icon-changed", cbHandle, cast(PurpleCallback)&purple_cb_buddy_icon_changed, cbData);
+    purple_signal_connect(hBuddyList, "blist-node-extended-menu", cbHandle, cast(PurpleCallback)&purple_cb_blist_node_extended_menu, cbData);
+    purple_signal_connect(hBuddyList, "blist-node-aliased", cbHandle, cast(PurpleCallback)&purple_cb_blist_node_aliased, cbData);
+    purple_signal_connect(hBuddyList, "buddy-caps-changed", cbHandle, cast(PurpleCallback)&purple_cb_buddy_caps_changed, cbData);
+
+    // Conversation
+    auto hConversations = purple_conversations_get_handle();
+    purple_signal_connect(hConversations, "writing-im-msg", cbHandle, cast(PurpleCallback)&purple_cb_writing_im_msg, cbData);
+    purple_signal_connect(hConversations, "wrote-im-msg", cbHandle, cast(PurpleCallback)&purple_cb_wrote_im_msg, cbData);
+    purple_signal_connect(hConversations, "sent-attention", cbHandle, cast(PurpleCallback)&purple_cb_sent_attention, cbData);
+    purple_signal_connect(hConversations, "got-attention", cbHandle, cast(PurpleCallback)&purple_cb_got_attention, cbData);
+    purple_signal_connect(hConversations, "sending-im-msg", cbHandle, cast(PurpleCallback)&purple_cb_sending_im_msg, cbData);
+    purple_signal_connect(hConversations, "sent-im-msg", cbHandle, cast(PurpleCallback)&purple_cb_sent_im_msg, cbData);
+    purple_signal_connect(hConversations, "receiving-im-msg", cbHandle, cast(PurpleCallback)&purple_cb_receiving_im_msg, cbData);
+    purple_signal_connect(hConversations, "received-im-msg", cbHandle, cast(PurpleCallback)&purple_cb_received_im_msg, cbData);
+    purple_signal_connect(hConversations, "blocked-im-msg", cbHandle, cast(PurpleCallback)&purple_cb_blocked_im_msg, cbData);
+    purple_signal_connect(hConversations, "writing-chat-msg", cbHandle, cast(PurpleCallback)&purple_cb_writing_chat_msg, cbData);
+    purple_signal_connect(hConversations, "wrote-chat-msg", cbHandle, cast(PurpleCallback)&purple_cb_wrote_chat_msg, cbData);
+    purple_signal_connect(hConversations, "sending-chat-msg", cbHandle, cast(PurpleCallback)&purple_cb_sending_chat_msg, cbData);
+    purple_signal_connect(hConversations, "sent-chat-msg", cbHandle, cast(PurpleCallback)&purple_cb_sent_chat_msg, cbData);
+    purple_signal_connect(hConversations, "receiving-chat-msg", cbHandle, cast(PurpleCallback)&purple_cb_receiving_chat_msg, cbData);
+    purple_signal_connect(hConversations, "received-chat-msg", cbHandle, cast(PurpleCallback)&purple_cb_received_chat_msg, cbData);
+    purple_signal_connect(hConversations, "conversation-created", cbHandle, cast(PurpleCallback)&purple_cb_conversation_created, cbData);
+    purple_signal_connect(hConversations, "conversation-updated", cbHandle, cast(PurpleCallback)&purple_cb_conversation_updated, cbData);
+    purple_signal_connect(hConversations, "deleting-conversation", cbHandle, cast(PurpleCallback)&purple_cb_deleting_conversation, cbData);
+    purple_signal_connect(hConversations, "buddy-typing", cbHandle, cast(PurpleCallback)&purple_cb_buddy_typing, cbData);
+    purple_signal_connect(hConversations, "buddy-typed", cbHandle, cast(PurpleCallback)&purple_cb_buddy_typed, cbData);
+    purple_signal_connect(hConversations, "buddy-typing-stopped", cbHandle, cast(PurpleCallback)&purple_cb_buddy_typing_stopped, cbData);
+    purple_signal_connect(hConversations, "chat-buddy-joining", cbHandle, cast(PurpleCallback)&purple_cb_chat_buddy_joining, cbData);
+    purple_signal_connect(hConversations, "chat-buddy-joined", cbHandle, cast(PurpleCallback)&purple_cb_chat_buddy_joined, cbData);
+    purple_signal_connect(hConversations, "chat-buddy-flags", cbHandle, cast(PurpleCallback)&purple_cb_chat_buddy_flags, cbData);
+    purple_signal_connect(hConversations, "chat-buddy-leaving", cbHandle, cast(PurpleCallback)&purple_cb_chat_buddy_leaving, cbData);
+    purple_signal_connect(hConversations, "chat-buddy-left", cbHandle, cast(PurpleCallback)&purple_cb_chat_buddy_left, cbData);
+    purple_signal_connect(hConversations, "deleting-chat-buddy", cbHandle, cast(PurpleCallback)&purple_cb_deleting_chat_buddy, cbData);
+    purple_signal_connect(hConversations, "chat-inviting-user", cbHandle, cast(PurpleCallback)&purple_cb_chat_inviting_user, cbData);
+    purple_signal_connect(hConversations, "chat-invited-user", cbHandle, cast(PurpleCallback)&purple_cb_chat_invited_user, cbData);
+    purple_signal_connect(hConversations, "chat-invited", cbHandle, cast(PurpleCallback)&purple_cb_chat_invited, cbData);
+    purple_signal_connect(hConversations, "chat-invite-blocked", cbHandle, cast(PurpleCallback)&purple_cb_chat_invite_blocked, cbData);
+    purple_signal_connect(hConversations, "chat-joined", cbHandle, cast(PurpleCallback)&purple_cb_chat_joined, cbData);
+    purple_signal_connect(hConversations, "chat-join-failed", cbHandle, cast(PurpleCallback)&purple_cb_chat_join_failed, cbData);
+    purple_signal_connect(hConversations, "chat-left", cbHandle, cast(PurpleCallback)&purple_cb_chat_left, cbData);
+    purple_signal_connect(hConversations, "chat-topic-changed", cbHandle, cast(PurpleCallback)&purple_cb_chat_topic_changed, cbData);
+    purple_signal_connect(hConversations, "cleared-message-history", cbHandle, cast(PurpleCallback)&purple_cb_cleared_message_history, cbData);
+    purple_signal_connect(hConversations, "conversation-extended-menu", cbHandle, cast(PurpleCallback)&purple_cb_conversation_extended_menu, cbData);
+}
+
+//===================================================================================================
+// Connection callbacks
+//===================================================================================================
+
+static extern(C) void purple_cb_signing_on(PurpleConnection* connection, gpointer data) {
+    PurpleClient client = cast(PurpleClient)data;
+
+}
+
+static extern(C) void purple_cb_signed_on(PurpleConnection* connection, gpointer data) {
+    PurpleClient client = cast(PurpleClient)data;
+
+    client.outputString = "Connected";
+}
+
+static extern(C) void purple_cb_signing_off(PurpleConnection* connection, gpointer data) {
+    PurpleClient client = cast(PurpleClient)data;
+
+}
+
+static extern(C) void purple_cb_signed_off(PurpleConnection* connection, gpointer data) {
+    PurpleClient client = cast(PurpleClient)data;
+
+}
+
+static extern(C) void purple_cb_connection_error(PurpleConnection* connection, PurpleConnectionError reason, const char* description, gpointer data) {
+    PurpleClient client = cast(PurpleClient)data;
+
+}
+
+static extern(C) gboolean purple_cb_autojoin(PurpleConnection* connection, PurpleConnectionError reason, const char* description, gpointer data) {
+    PurpleClient client = cast(PurpleClient)data;
+
+    return false;
+}
 
 //===================================================================================================
 // Account callbacks
@@ -257,42 +383,6 @@ static extern(C) void purple_cb_blist_node_aliased(PurpleBlistNode* buddy, const
 static extern(C) void purple_cb_buddy_caps_changed(PurpleBuddy* buddy, PurpleMediaCaps oldCaps, PurpleMediaCaps newCaps, gpointer data) {
     PurpleClient client = cast(PurpleClient)data;
 
-}
-
-//===================================================================================================
-// Connection callbacks
-//===================================================================================================
-
-static extern(C) void purple_cb_signing_on(PurpleConnection* connection, gpointer data) {
-    PurpleClient client = cast(PurpleClient)data;
-
-}
-
-static extern(C) void purple_cb_signed_on(PurpleConnection* connection, gpointer data) {
-    PurpleClient client = cast(PurpleClient)data;
-
-    client.outputString = "Connected";
-}
-
-static extern(C) void purple_cb_signing_off(PurpleConnection* connection, gpointer data) {
-    PurpleClient client = cast(PurpleClient)data;
-
-}
-
-static extern(C) void purple_cb_signed_off(PurpleConnection* connection, gpointer data) {
-    PurpleClient client = cast(PurpleClient)data;
-
-}
-
-static extern(C) void purple_cb_connection_error(PurpleConnection* connection, PurpleConnectionError reason, const char* description, gpointer data) {
-    PurpleClient client = cast(PurpleClient)data;
-
-}
-
-static extern(C) gboolean purple_cb_autojoin(PurpleConnection* connection, PurpleConnectionError reason, const char* description, gpointer data) {
-    PurpleClient client = cast(PurpleClient)data;
-
-    return false;
 }
 
 //===================================================================================================

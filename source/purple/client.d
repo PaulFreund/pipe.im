@@ -152,8 +152,7 @@ public:
         PurpleSavedStatus* status = purple_savedstatus_new(null, PurpleStatusPrimitive.PURPLE_STATUS_AVAILABLE);
         purple_savedstatus_activate(status);
 
-        purple_signal_connect(purple_connections_get_handle(),  "signed-on".toStringz, cast(void*)(&_signalHandler), cast(PurpleCallback)&purple_cb_signed_on, cast(void*)this);
-        purple_signal_connect(purple_conversations_get_handle(),"received-im-msg".toStringz, cast(void*)(&_signalHandler), cast(PurpleCallback)&purple_cb_received_im_msg, cast(void*)this);
+        ConnectCallbacks(cast(void*)(&_signalHandler), cast(void*)this);
     }
 
 
