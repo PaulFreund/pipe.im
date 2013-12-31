@@ -30,7 +30,12 @@ module purple.client;
 /*
     Todo  
     ====    
-    * Create API
+    * Create "event" based API
+    * Iterate and make list of protocols available
+    * Remove debug code
+    * Add config for steam account
+        * purple_account_set_string(account, "steam_guard_code", steam_guard_token);
+        * purple_account_set_string(sa->account, "access_token", access_token);
 */
 
 //###################################################################################################
@@ -41,6 +46,8 @@ import derelict.purple.purple;
 import core.sys.posix.signal;
 import core.stdc.stdio;
 import std.string;
+import std.path;
+import std.file;
 import std.stdio;
 import std.conv;
 
@@ -58,110 +65,106 @@ final class PurpleClient {
     }
 
     private {
-        int _signalHandler = 0;
-        PurpleEventLoopUiOps _eventloopUiOps; 
+        string _configDir = "";
     }
 
-public:
-    this(bool debug_ = false, string configDir = "", string interfaceID = "purple.d") {
-        _interfaceID = interfaceID;
+    public {
+        this(bool debug_ = false, string configDir = ".pipe.im", string interfaceID = "purple.d") {
  
-        version(Derelict_Link_Static) {}
-        else {
-            DerelictGlib.load();
-            DerelictPurple.load();
-        }
-
-        purple_debug_set_enabled(debug_);
-        if(configDir.length != 0) purple_util_set_user_dir(configDir.toStringz);
-
-
-        //if(_instance is null)
-        //    _instance = this;
-        //else
-        //    throw new Exception("PurpleClient can only be instanciated once");
-
-        version(Win32) {} else { signal(SIGCHLD, SIG_IGN); }
-
-
-
-        version(Derelict_Link_Static)
-            _eventloopUiOps = PurpleEventLoopUiOps(&g_timeout_add, &g_source_remove, &cb_input_add, &g_source_remove, null, &g_timeout_add_seconds, null, null, null);
-        else
-            _eventloopUiOps = PurpleEventLoopUiOps(g_timeout_add, g_source_remove, &purple_cb_input_add, g_source_remove, null, g_timeout_add_seconds, null, null, null);
-
-        purple_eventloop_set_ui_ops(&_eventloopUiOps);
-
-        if(!purple_core_init(_interfaceID.toStringz))
-        {
-            fprintf(core.stdc.stdio.stderr, "libpurple initialization failed. Dumping core.\n" "Please report this!\n");
-            return;
-        }
-
-        purple_set_blist(purple_blist_new());
-        purple_blist_load();
-
-        purple_prefs_load();
-
-        purple_plugins_init();
-        purple_plugins_probe(null);
-        GList * list = purple_plugins_get_all();
-        GList * list2 = purple_plugins_get_protocols();
-
-        purple_pounces_load();
-
-        GList* lstNames = null;
-        GList* iterPlugins = purple_plugins_get_protocols();
-        int idxPlugin = 0;
-        for(idxPlugin = 0; iterPlugins; iterPlugins = iterPlugins.next)
-        {
-            PurplePlugin *plugin = cast(PurplePlugin *)(iterPlugins.data);
-            PurplePluginInfo *info = plugin.info;
-            if(info && info.name)
-            {
-                printf("\t%d: %s\n".toStringz, idxPlugin++, info.name);
-                lstNames = g_list_append(lstNames, info.id);
+            // Load derelict symbols
+            version(Derelict_Link_Static) {}
+            else {
+                DerelictGlib.load();
+                DerelictPurple.load();
             }
+
+            // Add directory name if empty
+            if(configDir.length == 0) configDir = ".pipe.im";
+
+            // Create path to user data dir if not absolute
+            if(configDir.indexOf(dirSeparator) == -1)
+                configDir = to!string(purple_home_dir()) ~ dirSeparator ~ configDir;
+        
+            // Delete old folder
+            clearConfigDir(configDir);
+
+            purple_util_set_user_dir(configDir.toStringz);
+            purple_debug_set_enabled(debug_);
+            _interfaceID = interfaceID;
+
+            // Setup runtime
+            version(Win32) {} else { signal(SIGCHLD, SIG_IGN); }
+
+            // Init libpurple
+            ConnectUiOpsCallbacks(this);
+
+            purple_core_init(_interfaceID.toStringz);
+
+            ConnectSignalsCallbacks();
+
+            purple_set_blist(purple_blist_new());
+
+            GList* lstNames = null;
+            GList* iterPlugins = purple_plugins_get_protocols();
+            int idxPlugin = 0;
+            for(idxPlugin = 0; iterPlugins; iterPlugins = iterPlugins.next)
+            {
+                PurplePlugin *plugin = cast(PurplePlugin *)(iterPlugins.data);
+                PurplePluginInfo *info = plugin.info;
+                if(info && info.name)
+                {
+                    printf("\t%d: %s\n".toStringz, idxPlugin++, info.name);
+                    lstNames = g_list_append(lstNames, info.id);
+                }
+            }
+
+            bool debugAccount = true;
+            string protocol = "prpl-jabber"; 
+            string username = "pipetest@lvl3.org";
+            string password = "333333"; 
+
+            if(!debugAccount)
+            {
+                printf("Select the protocol [0-%d]: ".toStringz, idxPlugin - 1);
+                int idxProtocol = to!int(strip(readln()));
+                char* ptrProtocol = cast(char*)g_list_nth_data(lstNames, idxProtocol);
+                protocol = to!string(ptrProtocol);
+
+                printf("Username: ".toStringz);
+                username = strip(readln());
+
+                // Read password
+                printf("Password: ".toStringz);
+                password = strip(readln());
+            }        
+
+            PurpleAccount* account = purple_account_new(username.toStringz, protocol.toStringz);
+            purple_account_set_password(account, password.toStringz);
+            
+            purple_account_set_enabled(account, _interfaceID.toStringz, true);
+
+            PurpleSavedStatus* status = purple_savedstatus_new(null, PurpleStatusPrimitive.PURPLE_STATUS_AVAILABLE);
+            purple_savedstatus_activate(status);
         }
-
-        bool debugAccount = true;
-        string protocol = "prpl-jabber"; 
-        string username = "pipetest@lvl3.org";
-        string password = "333333"; 
-
-        if(!debugAccount)
-        {
-            printf("Select the protocol [0-%d]: ".toStringz, idxPlugin - 1);
-            int idxProtocol = to!int(strip(readln()));
-            char* ptrProtocol = cast(char*)g_list_nth_data(lstNames, idxProtocol);
-            protocol = to!string(ptrProtocol);
-
-            printf("Username: ".toStringz);
-            username = strip(readln());
-
-            // Read password
-            printf("Password: ".toStringz);
-            password = strip(readln());
-        }        
-
-        PurpleAccount* account = purple_account_new(username.toStringz, protocol.toStringz);
-        purple_account_set_password(account, password.toStringz);
-
-        purple_account_set_enabled(account, _interfaceID.toStringz, true);
-
-        PurpleSavedStatus* status = purple_savedstatus_new(null, PurpleStatusPrimitive.PURPLE_STATUS_AVAILABLE);
-        purple_savedstatus_activate(status);
-
-        ConnectCallbacks(cast(void*)(&_signalHandler), cast(void*)this);
+    
+        ~this() {
+            clearConfigDir(to!string(purple_user_dir()));
+        }
     }
 
-
-public:
-    string getData() {
-        outputString = "";
-        g_main_context_iteration(g_main_context_default(), false);
-        return outputString;
+    public {
+        string getData() {
+            outputString = "";
+            g_main_context_iteration(g_main_context_default(), false);
+            return outputString;
+        }
     }
 
-
+    private {
+        void clearConfigDir(string configDir) {
+            try {
+                if(exists(configDir)) rmdirRecurse(configDir);
+            } catch { }
+        }
+    }
 }

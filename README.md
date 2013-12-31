@@ -60,3 +60,11 @@ Components:
 * Webserver 
 * Basic user management
 * Protocol layer
+
+# Installation windows
+
+* Create ./bin folder
+* Download pidgin installer and unpack it (with 7z for example)
+* Copy *.dll, plugins, sasl2 and ca-certs to ./bin folder
+* Run build_visuald.bat
+* Open pipe.im.sln with visual studio

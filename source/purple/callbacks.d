@@ -32,6 +32,7 @@ module purple.callbacks;
 import purple.client;
 import derelict.glib.glib;
 import derelict.purple.purple;
+import std.c.stdarg;
 import std.stdio;
 import std.conv;
 
@@ -47,48 +48,49 @@ struct PurpleGLibIOClosure {
 }
 
 //===================================================================================================
-// General callbacks
+// Connect
 //===================================================================================================
 
-static extern(C) guint purple_cb_input_add(gint fd, PurpleInputCondition condition, PurpleInputFunction fkt, gpointer data) {
-    GIOChannel *channel;
-    
-    version(Win32)
-        channel = wpurple_g_io_channel_win32_new_socket(fd);
-    else 
-        channel = g_io_channel_unix_new(fd);
+static PurpleClient g_purpleClient = null;
+static PurpleEventLoopUiOps g_eventloopUiOps; 
+static PurpleRequestUiOps g_requestUiOps; 
 
-    GIOCondition cond = cast(GIOCondition)0;
-    if(condition & PurpleInputCondition.PURPLE_INPUT_READ)
-        cond = cast(GIOCondition)(cond | cast(int)(PURPLE_GLIB_READ_COND));
-    if(condition & PurpleInputCondition.PURPLE_INPUT_WRITE)
-        cond = cast(GIOCondition)(cond | cast(int)(PURPLE_GLIB_WRITE_COND));
+void ConnectUiOpsCallbacks(PurpleClient client) {
+    assert(g_purpleClient is null);
+    g_purpleClient = client;
 
-    PurpleGLibIOClosure *closure = new PurpleGLibIOClosure();
-    closure.fkt = fkt;
-    closure.data = data;
-    closure.result = g_io_add_watch_full(channel, 0, cond, &purple_cb_io_invoke, cast(void*)closure, null);
+    // Eventloop UI ops
+    version(Derelict_Link_Static) {
+        g_eventloopUiOps = PurpleEventLoopUiOps(&g_timeout_add, &g_source_remove, 
+                                               &purple_cb_ops_input_add, &g_source_remove, 
+                                               null, &g_timeout_add_seconds, 
+                                               null, null, null);
+    }
+    else {
+        g_eventloopUiOps = PurpleEventLoopUiOps(g_timeout_add, g_source_remove, 
+                                               &purple_cb_ops_input_add, g_source_remove, 
+                                               null, g_timeout_add_seconds, 
+                                               null, null, null);
+    }
 
-    g_io_channel_unref(channel);
-    return closure.result;
+    purple_eventloop_set_ui_ops(&g_eventloopUiOps);
+
+    // Request UI ops
+    g_requestUiOps = PurpleRequestUiOps(&purple_cb_ops_request_input, &purple_cb_ops_request_choice, 
+                                        &purple_cb_ops_request_action, &purple_cb_ops_request_fields,
+                                        &purple_cb_ops_request_file, &purple_cb_ops_close_request,
+                                        &purple_cb_ops_request_folder, &purple_cb_ops_request_action_with_icon,
+                                        null, null, null);
+
+    purple_request_set_ui_ops(&g_requestUiOps);
 }
 
-static extern(C) gboolean purple_cb_io_invoke(GIOChannel *source, GIOCondition condition, gpointer data) {
-    PurpleGLibIOClosure* closure = cast(PurpleGLibIOClosure *)data;
-    PurpleInputCondition purple_cond = cast(PurpleInputCondition)0;
+void ConnectSignalsCallbacks() {
+    assert(!(g_purpleClient is null));
 
-    if(condition & PURPLE_GLIB_READ_COND)
-        purple_cond = cast(PurpleInputCondition)(purple_cond | PurpleInputCondition.PURPLE_INPUT_READ);
-    if(condition & PURPLE_GLIB_WRITE_COND)
-        purple_cond = cast(PurpleInputCondition)(purple_cond | PurpleInputCondition.PURPLE_INPUT_WRITE);
+    void* cbData = cast(void*)g_purpleClient;
+    void* cbHandle = cast(void*)g_purpleClient;
 
-    closure.fkt(closure.data, g_io_channel_unix_get_fd(source), purple_cond);
-
-    return true;
-}
-import std.string;
-void ConnectCallbacks(void* cbHandle, void* cbData)
-{
     // Connection
     auto hConnections = purple_connections_get_handle();
     purple_signal_connect(hConnections, "signing-on", cbHandle, cast(PurpleCallback)&purple_cb_signing_on, cbData);
@@ -175,10 +177,103 @@ void ConnectCallbacks(void* cbHandle, void* cbData)
     purple_signal_connect(hConversations, "chat-topic-changed", cbHandle, cast(PurpleCallback)&purple_cb_chat_topic_changed, cbData);
     purple_signal_connect(hConversations, "cleared-message-history", cbHandle, cast(PurpleCallback)&purple_cb_cleared_message_history, cbData);
     purple_signal_connect(hConversations, "conversation-extended-menu", cbHandle, cast(PurpleCallback)&purple_cb_conversation_extended_menu, cbData);
+
+    // Notify
+    auto hNotify = purple_notify_get_handle();
+    purple_signal_connect(hNotify, "displaying-userinfo", cbHandle, cast(PurpleCallback)&purple_cb_displaying_userinfo, cbData);
 }
 
 //===================================================================================================
-// Connection callbacks
+// UI ops callbacks
+//===================================================================================================
+
+static extern(C) guint purple_cb_ops_input_add(gint fd, PurpleInputCondition condition, PurpleInputFunction fkt, gpointer data) {
+    GIOChannel *channel;
+    
+    version(Win32)
+        channel = wpurple_g_io_channel_win32_new_socket(fd);
+    else 
+        channel = g_io_channel_unix_new(fd);
+
+    GIOCondition cond = cast(GIOCondition)0;
+    if(condition & PurpleInputCondition.PURPLE_INPUT_READ)
+        cond = cast(GIOCondition)(cond | cast(int)(PURPLE_GLIB_READ_COND));
+    if(condition & PurpleInputCondition.PURPLE_INPUT_WRITE)
+        cond = cast(GIOCondition)(cond | cast(int)(PURPLE_GLIB_WRITE_COND));
+
+    PurpleGLibIOClosure *closure = new PurpleGLibIOClosure();
+    closure.fkt = fkt;
+    closure.data = data;
+    closure.result = g_io_add_watch_full(channel, 0, cond, &purple_cb_ops_io_invoke, cast(void*)closure, null);
+
+    g_io_channel_unref(channel);
+    return closure.result;
+}
+
+static extern(C) gboolean purple_cb_ops_io_invoke(GIOChannel *source, GIOCondition condition, gpointer data) {
+    PurpleGLibIOClosure* closure = cast(PurpleGLibIOClosure *)data;
+    PurpleInputCondition purple_cond = cast(PurpleInputCondition)0;
+
+    if(condition & PURPLE_GLIB_READ_COND)
+        purple_cond = cast(PurpleInputCondition)(purple_cond | PurpleInputCondition.PURPLE_INPUT_READ);
+    if(condition & PURPLE_GLIB_WRITE_COND)
+        purple_cond = cast(PurpleInputCondition)(purple_cond | PurpleInputCondition.PURPLE_INPUT_WRITE);
+
+    closure.fkt(closure.data, g_io_channel_unix_get_fd(source), purple_cond);
+
+    return true;
+}
+
+
+static extern(C) void* purple_cb_ops_request_input(const(char)* title, const(char)* primary, const(char)* secondary, const(char)* default_value, gboolean multiline, gboolean masked, gchar* hint, const(char)* ok_text, GCallback ok_cb, const(char)* cancel_text, GCallback cancel_cb, PurpleAccount* account, const(char)* who, PurpleConversation* conv, void* user_data) {
+    PurpleClient client = g_purpleClient;
+
+    return null;
+}
+
+static extern(C) void* purple_cb_ops_request_choice(const(char)* title, const(char)* primary, const(char)* secondary, int default_value, const(char)* ok_text, GCallback ok_cb, const(char)* cancel_text, GCallback cancel_cb, PurpleAccount* account, const(char)* who, PurpleConversation* conv, void* user_data, va_list choices) {
+    PurpleClient client = g_purpleClient;
+
+    return null;
+}
+
+static extern(C) void* purple_cb_ops_request_action(const(char)* title, const(char)* primary, const(char)* secondary, int default_action, PurpleAccount* account, const(char)* who, PurpleConversation* conv, void* user_data, size_t action_count, va_list actions) {
+    PurpleClient client = g_purpleClient;
+
+    return null;
+}
+
+static extern(C) void* purple_cb_ops_request_fields(const(char)* title, const(char)* primary, const(char)* secondary, PurpleRequestFields* fields, const(char)* ok_text, GCallback ok_cb, const(char)* cancel_text, GCallback cancel_cb, PurpleAccount* account, const(char)* who, PurpleConversation* conv, void* user_data) {
+    PurpleClient client = g_purpleClient;
+
+    return null;
+}
+
+static extern(C) void* purple_cb_ops_request_file(const(char)* title, const(char)* filename, gboolean savedialog, GCallback ok_cb, GCallback cancel_cb, PurpleAccount* account, const(char)* who, PurpleConversation* conv, void* user_data) {
+    PurpleClient client = g_purpleClient;
+
+    return null;
+}
+
+static extern(C) void purple_cb_ops_close_request(PurpleRequestType type, void* ui_handle) {
+    PurpleClient client = g_purpleClient;
+
+}
+
+static extern(C) void* purple_cb_ops_request_folder(const(char)* title, const(char)* dirname, GCallback ok_cb, GCallback cancel_cb, PurpleAccount* account, const(char)* who, PurpleConversation* conv, void* user_data) {
+    PurpleClient client = g_purpleClient;
+
+    return null;
+}
+
+static extern(C) void* purple_cb_ops_request_action_with_icon(const(char)* title, const(char)* primary, const(char)* secondary, int default_action, PurpleAccount* account, const(char)* who, PurpleConversation* conv, gconstpointer icon_data, gsize icon_size, void* user_data, size_t action_count, va_list actions) {
+    PurpleClient client = g_purpleClient;
+
+    return null;
+}
+
+//===================================================================================================
+// Signals callbacks
 //===================================================================================================
 
 static extern(C) void purple_cb_signing_on(PurpleConnection* connection, gpointer data) {
@@ -255,7 +350,7 @@ static extern(C) void purple_cb_account_removed(PurpleAccount* account, gpointer
 static extern(C) gboolean purple_cb_account_status_changed(PurpleAccount* account, PurpleStatus* oldStatus, PurpleStatus* newStatus, gpointer data) {
     PurpleClient client = cast(PurpleClient)data;
 
-    return true;
+    return false;
 }
 
 static extern(C) void purple_cb_account_actions_changed(PurpleAccount* account, gpointer data) {
@@ -423,7 +518,7 @@ static extern(C) void purple_cb_sent_im_msg(PurpleAccount* account, const char* 
 static extern(C) gboolean purple_cb_receiving_im_msg(PurpleAccount* account, char** sender, char** message, PurpleConversation *conv, PurpleMessageFlags flags, gpointer data) {
     PurpleClient client = cast(PurpleClient)data;
 
-    return true;
+    return false;
 }
 
 static extern(C) void purple_cb_received_im_msg(PurpleAccount* account, const char* sender, const char* message, PurpleConversation *conv, PurpleMessageFlags flags, gpointer data) {
@@ -469,7 +564,7 @@ static extern(C) void purple_cb_sent_chat_msg(PurpleAccount* account, const char
 static extern(C) gboolean purple_cb_receiving_chat_msg(PurpleAccount* account, char** sender, char** message, PurpleConversation *conv, PurpleMessageFlags* flags, gpointer data) {
     PurpleClient client = cast(PurpleClient)data;
 
-    return true;
+    return false;
 }
 
 static extern(C) void purple_cb_received_chat_msg(PurpleAccount* account, const char* sender, const char* message, PurpleConversation *conv, PurpleMessageFlags flags, gpointer data) {
@@ -510,7 +605,7 @@ static extern(C) void purple_cb_buddy_typing_stopped(PurpleAccount* account, con
 static extern(C) gboolean purple_cb_chat_buddy_joining(PurpleConversation *conv, const char* name, PurpleConvChatBuddyFlags flags, gpointer data) {
     PurpleClient client = cast(PurpleClient)data;
 
-    return true;
+    return false;
 }
 
 static extern(C) void purple_cb_chat_buddy_joined(PurpleConversation *conv, const char* name, PurpleConvChatBuddyFlags flags, gboolean newArrivals, gpointer data) {
@@ -526,7 +621,7 @@ static extern(C) void purple_cb_chat_buddy_flags(PurpleConversation *conv, const
 static extern(C) gboolean purple_cb_chat_buddy_leaving(PurpleConversation *conv, const char* name, const char* reason, gpointer data) {
     PurpleClient client = cast(PurpleClient)data;
 
-    return true;
+    return false;
 }
 
 static extern(C) void purple_cb_chat_buddy_left(PurpleConversation *conv, const char* name, const char* reason, gpointer data) {
@@ -586,6 +681,15 @@ static extern(C) void purple_cb_cleared_message_history(PurpleConversation *conv
 }
 
 static extern(C) void purple_cb_conversation_extended_menu(PurpleConversation *conv, GList** menuData, gpointer data) {
+    PurpleClient client = cast(PurpleClient)data;
+
+}
+
+//===================================================================================================
+// Notify callbacks
+//===================================================================================================
+
+static extern(C) void purple_cb_displaying_userinfo(PurpleAccount* account, const char* who, PurpleNotifyUserInfo* user_info, gpointer data) {
     PurpleClient client = cast(PurpleClient)data;
 
 }
