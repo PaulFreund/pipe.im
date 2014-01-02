@@ -29,6 +29,7 @@ module purple.callbacks;
 
 //###################################################################################################
 
+import purple.events;
 import purple.client;
 import derelict.glib.glib;
 import derelict.purple.purple;
@@ -284,7 +285,7 @@ static extern(C) void purple_cb_signing_on(PurpleConnection* connection, gpointe
 static extern(C) void purple_cb_signed_on(PurpleConnection* connection, gpointer data) {
     PurpleClient client = cast(PurpleClient)data;
 
-    client.outputString = "Connected";
+    //client.outputString = "Connected";
 }
 
 static extern(C) void purple_cb_signing_off(PurpleConnection* connection, gpointer data) {
@@ -528,10 +529,10 @@ static extern(C) void purple_cb_received_im_msg(PurpleAccount* account, const ch
         conv = purple_conversation_new(PurpleConversationType.PURPLE_CONV_TYPE_IM, account, sender);
     }
 
-    client.outputString ~= "(" ~ to!string(purple_utf8_strftime("%H:%M:%S", null)) ~ ") ";
-    client.outputString ~= to!string(sender);
-    client.outputString ~= "(" ~ to!string(purple_conversation_get_name(conv)) ~ "): ";
-    client.outputString ~= to!string(message);
+    //client.outputString ~= "(" ~ to!string(purple_utf8_strftime("%H:%M:%S", null)) ~ ") ";
+    //client.outputString ~= to!string(sender);
+    //client.outputString ~= "(" ~ to!string(purple_conversation_get_name(conv)) ~ "): ";
+    //client.outputString ~= to!string(message);
 }
 
 

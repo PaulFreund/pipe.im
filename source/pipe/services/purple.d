@@ -41,7 +41,54 @@ final class SystemPurple {
 
 	this(T)(T ecs) { 	
 		this._purple = new PurpleClient();	   
-		assert(this._purple !is null);	   				
+		assert(this._purple !is null);	  
+
+        /*
+            TODO: Replicate this with the new API    
+
+            GList* lstNames = null;
+            GList* iterPlugins = purple_plugins_get_protocols();
+            int idxPlugin = 0;
+            for(idxPlugin = 0; iterPlugins; iterPlugins = iterPlugins.next)
+            {
+            PurplePlugin *plugin = cast(PurplePlugin *)(iterPlugins.data);
+            PurplePluginInfo *info = plugin.info;
+            if(info && info.name)
+            {
+            printf("\t%d: %s\n".toStringz, idxPlugin++, info.name);
+            lstNames = g_list_append(lstNames, info.id);
+            }
+            }
+
+            bool debugAccount = true;
+            string protocol = "prpl-jabber"; 
+            string username = "pipetest@lvl3.org";
+            string password = "333333"; 
+
+            if(!debugAccount)
+            {
+            printf("Select the protocol [0-%d]: ".toStringz, idxPlugin - 1);
+            int idxProtocol = to!int(strip(readln()));
+            char* ptrProtocol = cast(char*)g_list_nth_data(lstNames, idxProtocol);
+            protocol = to!string(ptrProtocol);
+
+            printf("Username: ".toStringz);
+            username = strip(readln());
+
+            // Read password
+            printf("Password: ".toStringz);
+            password = strip(readln());
+            }        
+
+            PurpleAccount* account = purple_account_new(username.toStringz, protocol.toStringz);
+            purple_account_set_password(account, password.toStringz);
+
+            purple_account_set_enabled(account, _interfaceID.toStringz, true);
+
+            PurpleSavedStatus* status = purple_savedstatus_new(null, PurpleStatusPrimitive.PURPLE_STATUS_AVAILABLE);
+            purple_savedstatus_activate(status);
+        */
+
 	}
 
 	~this() {
@@ -49,11 +96,12 @@ final class SystemPurple {
 	}
 
 	void run(T)(T ecs) {  
-		string data = this._purple.getData();
-        if(data.length != 0) {
-            auto e = ecs.createEntity();
-            ecs.addComponents(e, Message(data));    
-        }
+        this._purple.process();
+
+//        if(data.length != 0) {
+//            auto e = ecs.createEntity();
+//            ecs.addComponents(e, Message(data));    
+//        }
 
 	}
 }
