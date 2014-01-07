@@ -114,11 +114,20 @@ import EventEmitter;
 import std.stdio;
 
 class Member01 {
-    mixin EventEmitter!Member01;
+public:
+    string _name;
+
+    this() {
+        void delegate(string) del = &this.listen;
+        void delegate() del2 = cast(void delegate())del;
+        EventEmitterInstance.setDelegate(del2);
+    }
+    //mixin EventEmitter!Member01;
 
     void emit(string message) {
-        publish!("event02")(message);
+    //    publish!("event02")(message);
     }
+
 
     @subscribe("event01") void listen(string message) {
         writeln("Member01.listen: " ~ message);
@@ -126,25 +135,34 @@ class Member01 {
 }
 
 class Member02 {
-    mixin EventEmitter!Member02;
+public:
+    //mixin asdf;
+    //mixin EventEmitter!Member02;
 
     void emit(string message) {
-        publish!("event01")(message);
+    //    publish!("event01")(message);
+        publish(message);
     }
 
     @subscribe("event02") void listen(string message) {
         writeln("Member02.listen: " ~ message);
     }
+
 }
 
 
+int initializer(int i) {
+    writeln("Initializer");
+    return i;
+}
 
 int main(string[] argv)
 {
+    //Member01 m01i01 = new Member01("one");
     Member01 m01 = new Member01();
     Member02 m02 = new Member02();
 
-    m01.emit("Hi");
+    //m01.emit("Hi");
     m02.emit("Ho");
 
 /*
