@@ -72,10 +72,37 @@ public:
     }   
 }
 
+// Generate code to add delegates to the EventEmitter
+string generateBindingCode(T)(T subscriberList) {
+    string code = "";
+
+    bool isEvent = true;
+    string currentEvent = "";
+    string currentSubscriber = "";
+    foreach(element; subscriberList) {
+        if(isEvent) {
+            currentEvent = element;
+        }
+        else {
+            currentSubscriber = element;
+            code = code ~ "int add_" ~ currentSubscriber ~ "_result = ";
+            code = code ~ "PublicEventDispatcher.addSubscriber(\"" ~ currentEvent ~ "\"";
+            code = code ~ ", this, cast(void delegate())&this." ~ currentSubscriber ~ ");";
+            currentEvent = "";
+            currentSubscriber = "";
+        }
+
+        isEvent = !isEvent;
+    }
+
+    return code;
+}
+
+// Mixin to add add subscribers to 
 mixin template EventEmitter(PARENT) {
-    import std.traits;
-    import std.typecons;
-    import std.typetuple;
+    private import std.traits : MemberFunctionsTuple;
+    private import std.typecons : tuple;
+    private import std.typetuple : TypeTuple;
 
     // Generate a list of symbols that have a subscriber attribute
     template GetSubscriberList(PARENT, CANDIDATES...) if(CANDIDATES.length > 0) {
@@ -83,7 +110,10 @@ mixin template EventEmitter(PARENT) {
         static if(CANDIDATE_SYMBOLS.length == 1) {
             enum CANDIDATE_ATTRIBUTES = __traits(getAttributes, CANDIDATE_SYMBOLS[0]);
             static if(CANDIDATE_ATTRIBUTES.length == 1)
-                alias CANDIDATE = TypeTuple!(mixin("\"" ~ CANDIDATE_ATTRIBUTES[0].event ~ "\""), mixin("\"" ~ __traits(identifier, CANDIDATE_SYMBOLS[0]) ~ "\""));
+                alias CANDIDATE = TypeTuple!(
+                    mixin("\"" ~ CANDIDATE_ATTRIBUTES[0].event ~ "\""), 
+                    mixin("\"" ~ __traits(identifier, CANDIDATE_SYMBOLS[0]) ~ "\"")
+                );
             else
                 alias CANDIDATE = TypeTuple!();
         }
@@ -103,32 +133,7 @@ mixin template EventEmitter(PARENT) {
         }
     }
 
-    // Generate code to add delegates to the EventEmitter
-    string generateBindingCode(T)(T subscriberList) {
-        string code = "";
-        bool isEvent = true;
-        string currentEvent = "";
-        string currentSubscriber = "";
-        foreach(element; subscriberList) {
-            if(isEvent) {
-                currentEvent = element;
-            }
-            else {
-                currentSubscriber = element;
-                code = code ~ "int add_" ~ currentSubscriber ~ "_result = ";
-                code = code ~ "PublicEventDispatcher.addSubscriber(\"" ~ currentEvent ~ "\"";
-                code = code ~ ", this, cast(void delegate())&this." ~ currentSubscriber ~ ");";
-                currentEvent = "";
-                currentSubscriber = "";
-            }
-
-            isEvent = !isEvent;
-        }
-
-        return code;
-    }
-
-    alias subscriberList = GetSubscriberList!(PARENT, __traits(allMembers, PARENT));
-    enum bindingCode = generateBindingCode(tuple(subscriberList));
-    mixin(bindingCode);
+    // Not so nice but leaves no symbols
+    mixin(generateBindingCode(tuple(GetSubscriberList!(PARENT, __traits(allMembers, PARENT)))));
 }
+

@@ -118,7 +118,7 @@ public:
     string _name;
 
     this() {
-        mixin EventEmitter!(Member01);
+        mixin EventEmitter!(typeof(this));
     }
     //mixin EventEmitter!Member01;
 
