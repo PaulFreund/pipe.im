@@ -33,149 +33,69 @@ import std.stdio;
 import std.traits;
 import std.typecons;
 import std.typetuple;
+import std.conv;
 
 //###################################################################################################
 
+struct subscribe {
+    string event;
+    this(string event_) {
+        this.event = event_;
+    }
+}
 
-void publish(Args...)(Args args) {
+void publish(Args...)(string event, Args args) {
     void delegate(Object, Args) dg;
-    dg.ptr = cast(void*)EventEmitterInstance.ptrData;
-    dg.funcptr = cast(void function(Object, Args)) EventEmitterInstance.ptrFunc;
+    dg.ptr = cast(void*)PublicEventDispatcher.ptrData;
+    dg.funcptr = cast(void function(Object, Args)) PublicEventDispatcher.ptrFunc;
     dg(cast(Object)(dg.ptr), args);
 }
 
-alias EventEmitterInstance = EventEmitter._instance;
+alias PublicEventDispatcher = EventDispatcher._publicInstance;
 
-class EventEmitter {
+class EventDispatcher {
 public:
-    static EventEmitter _instance;
+    static EventDispatcher _publicInstance;
 
 
     static this() {
-        _instance = new EventEmitter();
+        _publicInstance = new EventDispatcher();
     }
 
     void* ptrFunc;
     void* ptrData;
 
-    void setDelegate(void delegate() dg) {
+    int addSubscriber(string event, Object obj, void delegate() dg) {
         ptrFunc = dg.funcptr;
         ptrData = dg.ptr;
-    }
-
-    
+        return 0;
+    }   
 }
 
-
-
-/*
-
-Better Concept:
-    definition of publish function global 
-
-    mixin in constructor
-        iterate over members and get function names with property
-        access static eventemitter and add delegates of all definitions ( like stdx.signals )
-
-*/
-
-/*
-
-Concept:
-mixin in constructor: 
-    call to register object with dispatcher
-
-mixin in class: 
-    dispatch function which knows all subscribers and calls them 
-    publish function which calls dispatcher
-
-*/
-
-
-/*
-private void _isQueryImpl(T...)(Query!(T) n) {}
-enum isSubscriber(T...) = is(typeof(_isQueryImpl(T.init)));
-
-private alias GetSubscriberList(CLIENT) = Filter!(isSubscriber, __traits(getAttributes, CLIENT));
-
-private template _GEN_QUERIES(SYSTEMS...) if(SYSTEMS.length > 0) {
-    alias Q = _ExtractQueries!(SYSTEMS[0]);
-    static if(SYSTEMS.length > 1) {
-        alias NEXT = _GEN_QUERIES!(SYSTEMS[1..$]);
-        alias _GEN_QUERIES = TypeTuple!(Q, NEXT);
-    }
-    else {
-        alias _GEN_QUERIES = Q;
-    }
-}
-*/
-
-/*
-alias TypeProxy(T) = T;
-
-
-
-
-
-string listMembers(T)(T client) {
-    string list = "";
-
-
-    //foreach(i, member; members) {
-    //    list = list ~ ", " ~ to!string(value);
-    //}
-
-    return list;
-}
-
-template ValidType(CLIENT, string name) {
-    
-    enum compiles = __traits(compiles, __traits(getAttributes, MemberFunctionsTuple!(CLIENT, name)));
-    pragma(msg, name, " - Compiles: ", compiles);
-    static if(compiles) {
-        pragma(msg, name, " - Attributes: ", __traits(getAttributes, __traits(getMember, CLIENT, name)));
-    }
-//    enum truth = isSomeFunction!();
-//    pragma(msg, "Truth for ", name, ": ", truth);
-    //enum member = __traits(getMember, CLIENT, name);
-    //static if(compiles)
-    //    enum ValidType = true;
-    //else
-        enum ValidType = false;
-}
-
-import std.traits;
-import std.typecons;
-import std.typetuple;
-mixin template EventEmitter(CLIENT) {
+mixin template EventEmitter(PARENT) {
     import std.traits;
     import std.typecons;
     import std.typetuple;
-    template GetSubscriberList(CLIENT, CANDIDATES...) if(CANDIDATES.length > 0) {
-        
-        enum CANDIDATE_NAME = CANDIDATES[0];
-        static if(CANDIDATE_NAME != "subscribers" && CANDIDATE_NAME != "publish" && ValidType!(CLIENT, CANDIDATE_NAME)) {
-            enum CANDIDATE_SYMBOL = __traits(getMember, CLIENT, CANDIDATE_NAME);
-            pragma(msg, "Candidate: ", CANDIDATE_SYMBOL);
-            //enum ATTRIBUTES = __traits(getAttributes, CANDIDATE_SYMBOL);
-            //pragma(msg, "Attributes: ", ATTRIBUTES);
 
-            alias CANDIDATE = CANDIDATE_SYMBOL;
-
-            //static if(ATTRIBUTES)
-            //    alias CANDIDATE = CANDIDATE_SYMBOL;
-            //else 
-            //    alias CANDIDATE = TypeTuple!();
+    // Generate a list of symbols that have a subscriber attribute
+    template GetSubscriberList(PARENT, CANDIDATES...) if(CANDIDATES.length > 0) {
+        alias CANDIDATE_SYMBOLS = MemberFunctionsTuple!(PARENT, CANDIDATES[0]);
+        static if(CANDIDATE_SYMBOLS.length == 1) {
+            enum CANDIDATE_ATTRIBUTES = __traits(getAttributes, CANDIDATE_SYMBOLS[0]);
+            static if(CANDIDATE_ATTRIBUTES.length == 1)
+                alias CANDIDATE = TypeTuple!(mixin("\"" ~ CANDIDATE_ATTRIBUTES[0].event ~ "\""), mixin("\"" ~ __traits(identifier, CANDIDATE_SYMBOLS[0]) ~ "\""));
+            else
+                alias CANDIDATE = TypeTuple!();
         }
         else {
             alias CANDIDATE = TypeTuple!();
+            static if(CANDIDATE_SYMBOLS.length > 1) {
+                pragma(msg, "[Error] Member function names must not be overloaded (", CANDIDATE_SYMBOLS, ")");
+            }
         }
 
-
-
-        // Recursive iterate
         static if(CANDIDATES.length > 1) {
-            alias NEXT_CANDIDATE = GetSubscriberList!(CLIENT, CANDIDATES[1..$]);
+            alias NEXT_CANDIDATE = GetSubscriberList!(PARENT, CANDIDATES[1..$]);
             alias GetSubscriberList = TypeTuple!(CANDIDATE, NEXT_CANDIDATE);
         }
         else {
@@ -183,20 +103,32 @@ mixin template EventEmitter(CLIENT) {
         }
     }
 
-    //enum subscribers = listMembers(MemberFunctionsTuple!CLIENT); 
-    alias subscribers = GetSubscriberList!(CLIENT, __traits(allMembers, CLIENT));
-    pragma(msg, subscribers);
+    // Generate code to add delegates to the EventEmitter
+    string generateBindingCode(T)(T subscriberList) {
+        string code = "";
+        bool isEvent = true;
+        string currentEvent = "";
+        string currentSubscriber = "";
+        foreach(element; subscriberList) {
+            if(isEvent) {
+                currentEvent = element;
+            }
+            else {
+                currentSubscriber = element;
+                code = code ~ "int add_" ~ currentSubscriber ~ "_result = ";
+                code = code ~ "PublicEventDispatcher.addSubscriber(\"" ~ currentEvent ~ "\"";
+                code = code ~ ", this, cast(void delegate())&this." ~ currentSubscriber ~ ");";
+                currentEvent = "";
+                currentSubscriber = "";
+            }
 
-    void publish(string event)(...) {
+            isEvent = !isEvent;
+        }
 
+        return code;
     }
-}
 
-*/
-
-struct subscribe {
-    string event;
-    this(string eventName) {
-        this.event = eventName;
-    }
+    alias subscriberList = GetSubscriberList!(PARENT, __traits(allMembers, PARENT));
+    enum bindingCode = generateBindingCode(tuple(subscriberList));
+    mixin(bindingCode);
 }

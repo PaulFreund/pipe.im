@@ -118,9 +118,7 @@ public:
     string _name;
 
     this() {
-        void delegate(string) del = &this.listen;
-        void delegate() del2 = cast(void delegate())del;
-        EventEmitterInstance.setDelegate(del2);
+        mixin EventEmitter!(Member01);
     }
     //mixin EventEmitter!Member01;
 
@@ -128,9 +126,12 @@ public:
     //    publish!("event02")(message);
     }
 
+    @subscribe("event01") void listen(BLUB asdf) {
+        writeln("Member01.listen: " ~ asdf.message);
+    }
 
-    @subscribe("event01") void listen(string message) {
-        writeln("Member01.listen: " ~ message);
+    @subscribe("event02") void otherFunc(BLUB asdf) {
+        writeln("Member01.listen: " ~ asdf.message);
     }
 }
 
@@ -141,7 +142,7 @@ public:
 
     void emit(string message) {
     //    publish!("event01")(message);
-        publish(message);
+        publish("test", BLUB());
     }
 
     @subscribe("event02") void listen(string message) {
@@ -151,9 +152,8 @@ public:
 }
 
 
-int initializer(int i) {
-    writeln("Initializer");
-    return i;
+struct BLUB {
+    string message = "asdf";
 }
 
 int main(string[] argv)
