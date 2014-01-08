@@ -44,6 +44,23 @@ struct subscribe {
     }
 }
 
+void publish(Args...)(Args args) {
+    static if(is(Args[0] == EventDispatcher)) {
+        alias dispatcher = args[0];
+        alias event = args[1];
+        alias parameters = args[2..$];
+    }
+    else {
+        alias dispatcher = StaticEventDispatcher;
+        alias event = args[0];
+        alias parameters = args[1..$];
+    }
+
+    dispatcher._subscribers[event](parameters);
+}
+
+//---------------------------------------------------------------------------------------------------
+
 struct Subscriber {
     Object _object;
     void* _ptrData;
@@ -63,20 +80,19 @@ struct Subscriber {
     }
 }
 
-void publish(Args...)(string event, Args args) {
-    PublicEventDispatcher._subscribers[event](args);
-}
+//---------------------------------------------------------------------------------------------------
 
-alias PublicEventDispatcher = EventDispatcher._publicInstance;
+alias StaticEventDispatcher = EventDispatcher._staticInstance;
 
 class EventDispatcher {
     public {
-        static EventDispatcher _publicInstance;
+        static EventDispatcher _staticInstance;
 
         static this() {
-            _publicInstance = new EventDispatcher();
+            _staticInstance = new EventDispatcher();
         }
 
+        // Todo: correct dispatch
         Subscriber[string] _subscribers;
 
         int addSubscriber(string event, Object obj, void delegate() dg) {
@@ -86,70 +102,60 @@ class EventDispatcher {
     }
 }
 
+//---------------------------------------------------------------------------------------------------
+
 // Generate code to add delegates to the EventEmitter
-string generateBindingCode(T)(T subscriberList) {
-    string code = "";
+string generateBindingCode(T)(string dispatcher, T subscriberList) {
+    string code = "", event = "";
+    foreach(i, element; subscriberList) {
+        if((i%2) == 0) { event = element; continue; }
 
-    bool isEvent = true;
-    string currentEvent = "";
-    string currentSubscriber = "";
-    foreach(element; subscriberList) {
-        if(isEvent) {
-            currentEvent = element;
-        }
-        else {
-            currentSubscriber = element;
-            code = code ~ "int add_" ~ currentSubscriber ~ "_result = ";
-            code = code ~ "PublicEventDispatcher.addSubscriber(\"" ~ currentEvent ~ "\"";
-            code = code ~ ", this, cast(void delegate())&this." ~ currentSubscriber ~ ");";
-            currentEvent = "";
-            currentSubscriber = "";
-        }
-
-        isEvent = !isEvent;
+        code ~= "int __dispatcher_add_" ~ element ~ "_result = ";
+        code ~= dispatcher ~ ".addSubscriber(\"" ~ event ~ "\"";
+        code ~= ", this, cast(void delegate())&this." ~ element ~ ");";
+        event = "";
     }
 
     return code;
 }
 
+//---------------------------------------------------------------------------------------------------
+
 // Mixin to add add subscribers to 
-mixin template EventEmitter() {
-    private import std.traits : MemberFunctionsTuple;
-    private import std.typecons : tuple;
-    private import std.typetuple : TypeTuple;
-
+mixin template EventEmitter(DISPATCHER_PARAM...) {
     // Generate a list of symbols that have a subscriber attribute
-    template GetSubscriberList(PARENT, CANDIDATES...) if(CANDIDATES.length > 0) {
-        alias CANDIDATE_SYMBOLS = MemberFunctionsTuple!(PARENT, CANDIDATES[0]);
-        static if(CANDIDATE_SYMBOLS.length == 1) {
-            enum CANDIDATE_ATTRIBUTES = __traits(getAttributes, CANDIDATE_SYMBOLS[0]);
-            static if(CANDIDATE_ATTRIBUTES.length == 1) {
-                alias CANDIDATE = TypeTuple!(
-                    mixin("\"" ~ CANDIDATE_ATTRIBUTES[0].event ~ "\""), 
-                    mixin("\"" ~ __traits(identifier, CANDIDATE_SYMBOLS[0]) ~ "\"")
-                );
-            }
-            else {
-                alias CANDIDATE = TypeTuple!();
-            }
-        }
-        else {
-            alias CANDIDATE = TypeTuple!();
-            static if(CANDIDATE_SYMBOLS.length > 1) {
-                pragma(msg, "[Error] Member function names must not be overloaded (", CANDIDATE_SYMBOLS, ")");
-            }
+    private template GetSubscriberList(PARENT, LIST...) if(LIST.length > 0) {
+        private import std.traits : MemberFunctionsTuple;
+        private import std.typetuple : TypeTuple;
+
+        // Get current member function and attributes (if any)
+        alias CURRENT = MemberFunctionsTuple!(PARENT, LIST[0]);
+        static if(CURRENT.length == 1) {
+            enum ATTRS = __traits(getAttributes, CURRENT[0]);
+            static if(ATTRS.length == 1)
+                alias RESULT = TypeTuple!(mixin('"'~ATTRS[0].event~'"'), mixin('"'~__traits(identifier, CURRENT[0])~'"'));
         }
 
-        static if(CANDIDATES.length > 1) {
-            alias NEXT_CANDIDATE = GetSubscriberList!(PARENT, CANDIDATES[1..$]);
-            alias GetSubscriberList = TypeTuple!(CANDIDATE, NEXT_CANDIDATE);
-        }
-        else {
-            alias GetSubscriberList = CANDIDATE;
-        }
+        // Warning for overloaded functions
+        static if(CURRENT.length > 1) pragma(msg, "[Error] Subscribing functions must not be overloaded (", CURRENT, ")");
+
+        // Recursive Iteration ( and set result to empty if missing )
+        static if(!__traits(compiles, RESULT)) { alias RESULT = TypeTuple!(); }
+        static if(LIST.length > 1)
+            alias GetSubscriberList = TypeTuple!(RESULT, GetSubscriberList!(PARENT, LIST[1..$]));
+        else
+            alias GetSubscriberList = RESULT;
     }
 
-    // Not so nice but leaves no symbols
-    mixin(generateBindingCode(tuple(GetSubscriberList!(typeof(this), __traits(allMembers, typeof(this))))));
+    // Determine dispatcher object
+    static if(DISPATCHER_PARAM.length == 1)
+        enum DISPATCHER = __traits(identifier, DISPATCHER_PARAM[0]);
+    else
+        enum DISPATCHER = "StaticEventDispatcher";
+
+    // Build and mixin code to add subscriptions, not so nice but leaves no symbols
+    private import std.typecons : tuple;
+    mixin(generateBindingCode(DISPATCHER, tuple(GetSubscriberList!(typeof(this), __traits(allMembers, typeof(this))))));
 }
 
+//###################################################################################################

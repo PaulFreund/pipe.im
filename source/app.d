@@ -34,6 +34,7 @@ import EventEmitter;
 
 //###################################################################################################
 
+
 class Member01 {
 public:
     this() { mixin EventEmitter; }
@@ -63,6 +64,48 @@ int main(string[] argv)
     server.runLoop();
 	server.destroy(); 
 */
-    return 0;
+        return 0;
 }
 
+/*
+Static demo
+
+
+
+*/
+
+/*
+Non-Static demo
+
+class Member01 {
+public:
+this(EventDispatcher _dispatcher) { mixin EventEmitter!(_dispatcher); }
+//this() { mixin EventEmitter; }
+
+@subscribe("something") void listen(string message) {
+writeln(__PRETTY_FUNCTION__  ~ ": " ~ message);
+}
+}
+
+class Member02 {
+public:
+void emit(EventDispatcher _dispatcher, string message) {
+publish(_dispatcher, "something", message);
+}
+}
+
+
+int main(string[] argv)
+{
+EventDispatcher _dispatcher = new EventDispatcher();
+
+Member01 m01 = new Member01(_dispatcher);
+Member02 m02 = new Member02();
+
+m02.emit(_dispatcher, "Works");
+
+return 0;
+}
+
+
+*/
