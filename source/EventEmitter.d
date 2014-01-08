@@ -34,14 +34,13 @@ import std.traits;
 import std.typecons;
 import std.typetuple;
 import std.conv;
+import std.array;
+import std.string;
 
 //###################################################################################################
 
 struct subscribe {
     string event;
-    this(string event_) {
-        this.event = event_;
-    }
 }
 
 void publish(Args...)(Args args) {
@@ -56,48 +55,79 @@ void publish(Args...)(Args args) {
         alias parameters = args[1..$];
     }
 
-    dispatcher._subscribers[event](parameters);
+    dispatcher.callSubscribers(event, parameters);
 }
 
 //---------------------------------------------------------------------------------------------------
 
 struct Subscriber {
-    Object _object;
-    void* _ptrData;
-    void* _ptrFunc;
+    Object object;
+    void* ptrData;
+    void* ptrFunc;
+}
 
-    this(Object object, void* ptrData, void* ptrFunc) {
-        _object = object;
-        _ptrData = ptrData;
-        _ptrFunc = ptrFunc;
+/*
+struct SubscriberList {
+private:
+    Subscriber[] _subscribers;
+
+public:
+    void addSubscriber(Subscriber subscriber) {
+        _subscribers ~= subscriber;
     }
 
     void opCall(Args...)(Args args) {
-        void delegate(Object, Args) dg;
-        dg.ptr = _ptrData;
-        dg.funcptr = cast(void function(Object, Args)) _ptrFunc;
-        dg(cast(Object)(_object), args);
+
     }
 }
+*/
 
 //---------------------------------------------------------------------------------------------------
 
 alias StaticEventDispatcher = EventDispatcher._staticInstance;
 
-class EventDispatcher {
-    public {
-        static EventDispatcher _staticInstance;
 
-        static this() {
-            _staticInstance = new EventDispatcher();
+class EventDispatcher {
+public:
+    static EventDispatcher _staticInstance;
+
+    static this() {
+        _staticInstance = new EventDispatcher();
+    }
+
+private:
+    alias SubscriberList = Subscriber[];
+    SubscriberList[string] _subscribers;
+
+public:
+    int addSubscriber(string event, Object obj, void delegate() dg) {
+        _subscribers[event] ~= Subscriber(obj, dg.ptr, dg.funcptr);
+        return 0;
+    }
+
+    void callSubscribers(Args...)(string event, Args args) {
+        SubscriberList listeners;
+
+        // Get wildcard listeners
+        int idxSeparator = event.lastIndexOf('.');
+        if(idxSeparator != -1) {
+            string eventWildcard = event[0..(idxSeparator+1)] ~ '*';
+            if((eventWildcard in _subscribers) !is null)
+                listeners ~= _subscribers[eventWildcard];
         }
 
-        // Todo: correct dispatch
-        Subscriber[string] _subscribers;
+        // Get direct listeners
+        if((event in _subscribers) !is null)
+            listeners ~= _subscribers[event];
 
-        int addSubscriber(string event, Object obj, void delegate() dg) {
-            this._subscribers[event] = Subscriber(obj, dg.ptr, dg.funcptr);
-            return 0;
+        // Call all listeners
+        if(listeners.length > 0) {
+            void delegate(Object, Args) dg;
+            foreach(listener; listeners) {
+                dg.ptr = listener.ptrData;
+                dg.funcptr = cast(void function(Object, Args)) listener.ptrFunc;
+                dg(cast(Object)(listener.object), args);
+            }
         }
     }
 }

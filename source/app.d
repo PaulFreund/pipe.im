@@ -39,7 +39,11 @@ class Member01 {
 public:
     this() { mixin EventEmitter; }
 
-    @subscribe("something") void listen(string message) {
+    @subscribe("something.one") void listen(string message) {
+        writeln(__PRETTY_FUNCTION__  ~ ": " ~ message);
+    }
+
+    @subscribe("something.*") void listenone(string message) {
         writeln(__PRETTY_FUNCTION__  ~ ": " ~ message);
     }
 }
@@ -47,7 +51,7 @@ public:
 class Member02 {
 public:
     void emit(string message) {
-        publish("something", message);
+        publish("something.one", message);
     }
 }
 
