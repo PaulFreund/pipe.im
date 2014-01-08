@@ -44,32 +44,46 @@ struct subscribe {
     }
 }
 
+struct Subscriber {
+    Object _object;
+    void* _ptrData;
+    void* _ptrFunc;
+
+    this(Object object, void* ptrData, void* ptrFunc) {
+        _object = object;
+        _ptrData = ptrData;
+        _ptrFunc = ptrFunc;
+    }
+
+    void opCall(Args...)(Args args) {
+        void delegate(Object, Args) dg;
+        dg.ptr = _ptrData;
+        dg.funcptr = cast(void function(Object, Args)) _ptrFunc;
+        dg(cast(Object)(_object), args);
+    }
+}
+
 void publish(Args...)(string event, Args args) {
-    void delegate(Object, Args) dg;
-    dg.ptr = cast(void*)PublicEventDispatcher.ptrData;
-    dg.funcptr = cast(void function(Object, Args)) PublicEventDispatcher.ptrFunc;
-    dg(cast(Object)(dg.ptr), args);
+    PublicEventDispatcher._subscribers[event](args);
 }
 
 alias PublicEventDispatcher = EventDispatcher._publicInstance;
 
 class EventDispatcher {
-public:
-    static EventDispatcher _publicInstance;
+    public {
+        static EventDispatcher _publicInstance;
 
+        static this() {
+            _publicInstance = new EventDispatcher();
+        }
 
-    static this() {
-        _publicInstance = new EventDispatcher();
+        Subscriber[string] _subscribers;
+
+        int addSubscriber(string event, Object obj, void delegate() dg) {
+            this._subscribers[event] = Subscriber(obj, dg.ptr, dg.funcptr);
+            return 0;
+        }
     }
-
-    void* ptrFunc;
-    void* ptrData;
-
-    int addSubscriber(string event, Object obj, void delegate() dg) {
-        ptrFunc = dg.funcptr;
-        ptrData = dg.ptr;
-        return 0;
-    }   
 }
 
 // Generate code to add delegates to the EventEmitter
@@ -99,7 +113,7 @@ string generateBindingCode(T)(T subscriberList) {
 }
 
 // Mixin to add add subscribers to 
-mixin template EventEmitter(PARENT) {
+mixin template EventEmitter() {
     private import std.traits : MemberFunctionsTuple;
     private import std.typecons : tuple;
     private import std.typetuple : TypeTuple;
@@ -109,13 +123,15 @@ mixin template EventEmitter(PARENT) {
         alias CANDIDATE_SYMBOLS = MemberFunctionsTuple!(PARENT, CANDIDATES[0]);
         static if(CANDIDATE_SYMBOLS.length == 1) {
             enum CANDIDATE_ATTRIBUTES = __traits(getAttributes, CANDIDATE_SYMBOLS[0]);
-            static if(CANDIDATE_ATTRIBUTES.length == 1)
+            static if(CANDIDATE_ATTRIBUTES.length == 1) {
                 alias CANDIDATE = TypeTuple!(
                     mixin("\"" ~ CANDIDATE_ATTRIBUTES[0].event ~ "\""), 
                     mixin("\"" ~ __traits(identifier, CANDIDATE_SYMBOLS[0]) ~ "\"")
                 );
-            else
+            }
+            else {
                 alias CANDIDATE = TypeTuple!();
+            }
         }
         else {
             alias CANDIDATE = TypeTuple!();
@@ -134,6 +150,6 @@ mixin template EventEmitter(PARENT) {
     }
 
     // Not so nice but leaves no symbols
-    mixin(generateBindingCode(tuple(GetSubscriberList!(PARENT, __traits(allMembers, PARENT)))));
+    mixin(generateBindingCode(tuple(GetSubscriberList!(typeof(this), __traits(allMembers, typeof(this))))));
 }
 
