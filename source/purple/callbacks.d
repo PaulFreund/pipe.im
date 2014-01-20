@@ -29,13 +29,13 @@ module purple.callbacks;
 
 //###################################################################################################
 
-import purple.events;
 import purple.client;
 import derelict.glib.glib;
 import derelict.purple.purple;
 import std.c.stdarg;
 import std.stdio;
 import std.conv;
+import nitro;
 
 //###################################################################################################
 
@@ -228,7 +228,7 @@ static extern(C) gboolean purple_cb_ops_io_invoke(GIOChannel *source, GIOConditi
 
 static extern(C) void* purple_cb_ops_request_input(const(char)* title, const(char)* primary, const(char)* secondary, const(char)* default_value, gboolean multiline, gboolean masked, gchar* hint, const(char)* ok_text, GCallback ok_cb, const(char)* cancel_text, GCallback cancel_cb, PurpleAccount* account, const(char)* who, PurpleConversation* conv, void* user_data) {
     PurpleClient client = g_purpleClient;
-
+    
     return null;
 }
 
@@ -279,7 +279,7 @@ static extern(C) void* purple_cb_ops_request_action_with_icon(const(char)* title
 
 static extern(C) void purple_cb_signing_on(PurpleConnection* connection, gpointer data) {
     PurpleClient client = cast(PurpleClient)data;
-
+    //publish(client.dispatcher, "messaging.client.signing_on", connection.display_name);
 }
 
 static extern(C) void purple_cb_signed_on(PurpleConnection* connection, gpointer data) {

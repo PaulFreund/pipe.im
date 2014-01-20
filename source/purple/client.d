@@ -40,7 +40,6 @@ module purple.client;
 
 //###################################################################################################
 
-import purple.events;
 import purple.callbacks;
 import derelict.glib.glib;
 import derelict.purple.purple;
@@ -52,6 +51,7 @@ import std.path;
 import std.file;
 import std.stdio;
 import std.conv;
+import nitro;
 
 //###################################################################################################
 
@@ -72,81 +72,64 @@ T pop_front(T)(Array!T list) {
 
 final class PurpleClient {
 
+public:
+    @property string interfaceID () { return _interfaceID; }
+    @property string configDir () { return _configDir; }
 
-    public {
-        @property string interfaceID () { return _interfaceID; }
-        @property string configDir () { return _configDir; }
+public: 
+    void process() {
+        g_main_context_iteration(g_main_context_default(), false);
     }
 
-    public {
-        void push(T)(T event) {
-            externalEvents.push_back(event);
-        }
-        
-        T pop(T)() {
-            return internalEvents.pop_front();
-        }
-        
-        void process() {
-            g_main_context_iteration(g_main_context_default(), false);
+private:
+    string _configDir = "";
+    string _interfaceID = "purple.d";
+
+public:
+    this(bool debug_ = false, string configDir = ".pipe.im", string interfaceID = "purple.d") {
+
+        // Load derelict symbols
+        version(Derelict_Link_Static) {}
+        else {
+            DerelictGlib.load();
+            DerelictPurple.load();
         }
 
+        // Add directory name if empty
+        if(configDir.length == 0) configDir = ".pipe.im";
+
+        // Create path to user data dir if not absolute
+        if(configDir.indexOf(dirSeparator) == -1)
+            configDir = to!string(purple_home_dir()) ~ dirSeparator ~ configDir;
+        
+        // Delete old folder
+        clearConfigDir(configDir);
+
+        purple_util_set_user_dir(configDir.toStringz);
+        purple_debug_set_enabled(debug_);
+        _interfaceID = interfaceID;
+
+        // Setup runtime
+        version(Win32) {} else { signal(SIGCHLD, SIG_IGN); }
+
+        // Init libpurple
+        ConnectUiOpsCallbacks(this);
+
+        purple_core_init(_interfaceID.toStringz);
+
+        ConnectSignalsCallbacks();
+
+        purple_set_blist(purple_blist_new());
     }
-
-    private {
-        string _configDir = "";
-        string _interfaceID = "purple.d";
-        Array!PurpleEvent externalEvents = make!(Array!PurpleEvent)();
-        Array!PurpleEvent internalEvents = make!(Array!PurpleEvent)();
-    }
-
-    public {
-        this(bool debug_ = false, string configDir = ".pipe.im", string interfaceID = "purple.d") {
-
-            // Load derelict symbols
-            version(Derelict_Link_Static) {}
-            else {
-                DerelictGlib.load();
-                DerelictPurple.load();
-            }
-
-            // Add directory name if empty
-            if(configDir.length == 0) configDir = ".pipe.im";
-
-            // Create path to user data dir if not absolute
-            if(configDir.indexOf(dirSeparator) == -1)
-                configDir = to!string(purple_home_dir()) ~ dirSeparator ~ configDir;
-        
-            // Delete old folder
-            clearConfigDir(configDir);
-
-            purple_util_set_user_dir(configDir.toStringz);
-            purple_debug_set_enabled(debug_);
-            _interfaceID = interfaceID;
-
-            // Setup runtime
-            version(Win32) {} else { signal(SIGCHLD, SIG_IGN); }
-
-            // Init libpurple
-            ConnectUiOpsCallbacks(this);
-
-            purple_core_init(_interfaceID.toStringz);
-
-            ConnectSignalsCallbacks();
-
-            purple_set_blist(purple_blist_new());
-        }
     
-        ~this() {
-            clearConfigDir(to!string(purple_user_dir()));
-        }
+    ~this() {
+        clearConfigDir(to!string(purple_user_dir()));
     }
 
-    private {
-        void clearConfigDir(string configDir) {
-            try {
-                if(exists(configDir)) rmdirRecurse(configDir);
-            } catch { }
-        }
+private:
+    void clearConfigDir(string configDir) {
+        try {
+            if(exists(configDir)) rmdirRecurse(configDir);
+        } catch { }
     }
 }

@@ -25,91 +25,26 @@
 */
 //###################################################################################################
 
-//import pipe;
+import pipe;
+import nitro;
+import core.thread;
 
 //###################################################################################################
 
-import std.stdio;
-import EventEmitter;
-
-//###################################################################################################
-
-
-class Member01 {
-public:
-    this() { mixin EventEmitter; }
-
-    @subscribe("something.one") void listen(string message) {
-        writeln(__PRETTY_FUNCTION__  ~ ": " ~ message);
-    }
-
-    @subscribe("something.*") void listenone(string message) {
-        writeln(__PRETTY_FUNCTION__  ~ ": " ~ message);
-    }
-}
-
-class Member02 {
-public:
-    void emit(string message) {
-        publish("something.one", message);
-    }
-}
-
-
 int main(string[] argv)
 {
-    Member01 m01 = new Member01();
-    Member02 m02 = new Member02();
+	//PipeServer server = new PipeServer();
+    //server.runLoop();
 
-    m02.emit("Works");
+	mixin MakeECS!(
+		"pipe.services.cmd, 
+		pipe.services.purple"
+	);
 
-/*
-	PipeServer server = new PipeServer();
-    server.runLoop();
-	server.destroy(); 
-*/
-        return 0;
+	while(true) {
+		Thread.sleep(dur!("msecs")( 1 )); // TWEAKABLE
+		ecs.run();
+	}	
+
+    return 0;
 }
-
-/*
-Static demo
-
-
-
-*/
-
-/*
-Non-Static demo
-
-class Member01 {
-public:
-this(EventDispatcher _dispatcher) { mixin EventEmitter!(_dispatcher); }
-//this() { mixin EventEmitter; }
-
-@subscribe("something") void listen(string message) {
-writeln(__PRETTY_FUNCTION__  ~ ": " ~ message);
-}
-}
-
-class Member02 {
-public:
-void emit(EventDispatcher _dispatcher, string message) {
-publish(_dispatcher, "something", message);
-}
-}
-
-
-int main(string[] argv)
-{
-EventDispatcher _dispatcher = new EventDispatcher();
-
-Member01 m01 = new Member01(_dispatcher);
-Member02 m02 = new Member02();
-
-m02.emit(_dispatcher, "Works");
-
-return 0;
-}
-
-
-*/

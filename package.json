@@ -13,6 +13,7 @@
 	"libs-linux": ["glib-2.0", "purple"],
 	
 	"dependencies": {
+        "nitro" : "~master",
 		"derelict_extras-purple" : "~master",
 		"derelict_extras-glib" : "~master",
 		"derelict-util" : "~master",

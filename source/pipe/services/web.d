@@ -29,31 +29,31 @@ module pipe.services.web;
 
 //###################################################################################################
 
-import std.stdio;
 import vibe.vibe;
 
 //###################################################################################################
 
-final class SystemWeb {
+final class ServiceWeb {
 	VibeWrapper _vibe = null;
 
-	this(T)(T ecs) { 	
+    this() {
 		this._vibe = new VibeWrapper();	   
-		assert(this._vibe !is null);	   				
-	}
+		assert(this._vibe !is null);	 
+
+      //  super(server);
+      //  mixin DispatchMapper!_server;
+    }
 
 	~this() {
 		this._vibe.destroy();
 	}
 
-	void run(T)(T ecs) {  
-		this._vibe.update();
-	}
+   // @subscribe("server.update") void update() {   
+	//	this._vibe.update();
+	//}
 }
 
 //===================================================================================================
-
-import vibe.vibe;
 
 final class VibeWrapper
 {
@@ -72,8 +72,8 @@ public:
         outputString = "";
         processEvents();
 
-        if(outputString.length != 0)
-            writeln("< " ~ outputString ~ " >");
+        //if(outputString.length != 0)
+        //    writeln("< " ~ outputString ~ " >");
     }
 
 private:

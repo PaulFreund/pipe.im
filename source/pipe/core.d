@@ -1,6 +1,6 @@
 //###################################################################################################
 /*
-    Copyright (c) since 2013 - Felix 'Zoadian' Hufnagel, Paul Freund 
+    Copyright (c) since 2013 - Paul Freund 
 
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation
@@ -25,10 +25,44 @@
 */
 //###################################################################################################
 
-module nitro;
+module pipe.core;
 
 //###################################################################################################
 
-public import nitro.ecs;
+import pipe;
+import pipe.config;
+//import pipe.services;
+import core.thread;
 
 //###################################################################################################
+
+final class PipeServer {
+
+private:
+	bool _running = false;
+
+
+	//alias ECM = EntityComponentManager!(TestComponent);
+	//auto _systemManager = new SystemManager!(ECM, ServiceCmd)();
+
+public:
+    PipeConfig config;
+
+public:
+    void runLoop() {
+        this._running = true;
+        while(this.running) {
+            Thread.sleep(dur!("msecs")( 1 )); // TWEAKABLE
+            //ecs.run();
+        }	
+    }
+
+	@property bool running() const @safe nothrow {
+		return _running;
+	}
+
+	void stop() {
+		this._running = false;	  	 
+	}	
+}
+

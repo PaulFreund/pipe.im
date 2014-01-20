@@ -30,18 +30,22 @@ module pipe.services.purple;
 //###################################################################################################
 
 import nitro;
-import pipe.core;
-
 import purple;
 
 //###################################################################################################
 
-final class SystemPurple {
+@Component struct TestComp2 { }
+
+class ServicePurple {
 	PurpleClient _purple = null;
 
-	this(T)(T ecs) { 	
+    this(/*PipeServer server*/) {
 		this._purple = new PurpleClient();	   
-		assert(this._purple !is null);	  
+		assert(this._purple !is null);	 
+
+        //super(server);
+        //mixin DispatchMapper!_server;
+    }
 
         /*
             TODO: Replicate this with the new API    
@@ -89,21 +93,20 @@ final class SystemPurple {
             purple_savedstatus_activate(status);
         */
 
-	}
-
 	~this() {
 		this._purple.destroy();
 	}
 
-	void run(T)(T ecs) {  
-        this._purple.process();
-
+	//@subscribe("server.update") void update() {  
+    //    this._purple.process();
+    //    
+//
 //        if(data.length != 0) {
 //            auto e = ecs.createEntity();
 //            ecs.addComponents(e, Message(data));    
 //        }
 
-	}
+//	}
 }
 
 //===================================================================================================
