@@ -33,16 +33,14 @@ import core.thread;
 
 int main(string[] argv)
 {
-	//PipeServer server = new PipeServer();
-    //server.runLoop();
-
-	mixin MakeECS!(
-		"pipe.services.cmd, 
-		pipe.services.purple"
-	);
+	mixin MakeECS!("
+		pipe.services.cmd, 
+		pipe.services.purple,
+		pipe.services.web
+	");
 
 	while(true) {
-		Thread.sleep(dur!("msecs")( 1 )); // TWEAKABLE
+		Thread.sleep(dur!("msecs")( 1 ));
 		ecs.run();
 	}	
 
