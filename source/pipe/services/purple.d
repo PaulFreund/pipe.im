@@ -34,18 +34,22 @@ import purple;
 
 //###################################################################################################
 
-@Component struct TestComp2 { }
-
-class ServicePurple {
+@System final class ServicePurple(ECM) {
 	PurpleClient _purple = null;
 
-    this(/*PipeServer server*/) {
+    mixin AutoQuery;
+
+    this(ECM ecm) {
+        import std.stdio;
+		writeln("CMD PURPLE");
+
 		this._purple = new PurpleClient();	   
 		assert(this._purple !is null);	 
-
-        //super(server);
-        //mixin DispatchMapper!_server;
     }
+
+    ~this() {
+		this._purple.destroy();
+	}
 
         /*
             TODO: Replicate this with the new API    
@@ -93,9 +97,7 @@ class ServicePurple {
             purple_savedstatus_activate(status);
         */
 
-	~this() {
-		this._purple.destroy();
-	}
+
 
 	//@subscribe("server.update") void update() {  
     //    this._purple.process();

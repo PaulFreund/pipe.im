@@ -26,7 +26,7 @@
 //###################################################################################################
 
 import pipe;
-import nitro;
+import nitro.gen;
 import core.thread;
 
 //###################################################################################################
@@ -36,8 +36,9 @@ int main(string[] argv)
 	mixin MakeECS!("
 		pipe.services.cmd, 
 		pipe.services.purple,
-		pipe.services.web
-	");
+        pipe.services.web,
+        pipe.services.config
+    ");
 
 	while(true) {
 		Thread.sleep(dur!("msecs")( 1 ));

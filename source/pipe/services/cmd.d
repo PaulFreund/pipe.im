@@ -31,45 +31,42 @@ module pipe.services.cmd;
 
 import pipe.services;
 import std.stdio;
+import std.conv;
 
 //###################################################################################################
 
-@Component struct TestComponent {
-	string msg;
-}
+@Component struct DebugMessage { string message; }
+@Component struct WarningMessage { string message; }
 
 //---------------------------------------------------------------------------------------------------
-
-@System final class ServiceGenerator(ECM) {
-
-	bool added = false;
-	void run(ECM)(ECM ecm) {
-		if(added) return;
-
-		ecm.addComponent(ecm.createEntity(), TestComponent("Message"));
-		added = true;
-	}
-
-}
 
 @System final class ServiceCmd(ECM) {
 
 	mixin AutoQuery;
 
-	bool query(ref TestComponent c) {
-		writeln(__FUNCTION__ ~ " : " ~ c.msg);
+	bool query(ref DebugMessage c) {
+		writeln(__FUNCTION__ ~ " : " ~ c.message);
 		return false;
 	}
 
-	bool query(ECM ecm, ref TestComponent c) {
-		writeln(__FUNCTION__ ~ " : " ~ c.msg);
+	bool query(ECM ecm, ref DebugMessage c) {
+		writeln(__FUNCTION__ ~ " : " ~ c.message);
+		return false;
+	}
+
+	bool query(ref DebugMessage c, ref WarningMessage d) {
+		writeln(__FUNCTION__ ~ " - Debug: " ~ c.message ~ ", Warning: " ~ d.message);
 		return true;
 	}
 
-    //this(PipeServer server) {
-    //    super(server);
-    //mixin DispatchMapper!_server;
-    //}
+    bool query(ECM ecm, Entity e, ref DebugMessage c) {
+		writeln(__FUNCTION__ ~ " : " ~ c.message ~ "(" ~ to!string(e) ~ ")");
+		return true;
+	}
+
+    this(ECM ecm) {
+        writeln("CMD INIT");
+    }
 
 	//~this() {
 	//}

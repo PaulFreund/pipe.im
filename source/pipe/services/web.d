@@ -34,24 +34,22 @@ import vibe.vibe;
 
 //###################################################################################################
 
-final class ServiceWeb {
-	VibeWrapper _vibe = null;
+@System final class ServiceWeb(ECM) {
+	//VibeWrapper _vibe = null;
 
-    this() {
-		this._vibe = new VibeWrapper();	   
-		assert(this._vibe !is null);	 
+    mixin AutoQuery;
 
-      //  super(server);
-      //  mixin DispatchMapper!_server;
+    this(ECM ecm) {
+		import std.stdio;
+        writeln("WEB INIT");
+
+		//this._vibe = new VibeWrapper();	   
+		//assert(this._vibe !is null);	 
     }
 
 	~this() {
-		this._vibe.destroy();
+		//this._vibe.destroy();
 	}
-
-   // @subscribe("server.update") void update() {   
-	//	this._vibe.update();
-	//}
 }
 
 //===================================================================================================

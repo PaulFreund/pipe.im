@@ -30,9 +30,11 @@ module pipe.services;
 //###################################################################################################
 
 public import nitro;
+public import nitro.gen;
 public import pipe.services.cmd;
 public import pipe.services.purple;
 public import pipe.services.web;
+public import pipe.services.config;
 
 //###################################################################################################
 

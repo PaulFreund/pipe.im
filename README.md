@@ -56,7 +56,7 @@ Components:
 * ~~Sample application to interface libpurple~~
 * Gateway API based on most basic needed functions
 * D wrapper for libpurple based on that API
-* Configuration database
+* Configuration database (encrypted by user password)
 * Webserver 
 * Basic user management
 * Protocol layer

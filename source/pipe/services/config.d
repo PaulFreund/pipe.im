@@ -25,10 +25,11 @@
 */
 //###################################################################################################
 
-module pipe.config;
+module pipe.services.config;
 
 //###################################################################################################
 
+import pipe.services;
 import std.stdio;
 import std.file;
 import vibe.data.json;
@@ -50,19 +51,19 @@ string value(Json object, string key) {
 
 //===================================================================================================
 
-struct Settings {
+@Component struct Settings {
     string name;
     bool debug_;
 }
 
-struct User {
+@Component struct User {
     string id;
     string password;
     bool admin;
     Service[] services;
 }
 
-struct Service {
+@Component struct Service {
     string user;
     string type;
     string id;
@@ -70,15 +71,25 @@ struct Service {
     string uri;
 }
 
+
+
+
+
 //===================================================================================================
 
-final class PipeConfig {
-
+@System final class ServiceConfig(ECM) {
+private:
     const string configName = "config.json";
 public:
     Json config;
 
-    this() {
+    mixin AutoQuery;
+
+    this(ECM ecm) {
+        writeln("CONFIG INIT");
+
+		ecm.pushEntity(DebugMessage("DebugMsg"), WarningMessage("WarningMsg"));
+
         if(!exists(this.configName) ) {
             writeln("No config.json found. exiting");
             return;
