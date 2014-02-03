@@ -30,7 +30,6 @@ module pipe.services.config;
 //###################################################################################################
 
 import pipe.services;
-import std.stdio;
 import std.file;
 import vibe.data.json;
 
@@ -71,49 +70,46 @@ string value(Json object, string key) {
     string uri;
 }
 
-
-
-
-
 //===================================================================================================
 
 @System final class ServiceConfig(ECM) {
 private:
-    const string configName = "config.json";
+    static const string configName = "config.json";
 public:
     Json config;
 
     mixin AutoQuery;
 
     this(ECM ecm) {
-        writeln("CONFIG INIT");
-
-		ecm.pushEntity(DebugMessage("DebugMsg"), WarningMessage("WarningMsg"));
+		ecm.pushEntity(MessageDebug("[Config] Initializing"));
 
         if(!exists(this.configName) ) {
-            writeln("No config.json found. exiting");
+			ecm.pushEntity(MessageError("[Config] No config.json found. exiting"));
             return;
         }
 
         string configData = cast(string)read(this.configName);
         this.config = parseJson(configData);
 
+		import std.stdio;
+		writeln("Config: " ~ this.config);
+
         if(this.config.type != Json.Type.object) {
-            writeln("Invalid config file");
+			ecm.pushEntity(MessageError("[Config] Invalid config file"));
             return;
         }
 
         if(string name = this.config.value("name"))
-            writeln("Using config \"" ~ name ~ "\"");
+			ecm.pushEntity(MessageError("[Config] " ~ "Using config \"" ~ name ~ "\""));
 
         auto accountsNode = this.config["accounts"];
         if(accountsNode.type == Json.Type.array) {
             foreach(Json account; accountsNode.get!(Json[])) {
                 if(account.type == Json.Type.object) {
-                    writeln("Name: " ~ account.value("name"));
-                    writeln("Type: " ~ account.value("type"));
-                    writeln("Username: " ~ account.value("username"));
-                    writeln("Password: " ~ account.value("password"));
+					ecm.pushEntity(MessageDebug("[Config][Read] " ~ "Name: " ~ account.value("name")));
+					ecm.pushEntity(MessageDebug("[Config][Read] " ~ "Type: " ~ account.value("type")));
+					ecm.pushEntity(MessageDebug("[Config][Read] " ~ "Username: " ~ account.value("username")));
+					ecm.pushEntity(MessageDebug("[Config][Read] " ~ "Password: " ~ account.value("password")));
                 }
             }
         }

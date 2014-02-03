@@ -35,8 +35,9 @@ import std.conv;
 
 //###################################################################################################
 
-@Component struct DebugMessage { string message; }
-@Component struct WarningMessage { string message; }
+@Component struct MessageDebug { string message; }
+@Component struct MessageWarning { string message; }
+@Component struct MessageError { string message; }
 
 //---------------------------------------------------------------------------------------------------
 
@@ -44,33 +45,18 @@ import std.conv;
 
 	mixin AutoQuery;
 
-	bool query(ref DebugMessage c) {
-		writeln(__FUNCTION__ ~ " : " ~ c.message);
+	bool query(ref MessageDebug c) {
+		writeln("[Debug]" ~ c.message);
 		return false;
 	}
 
-	bool query(ECM ecm, ref DebugMessage c) {
-		writeln(__FUNCTION__ ~ " : " ~ c.message);
+	bool query(ref MessageWarning c) {
+		writeln("[Warning]" ~ c.message);
 		return false;
 	}
 
-	bool query(ref DebugMessage c, ref WarningMessage d) {
-		writeln(__FUNCTION__ ~ " - Debug: " ~ c.message ~ ", Warning: " ~ d.message);
-		return true;
+	bool query(ref MessageError c) {
+		writeln("[Error]" ~ c.message);
+		return false;
 	}
-
-    bool query(ECM ecm, Entity e, ref DebugMessage c) {
-		writeln(__FUNCTION__ ~ " : " ~ c.message ~ "(" ~ to!string(e) ~ ")");
-		return true;
-	}
-
-    this(ECM ecm) {
-        writeln("CMD INIT");
-    }
-
-	//~this() {
-	//}
-
-    //@subscribe("server.update") void update() {   
-	//}
 }

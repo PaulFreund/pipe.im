@@ -13,10 +13,9 @@
 	"libs-linux": ["glib-2.0", "purple"],
 	
 	"dependencies": {
-        "nitro" : "~master",
+        "nitro" : "~finalize_basics",
 		"derelict_extras-purple" : "~master",
 		"derelict_extras-glib" : "~master",
-		"derelict-util" : "~master",
-		"vibe-d": ">=0.7.19-beta.2"
+		"derelict-util" : "~master"
 	}
 }

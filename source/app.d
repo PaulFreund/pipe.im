@@ -40,10 +40,11 @@ int main(string[] argv)
         pipe.services.config
     ");
 
-	while(true) {
+	bool bRun = true;
+	while(bRun) {
 		Thread.sleep(dur!("msecs")( 1 ));
 		ecs.run();
-	}	
+	}
 
     return 0;
 }

@@ -37,11 +37,8 @@ import purple;
 @System final class ServicePurple(ECM) {
 	PurpleClient _purple = null;
 
-    mixin AutoQuery;
-
     this(ECM ecm) {
-        import std.stdio;
-		writeln("CMD PURPLE");
+		ecm.pushEntity(MessageDebug("[Purple] Initializing"));
 
 		this._purple = new PurpleClient();	   
 		assert(this._purple !is null);	 
@@ -50,6 +47,20 @@ import purple;
     ~this() {
 		this._purple.destroy();
 	}
+
+	void run(ECM)(ECM ecm) {
+		mixin AutoQueryMapper!(ecm);
+
+		//this._purple.process();
+
+//        if(data.length != 0) {
+//            auto e = ecs.createEntity();
+//            ecs.addComponents(e, Message(data));    
+//        }
+	}
+
+
+	//	}
 
         /*
             TODO: Replicate this with the new API    
@@ -99,16 +110,7 @@ import purple;
 
 
 
-	//@subscribe("server.update") void update() {  
-    //    this._purple.process();
-    //    
-//
-//        if(data.length != 0) {
-//            auto e = ecs.createEntity();
-//            ecs.addComponents(e, Message(data));    
-//        }
 
-//	}
 }
 
 //===================================================================================================

@@ -30,7 +30,7 @@ module pipe.services.web;
 //###################################################################################################
 
 import pipe.services;
-import vibe.vibe;
+//import vibe.vibe;
 
 //###################################################################################################
 
@@ -40,8 +40,7 @@ import vibe.vibe;
     mixin AutoQuery;
 
     this(ECM ecm) {
-		import std.stdio;
-        writeln("WEB INIT");
+		ecm.pushEntity(MessageDebug("[Web] Initializing"));
 
 		//this._vibe = new VibeWrapper();	   
 		//assert(this._vibe !is null);	 
@@ -53,7 +52,7 @@ import vibe.vibe;
 }
 
 //===================================================================================================
-
+/*
 final class VibeWrapper
 {
 
@@ -81,3 +80,4 @@ private:
         res.writeBody("Hello, World!", "text/plain");
     }
 }
+*/
