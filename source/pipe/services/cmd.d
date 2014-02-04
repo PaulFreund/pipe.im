@@ -47,16 +47,16 @@ import std.conv;
 
 	bool query(ref MessageDebug c) {
 		writeln("[Debug]" ~ c.message);
-		return false;
+		return true;
 	}
 
 	bool query(ref MessageWarning c) {
 		writeln("[Warning]" ~ c.message);
-		return false;
+		return true;
 	}
 
 	bool query(ref MessageError c) {
 		writeln("[Error]" ~ c.message);
-		return false;
+		return true;
 	}
 }

@@ -26,7 +26,7 @@
 //###################################################################################################
 
 import pipe;
-import nitro.gen;
+import nitro;
 import core.thread;
 
 //###################################################################################################
@@ -40,6 +40,9 @@ int main(string[] argv)
         pipe.services.config
     ");
 
+	import nitrotest;
+	NitroTest();
+
 	bool bRun = true;
 	while(bRun) {
 		Thread.sleep(dur!("msecs")( 1 ));
@@ -48,3 +51,4 @@ int main(string[] argv)
 
     return 0;
 }
+
