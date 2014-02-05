@@ -33,20 +33,17 @@ import core.thread;
 
 int main(string[] argv)
 {
-	mixin MakeECS!("
+	mixin MakeECS!("pipeECS", "
 		pipe.services.cmd, 
 		pipe.services.purple,
         pipe.services.web,
         pipe.services.config
     ");
 
-	import nitrotest;
-	NitroTest();
-
 	bool bRun = true;
 	while(bRun) {
 		Thread.sleep(dur!("msecs")( 1 ));
-		ecs.run();
+		pipeECS.run();
 	}
 
     return 0;
