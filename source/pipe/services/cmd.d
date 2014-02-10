@@ -43,20 +43,35 @@ import std.conv;
 
 @System final class ServiceCmd(ECM) {
 
-	mixin AutoQuery;
+	//mixin AutoQuery;
+	void run(ECM)(ECM ecm) {
+		mixin AutoQueryMapper!ecm;
+	}
 
-	bool query(ref MessageDebug c) {
+	bool handleDebug(ECM ecm, Entity e, Qry!MessageDebug c) {
 		writeln("[Debug]" ~ c.message);
 		return true;
 	}
 
-	bool query(ref MessageWarning c) {
+	bool query(Qry!MessageWarning c) {
 		writeln("[Warning]" ~ c.message);
 		return true;
 	}
 
-	bool query(ref MessageError c) {
+	bool query(Qry!MessageError c) {
 		writeln("[Error]" ~ c.message);
 		return true;
 	}
+
+	bool query(Qry!MessageWarning d, Qry!MessageError c) {
+		writeln("[Error]" ~ c.message);
+		return false;
+	}
+
+	//void query(Qry!MessageError c, Qry!MessageWarning d) {
+	//	writeln(" [Error]" ~ c.message);
+	//	//return true;
+	//}
+
+
 }
