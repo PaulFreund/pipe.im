@@ -25,59 +25,11 @@
 */
 //###################################################################################################
 
-module pipe.services.web;
+module nitro_textcom;
 
 //###################################################################################################
 
-import pipe.services;
-//import vibe.vibe;
+public import nitro_textcom.server;
 
 //###################################################################################################
 
-@System final class ServiceWeb(ECM) {
-	//VibeWrapper _vibe = null;
-
-    mixin AutoQuery;
-
-    this(ECM ecm) {
-		ecm.pushEntity(MessageDebug("[Web] Initializing"));
-
-		//this._vibe = new VibeWrapper();	   
-		//assert(this._vibe !is null);	 
-    }
-
-	~this() {
-		//this._vibe.destroy();
-	}
-}
-
-//===================================================================================================
-/*
-final class VibeWrapper
-{
-
-public:
-    this() {
-        lowerPrivileges();
-        auto settings = new HTTPServerSettings;
-        settings.port = 8080;
-        listenHTTP(settings, &handleRequest);
-    }
-
-    static string outputString;
-
-    void update() {
-        outputString = "";
-        processEvents();
-
-        //if(outputString.length != 0)
-        //    writeln("< " ~ outputString ~ " >");
-    }
-
-private:
-    void handleRequest(HTTPServerRequest req, HTTPServerResponse res) {
-        outputString = "Website called";
-        res.writeBody("Hello, World!", "text/plain");
-    }
-}
-*/

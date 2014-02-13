@@ -27,18 +27,21 @@
 
 import pipe;
 import nitro;
+import nitro_textcom;
 import core.thread;
 
 //###################################################################################################
 
 int main(string[] argv)
 {
-	mixin MakeECS!("pipeECS", "
-		pipe.services.cmd, 
-		pipe.services.purple,
-        pipe.services.web,
-        pipe.services.config
-    ");
+
+
+	auto pipeECS = makeECS!("nitro_textcom.server", "pipe.services.cmd", "pipe.services.purple", "pipe.services.config")();
+
+    TextComConfig config;
+    config.ports ~= TextComPort(TextComPortType.TCP, "tcp", "0.0.0.0", 8042, false);
+    config.ports ~= TextComPort(TextComPortType.WebSocket, "websocket", "0.0.0.0", 80, true, "public");
+    pipeECS.ecm.pushEntity(config);
 
 	bool bRun = true;
 	while(bRun) {
