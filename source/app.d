@@ -27,7 +27,7 @@
 
 import pipe;
 import nitro;
-import nitro_textcom;
+import nitro.textcom;
 import core.thread;
 
 //###################################################################################################
@@ -36,7 +36,7 @@ int main(string[] argv)
 {
 
 
-	auto pipeECS = makeECS!("nitro_textcom.server", "pipe.services.cmd", "pipe.services.purple", "pipe.services.config")();
+	auto pipeECS = makeECS!("nitro.textcom.server", "pipe.services.cmd", "pipe.services.purple", "pipe.services.config")();
 
     TextComConfig config;
     config.ports ~= TextComPort(TextComPortType.TCP, "tcp", "0.0.0.0", 8042, false);
