@@ -29,6 +29,7 @@ module pipe.services.cmd;
 
 //###################################################################################################
 
+import nitro.textcom;
 import pipe.services;
 import std.stdio;
 import std.conv;
@@ -68,6 +69,17 @@ import std.conv;
 		return false;
 	}
 
+	bool socketUpdate(Qry!TextComSocketUpdate update) {
+		import std.conv;
+		writeln("[TextCom][" ~ update.socket ~ "]: " ~ to!string(update.status) ~ "(" ~ to!string(update.error) ~ ")");
+		return true;
+	}
+
+	bool clientUpdate(Qry!TextComClientUpdate update) {
+		import std.conv;
+		writeln("[TextCom][" ~ update.socket ~ "][" ~ update.client ~ "]: " ~ to!string(update.status) ~ "(" ~ to!string(update.error) ~ ")");
+		return true;
+	}
 	//void query(Qry!MessageError c, Qry!MessageWarning d) {
 	//	writeln(" [Error]" ~ c.message);
 	//	//return true;

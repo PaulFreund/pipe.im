@@ -38,10 +38,9 @@ int main(string[] argv)
 
 	auto pipeECS = makeECS!("nitro.textcom.server", "pipe.services.cmd", "pipe.services.purple", "pipe.services.config")();
 
-    TextComConfig config;
-    config.ports ~= TextComPort(TextComPortType.TCP, "tcp", "0.0.0.0", 8042, false);
-    config.ports ~= TextComPort(TextComPortType.WebSocket, "websocket", "0.0.0.0", 80, true, "public");
-    pipeECS.ecm.pushEntity(config);
+    pipeECS.ecm.pushEntity(TextComSocketConfig(TextComSocketType.TCP, "tcp", "0.0.0.0", 8042, false));
+    pipeECS.ecm.pushEntity(TextComSocketConfig(TextComSocketType.WebSocket, "websocket", "0.0.0.0", 80, true, "public"));
+    pipeECS.ecm.pushEntity(TextComSocketConfig(TextComSocketType.WebSocket, "websocket", "0.0.0.0", 80, true, "public"));
 
 	bool bRun = true;
 	while(bRun) {

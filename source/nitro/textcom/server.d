@@ -12,7 +12,7 @@
     conditions:
 
     The above copyright notice and this permission notice shall be
-    included in all copies or substantial portions of the Software.
+    included in all copies or substantial socketions of the Software.
 
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
@@ -33,151 +33,249 @@ import nitro.gen;
 
 //###################################################################################################
 
-enum TextComPortType {
-    WebSocket,
-    TCP
+enum TextComSocketType {
+	None,
+    TCP,
+	WebSocket
 }
 
-@Component struct TextComPort {
-    TextComPortType type;
-    string name;
-    string address;
-    ushort port;
-    bool servePath;
-    string path;    
-}
-
-@Component struct TextComConfig {
-    TextComPort[] ports;
-}
-
-enum TextComConnectionStatus {
-    None,
-    Connected,
-    Disconnected,
-    Connecting,
-    Disconnecting
-}
-
-enum TextComConnectionError {
+enum TextComSocketError {
     None,
     SendFailed,
     ReceiveFailed,
-    UpdateFailed
+    UpdateFailed,
+	SocketExists,
+	SocketUnknown,
+	NotConnected
 }
 
-@Component struct TextComConnectionChange {
-    string server;
-    string client;
-    TextComConnectionStatus newStatus;
+enum TextComSocketStatus {
+    None,
+	Error,
+	Listening
 }
 
-@Component struct TextComError {
-    string server;
-    string client;
-    TextComConnectionStatus status;
-    TextComConnectionError error;
+enum TextComSocketAction {
+	None,
+	Delete,
+	StartListen,
+	StopListen
 }
 
-@Component struct TextComOut {
-    string server;
-    string[] clients;
-    string data;
+enum TextComClientError {
+	None,
+	NotConnected
 }
 
-@Component struct TextComOutLater {
-    string server;
-    string[] clients;
-    string data;
+enum TextComClientStatus {
+	None,
+	Error,
+	Connected
 }
 
-@Component struct TextComIn {
-    string server;
-    string client;
-    string data;
+enum TextComClientAction {
+	None,
+	Disconnect
 }
 
 //###################################################################################################
 
+@Component struct TextComSocketConfig {
+    TextComSocketType type = TextComSocketType.None;
+    string name = "";
+    string address = "";
+    ushort port = 0;
+    bool servePath = false;
+    string path = "";
+}
+
+@Component struct TextComSocketUpdate {
+    string socket = "";
+    TextComSocketStatus status = TextComSocketStatus.None;
+    TextComSocketError error = TextComSocketError.None;
+}
+
+@Component struct TextComSocketChange {
+    string socket = "";
+    TextComSocketAction action = TextComSocketAction.None;
+}
+
+@Component struct TextComClientChange {
+    string socket = "";
+    string client = "";
+    TextComClientAction action = TextComClientAction.None;
+}
+
+@Component struct TextComClientUpdate {
+    string socket = "";
+    string client = "";
+    TextComClientStatus status = TextComClientStatus.None;
+    TextComClientError error = TextComClientError.None;
+}
+
+@Component struct TextComOut {
+    string socket = "";
+    string[] clients;
+    string data = "";
+}
+
+@Component struct TextComIn {
+    string socket = "";
+    string client;
+    string data = "";
+}
+
+//###################################################################################################
+
+
+
 @System final class TextComServer(ECM) {
     import std.socket;
-    struct Port {
-        TextComPort config;
-        TextComConnectionStatus status;
+	struct TextComClient {
+		string name = "";
+		TextComClientStatus status = TextComClientStatus.None;
+		Socket socket;
+		string[] outQueue;
+	}
+
+    struct TextComSocket {
+		string name = "";
+		TextComSocketType type = TextComSocketType.None;
+
+		string address = "";
+		ushort port = 0;
+		bool servePath = false;
+		string path = "";    
+
+        TextComSocketStatus status = TextComSocketStatus.None;
+        TextComSocketError error = TextComSocketError.None;
         Socket socket;
-        Socket[string] clients;
+        TextComClient[string] clients;
+		string[] broadcastQueue;
     }
 
-    Port[string] ports;
+    TextComSocket[string] sockets;
+	private ECM _ecm;
+
+	this(ECM ecm) {
+		this._ecm = ecm;
+	}
 
     void run(ECM ecm) {
-        // Check connection status and read data
-        foreach(port; ports) {
-            //if(port.status != TextComConnectionStatus.Connected)
-                //port.update();
-            
-            //port.read();
-        }
-
         mixin AutoQueryMapper!ecm;
+
+        foreach_reverse(ref socket; sockets) {
+            if(socket.status != TextComSocketStatus.Listening) {
+                this.update(socket);
+			}
+            else {
+				this.read(socket);
+				this.write(socket);
+			}
+        }
     }
 
-    bool loadConfig(Qry!TextComConfig config) {
-        import std.stdio;
-        foreach(portConfig; config.ports) {
-            // Todo: check if name exists
-            this.ports[portConfig.name] = Port(portConfig, TextComConnectionStatus.Connecting);
-        }
+    bool createSocket(Qry!TextComSocketConfig socket) {
+
+		if(socket.name in this.sockets) {
+			this._ecm.pushEntity(TextComSocketUpdate(socket.name, TextComSocketStatus.Error, TextComSocketError.SocketExists));
+		}
+		else {
+			this.sockets[socket.name] = TextComSocket(
+				socket.name,
+				socket.type,
+				socket.address,
+				socket.port,
+				socket.servePath,
+				socket.path
+			);
+		}
+
         return true;
     }
 
-    bool sendData(Qry!TextComOut data) {
-        bool deletePacket = false;
-        if(data.clients.length > 1 && ports.length >= 1) {
-            // Send to all
-        }
-        //else if {
-        //    
-        //}
+	bool updateSocket(Qry!TextComSocketChange change) {
+		if(change.action == TextComSocketAction.None)
+			return true; 
 
-        return deletePacket;
-        // Only delete if data bas been sent
+		if((change.socket in this.sockets) == null) {
+			this._ecm.pushEntity(TextComSocketUpdate(change.socket, TextComSocketStatus.Error, TextComSocketError.SocketUnknown));
+			return true;
+		}
+
+		update(this.sockets[change.socket], change.action);
+		return true;
+	}
+
+	bool updateClient(Qry!TextComClientChange change) {
+		if(change.action == TextComClientAction.None)
+			return true; 
+
+		if((change.socket in this.sockets) == null) {
+			this._ecm.pushEntity(TextComSocketUpdate(change.socket, TextComSocketStatus.Error, TextComSocketError.SocketUnknown));
+			return true;
+		}
+
+		if((change.client in this.sockets[change.socket].clients) == null) {
+			this._ecm.pushEntity(TextComClientUpdate(change.socket, change.client, TextComClientStatus.Error, TextComClientError.NotConnected));
+			return true;
+		}
+
+		if(change.action == TextComClientAction.Disconnect)
+			this.sockets[change.socket].clients.remove(change.client);
+
+		return true;
+	}
+
+    bool sendData(Qry!TextComOut data) {
+		import std.string : empty;
+		if(data.data.empty)
+			return true;
+
+		if((data.socket in this.sockets) == null) {
+			this._ecm.pushEntity(TextComSocketUpdate(data.socket, TextComSocketStatus.Error, TextComSocketError.SocketUnknown));
+			return true;
+		}
+
+		if(this.sockets[data.socket].status != TextComSocketStatus.Listening) {
+
+			this._ecm.pushEntity(TextComSocketUpdate(data.socket, TextComSocketStatus.Error, TextComSocketError.NotConnected));
+			return true;
+		}
+
+        if(data.clients.length == 0) {
+            this.sockets[data.socket].broadcastQueue ~= data.data;
+        }
+		else {
+			foreach(ref client; data.clients) {
+				if (client in this.sockets[data.socket].clients)
+					this.sockets[data.socket].clients[client].outQueue ~= data.data;
+				else
+					this._ecm.pushEntity(TextComClientUpdate(data.socket, client, TextComClientStatus.Error, TextComClientError.NotConnected));
+			}
+		}
+
+        return true;
     }
 
 	~this() {
-        foreach(port; ports) {
-            //port.update(TextComConnectionStatus.Disconnecting);
+        foreach(socket; sockets) {
+            update(socket, TextComSocketAction.Delete);
         }
 	}
 
 private:
-    TextComConnectionStatus update(ref Port port, TextComConnectionStatus newStatus = TextComConnectionStatus.None) {
-        return newStatus;
-    }
-
-    void read(ref Port port) {
+    void update(ref TextComSocket socket, TextComSocketAction action = TextComSocketAction.None) {
 
     }
 
+    void read(ref TextComSocket socket) {
 
+    }
+
+	void write(ref TextComSocket socket) {
+
+	}
 }
-
-//###################################################################################################
-
-/*
-interface TextComConnection {
-    TextComConnectionStatus Update(TextComConnectionStatus setStatus);
-    string Receive();
-    void Send(string data);
-}
-
-class TextComConnectionTCP : TextComConnection {
-
-}
-
-class TextComConnectionWebsocket : TextComConnection {
-
-}
-*/
 
 //###################################################################################################
