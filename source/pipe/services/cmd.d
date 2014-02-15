@@ -71,13 +71,13 @@ import std.conv;
 
 	bool socketUpdate(Qry!TextComSocketUpdate update) {
 		import std.conv;
-		writeln("[TextCom][" ~ update.socket ~ "]: " ~ to!string(update.status) ~ "(" ~ to!string(update.error) ~ ")");
+		writeln("[TextCom][" ~ update.socket ~ "]: " ~ to!string(update.status) ~ "(" ~ to!string(update.error) ~ ") - " ~ update.message);
 		return true;
 	}
 
 	bool clientUpdate(Qry!TextComClientUpdate update) {
 		import std.conv;
-		writeln("[TextCom][" ~ update.socket ~ "][" ~ update.client ~ "]: " ~ to!string(update.status) ~ "(" ~ to!string(update.error) ~ ")");
+		writeln("[TextCom][" ~ update.socket ~ "][" ~ update.client ~ "]: " ~ to!string(update.status) ~ "(" ~ to!string(update.error) ~ ") - " ~ update.message);
 		return true;
 	}
 	//void query(Qry!MessageError c, Qry!MessageWarning d) {

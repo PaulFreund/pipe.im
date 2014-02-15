@@ -24,6 +24,12 @@
     OTHER DEALINGS IN THE SOFTWARE.
 */
 //###################################################################################################
+/*
+	Changes to think about after a stable, tested version:	
+	* Speed improvements (iteration optimization, control flow etc.)
+	* Simplify states
+*/
+//###################################################################################################
 
 module nitro.textcom.server;
 
@@ -46,7 +52,8 @@ enum TextComSocketError {
     UpdateFailed,
 	SocketExists,
 	SocketUnknown,
-	NotConnected
+	NotConnected,
+	InitializeFailed
 }
 
 enum TextComSocketStatus {
@@ -93,6 +100,7 @@ enum TextComClientAction {
     string socket = "";
     TextComSocketStatus status = TextComSocketStatus.None;
     TextComSocketError error = TextComSocketError.None;
+	string message = "";
 }
 
 @Component struct TextComSocketChange {
@@ -111,6 +119,7 @@ enum TextComClientAction {
     string client = "";
     TextComClientStatus status = TextComClientStatus.None;
     TextComClientError error = TextComClientError.None;
+	string message = "";
 }
 
 @Component struct TextComOut {
@@ -132,14 +141,15 @@ enum TextComClientAction {
 @System final class TextComServer(ECM) {
     import std.socket;
 	struct TextComClient {
-		string name = "";
+		TextComClientAction action = TextComClientAction.None;
 		TextComClientStatus status = TextComClientStatus.None;
+		TextComClientError error = TextComClientError.None;
 		Socket socket;
+		bool connectionInitialized = false;
 		string[] outQueue;
 	}
 
     struct TextComSocket {
-		string name = "";
 		TextComSocketType type = TextComSocketType.None;
 
 		string address = "";
@@ -147,6 +157,7 @@ enum TextComClientAction {
 		bool servePath = false;
 		string path = "";    
 
+		TextComSocketAction action = TextComSocketAction.None;
         TextComSocketStatus status = TextComSocketStatus.None;
         TextComSocketError error = TextComSocketError.None;
         Socket socket;
@@ -163,16 +174,7 @@ enum TextComClientAction {
 
     void run(ECM ecm) {
         mixin AutoQueryMapper!ecm;
-
-        foreach_reverse(ref socket; sockets) {
-            if(socket.status != TextComSocketStatus.Listening) {
-                this.update(socket);
-			}
-            else {
-				this.read(socket);
-				this.write(socket);
-			}
-        }
+		this.process();
     }
 
     bool createSocket(Qry!TextComSocketConfig socket) {
@@ -182,7 +184,6 @@ enum TextComClientAction {
 		}
 		else {
 			this.sockets[socket.name] = TextComSocket(
-				socket.name,
 				socket.type,
 				socket.address,
 				socket.port,
@@ -203,7 +204,7 @@ enum TextComClientAction {
 			return true;
 		}
 
-		update(this.sockets[change.socket], change.action);
+		this.sockets[change.socket].action = change.action;
 		return true;
 	}
 
@@ -221,9 +222,7 @@ enum TextComClientAction {
 			return true;
 		}
 
-		if(change.action == TextComClientAction.Disconnect)
-			this.sockets[change.socket].clients.remove(change.client);
-
+		this.sockets[change.socket].clients[change.client].action = change.action;
 		return true;
 	}
 
@@ -259,14 +258,52 @@ enum TextComClientAction {
     }
 
 	~this() {
-        foreach(socket; sockets) {
-            update(socket, TextComSocketAction.Delete);
-        }
+        foreach(socket; sockets) 
+			socket.action = TextComSocketAction.Delete;
+
+		this.process();
 	}
 
 private:
-    void update(ref TextComSocket socket, TextComSocketAction action = TextComSocketAction.None) {
+    void process() {
+		string[] deleteSockets;
+        foreach(string socketName, ref socket; this.sockets) {
+			if(socket.action != TextComSocketAction.None) {
+				switch(socket.action) {
+					case TextComSocketAction.Delete:		{ deleteSockets ~= socketName;  break; }
+					case TextComSocketAction.StartListen:	{ this.initialize(socketName, socket); break; }
+					case TextComSocketAction.StopListen:	{ this.destroySocket(socketName, socket); break; }
+					default: { break; }
+				}
+				socket.action = TextComSocketAction.None;
+			}
 
+			if(socket.status != TextComSocketStatus.Listening) continue;
+
+			socket.socket.listen(1);
+			Socket clientSocket = socket.socket.accept();
+			if(clientSocket !is null && clientSocket.isAlive()) {
+				import std.uuid : randomUUID;
+				string clientName = randomUUID.toString();
+				auto newClient = TextComClient();
+				newClient.status = TextComClientStatus.Connected;
+				newClient.socket = clientSocket;
+				socket.clients[clientName] = newClient;
+				this._ecm.pushEntity(TextComClientUpdate(socketName, clientName, newClient.status, newClient.error));
+			}
+				
+			if(socket.clients.length > 0) {
+				
+				foreach(string nameClient, ref client; socket.clients) {
+
+				}
+			}
+        }
+
+		foreach(socket; deleteSockets) {
+			this.destroySocket(socket, this.sockets[socket]);
+			this.sockets.remove(socket);
+		}
     }
 
     void read(ref TextComSocket socket) {
@@ -274,6 +311,35 @@ private:
     }
 
 	void write(ref TextComSocket socket) {
+
+	}
+
+private:
+	void initialize(string name, ref TextComSocket socket) {
+		this.destroySocket(name, socket);
+		socket.socket = new TcpSocket();
+		socket.socket.blocking = false;
+		try {
+			foreach(address; getAddress(socket.address, socket.port))
+				socket.socket.bind(address);
+
+			socket.status = TextComSocketStatus.Listening;
+			socket.error = TextComSocketError.None;
+			this._ecm.pushEntity(TextComSocketUpdate(name, socket.status, socket.error));
+		}
+		catch(Exception e) {
+			socket.status = TextComSocketStatus.Error;
+			socket.error = TextComSocketError.InitializeFailed;
+			this._ecm.pushEntity(TextComSocketUpdate(name, socket.status, socket.error, e.msg));
+		}
+	}
+
+	void destroySocket(string name, ref TextComSocket socket) {
+		socket.status = TextComSocketStatus.None;
+		//socket.clients.clear();
+	}
+
+	void destroyClient(string name, ref TextComClient client) {
 
 	}
 }

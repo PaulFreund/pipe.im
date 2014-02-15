@@ -38,9 +38,13 @@ int main(string[] argv)
 
 	auto pipeECS = makeECS!("nitro.textcom.server", "pipe.services.cmd", "pipe.services.purple", "pipe.services.config")();
 
-    pipeECS.ecm.pushEntity(TextComSocketConfig(TextComSocketType.TCP, "tcp", "0.0.0.0", 8042, false));
-    pipeECS.ecm.pushEntity(TextComSocketConfig(TextComSocketType.WebSocket, "websocket", "0.0.0.0", 80, true, "public"));
-    pipeECS.ecm.pushEntity(TextComSocketConfig(TextComSocketType.WebSocket, "websocket", "0.0.0.0", 80, true, "public"));
+	string listenerRaw = "tcp";
+	string listenerWebsocket = "websocket";
+    pipeECS.ecm.pushEntity(TextComSocketConfig(TextComSocketType.TCP, listenerRaw, "0.0.0.0", 8042, false));
+    pipeECS.ecm.pushEntity(TextComSocketConfig(TextComSocketType.WebSocket, listenerWebsocket, "0.0.0.0", 8080, true, "public"));
+
+    pipeECS.ecm.pushEntity(TextComSocketChange(listenerRaw, TextComSocketAction.StartListen));
+    pipeECS.ecm.pushEntity(TextComSocketChange(listenerWebsocket, TextComSocketAction.StartListen));
 
 	bool bRun = true;
 	while(bRun) {
