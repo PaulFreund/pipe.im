@@ -271,7 +271,7 @@ private:
 			if(socket.action != TextComSocketAction.None) {
 				switch(socket.action) {
 					case TextComSocketAction.Delete:		{ deleteSockets ~= socketName;  break; }
-					case TextComSocketAction.StartListen:	{ this.initialize(socketName, socket); break; }
+					case TextComSocketAction.StartListen:	{ this.initializeSocket(socketName, socket); break; }
 					case TextComSocketAction.StopListen:	{ this.destroySocket(socketName, socket); break; }
 					default: { break; }
 				}
@@ -293,9 +293,8 @@ private:
 			}
 				
 			if(socket.clients.length > 0) {
-				
 				foreach(string nameClient, ref client; socket.clients) {
-
+					
 				}
 			}
         }
@@ -315,7 +314,7 @@ private:
 	}
 
 private:
-	void initialize(string name, ref TextComSocket socket) {
+	void initializeSocket(string name, ref TextComSocket socket) {
 		this.destroySocket(name, socket);
 		socket.socket = new TcpSocket();
 		socket.socket.blocking = false;
@@ -336,6 +335,7 @@ private:
 
 	void destroySocket(string name, ref TextComSocket socket) {
 		socket.status = TextComSocketStatus.None;
+
 		//socket.clients.clear();
 	}
 
