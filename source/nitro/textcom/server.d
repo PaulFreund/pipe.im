@@ -36,6 +36,7 @@ module nitro.textcom.server;
 //###################################################################################################
 
 import nitro.gen;
+import std.conv;
 
 //###################################################################################################
 
@@ -45,7 +46,7 @@ enum TextComSocketType {
 	WebSocket
 }
 
-enum TextComSocketError {
+enum TextComError {
     None,
     SendFailed,
     ReceiveFailed,
@@ -53,13 +54,14 @@ enum TextComSocketError {
 	SocketExists,
 	SocketUnknown,
 	NotConnected,
-	InitializeFailed
+	InitializeFailed,
+    ConnectionLost
 }
 
-enum TextComSocketStatus {
+enum TextComStatus {
     None,
 	Error,
-	Listening
+	Working
 }
 
 enum TextComSocketAction {
@@ -67,17 +69,6 @@ enum TextComSocketAction {
 	Delete,
 	StartListen,
 	StopListen
-}
-
-enum TextComClientError {
-	None,
-	NotConnected
-}
-
-enum TextComClientStatus {
-	None,
-	Error,
-	Connected
 }
 
 enum TextComClientAction {
@@ -98,8 +89,8 @@ enum TextComClientAction {
 
 @Component struct TextComSocketUpdate {
     string socket = "";
-    TextComSocketStatus status = TextComSocketStatus.None;
-    TextComSocketError error = TextComSocketError.None;
+    TextComStatus status = TextComStatus.None;
+    TextComError error = TextComError.None;
 	string message = "";
 }
 
@@ -117,8 +108,8 @@ enum TextComClientAction {
 @Component struct TextComClientUpdate {
     string socket = "";
     string client = "";
-    TextComClientStatus status = TextComClientStatus.None;
-    TextComClientError error = TextComClientError.None;
+    TextComStatus status = TextComStatus.None;
+    TextComError error = TextComError.None;
 	string message = "";
 }
 
@@ -136,17 +127,21 @@ enum TextComClientAction {
 
 //###################################################################################################
 
-
-
 @System final class TextComServer(ECM) {
+//---------------------------------------------------------------------------------------------------
+// Definition of internal entities
+private:
     import std.socket;
 	struct TextComClient {
 		TextComClientAction action = TextComClientAction.None;
-		TextComClientStatus status = TextComClientStatus.None;
-		TextComClientError error = TextComClientError.None;
+		TextComStatus status = TextComStatus.None;
+		TextComError error = TextComError.None;
 		Socket socket;
 		bool connectionInitialized = false;
 		string[] outQueue;
+
+        ulong currentBlockLength = 0;
+        ubyte[] currentBlockBuffer;
 	}
 
     struct TextComSocket {
@@ -158,13 +153,15 @@ enum TextComClientAction {
 		string path = "";    
 
 		TextComSocketAction action = TextComSocketAction.None;
-        TextComSocketStatus status = TextComSocketStatus.None;
-        TextComSocketError error = TextComSocketError.None;
+        TextComStatus status = TextComStatus.None;
+        TextComError error = TextComError.None;
         Socket socket;
         TextComClient[string] clients;
-		string[] broadcastQueue;
     }
 
+//---------------------------------------------------------------------------------------------------
+// Interface
+public:
     TextComSocket[string] sockets;
 	private ECM _ecm;
 
@@ -174,13 +171,23 @@ enum TextComClientAction {
 
     void run(ECM ecm) {
         mixin AutoQueryMapper!ecm;
-		this.process();
+		this.processSockets();
     }
 
+	~this() {
+        foreach(socket; sockets) 
+			socket.action = TextComSocketAction.Delete;
+
+		this.processSockets();
+	}
+//---------------------------------------------------------------------------------------------------
+// Query handling
+public:
+    // TextComSocketConfig components contain new socket definitions
     bool createSocket(Qry!TextComSocketConfig socket) {
 
 		if(socket.name in this.sockets) {
-			this._ecm.pushEntity(TextComSocketUpdate(socket.name, TextComSocketStatus.Error, TextComSocketError.SocketExists));
+			this._ecm.pushEntity(TextComSocketUpdate(socket.name, TextComStatus.Error, TextComError.SocketExists));
 		}
 		else {
 			this.sockets[socket.name] = TextComSocket(
@@ -195,152 +202,278 @@ enum TextComClientAction {
         return true;
     }
 
+    // Set action for a socket on next processing
 	bool updateSocket(Qry!TextComSocketChange change) {
 		if(change.action == TextComSocketAction.None)
 			return true; 
 
-		if((change.socket in this.sockets) == null) {
-			this._ecm.pushEntity(TextComSocketUpdate(change.socket, TextComSocketStatus.Error, TextComSocketError.SocketUnknown));
-			return true;
-		}
+        // Error checking
+        {
+		    if((change.socket in this.sockets) == null) {
+			    this._ecm.pushEntity(TextComSocketUpdate(change.socket, TextComStatus.Error, TextComError.SocketUnknown));
+			    return true;
+		    }
+        }
 
 		this.sockets[change.socket].action = change.action;
 		return true;
 	}
 
+    // Set action for a client on next processing
 	bool updateClient(Qry!TextComClientChange change) {
 		if(change.action == TextComClientAction.None)
 			return true; 
 
-		if((change.socket in this.sockets) == null) {
-			this._ecm.pushEntity(TextComSocketUpdate(change.socket, TextComSocketStatus.Error, TextComSocketError.SocketUnknown));
-			return true;
-		}
+        // Error checking
+        { 
+		    if((change.socket in this.sockets) == null) {
+			    this._ecm.pushEntity(TextComSocketUpdate(change.socket, TextComStatus.Error, TextComError.SocketUnknown));
+			    return true;
+		    }
 
-		if((change.client in this.sockets[change.socket].clients) == null) {
-			this._ecm.pushEntity(TextComClientUpdate(change.socket, change.client, TextComClientStatus.Error, TextComClientError.NotConnected));
-			return true;
-		}
+		    if((change.client in this.sockets[change.socket].clients) == null) {
+			    this._ecm.pushEntity(TextComClientUpdate(change.socket, change.client, TextComStatus.Error, TextComError.NotConnected));
+			    return true;
+		    }
+        }
 
 		this.sockets[change.socket].clients[change.client].action = change.action;
 		return true;
 	}
 
+    // Data to send to a client or all clients 
     bool sendData(Qry!TextComOut data) {
 		import std.string : empty;
 		if(data.data.empty)
 			return true;
 
-		if((data.socket in this.sockets) == null) {
-			this._ecm.pushEntity(TextComSocketUpdate(data.socket, TextComSocketStatus.Error, TextComSocketError.SocketUnknown));
-			return true;
-		}
+        // Error checking
+        {
+		    if((data.socket in this.sockets) == null) {
+			    this._ecm.pushEntity(TextComSocketUpdate(data.socket, TextComStatus.Error, TextComError.SocketUnknown));
+			    return true;
+		    }
 
-		if(this.sockets[data.socket].status != TextComSocketStatus.Listening) {
+		    if(this.sockets[data.socket].status != TextComStatus.Working) {
+			    this._ecm.pushEntity(TextComSocketUpdate(data.socket, TextComStatus.Error, TextComError.NotConnected));
+			    return true;
+		    }
+        }
 
-			this._ecm.pushEntity(TextComSocketUpdate(data.socket, TextComSocketStatus.Error, TextComSocketError.NotConnected));
-			return true;
-		}
-
+        // If no client is set, send to all
         if(data.clients.length == 0) {
-            this.sockets[data.socket].broadcastQueue ~= data.data;
+            foreach(ref socket; this.sockets) {
+                foreach(ref client; socket.clients) {
+                    client.outQueue ~= data.data;
+                }
+            }
         }
 		else {
 			foreach(ref client; data.clients) {
 				if (client in this.sockets[data.socket].clients)
 					this.sockets[data.socket].clients[client].outQueue ~= data.data;
 				else
-					this._ecm.pushEntity(TextComClientUpdate(data.socket, client, TextComClientStatus.Error, TextComClientError.NotConnected));
+					this._ecm.pushEntity(TextComClientUpdate(data.socket, client, TextComStatus.Error, TextComError.NotConnected));
 			}
 		}
 
         return true;
     }
 
-	~this() {
-        foreach(socket; sockets) 
-			socket.action = TextComSocketAction.Delete;
 
-		this.process();
-	}
 
+//---------------------------------------------------------------------------------------------------
+// Internal processing
 private:
-    void process() {
+    void processSockets() {
+        // Process all sockets
 		string[] deleteSockets;
         foreach(string socketName, ref socket; this.sockets) {
+            // Process actions
 			if(socket.action != TextComSocketAction.None) {
 				switch(socket.action) {
 					case TextComSocketAction.Delete:		{ deleteSockets ~= socketName;  break; }
 					case TextComSocketAction.StartListen:	{ this.initializeSocket(socketName, socket); break; }
-					case TextComSocketAction.StopListen:	{ this.destroySocket(socketName, socket); break; }
+					case TextComSocketAction.StopListen:	{ this.disconnectSocket(socketName, socket); break; }
 					default: { break; }
 				}
 				socket.action = TextComSocketAction.None;
 			}
 
-			if(socket.status != TextComSocketStatus.Listening) continue;
+            // Check if socket is intact
+            if(socket.socket is null || !socket.socket.isAlive()) {
+                socket.status = TextComStatus.Error;
+                socket.error = TextComError.ConnectionLost;
+                this._ecm.pushEntity(TextComSocketUpdate(socketName, socket.status, socket.error));
+            }
 
-			socket.socket.listen(1);
-			Socket clientSocket = socket.socket.accept();
-			if(clientSocket !is null && clientSocket.isAlive()) {
-				import std.uuid : randomUUID;
-				string clientName = randomUUID.toString();
-				auto newClient = TextComClient();
-				newClient.status = TextComClientStatus.Connected;
-				newClient.socket = clientSocket;
-				socket.clients[clientName] = newClient;
-				this._ecm.pushEntity(TextComClientUpdate(socketName, clientName, newClient.status, newClient.error));
-			}
-				
-			if(socket.clients.length > 0) {
-				foreach(string nameClient, ref client; socket.clients) {
-					
-				}
-			}
+            // If socket is not listening, disconect
+			if(socket.status != TextComStatus.Working) 
+                continue;
+            else
+                processClients(socketName, socket);
         }
 
+        // Cleanup deleted sockets
 		foreach(socket; deleteSockets) {
-			this.destroySocket(socket, this.sockets[socket]);
+			this.disconnectSocket(socket, this.sockets[socket]);
 			this.sockets.remove(socket);
 		}
     }
 
-    void read(ref TextComSocket socket) {
+    void processClients(string socketName, ref TextComSocket socket) {
+        // Accept one new connection if any and creates a new client
+        socket.socket.listen(1);
+        Socket clientSocket = socket.socket.accept();
+        if(clientSocket !is null && clientSocket.isAlive()) {
+            import std.uuid : randomUUID;
+            string clientName = randomUUID.toString();
+            auto newClient = TextComClient();
+            newClient.status = TextComStatus.Working;
+            newClient.socket = clientSocket;
+            if(socket.type == TextComSocketType.TCP)
+                newClient.connectionInitialized = true;
 
+            socket.clients[clientName] = newClient;
+            this._ecm.pushEntity(TextComClientUpdate(socketName, clientName, newClient.status, newClient.error));
+        }
+
+        string[] deleteClients;
+        foreach(string clientName, ref client; socket.clients) {
+			if(client.action == TextComClientAction.Disconnect) {
+                deleteClients ~= clientName;
+				client.action = TextComClientAction.None;
+			}
+
+            // Check if  client socket is intact
+            if(client.socket is null || !client.socket.isAlive()) {
+                client.status = TextComStatus.Error;
+                client.error = TextComError.ConnectionLost;
+                this._ecm.pushEntity(TextComClientUpdate(socketName, clientName, client.status, client.error));
+            }
+
+            // If socket is not listening, disconect
+			if(client.status != TextComStatus.Working) 
+                continue;
+
+            // Check if connection is ready
+            if(!client.connectionInitialized) {
+                if(socket.type == TextComSocketType.WebSocket) {
+                    websocketInitialize(client);
+                }
+                continue;
+            }
+
+            clientSend(socketName, clientName, client);
+            clientReceive(socketName, clientName, client);
+        }
+
+        // Cleanup deleted clients
+		foreach(client; deleteClients) {
+			this.disconnectClient(client, socket.clients[client]);
+			socket.clients.remove(client);
+		}
     }
 
-	void write(ref TextComSocket socket) {
+    void clientReceive(ref string socketName, ref string clientName, ref TextComClient client) {
+        try {
+            ubyte[] receiveBuffer;
+            ptrdiff_t receivedBytes = client.socket.receive(receiveBuffer);
 
+            if(receivedBytes > 0) {
+                if(client.currentBlockLength == 0) {
+                    // TODO: get block length
+                }
+
+                // TODO: read to block buffer
+            }
+            else {
+                // TODO: check for error
+            }
+        }
+        catch(Exception e) {
+            client.status = TextComStatus.Error;
+            client.error = TextComError.ReceiveFailed;
+            this._ecm.pushEntity(TextComClientUpdate(socketName, clientName, client.status, client.error, e.msg));
+        }
+    }
+
+	void clientSend(ref string socketName, ref string clientName, ref TextComClient client) {
+        try {
+            foreach(ref string message; client.outQueue) {
+                // TODO: Prepend package length
+                ulong blockSize = to!ulong(message.length);
+                //client.socket.send(to!ubyte[](blockSize));
+                client.socket.send(message);
+            }
+        }
+        catch(Exception e) {
+            client.status = TextComStatus.Error;
+            client.error = TextComError.SendFailed;
+            this._ecm.pushEntity(TextComClientUpdate(socketName, clientName, client.status, client.error, e.msg));
+        }
+        
+        client.outQueue.clear();
 	}
 
+    void websocketInitialize(ref TextComClient client) {
+        // TODO
+    }
+
+//---------------------------------------------------------------------------------------------------
+// Helpers
 private:
 	void initializeSocket(string name, ref TextComSocket socket) {
-		this.destroySocket(name, socket);
+		this.disconnectSocket(name, socket);
 		socket.socket = new TcpSocket();
 		socket.socket.blocking = false;
 		try {
 			foreach(address; getAddress(socket.address, socket.port))
 				socket.socket.bind(address);
 
-			socket.status = TextComSocketStatus.Listening;
-			socket.error = TextComSocketError.None;
+			socket.status = TextComStatus.Working;
+			socket.error = TextComError.None;
 			this._ecm.pushEntity(TextComSocketUpdate(name, socket.status, socket.error));
 		}
 		catch(Exception e) {
-			socket.status = TextComSocketStatus.Error;
-			socket.error = TextComSocketError.InitializeFailed;
+			socket.status = TextComStatus.Error;
+			socket.error = TextComError.InitializeFailed;
 			this._ecm.pushEntity(TextComSocketUpdate(name, socket.status, socket.error, e.msg));
 		}
 	}
 
-	void destroySocket(string name, ref TextComSocket socket) {
-		socket.status = TextComSocketStatus.None;
+	void disconnectSocket(string name, ref TextComSocket socket) {
+        foreach(string nameClient, ref client; socket.clients) {
+            disconnectClient(nameClient, client);
+        }
 
-		//socket.clients.clear();
+        socket.action = TextComSocketAction.None;
+        socket.status = TextComStatus.None;
+        socket.error = TextComError.None;
+        
+        if(socket.socket !is null) {
+            socket.socket.shutdown(SocketShutdown.BOTH);
+            socket.socket.close();
+        }
+        socket.socket = null;
+
+		socket.clients.clear();
 	}
 
-	void destroyClient(string name, ref TextComClient client) {
+	void disconnectClient(string name, ref TextComClient client) {
+        if(client.socket !is null) {
+            client.socket.shutdown(SocketShutdown.BOTH);
+            client.socket.close();
+        }
 
+        client.action = TextComClientAction.None;
+        client.status = TextComStatus.None;
+        client.error = TextComError.None;
+
+        client.connectionInitialized = false;
+        client.outQueue.clear();
+        client.currentBlockLength = 0;
+        client.currentBlockBuffer.clear();
 	}
 }
 
