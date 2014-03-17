@@ -37,6 +37,7 @@ module nitro.textcom.server;
 
 import nitro.gen;
 import std.conv;
+import std.bitmanip;
 
 //###################################################################################################
 
@@ -55,7 +56,8 @@ enum TextComError {
 	SocketUnknown,
 	NotConnected,
 	InitializeFailed,
-    ConnectionLost
+    ConnectionLost,
+    InvalidBlockLength
 }
 
 enum TextComStatus {
@@ -140,7 +142,7 @@ private:
 		bool connectionInitialized = false;
 		string[] outQueue;
 
-        ulong currentBlockLength = 0;
+        uint currentBlockLength = 0;
         ubyte[] currentBlockBuffer;
 	}
 
@@ -381,14 +383,29 @@ private:
             ptrdiff_t receivedBytes = client.socket.receive(receiveBuffer);
 
             if(receivedBytes > 0) {
-                if(client.currentBlockLength == 0) {
-                    // TODO: get block length
-                }
+                while(receiveBuffer.length > 0) {
+                    // Get new block size
+                    if(client.currentBlockLength == 0 && receiveBuffer.length >= 8) {
+                        client.currentBlockBuffer.clear();
+                        client.currentBlockLength = bigEndianToNative!uint(receiveBuffer[0..uint.sizeof]);
+                        receiveBuffer = receiveBuffer[8..$];
+                    }
+                    // Read block data
+                    else {
+                        uint bytesMissing = client.currentBlockLength - client.currentBlockBuffer.length;
+                        uint bytesToCopy = bytesMissing >= receiveBuffer.length ? receiveBuffer.length :  bytesMissing;
 
-                // TODO: read to block buffer
+                        client.currentBlockBuffer ~= receiveBuffer[0..bytesToCopy];
+                        receiveBuffer = receiveBuffer[bytesToCopy..$];
+
+                        if(client.currentBlockLength == client.currentBlockBuffer.length) {
+                            this._ecm.pushEntity(TextComIn(socketName, clientName, to!string(client.currentBlockBuffer)));
+                        }
+                    }
+                }
             }
-            else {
-                // TODO: check for error
+            else if(receivedBytes == Socket.ERROR) {
+                throw new Exception(client.socket.getErrorText());
             }
         }
         catch(Exception e) {
@@ -401,9 +418,8 @@ private:
 	void clientSend(ref string socketName, ref string clientName, ref TextComClient client) {
         try {
             foreach(ref string message; client.outQueue) {
-                // TODO: Prepend package length
-                ulong blockSize = to!ulong(message.length);
-                //client.socket.send(to!ubyte[](blockSize));
+                uint blockSize = to!uint(message.length);
+                client.socket.send(nativeToBigEndian(blockSize));
                 client.socket.send(message);
             }
         }
@@ -418,6 +434,12 @@ private:
 
     void websocketInitialize(ref TextComClient client) {
         // TODO
+        ubyte[] receiveBuffer;
+        ptrdiff_t receivedBytes = client.socket.receive(receiveBuffer);
+        if(receivedBytes > 0) {
+            import std.stdio;
+            writeln(receiveBuffer);
+        }
     }
 
 //---------------------------------------------------------------------------------------------------

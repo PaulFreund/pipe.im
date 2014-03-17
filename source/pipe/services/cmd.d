@@ -46,8 +46,11 @@ import std.conv;
 
 	//mixin AutoQuery;
 	void run(ECM)(ECM ecm) {
+        this._ecm = ecm;
 		mixin AutoQueryMapper!ecm;
 	}
+	private ECM _ecm;
+
 
 	bool handleDebug(ECM ecm, Entity e, Qry!MessageDebug c) {
 		writeln("[Debug]" ~ c.message);
@@ -78,7 +81,11 @@ import std.conv;
 	bool clientUpdate(Qry!TextComClientUpdate update) {
 		import std.conv;
 		writeln("[TextCom][" ~ update.socket ~ "][" ~ update.client ~ "]: " ~ to!string(update.status) ~ "(" ~ to!string(update.error) ~ ") - " ~ update.message);
-		return true;
+		
+        if(update.status == TextComStatus.Working)
+            this._ecm.pushEntity(TextComOut(update.socket, [update.client], "Hello this is pipe speaking"));
+
+        return true;
 	}
 	//void query(Qry!MessageError c, Qry!MessageWarning d) {
 	//	writeln(" [Error]" ~ c.message);
