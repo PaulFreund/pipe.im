@@ -83,7 +83,7 @@ import std.conv;
 		writeln("[TextCom][" ~ update.socket ~ "][" ~ update.client ~ "]: " ~ to!string(update.status) ~ "(" ~ to!string(update.error) ~ ") - " ~ update.message);
 		
         if(update.status == TextComStatus.Working)
-            this._ecm.pushEntity(TextComOut(update.socket, [update.client], "Hello this is pipe speaking"));
+            this._ecm.pushEntity(TextComOut(update.socket, [update.client], "H8ello this is pipe speaking"));
 
         return true;
 	}

@@ -57,7 +57,8 @@ enum TextComError {
 	NotConnected,
 	InitializeFailed,
     ConnectionLost,
-    InvalidBlockLength
+    InvalidBlockLength,
+    Disconnected
 }
 
 enum TextComStatus {
@@ -361,7 +362,7 @@ private:
             // Check if connection is ready
             if(!client.connectionInitialized) {
                 if(socket.type == TextComSocketType.WebSocket) {
-                    websocketInitialize(client);
+                    websocketInitialize(socketName, clientName, client);
                 }
                 continue;
             }
@@ -379,24 +380,26 @@ private:
 
     void clientReceive(ref string socketName, ref string clientName, ref TextComClient client) {
         try {
-            ubyte[] receiveBuffer;
+            ubyte[8192] receiveBuffer;
             ptrdiff_t receivedBytes = client.socket.receive(receiveBuffer);
 
+
             if(receivedBytes > 0) {
-                while(receiveBuffer.length > 0) {
+                ubyte[] receivedData = receiveBuffer[0..receivedBytes];
+                while(receivedData.length > 0) {
                     // Get new block size
-                    if(client.currentBlockLength == 0 && receiveBuffer.length >= 8) {
+                    if(client.currentBlockLength == 0 && receivedData.length >= 8) {
                         client.currentBlockBuffer.clear();
-                        client.currentBlockLength = bigEndianToNative!uint(receiveBuffer[0..uint.sizeof]);
-                        receiveBuffer = receiveBuffer[8..$];
+                        client.currentBlockLength = bigEndianToNative!uint(receivedData[0..uint.sizeof]);
+                        receivedData = receivedData[8..$];
                     }
                     // Read block data
                     else {
                         uint bytesMissing = client.currentBlockLength - client.currentBlockBuffer.length;
-                        uint bytesToCopy = bytesMissing >= receiveBuffer.length ? receiveBuffer.length :  bytesMissing;
+                        uint bytesToCopy = bytesMissing >= receivedData.length ? receivedData.length :  bytesMissing;
 
-                        client.currentBlockBuffer ~= receiveBuffer[0..bytesToCopy];
-                        receiveBuffer = receiveBuffer[bytesToCopy..$];
+                        client.currentBlockBuffer ~= receivedData[0..bytesToCopy];
+                        receivedData = receivedData[bytesToCopy..$];
 
                         if(client.currentBlockLength == client.currentBlockBuffer.length) {
                             this._ecm.pushEntity(TextComIn(socketName, clientName, to!string(client.currentBlockBuffer)));
@@ -404,7 +407,13 @@ private:
                     }
                 }
             }
-            else if(receivedBytes == Socket.ERROR) {
+            else if(receivedBytes == 0) {
+                client.action = TextComClientAction.Disconnect;
+                client.status = TextComStatus.Error;
+                client.error = TextComError.Disconnected;
+                this._ecm.pushEntity(TextComClientUpdate(socketName, clientName, client.status, client.error));
+            }
+            else if(!wouldHaveBlocked()) {
                 throw new Exception(client.socket.getErrorText());
             }
         }
@@ -432,13 +441,32 @@ private:
         client.outQueue.clear();
 	}
 
-    void websocketInitialize(ref TextComClient client) {
-        // TODO
-        ubyte[] receiveBuffer;
-        ptrdiff_t receivedBytes = client.socket.receive(receiveBuffer);
-        if(receivedBytes > 0) {
-            import std.stdio;
-            writeln(receiveBuffer);
+    void websocketInitialize(ref string socketName, ref string clientName, ref TextComClient client) {
+        try {
+            ubyte[8192] receiveBuffer;
+            ptrdiff_t receivedBytes = client.socket.receive(receiveBuffer);
+
+            if(receivedBytes > 0) {
+                ubyte[] receivedData = receiveBuffer[0..receivedBytes];
+
+                // TODO
+                import std.stdio;
+                writeln(cast(string)receiveBuffer);
+            }
+            else if(receivedBytes == 0) {
+                client.action = TextComClientAction.Disconnect;
+                client.status = TextComStatus.Error;
+                client.error = TextComError.Disconnected;
+                this._ecm.pushEntity(TextComClientUpdate(socketName, clientName, client.status, client.error));
+            }
+            else if(!wouldHaveBlocked()) {
+                throw new Exception(client.socket.getErrorText());
+            }
+        }
+        catch(Exception e) {
+            client.status = TextComStatus.Error;
+            client.error = TextComError.ReceiveFailed;
+            this._ecm.pushEntity(TextComClientUpdate(socketName, clientName, client.status, client.error, e.msg));
         }
     }
 
