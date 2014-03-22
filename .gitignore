@@ -20,15 +20,3 @@ Thumbs.db
 *.sdf
 *.vsp
 *.user
-*.filters
-
-*.userprefs
-*.visualdproj
-*.dproj
-*.sln
-
-AppData
-.dub/
-
-core
-config.json

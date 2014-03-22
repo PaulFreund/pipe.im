@@ -1,7 +1,18 @@
 pipe.im
 ========
 
-The concept of pipe.im is a communication shell that only requires a minimal feature set from its clients.
+# Architecture
+
+## Layer One - Plugins and Providers
+
+Plugins can be loaded dynamically and have to implement the method
+
+
+
+# Dependencies
+
+* Boost
+* ChaiScript
 
 # Concept
 
@@ -40,10 +51,6 @@ Current planned features:
   * Definitions of how to handle events
   * Actions to take like notification
 
-# Implementation
-
-Basic implementation will be based on the D programming language combined with C/C++ librarys (especially libpurple).
-
 Components:
 * Gateway manager
 * Configuration database
@@ -60,11 +67,3 @@ Components:
 * Webserver 
 * Basic user management
 * Protocol layer
-
-# Installation windows
-
-* Create ./bin folder
-* Download pidgin installer and unpack it (with 7z for example)
-* Copy *.dll, plugins, sasl2 and ca-certs to ./bin folder
-* Run build_visuald.bat
-* Open pipe.im.sln with visual studio
