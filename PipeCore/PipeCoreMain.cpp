@@ -1,67 +1,98 @@
 #include "PipeExtensionItf.h"
 
+#include <algorithm>
+#include <exception>
 #include <iostream>
-#include <string>
 #include <map>
 using namespace std;
 
+#include <boost/filesystem.hpp>
+using namespace boost::filesystem;
+
+#ifdef WIN32
+    #include <Windows.h>
+#endif
 
 
-/*
 
+namespace Pipe {
+    class Pipe {
+    private:
+        map<tstring, IServiceProvider_sptr> _serviceProviers;
+        map<tstring, IGatewayProvider_sptr> _gatewayProviders;
+        map<tstring, IStorageProvider_sptr> _storageProviders;
 
-struct ConnectionParameters {
+    public:
+        Pipe() {
 
+        };
+
+        ~Pipe() {
+
+        };
+
+    public:
+        void run() {
+            loadExtensions();
+        }
+
+    private:
+        void loadExtensions() {
+
+            path appPath = _T("");
+            #ifdef WIN32
+                TCHAR appPathBuffer[MAX_PATH]; 
+                HMODULE appModule = GetModuleHandle(NULL);
+                if (appModule == NULL) { throw new exception("Failed to get module path"); }
+                GetModuleFileName(appModule, appPathBuffer, (sizeof(appPathBuffer))); 
+                appPath = path(appPathBuffer).parent_path();
+            #else
+                throw new exception("LIBRARY LOADING NOT IMPLEMENTED");
+            #endif
+
+            try {
+                if (exists(appPath) && is_directory(appPath)) {
+                    for ( directory_iterator it( appPath ), itEnd; it != itEnd; ++it ) {
+                        auto elementPath = it->path();
+                        if(is_regular_file(elementPath) && elementPath.extension() == ".dll") {
+                            ExtensionInitPtr initFunction = nullptr;
+                            #ifdef WIN32
+                                HMODULE library = LoadLibrary(elementPath.c_str());
+                                if(library == NULL) { continue; }
+
+                                void* functionAddress = GetProcAddress(library, EXTENSION_INIT_NAME);
+                                if(functionAddress == NULL) { continue; }
+
+                                initFunction = (ExtensionInitPtr)functionAddress;
+                            #else
+                                throw new exception("LIBRARY LOADING NOT IMPLEMENTED");
+                            #endif
+                        
+                            if(initFunction == nullptr) continue;
+                            IExtensionPtr extension = initFunction();
+
+                            // TODO
+                        }
+                    }
+                }
+            }
+            catch (const filesystem_error& ex) {
+                cout << ex.what() << '\n';
+            }
+        }
+    };
 }
 
-// Gateways schould be able to offer Provider and Consumer
-class IGateway {
-    IConnection* CreateConnection(string id, ConnectionParameters params);
-    // ID
-    // Capabilities?
-};
-
-class PipeServer {
-    map<string, IGateway*> gateways;
-    map<string, IAccount*> accounts;
-};
-
-class IAccount {
-    // account at pipe which can have connections etc.
-    map<string, IConnection*> connections;
-    map<string, IEvent*> events;
-};
-
-class IConnection {
-    map<string, IEndpoint*> endpoints;
-    // connection that uses gateway for a account
-};
-
-class IEndpoint {
-    // an endpoint like a contact
-};
-
-// There are fixed event endpoints which map to chaiscript scripts
-class IEvent {
-
-};
-
-class Message {
-    IGateway* gateway;
-    IAccount* account;
-};
-
-// Rules
-*/
-
-int main(int /*argc*/, wchar_t* /*argv*/[])
+int main(int /*argc*/, wchar_t* /*argv[]*/)
 {
-    // N Benutzer
-
-    // Interfaces
-
-    cout << "Hi" << endl;
-    cin.get();
+    try {
+        Pipe::Pipe pipeInstance;
+        pipeInstance.run();
+    }
+    catch(exception e) {
+        cout << "Exception: " << e.what() << endl;
+        cin.get();
+    }
 	return 0;
 }
 
