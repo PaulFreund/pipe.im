@@ -18,9 +18,8 @@ using namespace boost::filesystem;
 namespace Pipe {
     class Pipe {
     private:
-        map<tstring, IServiceProvider_sptr> _serviceProviers;
+        map<tstring, IServiceProvider_sptr> _serviceProviders;
         map<tstring, IGatewayProvider_sptr> _gatewayProviders;
-        map<tstring, IStorageProvider_sptr> _storageProviders;
 
     public:
         Pipe() {

@@ -15,68 +15,99 @@ typedef std::basic_string<TCHAR> tstring;
 //======================================================================================================================
 
 #include <memory>
+#include <vector>
 #include <map>
+
+using namespace std;
 
 //======================================================================================================================
 
 namespace Pipe {
     //==================================================================================================================
 
-    //==================================================================================================================
-
-    class IExtension {
-
+    enum ServiceState {
+        GatewayStateOnline,
+        GatewayStateOffline,
+        GatewayStateError
     };
 
-    enum ProviderTye {
-        ProviderTypeStorage,
-        ProviderTypeService,
-        ProviderTypeGateway
+    class IServiceNode {
+        virtual string getId() = 0;
+        // TODO: Get capabilities / commands
     };
-
-    class IProvider {
-        virtual ProviderTye getType() = 0;
-    };
-    typedef std::shared_ptr<IProvider> IProvider_sptr;
-
-    //==================================================================================================================
 
     class IService {
+        virtual string getId() = 0;
+        virtual ServiceState getState() = 0; // TODO: to be reviewed
+        virtual void setState(ServiceState state) = 0; // TODO: to be reviewed
 
+        virtual IServiceNode getRootNode() = 0;
+
+        virtual map<string, string> process(map<string, string> outbox) = 0;
     };
-    typedef std::shared_ptr<IService> IService_sptr;
 
+    //------------------------------------------------------------------------------------------------------------------
 
-    class IServiceProvider : IProvider {
-
+    enum GatewayState {
+        GatewayStateOnline,
+        GatewayStateOffline,
+        GatewayStateError
     };
-    typedef std::shared_ptr<IServiceProvider> IServiceProvider_sptr;
 
-    //==================================================================================================================
+    enum GatewayClientState {
+        GatewayClientStateConnected,
+        GatewayClientStateDisconnected,
+        GatewayClientStateError
+    };
 
     class IGateway {
+        virtual string getId() = 0;
+        virtual GatewayState getState() = 0; // TODO: to be reviewed
+        virtual void setState(GatewayState state) = 0; // TODO: to be reviewed
 
+        virtual vector<string> getClientList() = 0;
+        virtual map<string, GatewayClientState> getClientUpdates() = 0;
+
+        virtual map<string, string> process(map<string, string> outbox) = 0;
     };
-    typedef std::shared_ptr<IGateway> IGateway_sptr;
-
-    class IGatewayProvider : IProvider {
-
-    };
-    typedef std::shared_ptr<IGatewayProvider> IGatewayProvider_sptr;
 
     //==================================================================================================================
 
-    class IStorage {
+    typedef shared_ptr<IService> IService_sptr;
+    typedef shared_ptr<IGateway> IGateway_sptr;
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    class IServiceProvider {
+        virtual tstring getType() = 0;
+        virtual map<tstring, tstring> getSettings() = 0;
+
+        virtual IService_sptr create(tstring id, map<tstring, tstring> settings) = 0;
 
     };
-    typedef std::shared_ptr<IStorage> IStorage_sptr;
 
-    class IStorageProvider : IProvider {
-    
+    //------------------------------------------------------------------------------------------------------------------
+
+    class IGatewayProvider {
+        virtual tstring getType() = 0;
+        virtual map<tstring, tstring> getSettings() = 0;
+
+        virtual IGateway_sptr create(tstring id, map<tstring, tstring> settings) = 0;
     };
-    typedef std::shared_ptr<IStorageProvider> IStorageProvider_sptr;
 
     //==================================================================================================================
+
+    typedef shared_ptr<IServiceProvider> IServiceProvider_sptr;
+    typedef shared_ptr<IGatewayProvider> IGatewayProvider_sptr;
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    struct IExtension {
+        map<tstring, IServiceProvider_sptr> _serviceProviders;
+        map<tstring, IGatewayProvider_sptr> _gatewayProviders;
+    };
+
+    //------------------------------------------------------------------------------------------------------------------
 }
 
 //======================================================================================================================
