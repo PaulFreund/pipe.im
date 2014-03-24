@@ -25,23 +25,31 @@ using namespace std;
 namespace Pipe {
     //==================================================================================================================
 
-    enum ServiceState {
-        GatewayStateOnline,
-        GatewayStateOffline,
-        GatewayStateError
-    };
+    class IServiceNode;
+    typedef shared_ptr<IServiceNode> IServiceNode_sptr;
 
     class IServiceNode {
-        virtual string getId() = 0;
-        // TODO: Get capabilities / commands
+        virtual string id() = 0;
+        virtual string type() = 0;
+
+        virtual map<string, string> commands() = 0;
+        virtual map<string, IServiceNode_sptr> children() = 0;
+    };
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    enum ServiceState {
+        ServiceStateOnline,
+        ServiceStateOffline,
+        ServiceStateError
     };
 
     class IService {
-        virtual string getId() = 0;
+        virtual string id() = 0;
         virtual ServiceState getState() = 0; // TODO: to be reviewed
         virtual void setState(ServiceState state) = 0; // TODO: to be reviewed
 
-        virtual IServiceNode getRootNode() = 0;
+        virtual IServiceNode_sptr getRootNode() = 0;
 
         virtual map<string, string> process(map<string, string> outbox) = 0;
     };
@@ -61,12 +69,12 @@ namespace Pipe {
     };
 
     class IGateway {
-        virtual string getId() = 0;
+        virtual string id() = 0;
         virtual GatewayState getState() = 0; // TODO: to be reviewed
         virtual void setState(GatewayState state) = 0; // TODO: to be reviewed
 
-        virtual vector<string> getClientList() = 0;
-        virtual map<string, GatewayClientState> getClientUpdates() = 0;
+        virtual vector<string> clients() = 0;
+        virtual map<string, GatewayClientState> clientUpdates() = 0;
 
         virtual map<string, string> process(map<string, string> outbox) = 0;
     };
@@ -79,8 +87,8 @@ namespace Pipe {
     //------------------------------------------------------------------------------------------------------------------
 
     class IServiceProvider {
-        virtual tstring getType() = 0;
-        virtual map<tstring, tstring> getSettings() = 0;
+        virtual tstring type() = 0;
+        virtual map<tstring, tstring> settings() = 0;
 
         virtual IService_sptr create(tstring id, map<tstring, tstring> settings) = 0;
 
@@ -89,8 +97,8 @@ namespace Pipe {
     //------------------------------------------------------------------------------------------------------------------
 
     class IGatewayProvider {
-        virtual tstring getType() = 0;
-        virtual map<tstring, tstring> getSettings() = 0;
+        virtual tstring type() = 0;
+        virtual map<tstring, tstring> settings() = 0;
 
         virtual IGateway_sptr create(tstring id, map<tstring, tstring> settings) = 0;
     };

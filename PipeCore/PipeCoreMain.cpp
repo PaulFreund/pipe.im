@@ -14,8 +14,16 @@ using namespace boost::filesystem;
 #endif
 
 
+/***********************************************************************************************************************
+
+    http://www.chaiscript.com/
+    http://libwebsockets.org/
+
+***********************************************************************************************************************/
+
 
 namespace Pipe {
+
     class Pipe {
     private:
         map<tstring, IServiceProvider_sptr> _serviceProviders;
