@@ -9,6 +9,8 @@ using namespace std;
 #include <boost/filesystem.hpp>
 using namespace boost::filesystem;
 
+#include "chaiscript\chaiscript.hpp"
+
 #ifdef WIN32
     #include <Windows.h>
 #endif
