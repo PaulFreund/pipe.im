@@ -18,6 +18,9 @@ using namespace boost::filesystem;
 
 /***********************************************************************************************************************
 
+// bytes instead of strings as data
+// type metadata
+// active scripts
     http://www.chaiscript.com/
     http://libwebsockets.org/
 

@@ -30,7 +30,7 @@ namespace Pipe {
 
     class IServiceNode {
         virtual string id() = 0;
-        virtual string type() = 0;
+        //virtual string type() = 0;
 
         virtual map<string, string> commands() = 0;
         virtual map<string, IServiceNode_sptr> children() = 0;
@@ -46,8 +46,8 @@ namespace Pipe {
 
     class IService {
         virtual string id() = 0;
-        virtual ServiceState getState() = 0; // TODO: to be reviewed
-        virtual void setState(ServiceState state) = 0; // TODO: to be reviewed
+        //virtual ServiceState getState() = 0; // TODO: to be reviewed ( I think the handling entity will poll this and create messages from changes)
+        //virtual void setState(ServiceState state) = 0; // TODO: to be reviewed
 
         virtual IServiceNode_sptr getRootNode() = 0;
 
@@ -70,8 +70,8 @@ namespace Pipe {
 
     class IGateway {
         virtual string id() = 0;
-        virtual GatewayState getState() = 0; // TODO: to be reviewed
-        virtual void setState(GatewayState state) = 0; // TODO: to be reviewed
+        //virtual GatewayState getState() = 0; // TODO: to be reviewed
+        //virtual void setState(GatewayState state) = 0; // TODO: to be reviewed
 
         virtual vector<string> clients() = 0;
         virtual map<string, GatewayClientState> clientUpdates() = 0;
