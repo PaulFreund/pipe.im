@@ -30,8 +30,7 @@ namespace Pipe {
 
     class Pipe {
     private:
-        map<tstring, IServiceProvider_sptr> _serviceProviders;
-        map<tstring, IGatewayProvider_sptr> _gatewayProviders;
+        map<tstring, PtrServiceProvider> _serviceProviders;
 
     public:
         Pipe() {
@@ -74,7 +73,7 @@ namespace Pipe {
 							continue;
 
 
-                        IExtensionPtr extension = initFunction();
+                        auto extension = initFunction();
 
 						// TODO
                     }
