@@ -1,6 +1,11 @@
 //======================================================================================================================
 
 #include <string>
+#include <memory>
+#include <vector>
+#include <map>
+
+using namespace std;
 
 #define _TCHAR_DEFINED
 #ifdef UNICODE
@@ -10,30 +15,41 @@
     #define _T(x) x
     #define TCHAR char
 #endif
-typedef std::basic_string<TCHAR> tstring;
-
-//======================================================================================================================
-
-#include <memory>
-#include <vector>
-#include <map>
-
-using namespace std;
+typedef basic_string<TCHAR> tstring;
+typedef unsigned char ubyte;
 
 //======================================================================================================================
 
 namespace Pipe {
-    //==================================================================================================================
+	//==================================================================================================================
 
-    class IServiceNode;
-    typedef shared_ptr<IServiceNode> IServiceNode_sptr;
+	struct PipeMessage {
+		tstring address;
+		tstring command;
+		bool binary;
+		vector<ubyte> data;
+	};
 
-    class IServiceNode {
-        virtual string id() = 0;
-        //virtual string type() = 0;
+	//==================================================================================================================
 
-        virtual map<string, string> commands() = 0;
-        virtual map<string, IServiceNode_sptr> children() = 0;
+	struct PipeCommand {
+		tstring name;
+		bool outgoing;
+		tstring description;
+
+	};
+
+	//==================================================================================================================
+
+    class IEndpoint;
+    typedef shared_ptr<IEndpoint> IEndpoint_sptr;
+
+    class IEndpoint {
+        virtual tstring id() = 0;
+        virtual tstring type() = 0;
+
+        virtual map<tstring, tstring> commands() = 0;
+        virtual map<string, IEndpoint_sptr> children() = 0;
     };
 
     //------------------------------------------------------------------------------------------------------------------
@@ -49,9 +65,9 @@ namespace Pipe {
         //virtual ServiceState getState() = 0; // TODO: to be reviewed ( I think the handling entity will poll this and create messages from changes)
         //virtual void setState(ServiceState state) = 0; // TODO: to be reviewed
 
-        virtual IServiceNode_sptr getRootNode() = 0;
+        virtual IEndpoint_sptr getRootNode() = 0;
 
-        virtual map<string, string> process(map<string, string> outbox) = 0;
+		virtual vector<PipeMessage> process(vector<PipeMessage> outbox) = 0;
     };
 
     //------------------------------------------------------------------------------------------------------------------
@@ -76,7 +92,7 @@ namespace Pipe {
         virtual vector<string> clients() = 0;
         virtual map<string, GatewayClientState> clientUpdates() = 0;
 
-        virtual map<string, string> process(map<string, string> outbox) = 0;
+		virtual vector<PipeMessage> process(vector<PipeMessage> outbox) = 0;
     };
 
     //==================================================================================================================

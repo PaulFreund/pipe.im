@@ -19,4 +19,4 @@ Thumbs.db
 *.ilk
 *.sdf
 *.vsp
-*.user
+/external

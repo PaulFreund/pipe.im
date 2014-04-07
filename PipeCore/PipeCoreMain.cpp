@@ -6,23 +6,22 @@
 #include <map>
 using namespace std;
 
-#include <boost/filesystem.hpp>
-using namespace boost::filesystem;
+#include <chaiscript\chaiscript.hpp>
 
-#include "chaiscript\chaiscript.hpp"
 
-#ifdef WIN32
-    #include <Windows.h>
-#endif
+#include <Poco/DirectoryIterator.h>
+#include <Poco/SharedLibrary.h>
+#include <Poco/Util/Application.h>
+#include <Poco/String.h>
+
+using namespace Poco;
+using namespace Poco::Util;
 
 
 /***********************************************************************************************************************
 
-// bytes instead of strings as data
-// type metadata
-// active scripts
-    http://www.chaiscript.com/
-    http://libwebsockets.org/
+	http://www.chaiscript.com/
+	http://pocoproject.org/features.html
 
 ***********************************************************************************************************************/
 
@@ -45,60 +44,63 @@ namespace Pipe {
 
     public:
         void run() {
-            loadExtensions();
         }
 
-    private:
-        void loadExtensions() {
+    public:
+        void loadExtensions(tstring path) {
 
-            path appPath = _T("");
-            #ifdef WIN32
-                TCHAR appPathBuffer[MAX_PATH]; 
-                HMODULE appModule = GetModuleHandle(NULL);
-                if (appModule == NULL) { throw new exception("Failed to get module path"); }
-                GetModuleFileName(appModule, appPathBuffer, (sizeof(appPathBuffer))); 
-                appPath = path(appPathBuffer).parent_path();
-            #else
-                throw new exception("LIBRARY LOADING NOT IMPLEMENTED");
-            #endif
+			Path appPath(path);
+			File appFolder(appPath);
+ 
+			auto suffix = SharedLibrary::suffix();
 
             try {
-                if (exists(appPath) && is_directory(appPath)) {
-                    for ( directory_iterator it( appPath ), itEnd; it != itEnd; ++it ) {
-                        auto elementPath = it->path();
-                        if(is_regular_file(elementPath) && elementPath.extension() == ".dll") {
-                            ExtensionInitPtr initFunction = nullptr;
-                            #ifdef WIN32
-                                HMODULE library = LoadLibrary(elementPath.c_str());
-                                if(library == NULL) { continue; }
+				if(appFolder.exists() && appFolder.isDirectory() && appFolder.canRead()) {
+                    for ( DirectoryIterator it( appPath ), itEnd; it != itEnd; ++it ) {
+						auto path = it->path();
+						auto ext = path.substr(path.length() - suffix.length(), string::npos);
+						if(!File(path).isFile() || ext != suffix)
+							continue;
 
-                                void* functionAddress = GetProcAddress(library, EXTENSION_INIT_NAME);
-                                if(functionAddress == NULL) { continue; }
+						SharedLibrary library(path);
+						if(!library.isLoaded())
+							continue;
 
-                                initFunction = (ExtensionInitPtr)functionAddress;
-                            #else
-                                throw new exception("LIBRARY LOADING NOT IMPLEMENTED");
-                            #endif
-                        
-                            if(initFunction == nullptr) continue;
-                            IExtensionPtr extension = initFunction();
+						if(!library.hasSymbol(EXTENSION_INIT_NAME))
+							continue;
 
-                            // TODO
-                        }
+						ExtensionInitPtr initFunction = static_cast<ExtensionInitPtr>(library.getSymbol(EXTENSION_INIT_NAME));
+						if(initFunction == nullptr)
+							continue;
+
+
+                        IExtensionPtr extension = initFunction();
+
+						// TODO
                     }
                 }
             }
-            catch (const filesystem_error& ex) {
-                cout << ex.what() << '\n';
+            catch (...) {
+                cout << "Error loading libraries" << endl;
             }
         }
     };
 }
 
-int main(int /*argc*/, wchar_t* /*argv[]*/)
+class PipeApplication : public Application {
+public:
+	PipeApplication(int argc, char* argv[]) : Application(argc, argv) {}
+	~PipeApplication() {  }
+};
+
+int main(int argc, TCHAR* argv[])
 {
     try {
-        Pipe::Pipe pipeInstance;
+		PipeApplication self(argc, argv);
+		Path commandPath(self.commandPath());
+		
+		Pipe::Pipe pipeInstance;
+		pipeInstance.loadExtensions(commandPath.parent().toString());
         pipeInstance.run();
     }
     catch(exception e) {
