@@ -23,8 +23,5 @@
     <ClInclude Include="../PipeCore/PipeExtensionItf.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="PipeExtensionWebsocketMain.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

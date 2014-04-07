@@ -4,10 +4,22 @@
 #include <exception>
 #include <iostream>
 #include <map>
+#include <array>
+#include <string>
 using namespace std;
 
-#include <chaiscript\chaiscript.hpp>
+#define _TCHAR_DEFINED
+#ifdef UNICODE
+    #define _T(x) L ##x
+    #define TCHAR wchar_t
+#else
+    #define _T(x) x
+    #define TCHAR char
+#endif
+typedef basic_string<TCHAR> tstring;
+typedef unsigned char ubyte;
 
+#include <chaiscript\chaiscript.hpp>
 
 #include <Poco/DirectoryIterator.h>
 #include <Poco/SharedLibrary.h>
@@ -30,7 +42,7 @@ namespace Pipe {
 
     class Pipe {
     private:
-        map<tstring, PtrServiceProvider> _serviceProviders;
+        vector<PipeServiceProvider> _serviceProviders;
 
     public:
         Pipe() {
@@ -65,15 +77,16 @@ namespace Pipe {
 						if(!library.isLoaded())
 							continue;
 
-						if(!library.hasSymbol(EXTENSION_INIT_NAME))
+						if(!library.hasSymbol(_T("PipeExtensionGetServiceProviders")))
 							continue;
 
-						ExtensionInitPtr initFunction = static_cast<ExtensionInitPtr>(library.getSymbol(EXTENSION_INIT_NAME));
+                        auto initFunction = static_cast<void (*)(PipeServiceProvider, COUNT)>(library.getSymbol(_T("PipeExtensionGetServiceProviders")));
 						if(initFunction == nullptr)
 							continue;
 
-
-                        auto extension = initFunction();
+                        PipeServiceProvider* providers = nullptr;
+                        COUNT count = 0;
+                        initFunction(providers, count);
 
 						// TODO
                     }
@@ -104,8 +117,9 @@ int main(int argc, TCHAR* argv[])
     }
     catch(exception e) {
         cout << "Exception: " << e.what() << endl;
-        cin.get();
     }
+
+    cin.get();
 	return 0;
 }
 

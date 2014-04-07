@@ -1,107 +1,85 @@
 //======================================================================================================================
 
-#include <string>
-#include <memory>
-#include <vector>
-#include <map>
-using namespace std;
-
-//======================================================================================================================
-
-#define _TCHAR_DEFINED
-#ifdef UNICODE
-    #define _T(x) L ##x
-    #define TCHAR wchar_t
+#ifdef WIN32
+    #ifdef PIPE_EXTENSION_EXPORTS
+        #define PIPE_EXTENSION_ITF extern "C" __declspec(dllexport) 
+    #else
+        #define PIPE_EXTENSION_ITF extern "C" __declspec(dllimport) 
+    #endif
 #else
-    #define _T(x) x
-    #define TCHAR char
+    #define PIPE_EXTENSION_ITF extern
 #endif
-typedef basic_string<TCHAR> tstring;
-typedef unsigned char ubyte;
 
 //======================================================================================================================
 
-struct IExtension;
-class IServiceProvider;
-class IService;
-class IServiceNode;
+typedef unsigned char* ZTSTRPTR;
+typedef unsigned int COUNT;
 
-typedef IExtension* PtrExtension;
-typedef shared_ptr<IServiceProvider> PtrServiceProvider;
-typedef shared_ptr<IService> PtrService;
-typedef shared_ptr<IServiceNode> PtrServiceNode;
-
-#define EXTENSION_INIT_NAME "InitPipeExtension"
-typedef PtrExtension(*ExtensionInitPtr)();
+typedef void* PipeServiceProvider;
+typedef void* PipeService;
+typedef void* PipeServiceNode;
 
 //======================================================================================================================
 
-namespace Pipe {
+//----------------------------------------------------------------------------------------------------------------------
+struct PipeServiceSettingType {
+    ZTSTRPTR id;                                    // Id of setting type
+    ZTSTRPTR description;                           // Human readable description
+};
 
-    //==================================================================================================================
+//----------------------------------------------------------------------------------------------------------------------
+struct PipeMessageParameterType {
+    ZTSTRPTR id;                                    // Id of parameter type
+    ZTSTRPTR description;                           // Human readable description
+    bool optional;                                  // Can this parameter be ommitted
+};
 
-    enum ServiceState {
-        ServiceStateOnline,
-        ServiceStateOffline,
-        ServiceStateError
-    };
+//----------------------------------------------------------------------------------------------------------------------
+struct PipeMessageType {
+    ZTSTRPTR id;                                    // Id of this message type
+    ZTSTRPTR description;                           // Human readable description 
+    bool receiving;                                 // Is the PipeServiceNode receiving or sending this message type
+    bool binary;                                    // Contains the data buffer binary or space separated parameters
+    COUNT parameterCount;                           // Number of parametes
+    PipeMessageParameterType* parameterTypes[];     // List of parameter types
+};
 
-    //------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+struct PipeServiceSetting {
+    ZTSTRPTR id;                                    // Id of setting variable
+    ZTSTRPTR value;                                 // Value of setting variable
+};
 
-    struct PipeMessage {
-        tstring address;
-        tstring command;
-        bool binary;
-        vector<ubyte> data;
-    };
+//----------------------------------------------------------------------------------------------------------------------
+struct PipeMessage {
+    ZTSTRPTR address;                               // Point separated path to sending or receiving PipeServiceNode
+    ZTSTRPTR type;                                  // Id of a PipeMessageType
+    unsigned int dataSize;                          // Bytecount for data buffer
+    unsigned char* data;                            // Databuffer
+};
 
-    //------------------------------------------------------------------------------------------------------------------
+//======================================================================================================================
 
-    struct PipeCommand {
-        tstring name;
-        bool outgoing;
-        tstring description;
+//----------------------------------------------------------------------------------------------------------------------
+PIPE_EXTENSION_ITF void PipeExtensionGetServiceProviders    (PipeServiceProvider providers[], COUNT count);
 
-    };
+//----------------------------------------------------------------------------------------------------------------------
+PIPE_EXTENSION_ITF void PipeServiceProviderGetType          (const PipeServiceProvider provider, ZTSTRPTR type);
+PIPE_EXTENSION_ITF void PipeServiceProviderGetSettingTypes  (const PipeServiceProvider provider, PipeServiceSettingType* types[], COUNT count);
+PIPE_EXTENSION_ITF void PipeServiceProviderCreateService    (const PipeServiceProvider provider, ZTSTRPTR id, PipeServiceSetting* settings[], const COUNT count, PipeService service);
+PIPE_EXTENSION_ITF void PipeServiceProviderDestroyService   (const PipeServiceProvider provider, const PipeService service);
 
-    //==================================================================================================================
+//----------------------------------------------------------------------------------------------------------------------
+PIPE_EXTENSION_ITF void PipeServiceGetId                    (const PipeService service, ZTSTRPTR id);
+PIPE_EXTENSION_ITF void PipeServiceGetType                  (const PipeService service, ZTSTRPTR type);
+PIPE_EXTENSION_ITF void PipeServiceGetRoot                  (const PipeService service, PipeServiceNode node);
+PIPE_EXTENSION_ITF void PipeServiceSendMessages             (const PipeService service, const PipeMessage* messages[], const COUNT count);
+PIPE_EXTENSION_ITF void PipeServiceReceiveMessages          (const PipeService service, PipeMessage* messages[], COUNT count);
 
-    struct IExtension {
-        vector<PtrServiceProvider> _serviceProviders;
-    };
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    class IServiceProvider {
-        virtual tstring type() = 0;
-        virtual map<tstring, tstring> settings() = 0;
-
-        virtual PtrService create(tstring id, map<tstring, tstring> settings) = 0;
-    };
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    class IService {
-        virtual tstring id() = 0;
-        virtual tstring type() = 0;
-
-        virtual PtrServiceNode root() = 0;
-
-        virtual void send(vector<PipeMessage> messages) = 0;
-        virtual vector<PipeMessage> receive() = 0;
-    };
-
-    //------------------------------------------------------------------------------------------------------------------
-
-    class IServiceNode {
-        virtual tstring id() = 0;
-        virtual tstring type() = 0;
-
-        virtual map<tstring, tstring> commands() = 0;
-        virtual map<tstring, PtrServiceNode> children() = 0;
-    };
-
-    //==================================================================================================================
-}
+//----------------------------------------------------------------------------------------------------------------------
+PIPE_EXTENSION_ITF void PipeServiceNodeGetId                (const PipeServiceNode node, ZTSTRPTR id);
+PIPE_EXTENSION_ITF void PipeServiceNodeGetType              (const PipeServiceNode node, ZTSTRPTR type);
+PIPE_EXTENSION_ITF void PipeServiceNodeGetMessageTypes      (const PipeServiceNode node, PipeMessageType* types[], COUNT count);
+PIPE_EXTENSION_ITF void PipeServiceNodeGetChildren          (const PipeServiceNode node, PipeServiceNode children[], COUNT count);
 
 //======================================================================================================================
