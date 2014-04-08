@@ -10,11 +10,11 @@ using namespace std;
 
 #define _TCHAR_DEFINED
 #ifdef UNICODE
-    #define _T(x) L ##x
-    #define TCHAR wchar_t
+	#define _T(x) L ##x
+	#define TCHAR wchar_t
 #else
-    #define _T(x) x
-    #define TCHAR char
+	#define _T(x) x
+	#define TCHAR char
 #endif
 typedef basic_string<TCHAR> tstring;
 typedef unsigned char ubyte;
@@ -40,34 +40,30 @@ using namespace Poco::Util;
 
 namespace Pipe {
 
-    class Pipe {
-    private:
-        vector<HPipeServiceProvider> _serviceProviders;
+	class Pipe {
+	private:
+		vector<HPipeServiceProvider> _serviceProviders;
 
-    public:
-        Pipe() {
+	public:
+		Pipe() { };
 
-        };
+		~Pipe() { };
 
-        ~Pipe() {
+	public:
+		void run() {
+		}
 
-        };
-
-    public:
-        void run() {
-        }
-
-    public:
-        void loadExtensions(tstring path) {
+	public:
+		void loadExtensions(tstring path) {
 
 			Path appPath(path);
 			File appFolder(appPath);
  
 			auto suffix = SharedLibrary::suffix();
 
-            try {
+			try {
 				if(appFolder.exists() && appFolder.isDirectory() && appFolder.canRead()) {
-                    for ( DirectoryIterator it( appPath ), itEnd; it != itEnd; ++it ) {
+					for ( DirectoryIterator it( appPath ), itEnd; it != itEnd; ++it ) {
 						auto path = it->path();
 						auto ext = path.substr(path.length() - suffix.length(), string::npos);
 						if(!File(path).isFile() || ext != suffix)
@@ -80,23 +76,27 @@ namespace Pipe {
 						if(!library.hasSymbol(_T("PipeExtensionGetServiceProviders")))
 							continue;
 
-                        auto initFunction = static_cast<void (*)(HPipeServiceProvider, Count)>(library.getSymbol(_T("PipeExtensionGetServiceProviders")));
+						auto initFunction = static_cast<void (*)(PipeCbServiceProviders)>(library.getSymbol(_T("PipeExtensionGetServiceProviders")));
 						if(initFunction == nullptr)
 							continue;
 
-                        HPipeServiceProvider* providers = nullptr;
-                        Count count = 0;
-                        initFunction(providers, count);
+						vector<HPipeServiceProvider> providers;
+						// Can not work!
+						initFunction((PipeCbServiceProviders) &[&providers](HPipeServiceProvider* data, EleCnt cnt) {
+							for(EleCnt i = 0; i < cnt; i++) {
+								providers.push_back(data[i]);
+							}
+						});
 
 						// TODO
-                    }
-                }
-            }
-            catch (...) {
-                cout << "Error loading libraries" << endl;
-            }
-        }
-    };
+					}
+				}
+			}
+			catch (...) {
+				cout << "Error loading libraries" << endl;
+			}
+		}
+	};
 }
 
 class PipeApplication : public Application {
@@ -107,19 +107,18 @@ public:
 
 int main(int argc, TCHAR* argv[])
 {
-    try {
+	try {
 		PipeApplication self(argc, argv);
 		Path commandPath(self.commandPath());
 		
 		Pipe::Pipe pipeInstance;
 		pipeInstance.loadExtensions(commandPath.parent().toString());
-        pipeInstance.run();
-    }
-    catch(exception e) {
-        cout << "Exception: " << e.what() << endl;
-    }
+		pipeInstance.run();
+	}
+	catch(exception e) {
+		cout << "Exception: " << e.what() << endl;
+	}
 
-    cin.get();
+	cin.get();
 	return 0;
 }
-
