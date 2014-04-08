@@ -1,5 +1,5 @@
-#include "PipeExtensionItf.h"
-
+//#include "PipeExtensionItf.h"
+/*
 #include <algorithm>
 #include <exception>
 #include <iostream>
@@ -23,26 +23,18 @@ typedef unsigned char ubyte;
 
 #include <Poco/DirectoryIterator.h>
 #include <Poco/SharedLibrary.h>
-#include <Poco/Util/Application.h>
 #include <Poco/String.h>
 
 using namespace Poco;
-using namespace Poco::Util;
 
 
-/***********************************************************************************************************************
 
-	http://www.chaiscript.com/
-	http://pocoproject.org/features.html
-
-***********************************************************************************************************************/
 
 
 namespace Pipe {
 
 	class Pipe {
 	private:
-		vector<HPipeServiceProvider> _serviceProviders;
 
 	public:
 		Pipe() { };
@@ -99,26 +91,4 @@ namespace Pipe {
 	};
 }
 
-class PipeApplication : public Application {
-public:
-	PipeApplication(int argc, char* argv[]) : Application(argc, argv) {}
-	~PipeApplication() {  }
-};
-
-int main(int argc, TCHAR* argv[])
-{
-	try {
-		PipeApplication self(argc, argv);
-		Path commandPath(self.commandPath());
-		
-		Pipe::Pipe pipeInstance;
-		pipeInstance.loadExtensions(commandPath.parent().toString());
-		pipeInstance.run();
-	}
-	catch(exception e) {
-		cout << "Exception: " << e.what() << endl;
-	}
-
-	cin.get();
-	return 0;
-}
+*/

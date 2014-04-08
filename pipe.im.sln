@@ -1,12 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PipeCore", "PipeCore\PipeCore.vcxproj", "{37C25578-A4C2-4B73-AEA5-FC58662B2609}"
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpipe", "libpipe\libpipe.vcxproj", "{37C25578-A4C2-4B73-AEA5-FC58662B2609}"
 	ProjectSection(ProjectDependencies) = postProject
 		{84ADD668-C259-40E9-946B-80CD2DBF6E97} = {84ADD668-C259-40E9-946B-80CD2DBF6E97}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PipeExtensionWebsocket", "PipeExtensionWebsocket\PipeExtensionWebsocket.vcxproj", "{84ADD668-C259-40E9-946B-80CD2DBF6E97}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PipeShell", "PipeShell\PipeShell.vcxproj", "{514684E8-E453-4C04-A3D7-AA172552953D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{37C25578-A4C2-4B73-AEA5-FC58662B2609} = {37C25578-A4C2-4B73-AEA5-FC58662B2609}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,6 +29,10 @@ Global
 		{84ADD668-C259-40E9-946B-80CD2DBF6E97}.Debug|Win32.Build.0 = Debug|Win32
 		{84ADD668-C259-40E9-946B-80CD2DBF6E97}.Release|Win32.ActiveCfg = Release|Win32
 		{84ADD668-C259-40E9-946B-80CD2DBF6E97}.Release|Win32.Build.0 = Release|Win32
+		{514684E8-E453-4C04-A3D7-AA172552953D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{514684E8-E453-4C04-A3D7-AA172552953D}.Debug|Win32.Build.0 = Debug|Win32
+		{514684E8-E453-4C04-A3D7-AA172552953D}.Release|Win32.ActiveCfg = Release|Win32
+		{514684E8-E453-4C04-A3D7-AA172552953D}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
