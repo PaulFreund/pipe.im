@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PipeCoreMain.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="LibPipeItf.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
@@ -30,6 +27,12 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="PipeExtensionItf.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonHeader.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeExtension.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

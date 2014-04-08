@@ -1,5 +1,7 @@
 //======================================================================================================================
 
+#pragma once
+
 #ifdef WIN32
 	#ifdef PIPE_EXTENSION_EXPORTS
 		#define PIPE_EXTENSION_ITF extern "C" __declspec(dllexport) 

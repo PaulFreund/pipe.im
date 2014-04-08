@@ -12,7 +12,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{84ADD668-C259-40E9-946B-80CD2DBF6E97}</ProjectGuid>
-    <RootNamespace>PipeExtensionWebsocket</RootNamespace>
+    <RootNamespace>PipeExtensionPurple</RootNamespace>
+    <ProjectName>PipeExtensionPurple</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -80,7 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="PipeExtensionWebsocketMain.cpp" />
+    <ClCompile Include="PipeExtensionPurpleMain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

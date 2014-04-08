@@ -79,10 +79,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="PipeCoreMain.cpp" />
     <ClCompile Include="LibPipeItf.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CommonHeader.h" />
+    <ClInclude Include="PipeExtension.h" />
     <ClInclude Include="PipeExtensionItf.h" />
     <ClInclude Include="LibPipeItf.h" />
     <ClInclude Include="PipeInstance.h" />

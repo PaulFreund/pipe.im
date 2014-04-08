@@ -8,7 +8,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpipe", "libpipe\libpipe.
 		{84ADD668-C259-40E9-946B-80CD2DBF6E97} = {84ADD668-C259-40E9-946B-80CD2DBF6E97}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PipeExtensionWebsocket", "PipeExtensionWebsocket\PipeExtensionWebsocket.vcxproj", "{84ADD668-C259-40E9-946B-80CD2DBF6E97}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PipeExtensionPurple", "PipeExtensionPurple\PipeExtensionPurple.vcxproj", "{84ADD668-C259-40E9-946B-80CD2DBF6E97}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PipeShell", "PipeShell\PipeShell.vcxproj", "{514684E8-E453-4C04-A3D7-AA172552953D}"
 	ProjectSection(ProjectDependencies) = postProject
