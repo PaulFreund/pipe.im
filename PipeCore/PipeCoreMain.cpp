@@ -42,7 +42,7 @@ namespace Pipe {
 
     class Pipe {
     private:
-        vector<PipeServiceProvider> _serviceProviders;
+        vector<HPipeServiceProvider> _serviceProviders;
 
     public:
         Pipe() {
@@ -80,12 +80,12 @@ namespace Pipe {
 						if(!library.hasSymbol(_T("PipeExtensionGetServiceProviders")))
 							continue;
 
-                        auto initFunction = static_cast<void (*)(PipeServiceProvider, COUNT)>(library.getSymbol(_T("PipeExtensionGetServiceProviders")));
+                        auto initFunction = static_cast<void (*)(HPipeServiceProvider, Count)>(library.getSymbol(_T("PipeExtensionGetServiceProviders")));
 						if(initFunction == nullptr)
 							continue;
 
-                        PipeServiceProvider* providers = nullptr;
-                        COUNT count = 0;
+                        HPipeServiceProvider* providers = nullptr;
+                        Count count = 0;
                         initFunction(providers, count);
 
 						// TODO
