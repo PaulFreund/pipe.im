@@ -23,16 +23,22 @@
     <ClInclude Include="LibPipeItf.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="PipeInstance.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="PipeExtensionItf.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="CommonHeader.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="PipeExtension.h">
+    <ClInclude Include="LibPipeInstance.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPipeWrappert.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeExtensionInstance.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeExtensionWrapper.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

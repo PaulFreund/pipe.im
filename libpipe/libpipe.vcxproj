@@ -50,12 +50,11 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>LIBPIPE_EXPORTS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
+      <PrecompiledHeaderFile>CommonHeader.h</PrecompiledHeaderFile>
+      <DisableSpecificWarnings>4503</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -64,12 +63,13 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>LIBPIPE_EXPORTS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>CommonHeader.h</PrecompiledHeaderFile>
+      <DisableSpecificWarnings>4503</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -83,10 +83,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonHeader.h" />
-    <ClInclude Include="PipeExtension.h" />
+    <ClInclude Include="LibPipeWrappert.h" />
+    <ClInclude Include="PipeExtensionInstance.h" />
+    <ClInclude Include="PipeExtensionWrapper.h" />
     <ClInclude Include="PipeExtensionItf.h" />
     <ClInclude Include="LibPipeItf.h" />
-    <ClInclude Include="PipeInstance.h" />
+    <ClInclude Include="LibPipeInstance.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
