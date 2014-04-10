@@ -15,31 +15,37 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LibPipeItf.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="LibPipeItf.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="PipeExtensionItf.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="CommonHeader.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPipeInterface.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeExtensionAPI.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeExtensionInterface.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPipeAPI.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPipe.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="LibPipeInstance.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="LibPipeWrappert.h">
+    <ClInclude Include="PipeExtension.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="PipeExtensionInstance.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="PipeExtensionWrapper.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="LibPipeAPI.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

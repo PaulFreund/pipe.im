@@ -2,6 +2,8 @@
 
 #pragma once
 
+//======================================================================================================================
+
 #ifdef WIN32
 	#ifdef LIBPIPE_EXPORTS
 		#define LIBPIPE_ITF extern "C" __declspec(dllexport) 
@@ -19,13 +21,16 @@
 //======================================================================================================================
 typedef const char*		LibPipeStr;
 typedef uint64_t		LibPipeEleCnt;
-typedef uint64_t		LibPipeInstance;
+typedef uint64_t		HLibPipeInstance;
 
 //======================================================================================================================
 
 struct LibPipeMessageData {
-	unsigned int dataSize;
-	const unsigned char* data;
+	LibPipeStr address;									// Point separated path to sending or receiving PipeExtensionServiceNode
+	LibPipeStr type;									// Id of a PipeMessageType
+	LibPipeEleCnt parameterCount;						// Count of parameters
+	LibPipeEleCnt* parameterLength;						// List of data buffer sizes
+	LibPipeStr* parameterData;							// List of data buffers
 };
 
 //======================================================================================================================
@@ -41,12 +46,12 @@ LIBPIPE_ITF void LibPipeGetServiceProviders		(LibPipeCbContext context, LibPipeC
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeCreateInstance			(LibPipeStr path, LibPipeStr* serviceProviders, LibPipeEleCnt serviceProviderCount, LibPipeInstance* instance);
-LIBPIPE_ITF void LibPipeDestroyInstance			(LibPipeInstance instance);
+LIBPIPE_ITF void LibPipeCreateInstance			(LibPipeStr path, LibPipeStr* serviceProviders, LibPipeEleCnt serviceProviderCount, HLibPipeInstance* instance);
+LIBPIPE_ITF void LibPipeDestroyInstance			(HLibPipeInstance instance);
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeSend					(LibPipeInstance instance, LibPipeMessageData* messages, LibPipeEleCnt count);
-LIBPIPE_ITF void LibPipeReceive					(LibPipeInstance instance, LibPipeCbContext context, LibPipeCbMessages cbMessages);
+LIBPIPE_ITF void LibPipeSend					(HLibPipeInstance instance, LibPipeMessageData* messages, LibPipeEleCnt count);
+LIBPIPE_ITF void LibPipeReceive					(HLibPipeInstance instance, LibPipeCbContext context, LibPipeCbMessages cbMessages);
 
 //======================================================================================================================

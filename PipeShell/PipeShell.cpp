@@ -27,6 +27,7 @@ typedef unsigned char ubyte;
 #include <Poco/DirectoryIterator.h>
 #include <Poco/SharedLibrary.h>
 #include <Poco/String.h>
+#include <Poco/StringTokenizer.h>
 #include <Poco/Util/Application.h>
 #include <Poco/Thread.h>
 using namespace Poco;
@@ -40,7 +41,7 @@ public:
 
 //======================================================================================================================
 
-#include <libpipe/LibPipeItf.h>
+#include <libpipe/LibPipeInstance.h>
 
 #ifdef _DEBUG
 	#pragma comment(lib, "LibPiped.lib")
@@ -50,66 +51,20 @@ public:
 
 //======================================================================================================================
 
-vector<tstring> getProviderList() {
-	vector<tstring> providerList;
-
-	LibPipeGetServiceProviders(&providerList, [](LibPipeCbContext context, LibPipeStr* providers, LibPipeEleCnt providerCount) {
-		vector<tstring>* pProviderList = static_cast<vector<tstring>*>(context);
-		for(auto i = 0; i < providerCount; i++) {
-			pProviderList->push_back(tstring(providers[i]));
-		}
-	});
-
-	return providerList;
-}
-
-LibPipeInstance createInstance(tstring appPath, vector<tstring> providers) {
-	tstring userPath = appPath + Path::separator() + _T("PipeShellData");
-
-	vector<LibPipeStr> pointers;
-	for(auto& provider : providers) {
-		pointers.push_back(provider.c_str());
-	}
-
-	LibPipeInstance instance;
-	LibPipeCreateInstance(userPath.c_str(), pointers.data(), pointers.size(), &instance);
-	return instance;
-}
-
-void receiveMessages(LibPipeInstance instance, vector<tstring>& messages) {
-	LibPipeReceive(instance, &messages, [](LibPipeCbContext context, LibPipeMessageData* messages, LibPipeEleCnt messageCount) {
-		vector<tstring>* pMessages = static_cast<vector<tstring>*>(context);
-		for(auto i = 0; i < messageCount; i++) {
-			pMessages->push_back(tstring(messages[i].data, messages[i].data + messages[i].dataSize));
-		}
-	});
-}
-
-void sendMessages(LibPipeInstance instance, vector<tstring>& messages) {
-	vector<LibPipeMessageData> pointers;
-	for(auto& message : messages) {
-		pointers.push_back({ message.length(), reinterpret_cast<const unsigned char*>(message.c_str()) });
-	}
-	LibPipeSend(instance, pointers.data(), pointers.size());
-}
-
 int main(int argc, char* argv[]) {
-	LibPipeInstance instance = 0;
-
 	try {
 		// Get application path
 		PipeShellApplication self(argc, argv);
 		Path commandPath(self.commandPath());
 		auto appPath = commandPath.parent().toString();
+		auto userPath = appPath + _T("PipeShellData");
 
-		// Load extensions
-        LibPipeLoadExtensions(appPath.c_str());
+		LibPipeInstance::loadExtensions(appPath);
+		auto providers = LibPipeInstance::serviceProviders();
 
-		// Get available providers
-		auto providers = getProviderList();
-
+		LibPipeInstance pipe(userPath, providers);
+		
 		// Create instance
-		instance = createInstance(appPath, providers);
 		cout << _T("------------------------------------------") << endl;
 		cout << _T("Welcome to pipe shell") << endl;
 		cout << _T("------------------------------------------") << endl;
@@ -123,31 +78,50 @@ int main(int argc, char* argv[]) {
 		bool exit = false;
 
 		thread receive([&]() {
-			vector<tstring> messages;
 			while(!exit) {
-				receiveMessages(instance, messages);
+				auto messages = pipe.receive();
 				for(auto& message: messages) {
-					cout << message << endl;
+					cout << message.address << _T(" ") << message.type;
+					for(auto& parameter : message.parameters) {
+						cout << _T(" ") << parameter;
+					}
+					cout << endl;
 				}
-				messages.clear();
 
 				Thread::sleep(100);
 			}
 		});
 
 		thread send([&]() {
-			vector<tstring> messages;
-			while(!exit) {
-				tstring input;
-				cin >> input;
+			const unsigned int bufferSize = 2048;
+			TCHAR buffer[bufferSize];
 
-				if(input.compare(_T("exit")) == 0) {
+			while(!exit) {
+				cin.getline(buffer, bufferSize, _T('\n'));
+
+				tstring inputLine(buffer);
+
+				if(inputLine.compare(_T("exit")) == 0) {
 					exit = true;
 					continue;
 				}
-				messages.push_back(input);
-				sendMessages(instance, messages);
-				messages.clear();
+
+				// TODO: Improve to allow spaces in parameters
+				StringTokenizer tokens(inputLine, _T(" "), StringTokenizer::TOK_IGNORE_EMPTY);
+				if(tokens.count() >= 2) {
+					LibPipeMessage message;
+					message.address = tokens[0];
+					message.type = tokens[1];
+
+					for(auto i = 2; i < tokens.count(); i++) {
+						message.parameters.push_back(tokens[i]);
+					}
+
+					pipe.send({ message });
+				}
+				else {
+					cout << _T("Input syntax: <address> <type> [<parameter> ...] OR exit") << endl;
+				}
 			}
 		});
 
@@ -162,8 +136,5 @@ int main(int argc, char* argv[]) {
 		cout << _T("Exception: ") << e.what() << endl;
 	}
 	
-	LibPipeDestroyInstance(instance);
-
-	cin.get();
 	return 0;
 }

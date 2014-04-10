@@ -1,8 +1,8 @@
 //======================================================================================================================
 
 #include "CommonHeader.h"
-#include "LibPipeInstance.h"
-#include "PipeExtensionWrapper.h"
+#include "LibPipe.h"
+#include "PipeExtensionInstance.h"
 using namespace std;
 using namespace Poco;
 //======================================================================================================================
@@ -11,8 +11,8 @@ using namespace Poco;
 
 //======================================================================================================================
 
-vector<PipeInstance> g_Instances;
-vector<PipeExtensionWrapper> g_Extensions;
+vector<LibPipe> g_Instances;
+vector<PipeExtensionInstance> g_Extensions;
 
 //======================================================================================================================
 
@@ -62,7 +62,7 @@ void loadExtension(tstring path) {
 	}
 	catch(...) { return; }
 
-	g_Extensions.push_back(PipeExtensionWrapper(extensionFunctions));
+	g_Extensions.push_back(PipeExtensionInstance(extensionFunctions));
 }
 
 //======================================================================================================================
@@ -86,8 +86,10 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 LIBPIPE_ITF void LibPipeGetServiceProviders(LibPipeCbContext context, LibPipeCbServiceProviders cbServiceProviders) {
 	vector<tstring> providers;
 	for(auto& extension : g_Extensions) {
-		auto& extensionProviders = extension.getServiceProviders();
-		providers.insert(providers.begin(), extensionProviders.begin(), extensionProviders.end());
+		auto extensionProviders = extension.serviceProviders();
+		for(auto& extensionProvider : extensionProviders) {
+			providers.push_back(extensionProvider->type());
+		}
 	}
 
 	vector<LibPipeStr> pointers;
@@ -100,18 +102,18 @@ LIBPIPE_ITF void LibPipeGetServiceProviders(LibPipeCbContext context, LibPipeCbS
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeCreateInstance(LibPipeStr path, LibPipeStr* serviceProviders, LibPipeEleCnt serviceProviderCount, LibPipeInstance* instance) {
+LIBPIPE_ITF void LibPipeCreateInstance(LibPipeStr path, LibPipeStr* serviceProviders, LibPipeEleCnt serviceProviderCount, HLibPipeInstance* instance) {
 	vector<tstring> providers;
 	for(auto i = 0; i < serviceProviderCount; i++) {
 		providers.push_back(tstring(serviceProviders[i]));
 	}
 
-	g_Instances.push_back(PipeInstance(tstring(path), providers));
-	(*instance) = reinterpret_cast<LibPipeInstance>(&g_Instances.back());
+	g_Instances.push_back(LibPipe(tstring(path), providers));
+	(*instance) = reinterpret_cast<HLibPipeInstance>(&g_Instances.back());
 }
 
-LIBPIPE_ITF void LibPipeDestroyInstance(LibPipeInstance instance) {
-	PipeInstance* pInstance = reinterpret_cast<PipeInstance*>(instance);
+LIBPIPE_ITF void LibPipeDestroyInstance(HLibPipeInstance instance) {
+	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
 	for(auto it = g_Instances.begin(); it != g_Instances.end(); it++) {
 		if(it._Ptr == pInstance) {
 			g_Instances.erase(it);
@@ -122,25 +124,54 @@ LIBPIPE_ITF void LibPipeDestroyInstance(LibPipeInstance instance) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeSend(LibPipeInstance instance, LibPipeMessageData* messages, LibPipeEleCnt count) {
-	PipeInstance* pInstance = reinterpret_cast<PipeInstance*>(instance);
-	vector<tstring> sendMessages;
-	for(auto i = 0; i < count; i++) {
-		sendMessages.push_back(tstring(messages[i].data, messages[i].data + messages[i].dataSize));
+LIBPIPE_ITF void LibPipeSend(HLibPipeInstance instance, LibPipeMessageData* messages, LibPipeEleCnt count) {
+	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
+	vector<LibPipeMessage> sendMessages;
+	for(auto idxMessage = 0; idxMessage < count; idxMessage++) {
+		std::vector<tstring> parameters;
+		for(auto idxParameter = 0; idxParameter < messages[idxMessage].parameterCount; idxParameter++) {
+			parameters.push_back(tstring(
+				messages[idxMessage].parameterData[idxParameter],
+				messages[idxMessage].parameterData[idxParameter] + messages[idxMessage].parameterLength[idxParameter]
+			));
+		}
+
+		sendMessages.push_back({
+			tstring(messages[idxMessage].address),
+			tstring(messages[idxMessage].type),
+			parameters
+		});
 	}
+
 	pInstance->send(sendMessages);
 }
 
-LIBPIPE_ITF void LibPipeReceive(LibPipeInstance instance, LibPipeCbContext context, LibPipeCbMessages cbMessages) {
-	PipeInstance* pInstance = reinterpret_cast<PipeInstance*>(instance);
-	auto& receiveMessages = pInstance->receive();
+LIBPIPE_ITF void LibPipeReceive(HLibPipeInstance instance, LibPipeCbContext context, LibPipeCbMessages cbMessages) {
+	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
+	auto& messages = pInstance->receive();
 
-	vector<LibPipeMessageData> messages;
-	for(auto& message : receiveMessages) {
-		messages.push_back({ message.length(), reinterpret_cast<const unsigned char*>(message.c_str()) });
+	std::vector<LibPipeMessageData> messagePointers;
+	std::vector<std::vector<LibPipeEleCnt>> parameterLengthPointers;
+	std::vector<std::vector<LibPipeStr>> parameterDataPointers;
+
+	for(auto i = 0; i < messages.size(); i++) {
+		parameterLengthPointers.push_back({});
+		parameterDataPointers.push_back({});
+		for(auto& parameter : messages[i].parameters) {
+			parameterLengthPointers[i].push_back(parameter.length());
+			parameterDataPointers[i].push_back(parameter.c_str());
+		}
+
+		messagePointers.push_back({
+			messages[i].address.c_str(),
+			messages[i].type.c_str(),
+			messages[i].parameters.size(),
+			parameterLengthPointers[i].data(),
+			parameterDataPointers[i].data()
+		});
 	}
-	
-	cbMessages(context, messages.data(), messages.size());
+
+	cbMessages(context, messagePointers.data(), messagePointers.size());
 }
 
 //======================================================================================================================

@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PipeExtensionPurpleMain.cpp">
+    <ClCompile Include="PipeExtensionPurpleAPI.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

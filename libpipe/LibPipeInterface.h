@@ -4,11 +4,12 @@
 
 //======================================================================================================================
 
-#include <vector>
-#include <map>
-#include <string>
+#include "LibPipeAPI.h"
 
-//======================================================================================================================
+#include <vector>
+#include <string>
+#include <map>
+#include <memory>
 
 #define _TCHAR_DEFINED
 #ifdef UNICODE
@@ -19,27 +20,25 @@
 #define TCHAR char
 #endif
 
-//======================================================================================================================
-
 typedef std::basic_string<TCHAR> tstring;
-typedef unsigned char ubyte;
 
 //======================================================================================================================
 
-#include <chaiscript\chaiscript.hpp>
+struct LibPipeMessage {
+	tstring address;
+	tstring type;
+	std::vector<tstring> parameters;
+};
 
 //======================================================================================================================
 
-#include <Poco/DirectoryIterator.h>
-#include <Poco/SharedLibrary.h>
-#include <Poco/String.h>
-using namespace Poco;
+class ILibPipe {
+public:
+	virtual ~ILibPipe() {};
 
-//======================================================================================================================
-
-#include "LibPipeAPI.h"
-#include "PipeExtensionAPI.h"
-
-#include "LibPipeInterface.h"
+public:
+	virtual void send(const std::vector<LibPipeMessage>& messages) = 0;
+	virtual std::vector<LibPipeMessage> receive() = 0;
+};
 
 //======================================================================================================================

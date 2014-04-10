@@ -79,16 +79,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="LibPipeItf.cpp" />
+    <ClCompile Include="LibPipeAPI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonHeader.h" />
-    <ClInclude Include="LibPipeWrappert.h" />
-    <ClInclude Include="PipeExtensionInstance.h" />
-    <ClInclude Include="PipeExtensionWrapper.h" />
-    <ClInclude Include="PipeExtensionItf.h" />
-    <ClInclude Include="LibPipeItf.h" />
+    <ClInclude Include="LibPipeInterface.h" />
     <ClInclude Include="LibPipeInstance.h" />
+    <ClInclude Include="PipeExtension.h" />
+    <ClInclude Include="PipeExtensionInterface.h" />
+    <ClInclude Include="PipeExtensionAPI.h" />
+    <ClInclude Include="LibPipeAPI.h" />
+    <ClInclude Include="LibPipe.h" />
+    <ClInclude Include="PipeExtensionInstance.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
