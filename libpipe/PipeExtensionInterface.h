@@ -27,6 +27,17 @@ struct PipeExtensionMessageType {
 
 //======================================================================================================================
 
+class IPipeExtensionServiceProvider;
+class IPipeExtension {
+public:
+	virtual ~IPipeExtension() {}
+
+public:
+	virtual std::vector<std::shared_ptr<IPipeExtensionServiceProvider>> serviceProviders() = 0;
+};
+
+//======================================================================================================================
+
 class IPipeExtensionService;
 class IPipeExtensionServiceProvider {
 public:
@@ -63,21 +74,11 @@ public:
 	virtual ~IPipeExtensionServiceNode() {}
 
 public:
-	virtual tstring id() = 0;
+	virtual tstring address() = 0;
 	virtual tstring type() = 0;
 
 	virtual std::vector<PipeExtensionMessageType> messageTypes() = 0;
 	virtual std::map<tstring, std::shared_ptr<IPipeExtensionServiceNode>> children() = 0;
-};
-
-//======================================================================================================================
-
-class IPipeExtension {
-public:
-	virtual ~IPipeExtension() {}
-
-public:
-	virtual std::vector<std::shared_ptr<IPipeExtensionServiceProvider>> serviceProviders() = 0;
 };
 
 //======================================================================================================================

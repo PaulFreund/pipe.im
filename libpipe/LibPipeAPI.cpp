@@ -55,7 +55,7 @@ void loadExtension(tstring path) {
 		extensionFunctions.fktServiceGetRoot					= static_cast<FktPipeExtensionServiceGetRoot					>(loadExtensionSymbol(library, NamePipeExtensionServiceGetRoot));
 		extensionFunctions.fktServiceSendMessages				= static_cast<FktPipeExtensionServiceSendMessages				>(loadExtensionSymbol(library, NamePipeExtensionServiceSendMessages));
 		extensionFunctions.fktServiceReceiveMessages			= static_cast<FktPipeExtensionServiceReceiveMessages			>(loadExtensionSymbol(library, NamePipeExtensionServiceReceiveMessages));
-		extensionFunctions.fktServiceNodeGetId					= static_cast<FktPipeExtensionServiceNodeGetId					>(loadExtensionSymbol(library, NamePipeExtensionServiceNodeGetId));
+		extensionFunctions.fktServiceNodeGetAddress				= static_cast<FktPipeExtensionServiceNodeGetAddress				>(loadExtensionSymbol(library, NamePipeExtensionServiceNodeGetAddress));
 		extensionFunctions.fktServiceNodeGetType				= static_cast<FktPipeExtensionServiceNodeGetType				>(loadExtensionSymbol(library, NamePipeExtensionServiceNodeGetType));
 		extensionFunctions.fktServiceNodeGetMessageTypes		= static_cast<FktPipeExtensionServiceNodeGetMessageTypes		>(loadExtensionSymbol(library, NamePipeExtensionServiceNodeGetMessageTypes));
 		extensionFunctions.fktServiceNodeGetChildren			= static_cast<FktPipeExtensionServiceNodeGetChildren			>(loadExtensionSymbol(library, NamePipeExtensionServiceNodeGetChildren));

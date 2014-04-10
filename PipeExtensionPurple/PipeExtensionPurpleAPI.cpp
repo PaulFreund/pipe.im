@@ -7,7 +7,6 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 PIPE_EXTENSION_ITF void PipeExtensionGetServiceProviders(PipeExtensionCbContext context, PipeExtensionCbServiceProviders cbServiceProviders) {
-    std::cout << "PipeExtensionGetServiceProviders for Websockets!" << std::endl;
 	HPipeExtensionServiceProvider provs[10];
 	PipeExtensionEleCnt cnt = 10;
 	cbServiceProviders(context, provs, cnt);
@@ -57,19 +56,19 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceReceiveMessages(HPipeExtensionServic
 
 //----------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceNodeGetId(HPipeExtensionServiceNode node, PipeExtensionCbContext context, PipeExtensionCbZtStr cbId) {
+PIPE_EXTENSION_ITF void PipeExtensionServiceNodeGetAddress(HPipeExtensionService service, HPipeExtensionServiceNode node, PipeExtensionCbContext context, PipeExtensionCbZtStr cbId) {
 
 }
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceNodeGetType(HPipeExtensionServiceNode node, PipeExtensionCbContext context, PipeExtensionCbZtStr cbType) {
+PIPE_EXTENSION_ITF void PipeExtensionServiceNodeGetType(HPipeExtensionService service, HPipeExtensionServiceNode node, PipeExtensionCbContext context, PipeExtensionCbZtStr cbType) {
 
 }
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceNodeGetMessageTypes(HPipeExtensionServiceNode node, PipeExtensionCbContext context, PipeExtensionCbMessageTypes cbMessageTypes) {
+PIPE_EXTENSION_ITF void PipeExtensionServiceNodeGetMessageTypes(HPipeExtensionService service, HPipeExtensionServiceNode node, PipeExtensionCbContext context, PipeExtensionCbMessageTypes cbMessageTypes) {
 
 }
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceNodeGetChildren(HPipeExtensionServiceNode node, PipeExtensionCbContext context, PipeExtensionCbServiceNodes cbChildren) {
+PIPE_EXTENSION_ITF void PipeExtensionServiceNodeGetChildren(HPipeExtensionService service, HPipeExtensionServiceNode node, PipeExtensionCbContext context, PipeExtensionCbServiceNodes cbChildren) {
 
 }
 
