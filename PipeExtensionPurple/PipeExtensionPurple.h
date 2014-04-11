@@ -31,12 +31,16 @@ public:
 		if(provider == _T("irc")) {
 			return ServiceIRC::settingTypes();
 		}
+
+		return {};
 	}
 
 	virtual IPipeExtensionService* create(tstring provider, tstring id, std::map<tstring, tstring> settings) {
 		if(provider == _T("irc")) {
 			return (_services[id] = new ServiceIRC(id, settings));
 		}
+
+		return nullptr;
 	}
 
 	virtual void destroy(IPipeExtensionService* service) {
