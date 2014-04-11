@@ -36,9 +36,6 @@
     <ClInclude Include="LibPipeInstance.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="PipeExtension.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="PipeExtensionInstance.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>

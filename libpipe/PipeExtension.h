@@ -1,1 +1,0 @@
-// I don't know yet if there should be a base class for other extension instances here (that provides essential commands for example)

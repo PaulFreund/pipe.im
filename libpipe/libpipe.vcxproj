@@ -85,7 +85,6 @@
     <ClInclude Include="CommonHeader.h" />
     <ClInclude Include="LibPipeInterface.h" />
     <ClInclude Include="LibPipeInstance.h" />
-    <ClInclude Include="PipeExtension.h" />
     <ClInclude Include="PipeExtensionInterface.h" />
     <ClInclude Include="PipeExtensionAPI.h" />
     <ClInclude Include="LibPipeAPI.h" />

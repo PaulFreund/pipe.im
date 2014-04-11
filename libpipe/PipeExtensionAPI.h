@@ -81,7 +81,7 @@ PIPE_EXTENSION_ITF void PipeExtensionGetServiceProviderSettingTypes		(PipeExtens
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceCreate						(PipeExtensionStr provider, PipeExtensionStr name, PipeExtensionServiceSettingData* settings, PipeExtensionEleCnt count, HPipeExtensionService* service);
+PIPE_EXTENSION_ITF void PipeExtensionServiceCreate						(PipeExtensionStr provider, PipeExtensionStr id, PipeExtensionServiceSettingData* settings, PipeExtensionEleCnt count, HPipeExtensionService* service);
 PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy						(HPipeExtensionService service);
 
 //----------------------------------------------------------------------------------------------------------------------

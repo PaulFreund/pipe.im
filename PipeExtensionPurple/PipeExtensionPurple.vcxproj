@@ -83,6 +83,11 @@
   <ItemGroup>
     <ClCompile Include="PipeExtensionPurpleAPI.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CommonHeader.h" />
+    <ClInclude Include="PipeExtensionPurple.h" />
+    <ClInclude Include="ServiceIRC.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -3,12 +3,9 @@
 #include "CommonHeader.h"
 #include "LibPipe.h"
 #include "PipeExtensionInstance.h"
+
 using namespace std;
 using namespace Poco;
-//======================================================================================================================
-
-
-
 //======================================================================================================================
 
 vector<LibPipe> g_Instances;

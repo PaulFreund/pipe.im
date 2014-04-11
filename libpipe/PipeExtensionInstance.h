@@ -31,7 +31,6 @@ typedef void(*FktPipeExtensionServiceGetNodeMessageTypes)(HPipeExtensionService,
 
 //======================================================================================================================
 
-
 struct PipeExtensionFunctions {
 	FktPipeExtensionGetServiceProviders					fktPipeExtensionGetServiceProviders = nullptr;
 	FktPipeExtensionGetServiceProviderSettingTypes		fktPipeExtensionGetServiceProviderSettingTypes = nullptr;
@@ -196,7 +195,7 @@ public:
 		return providerSettings;
 	}
 
-	virtual std::shared_ptr<IPipeExtensionService> createService(tstring provider, tstring name, std::map<tstring, tstring> settings) {
+	virtual IPipeExtensionService* create(tstring provider, tstring id, std::map<tstring, tstring> settings) {
 		HPipeExtensionService service = 0;
 
 		std::vector<PipeExtensionServiceSettingData> settingList;
@@ -205,8 +204,12 @@ public:
 			settingList.push_back({ it->first.c_str(), it->second.c_str() });
 		}
 
-		_functions.fktPipeExtensionServiceCreate(provider.c_str(), name.c_str(), settingList.data(), settingList.size(), &service);
-		return std::make_shared<PipeExtensionServiceInstance>(PipeExtensionServiceInstance(_functions, service, name));
+		_functions.fktPipeExtensionServiceCreate(provider.c_str(), id.c_str(), settingList.data(), settingList.size(), &service);
+		return new PipeExtensionServiceInstance(_functions, service, id);
+	}
+
+	virtual void destroy(IPipeExtensionService* service) {
+		_functions.fktPipeExtensionServiceDestroy(reinterpret_cast<HPipeExtensionService>(service));
 	}
 };
 

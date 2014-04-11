@@ -26,19 +26,8 @@ typedef unsigned char ubyte;
 
 //======================================================================================================================
 
-#include <chaiscript\chaiscript.hpp>
-
-//======================================================================================================================
-
-#include <Poco/DirectoryIterator.h>
-#include <Poco/SharedLibrary.h>
-#include <Poco/String.h>
-using namespace Poco;
-
-//======================================================================================================================
-
-#include "LibPipeAPI.h"
-#include "PipeExtensionAPI.h"
-#include "LibPipeInterface.h"
+#include <libpipe/LibPipeAPI.h>
+#include <libpipe/PipeExtensionAPI.h>
+#include <libpipe/PipeExtensionInterface.h>
 
 //======================================================================================================================
