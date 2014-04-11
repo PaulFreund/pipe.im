@@ -20,7 +20,7 @@
 
 //======================================================================================================================
 
-typedef unsigned char*	PipeExtensionStr;
+typedef const char*		PipeExtensionStr;
 typedef uint64_t		PipeExtensionEleCnt;
 
 typedef uint64_t		HPipeExtensionService;
