@@ -21,7 +21,7 @@
 //======================================================================================================================
 typedef const char*		LibPipeStr;
 typedef uint64_t		LibPipeEleCnt;
-typedef uint64_t		HLibPipeInstance;
+typedef uint64_t		HLibPipe;
 
 //======================================================================================================================
 
@@ -46,12 +46,12 @@ LIBPIPE_ITF void LibPipeGetServiceProviders		(LibPipeCbContext context, LibPipeC
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeCreateInstance			(LibPipeStr path, LibPipeStr* serviceProviders, LibPipeEleCnt serviceProviderCount, HLibPipeInstance* instance);
-LIBPIPE_ITF void LibPipeDestroyInstance			(HLibPipeInstance instance);
+LIBPIPE_ITF void LibPipeCreate					(LibPipeStr path, LibPipeStr* serviceProviders, LibPipeEleCnt serviceProviderCount, HLibPipe* instance);
+LIBPIPE_ITF void LibPipeDestroy					(HLibPipe instance);
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeSend					(HLibPipeInstance instance, LibPipeMessageData* messages, LibPipeEleCnt count);
-LIBPIPE_ITF void LibPipeReceive					(HLibPipeInstance instance, LibPipeCbContext context, LibPipeCbMessages cbMessages);
+LIBPIPE_ITF void LibPipeSend					(HLibPipe instance, LibPipeMessageData* messages, LibPipeEleCnt count);
+LIBPIPE_ITF void LibPipeReceive					(HLibPipe instance, LibPipeCbContext context, LibPipeCbMessages cbMessages);
 
 //======================================================================================================================

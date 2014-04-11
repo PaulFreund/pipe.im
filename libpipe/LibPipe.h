@@ -32,7 +32,7 @@ public:
 
 	virtual std::vector<LibPipeMessage> receive() {
 		std::vector<LibPipeMessage> messages = {};
-		messages.insert(messages.end(), debugEchos.begin(), debugEchos.end());
+		messages.insert(end(messages), begin(debugEchos), end(debugEchos));
 		debugEchos.clear();
 		return messages;
 	}

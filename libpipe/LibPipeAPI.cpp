@@ -45,20 +45,15 @@ void loadExtension(tstring path) {
 
 	PipeExtensionFunctions extensionFunctions;
 	try {
-		extensionFunctions.fktGetServiceProviders				= static_cast<FktPipeExtensionGetServiceProviders				>(loadExtensionSymbol(library, NamePipeExtensionGetServiceProviders));
-		extensionFunctions.fktServiceProviderGetType			= static_cast<FktPipeExtensionServiceProviderGetType			>(loadExtensionSymbol(library, NamePipeExtensionServiceProviderGetType));
-		extensionFunctions.fktServiceProviderGetSettingTypes	= static_cast<FktPipeExtensionServiceProviderGetSettingTypes	>(loadExtensionSymbol(library, NamePipeExtensionServiceProviderGetSettingTypes));
-		extensionFunctions.fktServiceProviderCreateService		= static_cast<FktPipeExtensionServiceProviderCreateService		>(loadExtensionSymbol(library, NamePipeExtensionServiceProviderCreateService));
-		extensionFunctions.fktServiceProviderDestroyService		= static_cast<FktPipeExtensionServiceProviderDestroyService		>(loadExtensionSymbol(library, NamePipeExtensionServiceProviderDestroyService));
-		extensionFunctions.fktServiceGetId						= static_cast<FktPipeExtensionServiceGetId						>(loadExtensionSymbol(library, NamePipeExtensionServiceGetId));
-		extensionFunctions.fktServiceGetType					= static_cast<FktPipeExtensionServiceGetType					>(loadExtensionSymbol(library, NamePipeExtensionServiceGetType));
-		extensionFunctions.fktServiceGetRoot					= static_cast<FktPipeExtensionServiceGetRoot					>(loadExtensionSymbol(library, NamePipeExtensionServiceGetRoot));
-		extensionFunctions.fktServiceSendMessages				= static_cast<FktPipeExtensionServiceSendMessages				>(loadExtensionSymbol(library, NamePipeExtensionServiceSendMessages));
-		extensionFunctions.fktServiceReceiveMessages			= static_cast<FktPipeExtensionServiceReceiveMessages			>(loadExtensionSymbol(library, NamePipeExtensionServiceReceiveMessages));
-		extensionFunctions.fktServiceNodeGetAddress				= static_cast<FktPipeExtensionServiceNodeGetAddress				>(loadExtensionSymbol(library, NamePipeExtensionServiceNodeGetAddress));
-		extensionFunctions.fktServiceNodeGetType				= static_cast<FktPipeExtensionServiceNodeGetType				>(loadExtensionSymbol(library, NamePipeExtensionServiceNodeGetType));
-		extensionFunctions.fktServiceNodeGetMessageTypes		= static_cast<FktPipeExtensionServiceNodeGetMessageTypes		>(loadExtensionSymbol(library, NamePipeExtensionServiceNodeGetMessageTypes));
-		extensionFunctions.fktServiceNodeGetChildren			= static_cast<FktPipeExtensionServiceNodeGetChildren			>(loadExtensionSymbol(library, NamePipeExtensionServiceNodeGetChildren));
+		extensionFunctions.fktPipeExtensionGetServiceProviders				= static_cast<FktPipeExtensionGetServiceProviders				>(loadExtensionSymbol(library,NamePipeExtensionGetServiceProviders				));
+		extensionFunctions.fktPipeExtensionGetServiceProviderSettingTypes	= static_cast<FktPipeExtensionGetServiceProviderSettingTypes	>(loadExtensionSymbol(library,NamePipeExtensionGetServiceProviderSettingTypes	));
+		extensionFunctions.fktPipeExtensionServiceCreate					= static_cast<FktPipeExtensionServiceCreate						>(loadExtensionSymbol(library,NamePipeExtensionServiceCreate					));
+		extensionFunctions.fktPipeExtensionServiceDestroy					= static_cast<FktPipeExtensionServiceDestroy					>(loadExtensionSymbol(library,NamePipeExtensionServiceDestroy					));
+		extensionFunctions.fktPipeExtensionServiceSend						= static_cast<FktPipeExtensionServiceSend						>(loadExtensionSymbol(library,NamePipeExtensionServiceSend						));
+		extensionFunctions.fktPipeExtensionServiceReceive					= static_cast<FktPipeExtensionServiceReceive					>(loadExtensionSymbol(library,NamePipeExtensionServiceReceive					));
+		extensionFunctions.fktPipeExtensionServiceGetChildNodes				= static_cast<FktPipeExtensionServiceGetChildNodes				>(loadExtensionSymbol(library,NamePipeExtensionServiceGetChildNodes				));
+		extensionFunctions.fktPipeExtensionServiceGetNodeType				= static_cast<FktPipeExtensionServiceGetNodeType				>(loadExtensionSymbol(library,NamePipeExtensionServiceGetNodeType				));
+		extensionFunctions.fktPipeExtensionServiceGetNodeMessageTypes		= static_cast<FktPipeExtensionServiceGetNodeMessageTypes		>(loadExtensionSymbol(library,NamePipeExtensionServiceGetNodeMessageTypes		));
 	}
 	catch(...) { return; }
 
@@ -86,10 +81,8 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 LIBPIPE_ITF void LibPipeGetServiceProviders(LibPipeCbContext context, LibPipeCbServiceProviders cbServiceProviders) {
 	vector<tstring> providers;
 	for(auto& extension : g_Extensions) {
-		auto extensionProviders = extension.serviceProviders();
-		for(auto& extensionProvider : extensionProviders) {
-			providers.push_back(extensionProvider->type());
-		}
+		auto extensionProviders = extension.providers();
+		providers.insert(end(providers), begin(extensionProviders), end(extensionProviders));
 	}
 
 	vector<LibPipeStr> pointers;
@@ -102,19 +95,19 @@ LIBPIPE_ITF void LibPipeGetServiceProviders(LibPipeCbContext context, LibPipeCbS
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeCreateInstance(LibPipeStr path, LibPipeStr* serviceProviders, LibPipeEleCnt serviceProviderCount, HLibPipeInstance* instance) {
+LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr* serviceProviders, LibPipeEleCnt serviceProviderCount, HLibPipe* instance) {
 	vector<tstring> providers;
 	for(auto i = 0; i < serviceProviderCount; i++) {
 		providers.push_back(tstring(serviceProviders[i]));
 	}
 
 	g_Instances.push_back(LibPipe(tstring(path), providers));
-	(*instance) = reinterpret_cast<HLibPipeInstance>(&g_Instances.back());
+	(*instance) = reinterpret_cast<HLibPipe>(&g_Instances.back());
 }
 
-LIBPIPE_ITF void LibPipeDestroyInstance(HLibPipeInstance instance) {
+LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
-	for(auto it = g_Instances.begin(); it != g_Instances.end(); it++) {
+	for(auto it = begin(g_Instances); it != end(g_Instances); it++) {
 		if(it._Ptr == pInstance) {
 			g_Instances.erase(it);
 			return;
@@ -124,7 +117,7 @@ LIBPIPE_ITF void LibPipeDestroyInstance(HLibPipeInstance instance) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeSend(HLibPipeInstance instance, LibPipeMessageData* messages, LibPipeEleCnt count) {
+LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeMessageData* messages, LibPipeEleCnt count) {
 	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
 	vector<LibPipeMessage> sendMessages;
 	for(auto idxMessage = 0; idxMessage < count; idxMessage++) {
@@ -146,7 +139,7 @@ LIBPIPE_ITF void LibPipeSend(HLibPipeInstance instance, LibPipeMessageData* mess
 	pInstance->send(sendMessages);
 }
 
-LIBPIPE_ITF void LibPipeReceive(HLibPipeInstance instance, LibPipeCbContext context, LibPipeCbMessages cbMessages) {
+LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, LibPipeCbMessages cbMessages) {
 	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
 	auto& messages = pInstance->receive();
 

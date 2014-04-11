@@ -27,59 +27,29 @@ struct PipeExtensionMessageType {
 
 //======================================================================================================================
 
-class IPipeExtensionServiceProvider;
 class IPipeExtension {
 public:
 	virtual ~IPipeExtension() {}
 
 public:
-	virtual std::vector<std::shared_ptr<IPipeExtensionServiceProvider>> serviceProviders() = 0;
+	virtual std::vector<tstring> providers() = 0;
+	virtual std::map<tstring, tstring> providerSettings(tstring provider) = 0;
 };
 
 //======================================================================================================================
 
-class IPipeExtensionService;
-class IPipeExtensionServiceProvider {
-public:
-	virtual ~IPipeExtensionServiceProvider() {}
-
-public:
-	virtual tstring type() = 0;
-	virtual std::map<tstring, tstring> settings() = 0;
-
-	virtual std::shared_ptr<IPipeExtensionService> create(tstring id, const std::map<tstring, tstring>& settings) = 0;
-};
-
-//======================================================================================================================
-
-class IPipeExtensionServiceNode;
 class IPipeExtensionService {
 public:
 	virtual ~IPipeExtensionService() {}
 
 public:
 	virtual tstring id() = 0;
-	virtual tstring type() = 0;
-
-	virtual std::shared_ptr<IPipeExtensionServiceNode> root() = 0;
-
 	virtual void send(const std::vector<LibPipeMessage>& messages) = 0;
 	virtual std::vector<LibPipeMessage> receive() = 0;
+
+	virtual std::vector<tstring> childNodes(tstring address) = 0;
+	virtual tstring nodeType(tstring address) = 0;
+	virtual std::vector<PipeExtensionMessageType> nodeMessagesTypes(tstring address) = 0;
 };
 
 //======================================================================================================================
-
-class IPipeExtensionServiceNode {
-public:
-	virtual ~IPipeExtensionServiceNode() {}
-
-public:
-	virtual tstring address() = 0;
-	virtual tstring type() = 0;
-
-	virtual std::vector<PipeExtensionMessageType> messageTypes() = 0;
-	virtual std::map<tstring, std::shared_ptr<IPipeExtensionServiceNode>> children() = 0;
-};
-
-//======================================================================================================================
-

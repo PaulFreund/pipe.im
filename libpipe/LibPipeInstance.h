@@ -10,7 +10,7 @@
 
 class LibPipeInstance : public ILibPipe {
 private:
-	HLibPipeInstance _instance;
+	HLibPipe _instance;
 
 public:
 	LibPipeInstance(const tstring& path, const std::vector<tstring>& serviceProviders) {
@@ -20,13 +20,13 @@ public:
 			pointers.push_back(provider.c_str());
 		}
 
-		HLibPipeInstance instance;
-		LibPipeCreateInstance(path.c_str(), pointers.data(), pointers.size(), &instance);
+		HLibPipe instance;
+		LibPipeCreate(path.c_str(), pointers.data(), pointers.size(), &instance);
 		_instance = instance;
 	}
 
 	virtual ~LibPipeInstance() {
-		LibPipeDestroyInstance(_instance);
+		LibPipeDestroy(_instance);
 	}
 
 public:

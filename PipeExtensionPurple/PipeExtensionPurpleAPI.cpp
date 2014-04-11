@@ -4,7 +4,7 @@
 #include <iostream>
 
 //======================================================================================================================
-
+/*
 //----------------------------------------------------------------------------------------------------------------------
 PIPE_EXTENSION_ITF void PipeExtensionGetServiceProviders(PipeExtensionCbContext context, PipeExtensionCbServiceProviders cbServiceProviders) {
 	HPipeExtensionServiceProvider provs[10];
@@ -74,3 +74,4 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceNodeGetChildren(HPipeExtensionServic
 
 
 //======================================================================================================================
+*/
