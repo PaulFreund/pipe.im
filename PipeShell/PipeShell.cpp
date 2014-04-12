@@ -25,7 +25,6 @@ typedef unsigned char ubyte;
 //======================================================================================================================
 
 #include <Poco/DirectoryIterator.h>
-#include <Poco/SharedLibrary.h>
 #include <Poco/String.h>
 #include <Poco/StringTokenizer.h>
 #include <Poco/Util/Application.h>
