@@ -32,6 +32,8 @@ typedef unsigned char ubyte;
 using namespace Poco;
 using namespace Poco::Util;
 
+//======================================================================================================================
+
 class PipeShellApplication : public Application {
 public:
 	PipeShellApplication(int argc, char* argv[]) : Application(argc, argv) {}
@@ -42,19 +44,14 @@ public:
 
 #include <libpipe/LibPipeInstance.h>
 
-#ifdef _DEBUG
-	#pragma comment(lib, "LibPiped.lib")
-#else
-	#pragma comment(lib, "LibPipe.lib")
-#endif
-
 //======================================================================================================================
 
 int main(int argc, char* argv[]) {
 	try {
 		// Get application path
 		PipeShellApplication self(argc, argv);
-		Path commandPath(self.commandPath());
+//		Path commandPath(self.commandPath());
+Path commandPath;
 		auto appPath = commandPath.parent().toString();
 		auto userPath = appPath + _T("PipeShellData");
 
@@ -62,7 +59,7 @@ int main(int argc, char* argv[]) {
 		auto providers = LibPipeInstance::serviceProviders();
 
 		LibPipeInstance pipe(userPath, providers);
-		
+
 		// Create instance
 		cout << _T("------------------------------------------") << endl;
 		cout << _T("Welcome to pipe shell") << endl;
@@ -134,6 +131,6 @@ int main(int argc, char* argv[]) {
 	catch(exception e) {
 		cout << _T("Exception: ") << e.what() << endl;
 	}
-	
+
 	return 0;
 }

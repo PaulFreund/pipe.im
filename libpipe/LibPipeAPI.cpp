@@ -42,15 +42,15 @@ void loadExtension(tstring path) {
 
 	PipeExtensionFunctions extensionFunctions;
 	try {
-		extensionFunctions.fktPipeExtensionGetServiceProviders				= static_cast<FktPipeExtensionGetServiceProviders				>(loadExtensionSymbol(library,NamePipeExtensionGetServiceProviders				));
-		extensionFunctions.fktPipeExtensionGetServiceProviderSettingTypes	= static_cast<FktPipeExtensionGetServiceProviderSettingTypes	>(loadExtensionSymbol(library,NamePipeExtensionGetServiceProviderSettingTypes	));
-		extensionFunctions.fktPipeExtensionServiceCreate					= static_cast<FktPipeExtensionServiceCreate						>(loadExtensionSymbol(library,NamePipeExtensionServiceCreate					));
-		extensionFunctions.fktPipeExtensionServiceDestroy					= static_cast<FktPipeExtensionServiceDestroy					>(loadExtensionSymbol(library,NamePipeExtensionServiceDestroy					));
-		extensionFunctions.fktPipeExtensionServiceSend						= static_cast<FktPipeExtensionServiceSend						>(loadExtensionSymbol(library,NamePipeExtensionServiceSend						));
-		extensionFunctions.fktPipeExtensionServiceReceive					= static_cast<FktPipeExtensionServiceReceive					>(loadExtensionSymbol(library,NamePipeExtensionServiceReceive					));
-		extensionFunctions.fktPipeExtensionServiceGetChildNodes				= static_cast<FktPipeExtensionServiceGetChildNodes				>(loadExtensionSymbol(library,NamePipeExtensionServiceGetChildNodes				));
-		extensionFunctions.fktPipeExtensionServiceGetNodeType				= static_cast<FktPipeExtensionServiceGetNodeType				>(loadExtensionSymbol(library,NamePipeExtensionServiceGetNodeType				));
-		extensionFunctions.fktPipeExtensionServiceGetNodeMessageTypes		= static_cast<FktPipeExtensionServiceGetNodeMessageTypes		>(loadExtensionSymbol(library,NamePipeExtensionServiceGetNodeMessageTypes		));
+		extensionFunctions.fktPipeExtensionGetServiceProviders = reinterpret_cast<FktPipeExtensionGetServiceProviders>(loadExtensionSymbol(library,NamePipeExtensionGetServiceProviders));
+		extensionFunctions.fktPipeExtensionGetServiceProviderSettingTypes = reinterpret_cast<FktPipeExtensionGetServiceProviderSettingTypes>(loadExtensionSymbol(library,NamePipeExtensionGetServiceProviderSettingTypes));
+		extensionFunctions.fktPipeExtensionServiceCreate = reinterpret_cast<FktPipeExtensionServiceCreate>(loadExtensionSymbol(library,NamePipeExtensionServiceCreate));
+		extensionFunctions.fktPipeExtensionServiceDestroy = reinterpret_cast<FktPipeExtensionServiceDestroy>(loadExtensionSymbol(library,NamePipeExtensionServiceDestroy));
+		extensionFunctions.fktPipeExtensionServiceSend = reinterpret_cast<FktPipeExtensionServiceSend>(loadExtensionSymbol(library,NamePipeExtensionServiceSend));
+		extensionFunctions.fktPipeExtensionServiceReceive = reinterpret_cast<FktPipeExtensionServiceReceive>(loadExtensionSymbol(library,NamePipeExtensionServiceReceive));
+		extensionFunctions.fktPipeExtensionServiceGetChildNodes = reinterpret_cast<FktPipeExtensionServiceGetChildNodes>(loadExtensionSymbol(library,NamePipeExtensionServiceGetChildNodes));
+		extensionFunctions.fktPipeExtensionServiceGetNodeType = reinterpret_cast<FktPipeExtensionServiceGetNodeType>(loadExtensionSymbol(library,NamePipeExtensionServiceGetNodeType));
+		extensionFunctions.fktPipeExtensionServiceGetNodeMessageTypes = reinterpret_cast<FktPipeExtensionServiceGetNodeMessageTypes>(loadExtensionSymbol(library,NamePipeExtensionServiceGetNodeMessageTypes));
 	}
 	catch(...) { return; }
 
@@ -105,7 +105,7 @@ LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr* serviceProviders, Li
 LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
 	for(auto it = begin(g_Instances); it != end(g_Instances); it++) {
-		if(it._Ptr == pInstance) {
+		if(&(*it) == pInstance) {
 			g_Instances.erase(it);
 			return;
 		}
@@ -138,7 +138,7 @@ LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeMessageData* messages, Li
 
 LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, LibPipeCbMessages cbMessages) {
 	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
-	auto& messages = pInstance->receive();
+	auto&& messages = pInstance->receive();
 
 	std::vector<LibPipeMessageData> messagePointers;
 	std::vector<std::vector<LibPipeEleCnt>> parameterLengthPointers;

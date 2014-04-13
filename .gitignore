@@ -20,3 +20,6 @@ Thumbs.db
 *.sdf
 *.vsp
 /external
+libpipe/ChaiScript
+*.so
+*.a

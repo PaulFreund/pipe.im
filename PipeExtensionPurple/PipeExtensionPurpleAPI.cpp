@@ -11,7 +11,7 @@ PipeExtensionPurple g_Extension;
 //======================================================================================================================
 
 PIPE_EXTENSION_ITF void PipeExtensionGetServiceProviders(PipeExtensionCbContext context, PipeExtensionCbStrList cbProviders) {
-	auto& providers = g_Extension.providers();
+	auto&& providers = g_Extension.providers();
 	vector<PipeExtensionStr> pointers;
 	for(auto& provider : providers) {
 		pointers.push_back(provider.c_str());
@@ -20,7 +20,7 @@ PIPE_EXTENSION_ITF void PipeExtensionGetServiceProviders(PipeExtensionCbContext 
 }
 
 PIPE_EXTENSION_ITF void PipeExtensionGetServiceProviderSettingTypes(PipeExtensionStr type, PipeExtensionCbContext context, PipeExtensionCbProviderSettingTypes cbProviderSettingTypes) {
-	auto& providerSettings = g_Extension.providerSettings(tstring(type));
+	auto&& providerSettings = g_Extension.providerSettings(tstring(type));
 
 	std::vector<PipeExtensionProviderSettingTypeData> providerSettingPointers;
 
@@ -71,7 +71,7 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceSend(HPipeExtensionService service, 
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceReceive(HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbMessages cbMessages) {
 	IPipeExtensionService* pService = reinterpret_cast<IPipeExtensionService*>(service);
-	auto& messages = pService->receive();
+	auto&& messages = pService->receive();
 
 	std::vector<PipeExtensionMessageData> messagePointers;
 	std::vector<std::vector<LibPipeEleCnt>> parameterLengthPointers;
@@ -101,7 +101,7 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceReceive(HPipeExtensionService servic
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceGetChildNodes(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStrList cbChildNodes) {
 	IPipeExtensionService* pService = reinterpret_cast<IPipeExtensionService*>(service);
-	auto& childNodes = pService->childNodes(tstring(address));
+	auto&& childNodes = pService->childNodes(tstring(address));
 
 	vector<PipeExtensionStr> childNodePointers;
 	for(auto i = 0; i < childNodes.size(); i++) {
@@ -113,13 +113,13 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceGetChildNodes(HPipeExtensionService 
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeType(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeType) {
 	IPipeExtensionService* pService = reinterpret_cast<IPipeExtensionService*>(service);
-	auto& nodeType = pService->nodeType(tstring(address));
+	auto&& nodeType = pService->nodeType(tstring(address));
 	cbNodeType(context, nodeType.c_str());
 }
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeMessageTypes(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbMessageTypes cbNodeMessageTypes) {
 	IPipeExtensionService* pService = reinterpret_cast<IPipeExtensionService*>(service);
-	auto& messageTypes = pService->nodeMessagesTypes(tstring(address));
+	auto&& messageTypes = pService->nodeMessagesTypes(tstring(address));
 
 	std::vector<PipeExtensionMessageTypeData> messageTypePointers;
 	std::vector<std::vector<PipeExtensionMessageParameterTypeData>> parameterDataPointers;
