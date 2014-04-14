@@ -50,8 +50,8 @@ int main(int argc, char* argv[]) {
 	try {
 		// Get application path
 		PipeShellApplication self(argc, argv);
-//		Path commandPath(self.commandPath());
-Path commandPath;
+		Path commandPath(self.commandPath());
+
 		auto appPath = commandPath.parent().toString();
 		auto userPath = appPath + _T("PipeShellData");
 

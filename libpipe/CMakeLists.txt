@@ -1,11 +1,28 @@
+#-------------------------------------------------------------------------------
+# Project definition
+
 cmake_minimum_required(VERSION 2.8)
 project(libpipe)
 
-include_directories(${CMAKE_SOURCE_DIR}/ChaiScript/include)
+#-------------------------------------------------------------------------------
+# Project configuration
 
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
-set (LIBPIPE_MAIN LibPipeAPI.cpp)
+file(GLOB LIB_PIPE_SRC "*.cpp")
+add_library(pipe SHARED ${LIB_PIPE_SRC})
 
-add_library(pipe SHARED ${LIBPIPE_MAIN})
+#-------------------------------------------------------------------------------
+# General dependencies
 
+include_directories(ChaiScript/include)
+
+#-------------------------------------------------------------------------------
+# Installation
+
+install(TARGETS pipe
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+)
+
+#-------------------------------------------------------------------------------

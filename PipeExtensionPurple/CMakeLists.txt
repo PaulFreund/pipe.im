@@ -1,11 +1,28 @@
+#-------------------------------------------------------------------------------
+# Project definition
+
 cmake_minimum_required(VERSION 2.8)
 project(PipeExtensionPurple)
 
-include_directories(..)
+#-------------------------------------------------------------------------------
+# Project configuration
 
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
-set (PIPE_EXTENSION_PURPLE_MAIN PipeExtensionPurpleAPI.cpp)
+file(GLOB PIPE_EXTENSION_PURPLE_SRC "*.cpp")
+add_library(PipeExtensionPurple SHARED ${PIPE_EXTENSION_PURPLE_SRC})
 
-add_library(PipeExtensionPurple SHARED ${PIPE_EXTENSION_PURPLE_MAIN})
+#-------------------------------------------------------------------------------
+# General dependencies
 
+include_directories(${CMAKE_SOURCE_DIR})
+
+#-------------------------------------------------------------------------------
+# Installation
+
+install(TARGETS PipeExtensionPurple
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+)
+
+#-------------------------------------------------------------------------------

@@ -45,7 +45,7 @@ typedef unsigned char ubyte;
 #include <Poco/Timespan.h>
 #include <Poco/StreamCopier.h>
 #include <Poco/StringTokenizer.h>
-#include "Poco/Format.h"
+#include <Poco/Format.h>
 
 using namespace Poco;
 using namespace Poco::Util;
@@ -54,12 +54,6 @@ using namespace Poco::Net;
 //======================================================================================================================
 
 #include <libpipe/LibPipeInstance.h>
-
-#ifdef _DEBUG
-#pragma comment(lib, "LibPiped.lib")
-#else
-#pragma comment(lib, "LibPipe.lib")
-#endif
 
 //======================================================================================================================
 
