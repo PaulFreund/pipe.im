@@ -158,7 +158,7 @@ public:
 				if(incoming.size() > 0) {
 					for(auto& message : incoming) {
 						cout << _T("Websocket message received: ") << message << endl;
-						
+
 						if(message.compare(_T("quit")) == 0) {
 							g_Quit = true;
 							return;
@@ -252,7 +252,7 @@ int main(int argc, char* argv[]) {
 		LibPipeInstance::loadExtensions(g_AppPath);
 
 		// Set up Websocket server
-		ServerSocket socket(SocketAddress(_T(""), 9980));
+		ServerSocket socket(9980);
 		HTTPServerParams* pParams = new HTTPServerParams();
 		pParams->setMaxThreads(100);
 
@@ -269,6 +269,6 @@ int main(int argc, char* argv[]) {
 	catch(exception e) {
 		cout << _T("Exception: ") << e.what() << endl;
 	}
-	
+
 	return 0;
 }
