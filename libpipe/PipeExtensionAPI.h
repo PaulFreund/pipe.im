@@ -11,7 +11,7 @@
 		#define PIPE_EXTENSION_ITF extern "C" __declspec(dllimport) 
 	#endif
 #else
-	#define PIPE_EXTENSION_ITF extern
+	#define PIPE_EXTENSION_ITF extern "C"
 #endif
 
 //======================================================================================================================

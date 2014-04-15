@@ -11,7 +11,7 @@
 		#define LIBPIPE_ITF extern "C" __declspec(dllimport) 
 	#endif
 #else
-	#define LIBPIPE_ITF extern
+	#define LIBPIPE_ITF extern "C"
 #endif
 
 //======================================================================================================================
