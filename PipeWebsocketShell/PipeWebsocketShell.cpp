@@ -233,7 +233,12 @@ public:
 class PipeRequestHandlerFactory : public HTTPRequestHandlerFactory {
 public:
 		HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& request) {
-			if(request.getURI() == "/ws")
+			tstring wsToken = _T("/ws");
+			size_t lenWsToken = wsToken.length();
+			tstring uri = request.getURI();
+			size_t lenUri = uri.length();
+
+			if(lenUri >= lenWsToken && uri.compare(lenUri - lenWsToken, lenWsToken, wsToken) == 0)
 				return new PipeRequestHandlerWebSocket;
 			else
 				return new PipeRequestHandlerPage;
