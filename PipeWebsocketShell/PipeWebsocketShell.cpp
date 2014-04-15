@@ -229,12 +229,12 @@ public:
 };
 
 //======================================================================================================================
-
+tstring wsToken = _T("/ws");
+size_t lenWsToken = wsToken.length();
 class PipeRequestHandlerFactory : public HTTPRequestHandlerFactory {
 public:
 		HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& request) {
-			tstring wsToken = _T("/ws");
-			size_t lenWsToken = wsToken.length();
+
 			tstring uri = request.getURI();
 			size_t lenUri = uri.length();
 
