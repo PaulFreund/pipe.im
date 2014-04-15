@@ -21,8 +21,6 @@ target_link_libraries(PipeShell pipe)
 #-------------------------------------------------------------------------------
 # POCO
 
-find_path(POCO_INCLUDE NAMES Poco/Poco.h)
-
 find_library(POCO_FOUNDATION NAMES PocoFoundation)
 find_library(POCO_DATA NAMES PocoData)
 find_library(POCO_UTIL NAMES PocoUtil)
@@ -37,7 +35,6 @@ set(POCO_LIBRARIES
 	${POCO_MYSQL}
 )
 
-include_directories(POCO_INCLUDE)
 target_link_libraries (PipeShell ${POCO_LIBRARIES})
 
 #-------------------------------------------------------------------------------
@@ -45,7 +42,6 @@ target_link_libraries (PipeShell ${POCO_LIBRARIES})
 
 install(TARGETS PipeShell
         RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
 )
 
 #-------------------------------------------------------------------------------

@@ -13,15 +13,9 @@ file(GLOB LIB_PIPE_SRC "*.cpp")
 add_library(pipe SHARED ${LIB_PIPE_SRC})
 
 #-------------------------------------------------------------------------------
-# General dependencies
-
-include_directories(ChaiScript/include)
-
-#-------------------------------------------------------------------------------
 # Installation
 
 install(TARGETS pipe
-        RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
 )
 

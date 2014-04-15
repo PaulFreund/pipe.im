@@ -29,3 +29,4 @@ CMakeCache.txt
 install_manifest.txt
 Makefile
 bin/
+build/

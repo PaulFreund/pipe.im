@@ -21,8 +21,7 @@ include_directories(${CMAKE_SOURCE_DIR})
 # Installation
 
 install(TARGETS PipeExtensionPurple
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
+        LIBRARY DESTINATION lib/pipe/
 )
 
 #-------------------------------------------------------------------------------
