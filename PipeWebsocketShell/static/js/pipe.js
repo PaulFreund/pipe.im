@@ -1,5 +1,5 @@
 $().ready(function () {
-    var pipeServer = new WebSocket("ws://" + window.location.host + "/ws");
+    var pipeServer = new WebSocket("ws://" + window.location.host + window.location.pathname.substr(0, window.location.pathname.lastIndexOf("/")) + "/ws");
 
     pipeServer.onopen = function () {
         window.terminal = $('body').terminal(function (command, term) {
