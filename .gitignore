@@ -28,7 +28,4 @@ cmake_install.cmake
 CMakeCache.txt
 install_manifest.txt
 Makefile
-PipeShell/PipeShell
-PipeWebsocketShell/PipeWebsocketShell
-libpipe/libpipe.so
-PipeExtensionPurple/libPipeExtensionPurple.so
+bin/
