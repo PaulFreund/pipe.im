@@ -20,6 +20,9 @@ include_directories(${CMAKE_SOURCE_DIR})
 #-------------------------------------------------------------------------------
 # Purple
 
+find_path(PURPLE_INCLUDE_DIR NAMES libpurple/purple.h account.h)
+include_directories(${PURPLE_INCLUDE_DIR})
+
 find_library(PURPLE_LIBRARIES NAMES purple)
 target_link_libraries (PipeExtensionPurple ${PURPLE_LIBRARIES})
 
