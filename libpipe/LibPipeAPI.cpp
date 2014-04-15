@@ -29,6 +29,9 @@ void loadExtension(tstring path) {
 	if(path.length() <= suffix.length())
 		return;
 
+	cout << "Suffix: " << suffix << endl;
+
+
 	auto ext = path.substr(path.length() - suffix.length(), string::npos);
 	if(!File(path).isFile() || ext != suffix)
 		return;
@@ -58,7 +61,7 @@ void loadExtension(tstring path) {
 }
 
 //======================================================================================================================
-
+#include <iostream>
 LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 	File extensionPath(path);
 
@@ -67,6 +70,7 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 
 	if(extensionPath.isDirectory()) {
 		for(DirectoryIterator it(extensionPath), itEnd; it != itEnd; ++it) {
+			cout << "Loading libs from: " << it->path() << endl;
 			loadExtension(it->path());
 		}
 	}
