@@ -29,7 +29,6 @@ find_library(POCO_UTIL NAMES PocoUtil)
 find_library(POCO_NET NAMES PocoNet)
 find_library(POCO_MYSQL NAMES PocoMySQL PocoDataMySQL)
 find_library(POCO_SQLITE NAMES PocoSQLite PocoDataSQLite)
-find_library(POCO_ODBC NAMES PocoODBC PocoDataODBC)
 
 set(POCO_LIBRARIES 
 	${POCO_FOUNDATION}
@@ -38,7 +37,6 @@ set(POCO_LIBRARIES
 	${POCO_NET} 
 	${POCO_SQLITE}
 	${POCO_MYSQL}
-	${POCO_ODBC}
 )
 
 include_directories(POCO_INCLUDE)
