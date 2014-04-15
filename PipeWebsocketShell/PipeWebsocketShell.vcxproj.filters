@@ -48,4 +48,9 @@
       <Filter>static\css</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PipeWebsocketShell.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

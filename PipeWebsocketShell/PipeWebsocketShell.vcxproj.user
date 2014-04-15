@@ -3,9 +3,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerEnvironment>PATH=$(SolutionDir)\external\bin;%PATH%</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>--extdir=$(SolutionDir)$(Configuration) --datadir=$(SolutionDir)$(Configuration) --staticdir=$(SolutionDir)PipeWebsocketShell\static --uripath=shell</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerEnvironment>PATH=$(SolutionDir)\external\bin;%PATH%</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArguments>--extdir=$(SolutionDir)$(Configuration) --datadir=$(SolutionDir)$(Configuration) --staticdir=$(SolutionDir)PipeWebsocketShell\static --uripath=shell</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

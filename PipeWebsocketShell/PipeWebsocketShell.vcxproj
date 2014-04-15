@@ -96,6 +96,9 @@
     <None Include="static\js\jquery.terminal-min.js" />
     <None Include="static\js\pipe.js" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PipeWebsocketShell.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

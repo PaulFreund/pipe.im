@@ -1,28 +1,21 @@
 //======================================================================================================================
 
+#include "PipeWebsocketShell.h"
+
 #include <thread>
 #include <chrono>
 #include <algorithm>
 #include <exception>
+#include <numeric>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <array>
-#include <string>
 using namespace std;
 
 //======================================================================================================================
 
-#define _TCHAR_DEFINED
-#ifdef UNICODE
-	#define _T(x) L ##x
-	#define TCHAR wchar_t
-#else
-	#define _T(x) x
-	#define TCHAR char
-#endif
-typedef basic_string<TCHAR> tstring;
-typedef unsigned char ubyte;
+
 
 //======================================================================================================================
 
@@ -36,9 +29,7 @@ typedef unsigned char ubyte;
 #include "Poco/Net/ServerSocket.h"
 #include "Poco/Net/WebSocket.h"
 #include "Poco/Net/NetException.h"
-#include "Poco/Util/ServerApplication.h"
 #include "Poco/Util/Option.h"
-#include "Poco/Util/OptionSet.h"
 #include "Poco/Util/HelpFormatter.h"
 #include <Poco/DirectoryIterator.h>
 #include <Poco/String.h>
@@ -57,32 +48,23 @@ using namespace Poco::Net;
 
 //======================================================================================================================
 
-bool g_Quit = false;
-tstring g_AppPath;
-LibPipeInstance* g_pPipeInstance = nullptr;
-
-//======================================================================================================================
-
-class PipeWebsocketShellApplication : public Application {
-public:
-	PipeWebsocketShellApplication(int argc, char* argv[]) : Application(argc, argv) {}
-	~PipeWebsocketShellApplication() {}
-};
-
-//======================================================================================================================
-
 class PipeRequestHandlerPage : public HTTPRequestHandler {
 public:
 	void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
+		PipeWebsocketShellApplication* pApp = reinterpret_cast<PipeWebsocketShellApplication*>(&Application::instance());
+
 		auto uri = request.getURI();
-		if(uri == _T("/")) {
+		if(uri.compare(0, pApp->_uripath.length(), pApp->_uripath) == 0)
+			uri = uri.substr(pApp->_uripath.length());
+
+		if(uri.length() == 0 || uri == _T("/")) {
 			uri = _T("/index.html");
 		}
 
 		response.setChunkedTransferEncoding(true);
 		std::ostream& responseStream = response.send();
 
-		File requestPath(g_AppPath + _T("static/") + uri);
+		File requestPath(pApp->_staticdir + uri);
 		cout << _T("File requested: " << requestPath.path()) << endl;
 		if(requestPath.exists() && requestPath.canRead()) {
 			auto extension = Path(requestPath.path()).getExtension();
@@ -126,6 +108,8 @@ class PipeRequestHandlerWebSocket : public HTTPRequestHandler {
 public:
 	void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
 		try {
+			PipeWebsocketShellApplication* pApp = reinterpret_cast<PipeWebsocketShellApplication*>(&Application::instance());
+
 			WebSocket ws(request, response);
 			cout << _T("Websocket connection established") << endl;
 
@@ -136,10 +120,12 @@ public:
 			ws.setReceiveBufferSize(bufferSize);
 
 			auto providers = LibPipeInstance::serviceProviders();
-			LibPipeInstance pipe(g_AppPath, providers);
+			LibPipeInstance pipe(pApp->_datadir, providers);
 
 			vector<tstring> incoming;
 			vector<tstring> outgoing;
+
+			outgoing.push_back(tstring(_T("Available providers:")) + accumulate(begin(providers), end(providers), tstring(_T(" "))));
 
 			char buffer[bufferSize];
 			int flags;
@@ -159,11 +145,6 @@ public:
 					for(auto& message : incoming) {
 						cout << _T("Websocket message received: ") << message << endl;
 
-						if(message.compare(_T("quit")) == 0) {
-							g_Quit = true;
-							return;
-						}
-
 						StringTokenizer tokens(message, _T(" "), StringTokenizer::TOK_IGNORE_EMPTY);
 						if(tokens.count() >= 2) {
 							LibPipeMessage pipeMessage;
@@ -177,7 +158,7 @@ public:
 							pipe.send({ pipeMessage });
 						}
 						else {
-							outgoing.push_back(_T("Input syntax: <address> <type> [<parameter> ...] OR quit"));
+							outgoing.push_back(_T("Input syntax: <address> <type> [<parameter> ...]"));
 						}
 					}
 
@@ -247,33 +228,106 @@ public:
 
 //======================================================================================================================
 
-int main(int argc, char* argv[]) {
-	try {
-		// Get application path
-		PipeWebsocketShellApplication self(argc, argv);
-		Path commandPath(self.commandPath());
-		g_AppPath = commandPath.parent().toString();
+PipeWebsocketShellApplication::PipeWebsocketShellApplication() :_help(false) { setUnixOptions(true); }
+PipeWebsocketShellApplication::~PipeWebsocketShellApplication() {}
 
-		LibPipeInstance::loadExtensions(g_AppPath);
+
+void PipeWebsocketShellApplication::defineOptions(OptionSet& options) {
+	options.addOption(
+		Option(_T("extdir"), _T("e"), _T("Path to folder where extensions are located"))
+		.required(false)
+		.repeatable(false)
+		.binding(_T("extdir"))
+		.argument(_T("[extdir]"))
+		);
+	options.addOption(
+		Option(_T("datadir"), _T("d"), _T("Path to folder where user data will be located"))
+		.required(false)
+		.repeatable(false)
+		.binding(_T("datadir"))
+		.argument(_T("[datadir]"))
+		);
+	options.addOption(
+		Option(_T("staticdir"), _T("s"), _T("Path to folder where web files are located"))
+		.required(false)
+		.repeatable(false)
+		.binding(_T("staticdir"))
+		.argument(_T("[staticdir]"))
+		);
+	options.addOption(
+		Option(_T("port"), _T("p"), _T("Port on which application will listen"))
+		.required(false)
+		.repeatable(false)
+		.binding(_T("port"))
+		.argument(_T("[port]"))
+		);
+	options.addOption(
+		Option(_T("address"), _T("a"), _T("Address to bind"))
+		.required(false)
+		.repeatable(false)
+		.binding(_T("address"))
+		.argument(_T("[address]"))
+		);
+	options.addOption(
+		Option(_T("uripath"), _T("u"), _T("Subpath where application will be served"))
+		.required(false)
+		.repeatable(false)
+		.binding(_T("uripath"))
+		.argument(_T("[uripath]"))
+		);
+}
+
+int PipeWebsocketShellApplication::main(const vector<tstring>& args) {
+	try {
+		if(_help) {
+			HelpFormatter helpFormatter(options());
+			helpFormatter.setUnixStyle(true);
+			helpFormatter.setCommand(commandName());
+			helpFormatter.setUsage("OPTIONS");
+			helpFormatter.setHeader("PipeWebsocketShell - Tester");
+			helpFormatter.format(cout);
+			return Application::EXIT_OK;
+		}
+
+		_appPath = Path(commandPath()).parent().toString();
+		_extdir = config().getString(_T("extdir"), _appPath);
+		_datadir = config().getString(_T("datadir"), _appPath + _T("Data"));
+		_staticdir = config().getString(_T("staticdir"), _appPath + _T("static"));
+		_port = config().getInt(_T("port"), 9980);
+		_address = config().getString(_T("address"), _T("127.0.0.1"));
+		_uripath = config().getString(_T("uripath"), _T(""));
+		if(_uripath[0] != _T('/'))
+			_uripath = _T("/") + _uripath;
+
+		LibPipeInstance::loadExtensions(_extdir);
 
 		// Set up Websocket server
-		ServerSocket socket(9980);
+		ServerSocket socket(SocketAddress(_address, _port));
 		HTTPServerParams* pParams = new HTTPServerParams();
 		pParams->setMaxThreads(100);
 
 		HTTPServer server(new PipeRequestHandlerFactory(), socket, pParams);
 
 		server.start();
-
-		while(!g_Quit) {
-			this_thread::sleep_for(chrono::microseconds(1000));
-		}
-
+		waitForTerminationRequest();
 		server.stop();
 	}
 	catch(exception e) {
 		cout << _T("Exception: ") << e.what() << endl;
 	}
 
+	return EXIT_OK;
+}
+
+void PipeWebsocketShellApplication::displayHelp(const tstring& name, const tstring& value) {
+	_help = true;
+	stopOptionsProcessing();
+}
+
+//======================================================================================================================
+
+int main(int argc, char* argv[]) {
+	PipeWebsocketShellApplication self;
+	self.run(argc, argv);
 	return 0;
 }
