@@ -7,6 +7,9 @@
 #include "CommonHeader.h"
 #include "ServiceIRC.h"
 
+#include <iostream>
+#include <purple.h>
+
 //======================================================================================================================
 
 class PipeExtensionPurple : public IPipeExtension {
@@ -24,7 +27,16 @@ public:
 
 public:
 	virtual std::vector<tstring> providers() {
-		return { "irc" };
+		purple_debug_set_enabled(FALSE);
+		purple_plugins_init();
+		
+		GList * list = purple_plugins_get_all();
+		GList * list2 = purple_plugins_get_protocols();
+
+		std::cout << _T("Plugins: ") << list << std::endl;
+		std::cout << _T("Protocols: ") << list2 << std::endl;
+
+		return { _T("irc") };
 	}
 
 	virtual std::map<tstring, tstring> providerSettings(tstring provider) {

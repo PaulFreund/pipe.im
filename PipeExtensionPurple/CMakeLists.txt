@@ -18,6 +18,12 @@ add_library(PipeExtensionPurple SHARED ${PIPE_EXTENSION_PURPLE_SRC})
 include_directories(${CMAKE_SOURCE_DIR})
 
 #-------------------------------------------------------------------------------
+# Purple
+
+find_library(PURPLE_LIBRARIES NAMES purple)
+target_link_libraries (PipeExtensionPurple ${PURPLE_LIBRARIES})
+
+#-------------------------------------------------------------------------------
 # Installation
 
 install(TARGETS PipeExtensionPurple
