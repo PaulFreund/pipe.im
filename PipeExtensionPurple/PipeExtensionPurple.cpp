@@ -115,6 +115,7 @@ vector<tstring> PipeExtensionPurple::providers() {
 
 	if(!purple_core_init(_T("pipe.im"))) {
 		cout << _T("libpurple initialization failed. Dumping core.\n" "Please report this!") << endl;
+		return {};
 	}
 
 	//purple_plugins_init();
