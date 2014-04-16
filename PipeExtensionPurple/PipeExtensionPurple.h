@@ -11,6 +11,7 @@
 class PipeExtensionPurple : public IPipeExtension {
 private:
 	std::map<tstring, IPipeExtensionService*> _services;
+	bool _libpurple_init_done;
 
 public:
 	PipeExtensionPurple();

@@ -79,7 +79,7 @@ guint glib_input_add(gint fd, PurpleInputCondition condition, PurpleInputFunctio
 
 //======================================================================================================================
 
-PipeExtensionPurple::PipeExtensionPurple() {
+PipeExtensionPurple::PipeExtensionPurple() : _libpurple_init_done(false) {
 	_glib_eventloops = {
 		g_timeout_add,
 		g_source_remove,
@@ -100,22 +100,26 @@ PipeExtensionPurple::~PipeExtensionPurple() {
 }
 
 vector<tstring> PipeExtensionPurple::providers() {
-	tstring userDir = tstring(purple_user_dir());
-	tstring replaceName = _T(".pipe.im");
-	auto idx = userDir.find(_T(".purple"));
-	if(idx != string::npos) {
-		userDir.replace(idx, replaceName.length(), replaceName);
-	}
-	
-	purple_util_set_user_dir(userDir.c_str());
+	if(!_libpurple_init_done) {
+		tstring userDir = tstring(purple_user_dir());
+		tstring replaceName = _T(".pipe.im");
+		auto idx = userDir.find(_T(".purple"));
+		if(idx != string::npos) {
+			userDir.replace(idx, replaceName.length(), replaceName);
+		}
 
-	purple_debug_set_enabled(FALSE);
+		purple_util_set_user_dir(userDir.c_str());
 
-	purple_eventloop_set_ui_ops(&_glib_eventloops);
+		purple_debug_set_enabled(FALSE);
 
-	if(!purple_core_init(_T("pipe.im"))) {
-		cout << _T("libpurple initialization failed. Dumping core.\n" "Please report this!") << endl;
-		return {};
+		purple_eventloop_set_ui_ops(&_glib_eventloops);
+
+		if(!purple_core_init(_T("pipe.im"))) {
+			cout << _T("libpurple initialization failed. Dumping core.\n" "Please report this!") << endl;
+			return {};
+		}
+
+		_libpurple_init_done = true;
 	}
 
 	//purple_plugins_init();
