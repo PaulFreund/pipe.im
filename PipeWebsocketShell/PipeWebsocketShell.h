@@ -27,6 +27,7 @@ class ServerApplication;
 class PipeWebsocketShellApplication : public Poco::Util::ServerApplication {
 public:
 	bool _help;
+	bool _debug;
 
 	tstring _appPath;
 	tstring _extdir;

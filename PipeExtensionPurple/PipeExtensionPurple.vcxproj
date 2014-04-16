@@ -83,6 +83,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="PipeExtensionPurple.cpp" />
     <ClCompile Include="PipeExtensionPurpleAPI.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -65,7 +65,7 @@ public:
 		std::ostream& responseStream = response.send();
 
 		File requestPath(pApp->_staticdir + uri);
-		cout << _T("File requested: " << requestPath.path()) << endl;
+		if(pApp->_debug) { cout << _T("File requested: " << requestPath.path()) << endl; }
 		if(requestPath.exists() && requestPath.canRead()) {
 			auto extension = Path(requestPath.path()).getExtension();
 			try {
@@ -82,7 +82,7 @@ public:
 				response.setContentType(contentType);
 				std::ifstream fileStream(requestPath.path());
 				Poco::StreamCopier::copyStream(fileStream, responseStream);
-				cout << _T("File response: " << requestPath.path()) << endl;
+				if(pApp->_debug) { cout << _T("File response: " << requestPath.path()) << endl; }
 			}
 			catch(exception e) {
 				responseStream << _T("<h1>Internal server error</h1>") << endl;
@@ -97,7 +97,7 @@ public:
 			response.setContentType("text/html");
 			response.setStatus(HTTPResponse::HTTP_NOT_FOUND);
 			responseStream << _T("<h1>Requested file could not be found</h1>") << endl;
-			cout << _T("File not found: " << requestPath.path()) << endl;
+			if(pApp->_debug) { cout << _T("File not found: " << requestPath.path()) << endl; }
 		}
 	}
 };
@@ -107,11 +107,11 @@ public:
 class PipeRequestHandlerWebSocket : public HTTPRequestHandler {
 public:
 	void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
-		try {
-			PipeWebsocketShellApplication* pApp = reinterpret_cast<PipeWebsocketShellApplication*>(&Application::instance());
+		PipeWebsocketShellApplication* pApp = reinterpret_cast<PipeWebsocketShellApplication*>(&Application::instance());
 
+		try {
 			WebSocket ws(request, response);
-			cout << _T("Websocket connection established") << endl;
+			if(pApp->_debug) { cout << _T("Websocket connection established") << endl; }
 
 			ws.setBlocking(false);
 			ws.setReceiveTimeout(Poco::Timespan(60*60, 0));
@@ -125,7 +125,9 @@ public:
 			vector<tstring> incoming;
 			vector<tstring> outgoing;
 
-			outgoing.push_back(tstring(_T("Available providers:")) + accumulate(begin(providers), end(providers), tstring(_T(" "))));
+			tstring providersMessage = _T("Available services: ");
+			for(auto&& provider: providers) { providersMessage.append(_T(" ") + provider); }
+			outgoing.push_back(providersMessage);
 
 			char buffer[bufferSize];
 			int flags;
@@ -143,7 +145,9 @@ public:
 				// Send to pipe
 				if(incoming.size() > 0) {
 					for(auto& message : incoming) {
-						cout << _T("Websocket message received: ") << message << endl;
+						if(pApp->_debug) { cout << _T("Websocket message received: ") << message << endl; }
+
+						if(message == _T("debug")) { pApp->_debug = !pApp->_debug; }
 
 						StringTokenizer tokens(message, _T(" "), StringTokenizer::TOK_IGNORE_EMPTY);
 						if(tokens.count() >= 2) {
@@ -181,14 +185,14 @@ public:
 				if(outgoing.size() > 0) {
 					for(auto& message : outgoing) {
 						ws.sendFrame(message.data(), message.length());
-						cout << _T("Websocket message sent: ") << message << endl;
+						if(pApp->_debug) { cout << _T("Websocket message sent: ") << message << endl; }
 					}
 					outgoing.clear();
 				}
 			}
 			while(bytesRead > 0 || (flags & WebSocket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE);
 
-			cout << _T("Websocket connection closed") << endl;
+			if(pApp->_debug) { cout << _T("Websocket connection closed") << endl; }
 		}
 		catch(WebSocketException& e) {
 			switch(e.code()) {
@@ -205,7 +209,7 @@ public:
 			cout << _T("Websocket error: " << e.displayText()) << endl;
 		}
 
-		cout << _T("Websocket connection lost") << endl;
+		if(pApp->_debug) { cout << _T("Websocket connection lost") << endl; }
 	}
 };
 
@@ -228,7 +232,7 @@ public:
 
 //======================================================================================================================
 
-PipeWebsocketShellApplication::PipeWebsocketShellApplication() :_help(false) { setUnixOptions(true); }
+PipeWebsocketShellApplication::PipeWebsocketShellApplication() :_help(false), _debug(false) { setUnixOptions(true); }
 PipeWebsocketShellApplication::~PipeWebsocketShellApplication() {}
 
 
