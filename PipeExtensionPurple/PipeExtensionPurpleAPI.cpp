@@ -6,12 +6,10 @@ using namespace std;
 
 //======================================================================================================================
 
-PipeExtensionPurple g_Extension;
-
 //======================================================================================================================
 
 PIPE_EXTENSION_ITF void PipeExtensionGetServiceProviders(PipeExtensionCbContext context, PipeExtensionCbStrList cbProviders) {
-	auto&& providers = g_Extension.providers();
+	auto&& providers = PipeExtensionPurple::ExtensionInstance.providers();
 	vector<PipeExtensionStr> pointers;
 	for(auto& provider : providers) {
 		pointers.push_back(provider.c_str());
@@ -20,7 +18,7 @@ PIPE_EXTENSION_ITF void PipeExtensionGetServiceProviders(PipeExtensionCbContext 
 }
 
 PIPE_EXTENSION_ITF void PipeExtensionGetServiceProviderSettingTypes(PipeExtensionStr type, PipeExtensionCbContext context, PipeExtensionCbProviderSettingTypes cbProviderSettingTypes) {
-	auto&& providerSettings = g_Extension.providerSettings(tstring(type));
+	auto&& providerSettings = PipeExtensionPurple::ExtensionInstance.providerSettings(tstring(type));
 
 	std::vector<PipeExtensionProviderSettingTypeData> providerSettingPointers;
 
@@ -38,11 +36,11 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr provider, Pi
 	for(auto i = 0; i < count; i++) {
 		settingsData[settings[i].id] = settings[i].value;
 	}
-	(*service) = reinterpret_cast<HPipeExtensionService>(g_Extension.create(tstring(provider), tstring(id), settingsData));
+	(*service) = reinterpret_cast<HPipeExtensionService>(PipeExtensionPurple::ExtensionInstance.create(tstring(provider), tstring(id), settingsData));
 }
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy(HPipeExtensionService service) {
-	g_Extension.destroy(reinterpret_cast<IPipeExtensionService*>(service));
+	PipeExtensionPurple::ExtensionInstance.destroy(reinterpret_cast<IPipeExtensionService*>(service));
 }
 
 //----------------------------------------------------------------------------------------------------------------------

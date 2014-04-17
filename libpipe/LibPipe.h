@@ -5,37 +5,29 @@
 //======================================================================================================================
 
 #include "CommonHeader.h"
+#include "PipeExtensionInstance.h"
 
 //======================================================================================================================
 
 class LibPipe : public ILibPipe {
+public:
+	static std::vector<LibPipe> Instances;
+	static std::vector<PipeExtensionInstance> Extensions;
+
 private:
 	tstring _path;
 	std::vector<tstring> _providers; 
 
-	std::vector<LibPipeMessage> debugEchos;
+	std::map<tstring, std::shared_ptr<IPipeExtensionService>> _services;
+	std::vector<LibPipeMessage> _outgoing;
 
 public:
-	LibPipe(tstring path, std::vector<tstring> providers) : _path(path), _providers(providers) {
+	LibPipe(tstring path, std::vector<tstring> providers);
+	virtual ~LibPipe();
 
-	}
-
-	virtual ~LibPipe() {
-
-	}
-
-	virtual void send(const std::vector<LibPipeMessage>& messages) {
-		for(auto& message : messages) {
-			debugEchos.push_back(message);
-		}
-	}
-
-	virtual std::vector<LibPipeMessage> receive() {
-		std::vector<LibPipeMessage> messages = {};
-		messages.insert(end(messages), begin(debugEchos), end(debugEchos));
-		debugEchos.clear();
-		return messages;
-	}
+public:
+	virtual void send(const std::vector<LibPipeMessage>& messages);
+	virtual std::vector<LibPipeMessage> receive();
 };
 
 //======================================================================================================================

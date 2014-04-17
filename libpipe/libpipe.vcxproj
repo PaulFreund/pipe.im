@@ -79,6 +79,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="LibPipe.cpp" />
     <ClCompile Include="LibPipeAPI.cpp" />
   </ItemGroup>
   <ItemGroup>

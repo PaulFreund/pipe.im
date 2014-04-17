@@ -21,6 +21,10 @@ using namespace std;
 
 //======================================================================================================================
 
+PipeExtensionPurple PipeExtensionPurple::ExtensionInstance;
+
+//======================================================================================================================
+
 PurpleEventLoopUiOps _glib_eventloops;
 
 typedef struct _PurpleGLibIOClosure {

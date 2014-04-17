@@ -2,14 +2,13 @@
 
 #include "CommonHeader.h"
 #include "LibPipe.h"
-#include "PipeExtensionInstance.h"
 
 using namespace std;
 using namespace Poco;
+
 //======================================================================================================================
 
-vector<LibPipe> g_Instances;
-vector<PipeExtensionInstance> g_Extensions;
+
 
 //======================================================================================================================
 
@@ -54,7 +53,7 @@ void loadExtension(tstring path) {
 	}
 	catch(...) { return; }
 
-	g_Extensions.push_back(PipeExtensionInstance(extensionFunctions));
+	LibPipe::Extensions.push_back(PipeExtensionInstance(extensionFunctions));
 }
 
 //======================================================================================================================
@@ -76,7 +75,7 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 
 LIBPIPE_ITF void LibPipeGetServiceProviders(LibPipeCbContext context, LibPipeCbServiceProviders cbServiceProviders) {
 	vector<tstring> providers;
-	for(auto& extension : g_Extensions) {
+	for(auto& extension : LibPipe::Extensions) {
 		auto extensionProviders = extension.providers();
 		providers.insert(end(providers), begin(extensionProviders), end(extensionProviders));
 	}
@@ -97,15 +96,15 @@ LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr* serviceProviders, Li
 		providers.push_back(tstring(serviceProviders[i]));
 	}
 
-	g_Instances.push_back(LibPipe(tstring(path), providers));
-	(*instance) = reinterpret_cast<HLibPipe>(&g_Instances.back());
+	LibPipe::Instances.push_back(LibPipe(tstring(path), providers));
+	(*instance) = reinterpret_cast<HLibPipe>(&LibPipe::Instances.back());
 }
 
 LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
-	for(auto it = begin(g_Instances); it != end(g_Instances); it++) {
+	for(auto it = begin(LibPipe::Instances); it != end(LibPipe::Instances); it++) {
 		if(&(*it) == pInstance) {
-			g_Instances.erase(it);
+			LibPipe::Instances.erase(it);
 			return;
 		}
 	}

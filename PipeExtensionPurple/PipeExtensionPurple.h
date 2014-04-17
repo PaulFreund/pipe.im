@@ -9,6 +9,9 @@
 //======================================================================================================================
 
 class PipeExtensionPurple : public IPipeExtension {
+public:
+	static PipeExtensionPurple ExtensionInstance;
+
 private:
 	std::map<tstring, IPipeExtensionService*> _services;
 	bool _libpurple_init_done;
