@@ -4,29 +4,26 @@
 
 //======================================================================================================================
 
-#include "PipeExtensionInstance.h"
+#include "PipeExtensionInterface.h"
 
 //======================================================================================================================
 
-class LibPipe : public ILibPipe {
-public:
-	static std::vector<LibPipe> Instances;
-	static std::vector<PipeExtensionInstance> Extensions;
-
+class BaseServiceScript : public IPipeExtensionService {
 private:
-	tstring _path;
-	std::vector<tstring> _providers; 
-
-	std::map<tstring, std::shared_ptr<IPipeExtensionService>> _services;
-	std::vector<LibPipeMessage> _outgoing;
+	tstring _id = _T("script");
 
 public:
-	LibPipe(tstring path, std::vector<tstring> providers);
-	virtual ~LibPipe();
+	BaseServiceScript();
+	virtual ~BaseServiceScript();
 
 public:
+	virtual tstring id();
 	virtual void send(const std::vector<LibPipeMessage>& messages);
 	virtual std::vector<LibPipeMessage> receive();
+
+	virtual std::vector<tstring> childNodes(tstring address);
+	virtual tstring nodeType(tstring address);
+	virtual std::vector<PipeExtensionMessageType> nodeMessagesTypes(tstring address);
 };
 
 //======================================================================================================================
