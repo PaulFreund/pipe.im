@@ -23,7 +23,7 @@ LibPipe::LibPipe(tstring path, vector<tstring> providers) : _path(path), _provid
 	_services[_T("script")] = make_shared<BaseServiceScript>(settings);
 	_services[_T("config")] = make_shared<BaseServiceConfig>(settings);
 	
-	settings[_T("providers")] = timplode(_providers, _T(';'));
+	settings[_T("providers")] = timplode(_providers, _T(','));
 	_services[_T("service")] = make_shared<BaseServiceService>(settings);
 }
 
@@ -41,8 +41,20 @@ void LibPipe::send(const vector<LibPipeMessage>& messages) {
 
 	auto lenId = _id.length();
 	for(auto&& message : messages) {
+		if(message.address.empty()) {
+			vector<tstring> parameters = {
+				_T("Missing address"),
+				_T("Syntax is: address command [<parameter>...]")
+			};
+			_outgoing.push_back({ _id, _T("error"), parameters });
+			continue;
+		}
+
 		if(message.type.empty()) {
-			vector<tstring> parameters = { _T("Missing command") };
+			vector<tstring> parameters = { 
+				_T("Missing command"),
+				_T("Syntax is: address command [<parameter>...]")
+			};
 			_outgoing.push_back({ _id, _T("error"), parameters });
 			continue;
 		}
@@ -59,7 +71,10 @@ void LibPipe::send(const vector<LibPipeMessage>& messages) {
 			auto target = message.address.substr(lenId + 1, second);
 
 			if(_services.find(target) == end(_services)) {
-				vector<tstring> parameters = { _T("Address not available") };
+				vector<tstring> parameters = { 
+					_T("Address not available") 
+					_T("Start from \"") + _id + _T("\" and use the children command to find available addresses")
+				};
 				_outgoing.push_back({ _id, _T("error"), parameters });
 				continue;
 			}
@@ -67,7 +82,10 @@ void LibPipe::send(const vector<LibPipeMessage>& messages) {
 			_services[target]->send({ message });
 		}
 		else {
-			vector<tstring> parameters = { _T("Invalid Address") };
+			vector<tstring> parameters = { 
+				_T("Invalid Address"), 
+				_T("Start from \"") + _id + _T("\" and use the children command to find available addresses") 
+			};
 			_outgoing.push_back({ _id, _T("error"), parameters });
 			continue;
 		}
@@ -93,11 +111,50 @@ vector<LibPipeMessage> LibPipe::receive() {
 //----------------------------------------------------------------------------------------------------------------------
 
 void LibPipe::handleCommand(const LibPipeMessage& message) {
-	// Handle commands
-	// Handle status
-	// Handle about
-	// handle messages
-	// handle children
+
+	if(message.type == _T("commands")) {
+		// Commands
+		// status
+		// about
+		// messages
+		// children
+	}
+	else if(message.type == _T("status")) {
+
+	}
+
+	else if(message.type == _T("about")) {
+
+	}
+
+	else if(message.type == _T("messages")) {
+		// error
+		// children
+		// status
+		// messages
+	}
+	else if(message.type == _T("children")) {
+		tstring children;
+		size_t idxServices = 0;
+		size_t cntServices = _services.size();
+		for(auto&& service : _services) {
+			children.append(service.first);
+			if(idxServices < (cntServices - 1)) {
+				children += _T(',');
+			}
+			idxServices++;
+		}
+
+		vector<tstring> parameters = { children };
+		_outgoing.push_back({ _id, _T("children"), parameters });
+	}
+	else {
+		vector<tstring> parameters = { 
+			_T("Unknown command"),
+			_T("Use: ") + _id + _T(" commands to get all available commands")
+		};
+		_outgoing.push_back({ _id, _T("error"), parameters });
+	}
 }
 
 //======================================================================================================================
