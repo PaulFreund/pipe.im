@@ -5,6 +5,7 @@
 //======================================================================================================================
 
 #include "PipeExtensionInstance.h"
+#include "ServiceRoot.h"
 
 //======================================================================================================================
 
@@ -14,12 +15,7 @@ public:
 	static std::vector<PipeExtensionInstance> Extensions;
 
 private:
-	tstring _id = _T("pipe");
-	tstring _path;
-	std::vector<tstring> _serviceTypes; 
-
-	std::map<tstring, std::shared_ptr<IPipeExtensionService>> _services;
-	std::vector<LibPipeMessage> _outgoing;
+	std::shared_ptr<ServiceRoot> _serviceRoot;
 
 public:
 	LibPipe(tstring path, std::vector<tstring> serviceTypes);
@@ -28,9 +24,6 @@ public:
 public:
 	virtual void send(const std::vector<LibPipeMessage>& messages);
 	virtual std::vector<LibPipeMessage> receive();
-
-private:
-	void handleCommand(const LibPipeMessage& message);
 };
 
 //======================================================================================================================

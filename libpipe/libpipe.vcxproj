@@ -82,20 +82,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BaseServiceConfig.cpp" />
-    <ClCompile Include="BaseServiceScript.cpp" />
-    <ClCompile Include="BaseServiceService.cpp" />
     <ClCompile Include="CommonHeader.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="LibPipe.cpp" />
     <ClCompile Include="LibPipeAPI.cpp" />
+    <ClCompile Include="ServiceRoot.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BaseServiceConfig.h" />
-    <ClInclude Include="BaseServiceScript.h" />
-    <ClInclude Include="BaseServiceService.h" />
     <ClInclude Include="CommonHeader.h" />
     <ClInclude Include="LibPipeInterface.h" />
     <ClInclude Include="LibPipeInstance.h" />
@@ -104,6 +99,7 @@
     <ClInclude Include="LibPipeAPI.h" />
     <ClInclude Include="LibPipe.h" />
     <ClInclude Include="PipeExtensionInstance.h" />
+    <ClInclude Include="ServiceRoot.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

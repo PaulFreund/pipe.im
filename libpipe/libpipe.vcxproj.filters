@@ -1,23 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="BaseServices">
-      <UniqueIdentifier>{110e7ca6-47ba-4890-a6e0-9f3dff4f8f5b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="LibPipe">
       <UniqueIdentifier>{a934a684-018a-424d-b1bd-f1c95eae12bb}</UniqueIdentifier>
     </Filter>
     <Filter Include="LibPipe\API">
       <UniqueIdentifier>{5d9c19eb-7877-4578-93ad-343ee3ba8cfe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="BaseServices\Config">
-      <UniqueIdentifier>{8b3f9e96-141b-4656-ab90-a364ce7ba080}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="BaseServices\Script">
-      <UniqueIdentifier>{1181fb33-6769-4fcf-8ce2-89d2e9c662a5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="BaseServices\Service">
-      <UniqueIdentifier>{fdd6e3ed-dc51-40c7-9132-52cb98514bba}</UniqueIdentifier>
     </Filter>
     <Filter Include="LibPipe\Wrapper">
       <UniqueIdentifier>{636d9112-8279-411b-8d54-5442c952616f}</UniqueIdentifier>
@@ -36,7 +24,11 @@
     </Filter>
     <Filter Include="Common">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <Extensions>
+      </Extensions>
+    </Filter>
+    <Filter Include="LibPipe\ServiceRoot">
+      <UniqueIdentifier>{110e7ca6-47ba-4890-a6e0-9f3dff4f8f5b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -45,15 +37,6 @@
     </ClInclude>
     <ClInclude Include="LibPipeAPI.h">
       <Filter>LibPipe\API</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseServiceConfig.h">
-      <Filter>BaseServices\Config</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseServiceScript.h">
-      <Filter>BaseServices\Script</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseServiceService.h">
-      <Filter>BaseServices\Service</Filter>
     </ClInclude>
     <ClInclude Include="LibPipeInstance.h">
       <Filter>LibPipe\Wrapper</Filter>
@@ -73,25 +56,22 @@
     <ClInclude Include="PipeExtensionInterface.h">
       <Filter>PipeExtension\Wrapper</Filter>
     </ClInclude>
+    <ClInclude Include="ServiceRoot.h">
+      <Filter>LibPipe\ServiceRoot</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LibPipeAPI.cpp">
       <Filter>LibPipe\API</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseServiceConfig.cpp">
-      <Filter>BaseServices\Config</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseServiceScript.cpp">
-      <Filter>BaseServices\Script</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseServiceService.cpp">
-      <Filter>BaseServices\Service</Filter>
     </ClCompile>
     <ClCompile Include="LibPipe.cpp">
       <Filter>LibPipe\Base</Filter>
     </ClCompile>
     <ClCompile Include="CommonHeader.cpp">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="ServiceRoot.cpp">
+      <Filter>LibPipe\ServiceRoot</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
