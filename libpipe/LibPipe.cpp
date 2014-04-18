@@ -16,14 +16,14 @@ std::vector<PipeExtensionInstance> LibPipe::Extensions;
 
 //======================================================================================================================
 
-LibPipe::LibPipe(tstring path, vector<tstring> providers) : _path(path), _providers(providers) {
+LibPipe::LibPipe(tstring path, vector<tstring> serviceTypes) : _path(path), _serviceTypes(serviceTypes) {
 	map<tstring, tstring> settings;
 	settings[_T("path")] = _path;
 
 	_services[_T("script")] = make_shared<BaseServiceScript>(settings);
 	_services[_T("config")] = make_shared<BaseServiceConfig>(settings);
 	
-	settings[_T("providers")] = timplode(_providers, _T(','));
+	settings[_T("serviceTypes")] = timplode(_serviceTypes, _T(','));
 	_services[_T("service")] = make_shared<BaseServiceService>(settings);
 }
 
@@ -119,9 +119,6 @@ void LibPipe::handleCommand(const LibPipeMessage& message) {
 		// messages
 		// children
 	}
-	else if(message.type == _T("status")) {
-
-	}
 
 	else if(message.type == _T("about")) {
 
@@ -158,3 +155,21 @@ void LibPipe::handleCommand(const LibPipeMessage& message) {
 }
 
 //======================================================================================================================
+
+/*
+	CMD: about 
+	MSG: about <id> <type> 
+
+	CMD: children
+	MSG: children <id list>
+
+	CMD: commands
+	MSG: commands <command list>
+
+	// node types
+		// node type commands
+		// node type messages
+
+
+
+*/

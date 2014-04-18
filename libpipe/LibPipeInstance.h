@@ -13,11 +13,11 @@ private:
 	HLibPipe _instance;
 
 public:
-	LibPipeInstance(const tstring& path, const std::vector<tstring>& serviceProviders) {
+	LibPipeInstance(const tstring& path, const std::vector<tstring>& serviceTypes) {
 
 		std::vector<LibPipeStr> pointers;
-		for(auto& provider : serviceProviders) {
-			pointers.push_back(provider.c_str());
+		for(auto& Type : serviceTypes) {
+			pointers.push_back(Type.c_str());
 		}
 
 		HLibPipe instance;
@@ -82,16 +82,16 @@ public:
 		LibPipeLoadExtensions(path.c_str());
 	}
 
-	static std::vector<tstring> serviceProviders() {
-		std::vector<tstring> serviceProviders;
+	static std::vector<tstring> serviceTypes() {
+		std::vector<tstring> serviceTypes;
 
-		LibPipeGetServiceProviders(&serviceProviders, [](LibPipeCbContext context, LibPipeStr* providers, LibPipeEleCnt providerCount) {
+		LibPipeGetServiceTypes(&serviceTypes, [](LibPipeCbContext context, LibPipeStr* Types, LibPipeEleCnt TypeCount) {
 			std::vector<tstring>* pList = static_cast<std::vector<tstring>*>(context);
-			for(auto i = 0; i < providerCount; i++) {
-				pList->push_back(tstring(providers[i]));
+			for(auto i = 0; i < TypeCount; i++) {
+				pList->push_back(tstring(Types[i]));
 			}
 		});
 
-		return serviceProviders;
+		return serviceTypes;
 	}
 };

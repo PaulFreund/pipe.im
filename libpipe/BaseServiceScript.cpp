@@ -16,12 +16,6 @@ BaseServiceScript::~BaseServiceScript() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-tstring BaseServiceScript::id() {
-	return _id;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 void BaseServiceScript::send(const std::vector<LibPipeMessage>& messages) {
 }
 
@@ -33,19 +27,13 @@ std::vector<LibPipeMessage> BaseServiceScript::receive() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::vector<tstring> BaseServiceScript::childNodes(tstring address) {
+std::vector<tstring> BaseServiceScript::children(tstring address) {
 	return {};
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-tstring BaseServiceScript::nodeType(tstring address) {
-	return _T("");
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-std::vector<PipeExtensionMessageType> BaseServiceScript::nodeMessagesTypes(tstring address) {
+PipeExtensionServiceNodeInfo BaseServiceScript::info(tstring address) {
 	return {};
 }
 

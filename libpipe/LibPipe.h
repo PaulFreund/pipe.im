@@ -16,13 +16,13 @@ public:
 private:
 	tstring _id = _T("pipe");
 	tstring _path;
-	std::vector<tstring> _providers; 
+	std::vector<tstring> _serviceTypes; 
 
 	std::map<tstring, std::shared_ptr<IPipeExtensionService>> _services;
 	std::vector<LibPipeMessage> _outgoing;
 
 public:
-	LibPipe(tstring path, std::vector<tstring> providers);
+	LibPipe(tstring path, std::vector<tstring> serviceTypes);
 	virtual ~LibPipe();
 
 public:

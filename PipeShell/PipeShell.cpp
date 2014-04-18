@@ -56,17 +56,17 @@ int main(int argc, char* argv[]) {
 		auto userPath = appPath + _T("PipeShellData");
 
 		LibPipeInstance::loadExtensions(appPath);
-		auto providers = LibPipeInstance::serviceProviders();
+		auto serviceTypes = LibPipeInstance::serviceTypes();
 
-		LibPipeInstance pipe(userPath, providers);
+		LibPipeInstance pipe(userPath, serviceTypes);
 
 		// Create instance
 		cout << _T("------------------------------------------") << endl;
 		cout << _T("Welcome to pipe shell") << endl;
 		cout << _T("------------------------------------------") << endl;
-		cout << _T("Available providers: ") << endl;
-		for(auto& provider : providers) {
-			cout << _T('\t') << provider << endl;
+		cout << _T("Available service types: ") << endl;
+		for(auto& serviceType : serviceTypes) {
+			cout << _T('\t') << serviceType << endl;
 		}
 		cout << _T("------------------------------------------") << endl;
 		cout << endl;

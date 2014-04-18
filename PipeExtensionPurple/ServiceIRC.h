@@ -49,20 +49,11 @@ public:
 		return {};
 	}
 
-	virtual std::vector<tstring> childNodes(tstring address) {
+	virtual std::vector<tstring> children(tstring address) {
 		return {};
 	}
 
-	virtual tstring nodeType(tstring address) {
-		return tstring();
-	}
-
-	virtual std::vector<PipeExtensionMessageType> nodeMessagesTypes(tstring address) {
-		return {};
-	}
-
-public:
-	static std::map<tstring, tstring> settingTypes() {
+	virtual PipeExtensionServiceNodeInfo info(tstring address) {
 		return {};
 	}
 };

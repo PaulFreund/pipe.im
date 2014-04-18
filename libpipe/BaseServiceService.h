@@ -18,13 +18,11 @@ public:
 	virtual ~BaseServiceService();
 
 public:
-	virtual tstring id();
 	virtual void send(const std::vector<LibPipeMessage>& messages);
 	virtual std::vector<LibPipeMessage> receive();
 
-	virtual std::vector<tstring> childNodes(tstring address);
-	virtual tstring nodeType(tstring address);
-	virtual std::vector<PipeExtensionMessageType> nodeMessagesTypes(tstring address);
+	virtual std::vector<tstring> children(tstring address);
+	virtual PipeExtensionServiceNodeInfo info(tstring address);
 };
 
 //======================================================================================================================

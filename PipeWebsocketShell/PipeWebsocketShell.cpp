@@ -119,15 +119,15 @@ public:
 			const int bufferSize = 2048;
 			ws.setReceiveBufferSize(bufferSize);
 
-			auto providers = LibPipeInstance::serviceProviders();
-			LibPipeInstance pipe(pApp->_datadir, providers);
+			auto serviceTypes = LibPipeInstance::serviceTypes();
+			LibPipeInstance pipe(pApp->_datadir, serviceTypes);
 
 			vector<tstring> incoming;
 			vector<tstring> outgoing;
 
-			tstring providersMessage = _T("Available services: ");
-			for(auto&& provider: providers) { providersMessage.append(_T(" ") + provider); }
-			outgoing.push_back(providersMessage);
+			tstring serviceTypesMessage = _T("Available services: ");
+			for(auto&& serviceType : serviceTypes) { serviceTypesMessage.append(_T(" ") + serviceType); }
+			outgoing.push_back(serviceTypesMessage);
 
 			char buffer[bufferSize];
 			int flags;

@@ -16,12 +16,6 @@ BaseServiceConfig::~BaseServiceConfig() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-tstring BaseServiceConfig::id() {
-	return _id;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 void BaseServiceConfig::send(const std::vector<LibPipeMessage>& messages) {
 }
 
@@ -33,19 +27,13 @@ std::vector<LibPipeMessage> BaseServiceConfig::receive() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::vector<tstring> BaseServiceConfig::childNodes(tstring address) {
+std::vector<tstring> BaseServiceConfig::children(tstring address) {
 	return {};
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-tstring BaseServiceConfig::nodeType(tstring address) {
-	return _T("");
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-std::vector<PipeExtensionMessageType> BaseServiceConfig::nodeMessagesTypes(tstring address) {
+PipeExtensionServiceNodeInfo BaseServiceConfig::info(tstring address) {
 	return {};
 }
 

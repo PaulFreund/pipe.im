@@ -36,17 +36,17 @@ struct LibPipeMessageData {
 //======================================================================================================================
 
 typedef void* LibPipeCbContext;
-typedef void(*LibPipeCbServiceProviders)(LibPipeCbContext, LibPipeStr*, LibPipeEleCnt);
+typedef void(*LibPipeCbServiceTypes)(LibPipeCbContext, LibPipeStr*, LibPipeEleCnt);
 typedef void(*LibPipeCbMessages)(LibPipeCbContext, LibPipeMessageData*, LibPipeEleCnt);
 
 //======================================================================================================================
 
 LIBPIPE_ITF void LibPipeLoadExtensions			(LibPipeStr path);
-LIBPIPE_ITF void LibPipeGetServiceProviders		(LibPipeCbContext context, LibPipeCbServiceProviders cbServiceProviders);
+LIBPIPE_ITF void LibPipeGetServiceTypes			(LibPipeCbContext context, LibPipeCbServiceTypes cbServiceTypes);
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeCreate					(LibPipeStr path, LibPipeStr* serviceProviders, LibPipeEleCnt serviceProviderCount, HLibPipe* instance);
+LIBPIPE_ITF void LibPipeCreate					(LibPipeStr path, LibPipeStr* serviceTypes, LibPipeEleCnt serviceTypeCount, HLibPipe* instance);
 LIBPIPE_ITF void LibPipeDestroy					(HLibPipe instance);
 
 //----------------------------------------------------------------------------------------------------------------------

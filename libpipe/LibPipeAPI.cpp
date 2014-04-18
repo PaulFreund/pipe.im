@@ -36,20 +36,18 @@ void loadExtension(tstring path) {
 	if(!library.isLoaded())
 		return;
 
-	if(!library.hasSymbol(NamePipeExtensionGetServiceProviders))
+	if(!library.hasSymbol(NamePipeExtensionGetServiceTypes))
 		return;
 
 	PipeExtensionFunctions extensionFunctions;
 	try {
-		extensionFunctions.fktPipeExtensionGetServiceProviders = reinterpret_cast<FktPipeExtensionGetServiceProviders>(loadExtensionSymbol(library,NamePipeExtensionGetServiceProviders));
-		extensionFunctions.fktPipeExtensionGetServiceProviderSettingTypes = reinterpret_cast<FktPipeExtensionGetServiceProviderSettingTypes>(loadExtensionSymbol(library,NamePipeExtensionGetServiceProviderSettingTypes));
+		extensionFunctions.fktPipeExtensionGetServiceTypes = reinterpret_cast<FktPipeExtensionGetServiceTypes>(loadExtensionSymbol(library, NamePipeExtensionGetServiceTypes));
 		extensionFunctions.fktPipeExtensionServiceCreate = reinterpret_cast<FktPipeExtensionServiceCreate>(loadExtensionSymbol(library,NamePipeExtensionServiceCreate));
 		extensionFunctions.fktPipeExtensionServiceDestroy = reinterpret_cast<FktPipeExtensionServiceDestroy>(loadExtensionSymbol(library,NamePipeExtensionServiceDestroy));
 		extensionFunctions.fktPipeExtensionServiceSend = reinterpret_cast<FktPipeExtensionServiceSend>(loadExtensionSymbol(library,NamePipeExtensionServiceSend));
 		extensionFunctions.fktPipeExtensionServiceReceive = reinterpret_cast<FktPipeExtensionServiceReceive>(loadExtensionSymbol(library,NamePipeExtensionServiceReceive));
-		extensionFunctions.fktPipeExtensionServiceGetChildNodes = reinterpret_cast<FktPipeExtensionServiceGetChildNodes>(loadExtensionSymbol(library,NamePipeExtensionServiceGetChildNodes));
-		extensionFunctions.fktPipeExtensionServiceGetNodeType = reinterpret_cast<FktPipeExtensionServiceGetNodeType>(loadExtensionSymbol(library,NamePipeExtensionServiceGetNodeType));
-		extensionFunctions.fktPipeExtensionServiceGetNodeMessageTypes = reinterpret_cast<FktPipeExtensionServiceGetNodeMessageTypes>(loadExtensionSymbol(library,NamePipeExtensionServiceGetNodeMessageTypes));
+		extensionFunctions.fktPipeExtensionServiceGetNodeChildren = reinterpret_cast<FktPipeExtensionServiceGetNodeChildren>(loadExtensionSymbol(library, NamePipeExtensionServiceGetNodeChildren));
+		extensionFunctions.fktPipeExtensionServiceGetNodeInfo = reinterpret_cast<FktPipeExtensionServiceGetNodeInfo>(loadExtensionSymbol(library, NamePipeExtensionServiceGetNodeInfo));
 	}
 	catch(...) { return; }
 
@@ -73,30 +71,32 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 	}
 }
 
-LIBPIPE_ITF void LibPipeGetServiceProviders(LibPipeCbContext context, LibPipeCbServiceProviders cbServiceProviders) {
-	vector<tstring> providers;
-	for(auto& extension : LibPipe::Extensions) {
-		auto extensionProviders = extension.providers();
-		providers.insert(end(providers), begin(extensionProviders), end(extensionProviders));
+LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbServiceTypes cbServiceTypes) {
+	vector<tstring> serviceTypes;
+	for(auto&& extension : LibPipe::Extensions) {
+		auto extensionServiceTypes = extension.serviceTypes();
+		for(auto&& extensionServiceType : extensionServiceTypes) {
+			serviceTypes.push_back(extensionServiceType.id);
+		}
 	}
 
 	vector<LibPipeStr> pointers;
-	for(auto& provider : providers) {
-		pointers.push_back(provider.c_str());
+	for(auto& serviceType : serviceTypes) {
+		pointers.push_back(serviceType.c_str());
 	}
 
-	cbServiceProviders(context, pointers.data(), pointers.size());
+	cbServiceTypes(context, pointers.data(), pointers.size());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr* serviceProviders, LibPipeEleCnt serviceProviderCount, HLibPipe* instance) {
-	vector<tstring> providers;
-	for(auto i = 0; i < serviceProviderCount; i++) {
-		providers.push_back(tstring(serviceProviders[i]));
+LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr* serviceTypes, LibPipeEleCnt serviceTypeCount, HLibPipe* instance) {
+	vector<tstring> Types;
+	for(auto i = 0; i < serviceTypeCount; i++) {
+		Types.push_back(tstring(serviceTypes[i]));
 	}
 
-	LibPipe::Instances.push_back(LibPipe(tstring(path), providers));
+	LibPipe::Instances.push_back(LibPipe(tstring(path), Types));
 	(*instance) = reinterpret_cast<HLibPipe>(&LibPipe::Instances.back());
 }
 

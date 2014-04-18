@@ -21,11 +21,9 @@ public:
 	virtual ~PipeExtensionPurple();
 
 public:
-	virtual std::vector<tstring> providers();
+	virtual std::vector<PipeExtensionServiceType> serviceTypes();
 
-	virtual std::map<tstring, tstring> providerSettings(tstring provider);
-
-	virtual IPipeExtensionService* create(tstring provider, tstring id, std::map<tstring, tstring> settings);
+	virtual IPipeExtensionService* create(tstring serviceTypeId, tstring id, std::map<tstring, tstring> settings);
 
 	virtual void destroy(IPipeExtensionService* service);
 };
