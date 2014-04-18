@@ -14,6 +14,7 @@ public:
 	static std::vector<PipeExtensionInstance> Extensions;
 
 private:
+	tstring _id = _T("pipe");
 	tstring _path;
 	std::vector<tstring> _providers; 
 
@@ -27,6 +28,9 @@ public:
 public:
 	virtual void send(const std::vector<LibPipeMessage>& messages);
 	virtual std::vector<LibPipeMessage> receive();
+
+private:
+	void handleCommand(const LibPipeMessage& message);
 };
 
 //======================================================================================================================

@@ -2,10 +2,11 @@
 
 #include "CommonHeader.h"
 #include "BaseServiceScript.h"
+using namespace std;
 
 //======================================================================================================================
 
-BaseServiceScript::BaseServiceScript() {
+BaseServiceScript::BaseServiceScript(map<tstring, tstring> settings) : _settings(settings) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------

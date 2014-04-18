@@ -150,20 +150,23 @@ public:
 						if(message == _T("debug")) { pApp->_debug = !pApp->_debug; }
 
 						StringTokenizer tokens(message, _T(" "), StringTokenizer::TOK_IGNORE_EMPTY);
-						if(tokens.count() >= 2) {
-							LibPipeMessage pipeMessage;
-							pipeMessage.address = tokens[0];
-							pipeMessage.type = tokens[1];
+						LibPipeMessage pipeMessage;
 
-							for(auto i = 2; i < tokens.count(); i++) {
-								pipeMessage.parameters.push_back(tokens[i]);
-							}
+						size_t idxToken = 0;
+						for(auto& token : tokens) {
+							if(idxToken == 0)
+								pipeMessage.address = token;
 
-							pipe.send({ pipeMessage });
+							else if(idxToken == 1)
+								pipeMessage.type = token;
+
+							else
+								pipeMessage.parameters.push_back(token);
+
+							idxToken++;
 						}
-						else {
-							outgoing.push_back(_T("Input syntax: <address> <type> [<parameter> ...]"));
-						}
+
+						pipe.send({ pipeMessage });
 					}
 
 					incoming.clear();

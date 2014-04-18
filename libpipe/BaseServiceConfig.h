@@ -11,9 +11,10 @@
 class BaseServiceConfig : public IPipeExtensionService {
 private:
 	tstring _id = _T("config");
+	std::map<tstring, tstring> _settings;
 
 public:
-	BaseServiceConfig();
+	BaseServiceConfig(std::map<tstring, tstring> settings);
 	virtual ~BaseServiceConfig();
 
 public:

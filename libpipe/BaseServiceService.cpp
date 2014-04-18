@@ -2,10 +2,11 @@
 
 #include "CommonHeader.h"
 #include "BaseServiceService.h"
+using namespace std;
 
 //======================================================================================================================
 
-BaseServiceService::BaseServiceService() {
+BaseServiceService::BaseServiceService(map<tstring, tstring> settings) : _settings(settings) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------

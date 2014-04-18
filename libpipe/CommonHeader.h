@@ -24,6 +24,8 @@
 typedef std::basic_string<TCHAR> tstring;
 typedef unsigned char ubyte;
 
+const TCHAR PAS = _T('.'); // Pipe Address Separator
+
 //======================================================================================================================
 
 #include <chaiscript/chaiscript.hpp>
@@ -33,12 +35,16 @@ typedef unsigned char ubyte;
 #include <Poco/DirectoryIterator.h>
 #include <Poco/SharedLibrary.h>
 #include <Poco/String.h>
-using namespace Poco;
 
 //======================================================================================================================
 
 #include "LibPipeAPI.h"
 #include "PipeExtensionAPI.h"
 #include "LibPipeInterface.h"
+
+//======================================================================================================================
+
+tstring timplode(const std::vector<tstring>& fragments, const TCHAR delimiter);
+std::vector<tstring> texplode(const tstring& fragments, const TCHAR delimiter);
 
 //======================================================================================================================

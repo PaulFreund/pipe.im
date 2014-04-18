@@ -11,9 +11,10 @@
 class BaseServiceScript : public IPipeExtensionService {
 private:
 	tstring _id = _T("script");
+	std::map<tstring, tstring> _settings;
 
 public:
-	BaseServiceScript();
+	BaseServiceScript(std::map<tstring, tstring> settings);
 	virtual ~BaseServiceScript();
 
 public:

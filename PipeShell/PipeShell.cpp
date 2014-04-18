@@ -95,29 +95,31 @@ int main(int argc, char* argv[]) {
 			while(!exit) {
 				cin.getline(buffer, bufferSize, _T('\n'));
 
-				tstring inputLine(buffer);
+				tstring message(buffer);
 
-				if(inputLine.compare(_T("exit")) == 0) {
+				if(message.compare(_T("exit")) == 0) {
 					exit = true;
 					continue;
 				}
 
-				// TODO: Improve to allow spaces in parameters
-				StringTokenizer tokens(inputLine, _T(" "), StringTokenizer::TOK_IGNORE_EMPTY);
-				if(tokens.count() >= 2) {
-					LibPipeMessage message;
-					message.address = tokens[0];
-					message.type = tokens[1];
+				StringTokenizer tokens(message, _T(" "), StringTokenizer::TOK_IGNORE_EMPTY);
+				LibPipeMessage pipeMessage;
 
-					for(auto i = 2; i < tokens.count(); i++) {
-						message.parameters.push_back(tokens[i]);
-					}
+				size_t idxToken = 0;
+				for(auto& token : tokens) {
+					if(idxToken == 0)
+						pipeMessage.address = token;
 
-					pipe.send({ message });
+					else if(idxToken == 1)
+						pipeMessage.type = token;
+
+					else
+						pipeMessage.parameters.push_back(token);
+
+					idxToken++;
 				}
-				else {
-					cout << _T("Input syntax: <address> <type> [<parameter> ...] OR exit") << endl;
-				}
+
+				pipe.send({ pipeMessage });
 			}
 		});
 
