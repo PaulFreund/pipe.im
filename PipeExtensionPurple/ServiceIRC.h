@@ -27,20 +27,16 @@
 		};	
 	*/
 
-class ServiceIRC : public IPipeExtensionService {
+class ServiceIRC : public PipeServiceBase {
 private:
 	tstring _id;
 	std::map<tstring, tstring> _settings;
 
 public:
-	ServiceIRC(tstring id, std::map<tstring, tstring> settings) : _id(id), _settings(settings) {}
+	ServiceIRC(tstring id, tstring path, std::map<tstring, tstring> settings) : PipeServiceBase(id, path, settings) {}
 	virtual ~ServiceIRC() {}
 
 public:
-	virtual tstring id() {
-		return _id;
-	}
-
 	virtual void send(const LibPipeMessage& message) {
 	
 	}

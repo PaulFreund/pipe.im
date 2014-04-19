@@ -6,7 +6,7 @@ using namespace std;
 
 //======================================================================================================================
 
-ServiceRoot::ServiceRoot(map<tstring, tstring> settings) : PipeServiceBase(settings) {
+ServiceRoot::ServiceRoot(tstring id, tstring path, map<tstring, tstring> settings) : PipeServiceBase(id, path, settings) {
 
 }
 
@@ -21,8 +21,6 @@ ServiceRoot::~ServiceRoot() {
 void ServiceRoot::send(const LibPipeMessage& message) {
 
 	// TODO: Check for hooks
-
-	__super::send(message);
 
 	auto lenId = _id.length();
 
@@ -46,7 +44,6 @@ void ServiceRoot::send(const LibPipeMessage& message) {
 
 	// This is the destination
 	if(message.address == _id) {
-		handleCommand(message);
 	}
 	// The address can be dispatched
 	else if(message.address.length() >= (lenId + 2) && message.address[lenId] == PAS) {
@@ -74,12 +71,15 @@ void ServiceRoot::send(const LibPipeMessage& message) {
 		_outgoing.push_back({ _id, _T("error"), parameters });
 		return;
 	}
+
+	__super::send(message);
+
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 std::vector<LibPipeMessage> ServiceRoot::receive() {
-	vector<LibPipeMessage> messages = _outgoing;
+	vector<LibPipeMessage> messages = move(_outgoing);
 	_outgoing.clear();
 
 	for(auto&& service : _services) {
@@ -102,52 +102,6 @@ std::vector<tstring> ServiceRoot::children(tstring address) {
 
 PipeExtensionServiceNodeInfo ServiceRoot::info(tstring address) {
 	return {};
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-void ServiceRoot::handleCommand(const LibPipeMessage& message) {
-
-	if(message.type == _T("commands")) {
-		// Commands
-		// status
-		// about
-		// messages
-		// children
-	}
-
-	else if(message.type == _T("about")) {
-
-	}
-
-	else if(message.type == _T("messages")) {
-		// error
-		// children
-		// status
-		// messages
-	}
-	else if(message.type == _T("children")) {
-		tstring children;
-		size_t idxServices = 0;
-		size_t cntServices = _services.size();
-		for(auto&& service : _services) {
-			children.append(service.first);
-			if(idxServices < (cntServices - 1)) {
-				children += _T(',');
-			}
-			idxServices++;
-		}
-
-		vector<tstring> parameters = { children };
-		_outgoing.push_back({ _id, _T("children"), parameters });
-	}
-	else {
-		vector<tstring> parameters = {
-			_T("Unknown command"),
-			_T("Use: ") + _id + _T(" commands to get all available commands")
-		};
-		_outgoing.push_back({ _id, _T("error"), parameters });
-	}
 }
 
 //======================================================================================================================
