@@ -18,9 +18,9 @@ const tstring NamePipeExtensionServiceGetNodeInfo = _T("PipeExtensionServiceGetN
 
 
 typedef void(*FktPipeExtensionGetServiceTypes)(PipeExtensionCbContext, PipeExtensionCbServiceType);
-typedef void(*FktPipeExtensionServiceCreate)(PipeExtensionStr, PipeExtensionStr, PipeExtensionServiceSettingData*, PipeExtensionEleCnt, HPipeExtensionService*);
+typedef void(*FktPipeExtensionServiceCreate)(PipeExtensionStr, PipeExtensionStr, PipeExtensionStr, PipeExtensionServiceSettingData*, PipeExtensionEleCnt, HPipeExtensionService*);
 typedef void(*FktPipeExtensionServiceDestroy)(HPipeExtensionService);
-typedef void(*FktPipeExtensionServiceSend)(HPipeExtensionService, PipeExtensionMessageData*, PipeExtensionEleCnt);
+typedef void(*FktPipeExtensionServiceSend)(HPipeExtensionService, PipeExtensionMessageData*);
 typedef void(*FktPipeExtensionServiceReceive)(HPipeExtensionService, PipeExtensionCbContext, PipeExtensionCbMessages);
 typedef void(*FktPipeExtensionServiceGetNodeChildren)(HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStrList);
 typedef void(*FktPipeExtensionServiceGetNodeInfo)(HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbServiceNodeInfo);
@@ -43,41 +43,33 @@ class PipeExtensionServiceInstance : public IPipeExtensionService {
 private:
 	PipeExtensionFunctions _functions;
 	HPipeExtensionService _service;
-	tstring _id;
+
 public:
-	PipeExtensionServiceInstance(PipeExtensionFunctions functions, HPipeExtensionService service, tstring id) : _functions(functions), _service(service), _id(id) {}
+	PipeExtensionServiceInstance(PipeExtensionFunctions functions, HPipeExtensionService service) : _functions(functions), _service(service) {}
 
 	virtual ~PipeExtensionServiceInstance() {
 		_functions.fktPipeExtensionServiceDestroy(_service);
 	}
 
 public:
-	virtual tstring id() {
-		return _id;
-	}
+	virtual void send(const LibPipeMessage& message) {
+		std::vector<LibPipeEleCnt> parameterLengthPointers;
+		std::vector<LibPipeStr> parameterDataPointers;
 
-	virtual void send(const std::vector<LibPipeMessage>& messages) {
-		std::vector<PipeExtensionMessageData> messagePointers;
-		std::vector<std::vector<PipeExtensionEleCnt>> parameterLengthPointers;
-		std::vector<std::vector<PipeExtensionStr>> parameterDataPointers;
-
-		for(auto i = 0; i < messages.size(); i++) {
-			parameterLengthPointers.push_back({});
-			parameterDataPointers.push_back({});
-			for(auto& parameter : messages[i].parameters) {
-				parameterLengthPointers[i].push_back(parameter.length());
-				parameterDataPointers[i].push_back(parameter.c_str());
-			}
-
-			messagePointers.push_back({
-				messages[i].address.c_str(),
-				messages[i].type.c_str(),
-				messages[i].parameters.size(),
-				parameterLengthPointers[i].data(),
-				parameterDataPointers[i].data()
-			});
+		for(auto& parameter : message.parameters) {
+			parameterLengthPointers.push_back(parameter.length());
+			parameterDataPointers.push_back(parameter.c_str());
 		}
-		_functions.fktPipeExtensionServiceSend(_service, messagePointers.data(), messagePointers.size());
+
+		PipeExtensionMessageData messageData = {
+			message.address.c_str(),
+			message.type.c_str(),
+			message.parameters.size(),
+			parameterLengthPointers.data(),
+			parameterDataPointers.data()
+		};
+
+		_functions.fktPipeExtensionServiceSend(_service, &messageData);
 	}
 
 	virtual std::vector<LibPipeMessage> receive() {
@@ -187,7 +179,7 @@ public:
 		return serviceTypeList;
 	}
 
-	virtual IPipeExtensionService* create(tstring serviceTypeId, tstring id, std::map<tstring, tstring> settings) {
+	virtual IPipeExtensionService* create(tstring serviceTypeId, tstring id, tstring path, std::map<tstring, tstring> settings) {
 		HPipeExtensionService service = 0;
 
 		std::vector<PipeExtensionServiceSettingData> settingList;
@@ -196,8 +188,8 @@ public:
 			settingList.push_back({ it->first.c_str(), it->second.c_str() });
 		}
 
-		_functions.fktPipeExtensionServiceCreate(serviceTypeId.c_str(), id.c_str(), settingList.data(), settingList.size(), &service);
-		return new PipeExtensionServiceInstance(_functions, service, id);
+		_functions.fktPipeExtensionServiceCreate(serviceTypeId.c_str(), id.c_str(), path.c_str(), settingList.data(), settingList.size(), &service);
+		return new PipeExtensionServiceInstance(_functions, service);
 	}
 
 	virtual void destroy(IPipeExtensionService* service) {

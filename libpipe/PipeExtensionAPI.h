@@ -104,12 +104,12 @@ PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypes					(PipeExtensionCbContext
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceCreate						(PipeExtensionStr serviceTypeId, PipeExtensionStr id, PipeExtensionServiceSettingData* settings, PipeExtensionEleCnt count, HPipeExtensionService* service);
+PIPE_EXTENSION_ITF void PipeExtensionServiceCreate						(PipeExtensionStr serviceTypeId, PipeExtensionStr id, PipeExtensionStr path, PipeExtensionServiceSettingData* settings, PipeExtensionEleCnt count, HPipeExtensionService* service);
 PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy						(HPipeExtensionService service);
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceSend						(HPipeExtensionService service, PipeExtensionMessageData* messages, PipeExtensionEleCnt count);
+PIPE_EXTENSION_ITF void PipeExtensionServiceSend						(HPipeExtensionService service, PipeExtensionMessageData* message);
 PIPE_EXTENSION_ITF void PipeExtensionServiceReceive						(HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbMessages cbMessages);
 
 //----------------------------------------------------------------------------------------------------------------------

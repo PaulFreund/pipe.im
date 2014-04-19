@@ -51,7 +51,7 @@ LIBPIPE_ITF void LibPipeDestroy					(HLibPipe instance);
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeSend					(HLibPipe instance, LibPipeMessageData* messages, LibPipeEleCnt count);
+LIBPIPE_ITF void LibPipeSend					(HLibPipe instance, LibPipeMessageData* message);
 LIBPIPE_ITF void LibPipeReceive					(HLibPipe instance, LibPipeCbContext context, LibPipeCbMessages cbMessages);
 
 //======================================================================================================================

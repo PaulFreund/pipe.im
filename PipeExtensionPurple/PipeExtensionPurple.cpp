@@ -143,7 +143,7 @@ std::vector<PipeExtensionServiceType> PipeExtensionPurple::serviceTypes() {
 	return serviceTypes;
 }
 
-IPipeExtensionService* PipeExtensionPurple::create(tstring serviceTypeId, tstring id, std::map<tstring, tstring> settings) {
+IPipeExtensionService* PipeExtensionPurple::create(tstring serviceTypeId, tstring id, tstring path, std::map<tstring, tstring> settings) {
 	if(serviceTypeId == _T("irc")) {
 		return (_services[id] = new ServiceIRC(id, settings));
 	}

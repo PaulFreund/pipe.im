@@ -59,6 +59,9 @@
     <ClInclude Include="ServiceRoot.h">
       <Filter>LibPipe\ServiceRoot</Filter>
     </ClInclude>
+    <ClInclude Include="PipeServiceBase.h">
+      <Filter>PipeExtension\Wrapper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LibPipeAPI.cpp">

@@ -30,28 +30,24 @@ public:
 	}
 
 public:
-	virtual void send(const std::vector<LibPipeMessage>& messages) {
-		std::vector<LibPipeMessageData> messagePointers;
-		std::vector<std::vector<LibPipeEleCnt>> parameterLengthPointers;
-		std::vector<std::vector<LibPipeStr>> parameterDataPointers;
+	virtual void send(const LibPipeMessage& message) {
+		std::vector<LibPipeEleCnt> parameterLengthPointers;
+		std::vector<LibPipeStr> parameterDataPointers;
 
-		for(auto i = 0; i < messages.size(); i++) {
-			parameterLengthPointers.push_back({});
-			parameterDataPointers.push_back({});
-			for(auto& parameter : messages[i].parameters) {
-				parameterLengthPointers[i].push_back(parameter.length());
-				parameterDataPointers[i].push_back(parameter.c_str());
-			}
-
-			messagePointers.push_back({ 
-				messages[i].address.c_str(),
-				messages[i].type.c_str(),
-				messages[i].parameters.size(),
-				parameterLengthPointers[i].data(),
-				parameterDataPointers[i].data()
-			});
+		for(auto& parameter : message.parameters) {
+			parameterLengthPointers.push_back(parameter.length());
+			parameterDataPointers.push_back(parameter.c_str());
 		}
-		LibPipeSend(_instance, messagePointers.data(), messagePointers.size());
+
+		LibPipeMessageData messageData = { 
+			message.address.c_str(),
+			message.type.c_str(),
+			message.parameters.size(),
+			parameterLengthPointers.data(),
+			parameterDataPointers.data()
+		};
+
+		LibPipeSend(_instance, &messageData);
 	}
 
 	virtual std::vector<LibPipeMessage> receive() {

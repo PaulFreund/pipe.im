@@ -37,12 +37,12 @@ PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypes(PipeExtensionCbContext cont
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceTypeId, PipeExtensionStr id, PipeExtensionServiceSettingData* settings, PipeExtensionEleCnt count, HPipeExtensionService* service) {
+PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceTypeId, PipeExtensionStr id, PipeExtensionStr path, PipeExtensionServiceSettingData* settings, PipeExtensionEleCnt count, HPipeExtensionService* service) {
 	std::map<string, string> settingsData;
 	for(auto i = 0; i < count; i++) {
 		settingsData[settings[i].id] = settings[i].value;
 	}
-	(*service) = reinterpret_cast<HPipeExtensionService>(PipeExtensionPurple::ExtensionInstance.create(tstring(serviceTypeId), tstring(id), settingsData));
+	(*service) = reinterpret_cast<HPipeExtensionService>(PipeExtensionPurple::ExtensionInstance.create(serviceTypeId, id, path, settingsData));
 }
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy(HPipeExtensionService service) {
@@ -51,26 +51,20 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy(HPipeExtensionService servic
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceSend(HPipeExtensionService service, PipeExtensionMessageData* messages, PipeExtensionEleCnt count) {
-	vector<LibPipeMessage> sendMessages;
-	for(auto idxMessage = 0; idxMessage < count; idxMessage++) {
-		std::vector<tstring> parameters;
-		for(auto idxParameter = 0; idxParameter < messages[idxMessage].parameterCount; idxParameter++) {
-			parameters.push_back(tstring(
-				messages[idxMessage].parameterData[idxParameter],
-				messages[idxMessage].parameterData[idxParameter] + messages[idxMessage].parameterLength[idxParameter]
-				));
-		}
-
-		sendMessages.push_back({
-			tstring(messages[idxMessage].address),
-			tstring(messages[idxMessage].type),
-			parameters
-		});
+PIPE_EXTENSION_ITF void PipeExtensionServiceSend(HPipeExtensionService service, PipeExtensionMessageData* message) {
+	std::vector<tstring> parameters;
+	for(auto idxParameter = 0; idxParameter < message->parameterCount; idxParameter++) {
+		parameters.push_back(tstring(
+			message->parameterData[idxParameter],
+			message->parameterData[idxParameter] + message->parameterLength[idxParameter]
+			));
 	}
 
-	IPipeExtensionService* pService = reinterpret_cast<IPipeExtensionService*>(service);
-	pService->send(sendMessages);
+	reinterpret_cast<IPipeExtensionService*>(service)->send({
+		tstring(message->address),
+		tstring(message->type),
+		parameters
+	});
 }
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceReceive(HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbMessages cbMessages) {

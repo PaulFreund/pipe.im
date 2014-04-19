@@ -112,26 +112,22 @@ LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeMessageData* messages, LibPipeEleCnt count) {
+LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeMessageData* message) {
 	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
-	vector<LibPipeMessage> sendMessages;
-	for(auto idxMessage = 0; idxMessage < count; idxMessage++) {
-		std::vector<tstring> parameters;
-		for(auto idxParameter = 0; idxParameter < messages[idxMessage].parameterCount; idxParameter++) {
-			parameters.push_back(tstring(
-				messages[idxMessage].parameterData[idxParameter],
-				messages[idxMessage].parameterData[idxParameter] + messages[idxMessage].parameterLength[idxParameter]
-			));
-		}
-
-		sendMessages.push_back({
-			tstring(messages[idxMessage].address),
-			tstring(messages[idxMessage].type),
-			parameters
-		});
+	
+	std::vector<tstring> parameters;
+	for(auto idxParameter = 0; idxParameter < message->parameterCount; idxParameter++) {
+		parameters.push_back(tstring(
+			message->parameterData[idxParameter],
+			message->parameterData[idxParameter] + message->parameterLength[idxParameter]
+		));
 	}
 
-	pInstance->send(sendMessages);
+	pInstance->send({
+		tstring(message->address),
+		tstring(message->type),
+		parameters
+	});
 }
 
 LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, LibPipeCbMessages cbMessages) {

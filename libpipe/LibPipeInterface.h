@@ -37,7 +37,7 @@ public:
 	virtual ~ILibPipe() {};
 
 public:
-	virtual void send(const std::vector<LibPipeMessage>& messages) = 0;
+	virtual void send(const LibPipeMessage& message) = 0;
 	virtual std::vector<LibPipeMessage> receive() = 0;
 };
 

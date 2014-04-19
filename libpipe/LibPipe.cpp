@@ -31,8 +31,8 @@ LibPipe::~LibPipe() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void LibPipe::send(const vector<LibPipeMessage>& messages) {
-	_serviceRoot->send(messages);
+void LibPipe::send(const LibPipeMessage& message) {
+	_serviceRoot->send(message);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

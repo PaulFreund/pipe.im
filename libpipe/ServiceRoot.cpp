@@ -6,7 +6,7 @@ using namespace std;
 
 //======================================================================================================================
 
-ServiceRoot::ServiceRoot(map<tstring, tstring> settings) : _settings(settings) {
+ServiceRoot::ServiceRoot(map<tstring, tstring> settings) : PipeServiceBase(settings) {
 
 }
 
@@ -18,62 +18,62 @@ ServiceRoot::~ServiceRoot() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void ServiceRoot::send(const std::vector<LibPipeMessage>& messages) {
+void ServiceRoot::send(const LibPipeMessage& message) {
 
 	// TODO: Check for hooks
 
+	__super::send(message);
+
 	auto lenId = _id.length();
-	for(auto&& message : messages) {
-		if(message.address.empty()) {
+
+	if(message.address.empty()) {
+		vector<tstring> parameters = {
+			_T("Missing address"),
+			_T("Syntax is: address command [<parameter>...]")
+		};
+		_outgoing.push_back({ _id, _T("error"), parameters });
+		return;
+	}
+
+	if(message.type.empty()) {
+		vector<tstring> parameters = {
+			_T("Missing command"),
+			_T("Syntax is: address command [<parameter>...]")
+		};
+		_outgoing.push_back({ _id, _T("error"), parameters });
+		return;
+	}
+
+	// This is the destination
+	if(message.address == _id) {
+		handleCommand(message);
+	}
+	// The address can be dispatched
+	else if(message.address.length() >= (lenId + 2) && message.address[lenId] == PAS) {
+
+		auto second = message.address.find(PAS, lenId + 1);
+		if(second == -1) { second = message.address.length(); }
+		auto target = message.address.substr(lenId + 1, second);
+
+		if(_services.find(target) == end(_services)) {
 			vector<tstring> parameters = {
-				_T("Missing address"),
-				_T("Syntax is: address command [<parameter>...]")
-			};
-			_outgoing.push_back({ _id, _T("error"), parameters });
-			continue;
-		}
-
-		if(message.type.empty()) {
-			vector<tstring> parameters = {
-				_T("Missing command"),
-				_T("Syntax is: address command [<parameter>...]")
-			};
-			_outgoing.push_back({ _id, _T("error"), parameters });
-			continue;
-		}
-
-		// This is the destination
-		if(message.address == _id) {
-			handleCommand(message);
-		}
-		// The address can be dispatched
-		else if(message.address.length() >= (lenId + 2) && message.address[lenId] == PAS) {
-
-			auto second = message.address.find(PAS, lenId + 1);
-			if(second == -1) { second = message.address.length(); }
-			auto target = message.address.substr(lenId + 1, second);
-
-			if(_services.find(target) == end(_services)) {
-				vector<tstring> parameters = {
-					_T("Address not available")
-					_T("Start from \"") + _id + _T("\" and use the children command to find available addresses")
-				};
-				_outgoing.push_back({ _id, _T("error"), parameters });
-				continue;
-			}
-
-			_services[target]->send({ message });
-		}
-		else {
-			vector<tstring> parameters = {
-				_T("Invalid Address"),
+				_T("Address not available")
 				_T("Start from \"") + _id + _T("\" and use the children command to find available addresses")
 			};
 			_outgoing.push_back({ _id, _T("error"), parameters });
-			continue;
+			return;
 		}
-	}
 
+		_services[target]->send({ message });
+	}
+	else {
+		vector<tstring> parameters = {
+			_T("Invalid Address"),
+			_T("Start from \"") + _id + _T("\" and use the children command to find available addresses")
+		};
+		_outgoing.push_back({ _id, _T("error"), parameters });
+		return;
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------

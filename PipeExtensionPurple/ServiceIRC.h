@@ -41,7 +41,7 @@ public:
 		return _id;
 	}
 
-	virtual void send(const std::vector<LibPipeMessage>& messages) {
+	virtual void send(const LibPipeMessage& message) {
 	
 	}
 

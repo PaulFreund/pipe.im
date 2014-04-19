@@ -23,7 +23,7 @@ public:
 public:
 	virtual std::vector<PipeExtensionServiceType> serviceTypes();
 
-	virtual IPipeExtensionService* create(tstring serviceTypeId, tstring id, std::map<tstring, tstring> settings);
+	virtual IPipeExtensionService* create(tstring serviceTypeId, tstring id, tstring path, std::map<tstring, tstring> settings);
 
 	virtual void destroy(IPipeExtensionService* service);
 };

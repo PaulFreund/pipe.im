@@ -4,24 +4,21 @@
 
 //======================================================================================================================
 
-#include "PipeExtensionInterface.h"
+#include "PipeServiceBase.h"
 
 //======================================================================================================================
 
-class ServiceRoot : public IPipeExtensionService {
+class ServiceRoot : public PipeServiceBase {
 private:
 	tstring _id = _T("pipe");
-	std::map<tstring, tstring> _settings;
-
 	std::map<tstring, std::shared_ptr<IPipeExtensionService>> _services;
-	std::vector<LibPipeMessage> _outgoing;
 
 public:
 	ServiceRoot(std::map<tstring, tstring> settings);
 	virtual ~ServiceRoot();
 
 public:
-	virtual void send(const std::vector<LibPipeMessage>& messages);
+	virtual void send(const LibPipeMessage& message);
 	virtual std::vector<LibPipeMessage> receive();
 
 	virtual std::vector<tstring> children(tstring address);
@@ -32,3 +29,15 @@ private:
 };
 
 //======================================================================================================================
+
+/*
+	Was jeder service gleich machen muss:
+	- Die basic commands handlen, das bedeutet send zuerst hooken
+		- info ( bekommt infos aus info funktion )
+		- commands (bekommt infos aus info funktion)
+		- messages (bekommt infos aus info funktion)
+		- children (bekommt infos aus children funktion
+	- id, settings und path bekommen das bedeutet immer diese als construtcor fordern
+	- Bei receive messages in outgoing weitergeben
+
+*/

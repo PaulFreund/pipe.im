@@ -56,7 +56,7 @@ public:
 	virtual ~IPipeExtensionService() {}
 
 public:
-	virtual void send(const std::vector<LibPipeMessage>& messages) = 0;
+	virtual void send(const LibPipeMessage& message) = 0;
 	virtual std::vector<LibPipeMessage> receive() = 0;
 
 	virtual std::vector<tstring> children(tstring address) = 0;
@@ -71,7 +71,7 @@ public:
 
 public:
 	virtual std::vector<PipeExtensionServiceType> serviceTypes() = 0;
-	virtual IPipeExtensionService* create(tstring serviceTypeId, tstring id, std::map<tstring, tstring> settings) = 0;
+	virtual IPipeExtensionService* create(tstring serviceTypeId, tstring id, tstring path, std::map<tstring, tstring> settings) = 0;
 	virtual void destroy(IPipeExtensionService* service) = 0;
 };
 
