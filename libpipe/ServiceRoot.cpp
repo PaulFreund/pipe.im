@@ -35,11 +35,7 @@ void ServiceRoot::send(const LibPipeMessage& message) {
 	}
 
 	if(message.type.empty()) {
-		vector<tstring> parameters = {
-			_T("Missing command"),
-			_T("Syntax is: address command [<parameter>...]")
-		};
-		_outgoing.push_back({ _id, _T("error"), parameters });
+		_outgoing.push_back({ _id, _T("error"), vector<tstring> { _T("Missing command"), _T("Syntax is: address command [<parameter>...]") } });
 		return;
 	}
 
@@ -54,22 +50,14 @@ void ServiceRoot::send(const LibPipeMessage& message) {
 		auto target = message.address.substr(lenId + 1, second);
 
 		if(_services.find(target) == end(_services)) {
-			vector<tstring> parameters = {
-				_T("Address not available")
-				_T("Start from \"") + _id + _T("\" and use the children command to find available addresses")
-			};
-			_outgoing.push_back({ _id, _T("error"), parameters });
+			_outgoing.push_back({ _id, _T("error"), vector<tstring> { _T("Address not available"), _T("Start from \"") + _id + _T("\" and use the children command to find available addresses") } });
 			return;
 		}
 
 		_services[target]->send(message);
 	}
 	else {
-		vector<tstring> parameters = {
-			_T("Invalid Address"),
-			_T("Start from \"") + _id + _T("\" and use the children command to find available addresses")
-		};
-		_outgoing.push_back({ _id, _T("error"), parameters });
+		_outgoing.push_back({ _id, _T("error"), vector<tstring> { _T("Invalid Address"), _T("Start from \"") + _id + _T("\" and use the children command to find available addresses") } });
 		return;
 	}
 

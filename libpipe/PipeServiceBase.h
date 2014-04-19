@@ -30,22 +30,15 @@ public:
 public:
 	virtual void send(const LibPipeMessage& message) {
 		if(message.type == basicCommandCommands) {
-			// Commands
-			// status
-			// about
-			// messages
-			// children
+
 		}
 
-		else if(message.type == basicCommandInfo) {  // former about
+		else if(message.type == basicCommandInfo) {
 
 		}
 
 		else if(message.type == basicCommandMessages) {
-			// error
-			// children
-			// status
-			// messages
+
 		}
 		else if(message.type == basicCommandChildren) {
 			auto&& childNodes = children(message.address);
@@ -62,11 +55,7 @@ public:
 			_outgoing.push_back({ _id, _T("children"), parameters });
 		}
 		else {
-			std::vector<tstring> parameters = {
-				_T("Unknown command"),
-				_T("Use: ") + _id + _T(" commands to get all available commands")
-			};
-			_outgoing.push_back({ _id, _T("error"), parameters });
+			_outgoing.push_back({ _id, _T("error"), std::vector<tstring> { _T("Unknown command"), _T("Use: ") + _id + _T(" commands to get all available commands") } });
 		}
 	}
 
@@ -85,15 +74,3 @@ protected:
 };
 
 //======================================================================================================================
-
-/*
-Was jeder service gleich machen muss:
-- Die basic commands handlen, das bedeutet send zuerst hooken
-- info ( bekommt infos aus info funktion )
-- commands (bekommt infos aus info funktion)
-- messages (bekommt infos aus info funktion)
-- children (bekommt infos aus children funktion
-- id, settings und path bekommen das bedeutet immer diese als construtcor fordern
-- Bei receive messages in outgoing weitergeben
-
-*/

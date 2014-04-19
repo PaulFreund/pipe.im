@@ -15,8 +15,7 @@ std::vector<PipeExtensionInstance> LibPipe::Extensions;
 //======================================================================================================================
 
 LibPipe::LibPipe(tstring path, vector<tstring> serviceTypes){
-	map<tstring, tstring> settings { make_pair(_T("serviceTypes"), timplode(serviceTypes, _T(','))) };
-	_serviceRoot = make_shared<ServiceRoot>(_T("pipe"), path, settings);
+	_serviceRoot = make_shared<ServiceRoot>(_T("pipe"), path, map<tstring, tstring> { make_pair(_T("serviceTypes"), timplode(serviceTypes, _T(','))) });
 }
 
 //----------------------------------------------------------------------------------------------------------------------
