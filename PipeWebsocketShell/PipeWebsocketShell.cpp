@@ -166,7 +166,7 @@ public:
 							idxToken++;
 						}
 
-						pipe.send({ pipeMessage });
+						pipe.send(pipeMessage);
 					}
 
 					incoming.clear();

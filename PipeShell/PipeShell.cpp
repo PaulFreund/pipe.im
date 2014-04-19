@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
 					idxToken++;
 				}
 
-				pipe.send({ pipeMessage });
+				pipe.send(pipeMessage);
 			}
 		});
 
