@@ -22,14 +22,15 @@ void ServiceRoot::send(const LibPipeMessage& message) {
 
 	// TODO: Check for hooks
 
+	if(isBasicCommand(message.type)) {
+		PipeServiceBase::send(message);
+		return;
+	}
+
 	auto lenId = _id.length();
 
 	if(message.address.empty()) {
-		vector<tstring> parameters = {
-			_T("Missing address"),
-			_T("Syntax is: address command [<parameter>...]")
-		};
-		_outgoing.push_back({ _id, _T("error"), parameters });
+		 _outgoing.push_back({ _id, _T("error"), vector<tstring>{_T("Missing address"), _T("Syntax is: address command [<parameter>...]")} });
 		return;
 	}
 
@@ -72,7 +73,6 @@ void ServiceRoot::send(const LibPipeMessage& message) {
 		return;
 	}
 
-	PipeServiceBase::send(message);
 
 }
 

@@ -10,6 +10,12 @@
 
 class PipeServiceBase : public IPipeExtensionService {
 public:
+	const tstring basicCommandCommands	= _T("commands");
+	const tstring basicCommandMessages	= _T("messages");
+	const tstring basicCommandChildren	= _T("children");
+	const tstring basicCommandInfo		= _T("info");
+
+public:
 	const tstring _id;
 	const tstring _path;
 	const std::map<tstring, tstring> _settings;
@@ -23,7 +29,7 @@ public:
 
 public:
 	virtual void send(const LibPipeMessage& message) {
-		if(message.type == _T("commands")) {
+		if(message.type == basicCommandCommands) {
 			// Commands
 			// status
 			// about
@@ -31,17 +37,17 @@ public:
 			// children
 		}
 
-		else if(message.type == _T("about")) {
+		else if(message.type == basicCommandInfo) {  // former about
 
 		}
 
-		else if(message.type == _T("messages")) {
+		else if(message.type == basicCommandMessages) {
 			// error
 			// children
 			// status
 			// messages
 		}
-		else if(message.type == _T("children")) {
+		else if(message.type == basicCommandChildren) {
 			auto&& childNodes = children(message.address);
 			tstring childNodeList;
 
@@ -68,6 +74,14 @@ public:
 
 	virtual std::vector<tstring> children(tstring address) = 0;
 	virtual PipeExtensionServiceNodeInfo info(tstring address) = 0;
+
+protected:
+	inline bool isBasicCommand(const tstring& command) {
+		if(command == basicCommandCommands || command == basicCommandMessages || command == basicCommandChildren || command == basicCommandInfo)
+			return true;
+
+		return false;
+	}
 };
 
 //======================================================================================================================
