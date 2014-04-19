@@ -61,7 +61,7 @@ void ServiceRoot::send(const LibPipeMessage& message) {
 			return;
 		}
 
-		_services[target]->send({ message });
+		_services[target]->send(message);
 	}
 	else {
 		vector<tstring> parameters = {
@@ -72,7 +72,7 @@ void ServiceRoot::send(const LibPipeMessage& message) {
 		return;
 	}
 
-	__super::send(message);
+	PipeServiceBase::send(message);
 
 }
 
