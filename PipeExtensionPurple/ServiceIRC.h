@@ -30,27 +30,31 @@
 class ServiceIRC : public PipeServiceBase {
 private:
 	tstring _id;
-	std::map<tstring, tstring> _settings;
+	tstring _settings;
 
 public:
-	ServiceIRC(tstring id, tstring path, std::map<tstring, tstring> settings) : PipeServiceBase(id, path, settings) {}
+	ServiceIRC(tstring id, tstring path, tstring settings) : PipeServiceBase(id, path, settings) {}
 	virtual ~ServiceIRC() {}
 
 public:
-	virtual void send(const LibPipeMessage& message) {
-	
+	virtual void send(const tstring& message) {
+	// TODO
 	}
 
-	virtual std::vector<LibPipeMessage> receive() {
-		return {};
+	virtual tstring receive() {
+		return _T(""); // TODO
 	}
 
-	virtual std::vector<tstring> children(tstring address) {
-		return {};
+	virtual tstring nodeChildren(tstring address) {
+		return _T(""); // TODO
 	}
 
-	virtual PipeExtensionServiceNodeInfo info(tstring address) {
-		return {};
+	virtual tstring nodeMessageTypes(tstring address) {
+		return _T(""); // TODO
+	}
+
+	virtual tstring nodeInfo(tstring address) {
+		return _T(""); // TODO
 	}
 };
 

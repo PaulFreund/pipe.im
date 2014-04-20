@@ -6,9 +6,8 @@ using namespace std;
 
 //======================================================================================================================
 
-//======================================================================================================================
-
-PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypes(PipeExtensionCbContext context, PipeExtensionCbServiceType cbServiceTypes) {
+PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypes(PipeExtensionCbContext context, PipeExtensionCbStr cbServiceTypes) {
+	/* TODO
 	auto&& serviceTypes = PipeExtensionPurple::ExtensionInstance.serviceTypes();
 
 	std::vector<PipeExtensionServiceTypeData> serviceTypesPointers;
@@ -33,17 +32,29 @@ PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypes(PipeExtensionCbContext cont
 	}
 
 	cbServiceTypes(context, serviceTypesPointers.data(), serviceTypesPointers.size());
+	*/
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceTypeId, PipeExtensionStr id, PipeExtensionStr path, PipeExtensionServiceSettingData* settings, PipeExtensionEleCnt count, HPipeExtensionService* service) {
+PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypeSettings(PipeExtensionCbContext context, PipeExtensionStr serviceType, PipeExtensionCbStr cbServiceTypeSettings) {
+
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceType, PipeExtensionStr id, PipeExtensionStr path, PipeExtensionStr settings, HPipeExtensionService* service) {
+	/* TODO
 	std::map<string, string> settingsData;
 	for(auto i = 0; i < count; i++) {
 		settingsData[settings[i].id] = settings[i].value;
 	}
 	(*service) = reinterpret_cast<HPipeExtensionService>(PipeExtensionPurple::ExtensionInstance.create(serviceTypeId, id, path, settingsData));
+	*/
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy(HPipeExtensionService service) {
 	PipeExtensionPurple::ExtensionInstance.destroy(reinterpret_cast<IPipeExtensionService*>(service));
@@ -51,7 +62,8 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy(HPipeExtensionService servic
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceSend(HPipeExtensionService service, PipeExtensionMessageData* message) {
+PIPE_EXTENSION_ITF void PipeExtensionServiceSend(HPipeExtensionService service, PipeExtensionStr message) {
+	/* TODO
 	std::vector<tstring> parameters;
 	for(auto idxParameter = 0; idxParameter < message->parameterCount; idxParameter++) {
 		parameters.push_back(tstring(
@@ -65,9 +77,13 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceSend(HPipeExtensionService service, 
 		tstring(message->type),
 		parameters
 	});
+	*/
 }
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceReceive(HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbMessages cbMessages) {
+//----------------------------------------------------------------------------------------------------------------------
+
+PIPE_EXTENSION_ITF void PipeExtensionServiceReceive(HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbStr cbMessages) {
+	/* TODO
 	IPipeExtensionService* pService = reinterpret_cast<IPipeExtensionService*>(service);
 	auto&& messages = pService->receive();
 
@@ -93,11 +109,13 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceReceive(HPipeExtensionService servic
 	}
 
 	cbMessages(context, messagePointers.data(), messagePointers.size());
+	*/
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeChildren(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStrList cbChildNodes) {
+PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeChildren(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbChildNodes) {
+	/* TODO
 	IPipeExtensionService* pService = reinterpret_cast<IPipeExtensionService*>(service);
 	auto&& childNodes = pService->children(tstring(address));
 
@@ -107,9 +125,19 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeChildren(HPipeExtensionServic
 	}
 
 	cbChildNodes(context, childNodePointers.data(), childNodePointers.size());
+	*/
 }
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeInfo(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbServiceNodeInfo cbNodeMessageTypes) {
+//----------------------------------------------------------------------------------------------------------------------
+
+PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeMessageTypes(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeMessageTypes) {
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeInfo(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeInfo) {
+	/* TODO
 	IPipeExtensionService* pService = reinterpret_cast<IPipeExtensionService*>(service);
 	auto&& info = pService->info(tstring(address));
 
@@ -163,6 +191,7 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeInfo(HPipeExtensionService se
 	}
 
 	cbNodeMessageTypes(context, &infoData);
+	*/
 }
 
 //======================================================================================================================

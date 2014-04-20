@@ -150,6 +150,7 @@ public:
 						if(message == _T("debug")) { pApp->_debug = !pApp->_debug; }
 
 						StringTokenizer tokens(message, _T(" "), StringTokenizer::TOK_IGNORE_EMPTY);
+						/* TODO
 						LibPipeMessage pipeMessage;
 
 						size_t idxToken = 0;
@@ -167,12 +168,14 @@ public:
 						}
 
 						pipe.send({ pipeMessage });
+						*/
 					}
 
 					incoming.clear();
 				}
 
 				// Receive from pipe
+				/* TODO
 				auto pipeMessages = pipe.receive();
 				for(auto& pipeMessage : pipeMessages) {
 					tstring message = pipeMessage.address + _T(" ") + pipeMessage.type;
@@ -183,6 +186,7 @@ public:
 
 					outgoing.push_back(message);
 				}
+				*/
 
 				// Send to client
 				if(outgoing.size() > 0) {

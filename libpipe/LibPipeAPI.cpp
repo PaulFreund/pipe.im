@@ -71,7 +71,8 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 	}
 }
 
-LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbServiceTypes cbServiceTypes) {
+LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr cbServiceTypes) {
+	/* TODO
 	vector<tstring> serviceTypes;
 	for(auto&& extension : LibPipe::Extensions) {
 		auto extensionServiceTypes = extension.serviceTypes();
@@ -86,11 +87,13 @@ LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbServi
 	}
 
 	cbServiceTypes(context, pointers.data(), pointers.size());
+	*/
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr* serviceTypes, LibPipeEleCnt serviceTypeCount, HLibPipe* instance) {
+LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr serviceTypes, HLibPipe* instance) {
+	/* TODO
 	vector<tstring> Types;
 	for(auto i = 0; i < serviceTypeCount; i++) {
 		Types.push_back(tstring(serviceTypes[i]));
@@ -98,7 +101,10 @@ LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr* serviceTypes, LibPip
 
 	LibPipe::Instances.push_back(LibPipe(tstring(path), Types));
 	(*instance) = reinterpret_cast<HLibPipe>(&LibPipe::Instances.back());
+	*/
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
@@ -112,7 +118,8 @@ LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeMessageData* message) {
+LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeStr message) {
+	/* TODO
 	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
 	
 	std::vector<tstring> parameters;
@@ -128,9 +135,11 @@ LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeMessageData* message) {
 		tstring(message->type),
 		parameters
 	});
+	*/
 }
 
-LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, LibPipeCbMessages cbMessages) {
+LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, LibPipeCbStr cbMessages) {
+	/* TODO
 	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
 	auto&& messages = pInstance->receive();
 
@@ -156,6 +165,7 @@ LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, Lib
 	}
 
 	cbMessages(context, messagePointers.data(), messagePointers.size());
+	*/
 }
 
 //======================================================================================================================

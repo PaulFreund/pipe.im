@@ -103,7 +103,8 @@ PipeExtensionPurple::~PipeExtensionPurple() {
 	}
 }
 
-std::vector<PipeExtensionServiceType> PipeExtensionPurple::serviceTypes() {
+tstring PipeExtensionPurple::serviceTypes() {
+	/* TODO
 	if(!_libpurple_init_done) {
 		tstring userDir = tstring(purple_user_dir());
 		tstring replaceName = _T(".pipe.im");
@@ -128,7 +129,7 @@ std::vector<PipeExtensionServiceType> PipeExtensionPurple::serviceTypes() {
 
 	//purple_plugins_init();
 
-	vector<PipeExtensionServiceType> serviceTypes;
+	tstring serviceTypes;
 	GList * protocols = purple_plugins_get_protocols();
 	for(; protocols; protocols = protocols->next) {
 		PurplePlugin* plugin = reinterpret_cast<PurplePlugin*>(protocols->data);
@@ -139,12 +140,18 @@ std::vector<PipeExtensionServiceType> PipeExtensionPurple::serviceTypes() {
 			{}
 		});
 	}
-
+	*/
+	tstring serviceTypes;
 	return serviceTypes;
 }
 
-IPipeExtensionService* PipeExtensionPurple::create(tstring serviceTypeId, tstring id, tstring path, std::map<tstring, tstring> settings) {
-	if(serviceTypeId == _T("irc")) {
+tstring PipeExtensionPurple::serviceTypeSettings(tstring serviceType) {
+	return _T(""); // TODO
+}
+
+
+IPipeExtensionService* PipeExtensionPurple::create(tstring serviceType, tstring id, tstring path, tstring settings) {
+	if(serviceType == _T("irc")) {
 		return (_services[id] = new ServiceIRC(id, path, settings));
 	}
 

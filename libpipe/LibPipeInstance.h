@@ -13,8 +13,8 @@ private:
 	HLibPipe _instance;
 
 public:
-	LibPipeInstance(const tstring& path, const std::vector<tstring>& serviceTypes) {
-
+	LibPipeInstance(const tstring& path, const tstring& serviceTypes) {
+		/* TODO
 		std::vector<LibPipeStr> pointers;
 		for(auto& Type : serviceTypes) {
 			pointers.push_back(Type.c_str());
@@ -23,6 +23,7 @@ public:
 		HLibPipe instance;
 		LibPipeCreate(path.c_str(), pointers.data(), pointers.size(), &instance);
 		_instance = instance;
+		*/
 	}
 
 	virtual ~LibPipeInstance() {
@@ -30,7 +31,8 @@ public:
 	}
 
 public:
-	virtual void send(const LibPipeMessage& message) {
+	virtual void send(const tstring& message) {
+		/* TODO
 		std::vector<LibPipeEleCnt> parameterLengthPointers;
 		std::vector<LibPipeStr> parameterDataPointers;
 
@@ -48,9 +50,11 @@ public:
 		};
 
 		LibPipeSend(_instance, &messageData);
+		*/
 	}
 
-	virtual std::vector<LibPipeMessage> receive() {
+	virtual tstring receive() {
+		/* TODO
 		std::vector<LibPipeMessage> messageList;
 		LibPipeReceive(_instance, &messageList, [](LibPipeCbContext context, LibPipeMessageData* messages, LibPipeEleCnt messageCount) {
 			std::vector<LibPipeMessage>* pMessages = static_cast<std::vector<LibPipeMessage>*>(context);
@@ -71,6 +75,8 @@ public:
 			}
 		});
 		return messageList;
+		*/
+		return _T("");
 	}
 
 public:
@@ -78,15 +84,16 @@ public:
 		LibPipeLoadExtensions(path.c_str());
 	}
 
-	static std::vector<tstring> serviceTypes() {
-		std::vector<tstring> serviceTypes;
-
+	static tstring serviceTypes() {
+		tstring serviceTypes;
+		/* TODO
 		LibPipeGetServiceTypes(&serviceTypes, [](LibPipeCbContext context, LibPipeStr* Types, LibPipeEleCnt TypeCount) {
 			std::vector<tstring>* pList = static_cast<std::vector<tstring>*>(context);
 			for(auto i = 0; i < TypeCount; i++) {
 				pList->push_back(tstring(Types[i]));
 			}
 		});
+		*/
 
 		return serviceTypes;
 	}

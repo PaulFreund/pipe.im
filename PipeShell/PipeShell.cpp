@@ -75,6 +75,7 @@ int main(int argc, char* argv[]) {
 
 		thread receive([&]() {
 			while(!exit) {
+				/* TODO
 				auto messages = pipe.receive();
 				for(auto& message: messages) {
 					cout << message.address << _T(" ") << message.type;
@@ -83,7 +84,7 @@ int main(int argc, char* argv[]) {
 					}
 					cout << endl;
 				}
-
+				*/
 				Thread::sleep(100);
 			}
 		});
@@ -103,6 +104,7 @@ int main(int argc, char* argv[]) {
 				}
 
 				StringTokenizer tokens(message, _T(" "), StringTokenizer::TOK_IGNORE_EMPTY);
+				/* TODO
 				LibPipeMessage pipeMessage;
 
 				size_t idxToken = 0;
@@ -120,6 +122,7 @@ int main(int argc, char* argv[]) {
 				}
 
 				pipe.send({ pipeMessage });
+				*/
 			}
 		});
 

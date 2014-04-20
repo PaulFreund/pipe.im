@@ -12,17 +12,18 @@ class PipeServiceBase : public IPipeExtensionService {
 public:
 	const tstring _id;
 	const tstring _path;
-	const std::map<tstring, tstring> _settings;
+	const tstring _settings;
 
 protected:
-	std::vector<LibPipeMessage> _outgoing;
+	tstring _outgoing;
 
 public:
-	PipeServiceBase(tstring id, tstring path, std::map<tstring, tstring> settings) : _id(id), _path(path), _settings(settings) {}
+	PipeServiceBase(tstring id, tstring path, tstring settings) : _id(id), _path(path), _settings(settings) {}
 	virtual ~PipeServiceBase() {}
 
 public:
-	virtual void send(const LibPipeMessage& message) {
+	virtual void send(const tstring& message) {
+		/* TODO
 		if(message.type == _T("commands")) {
 			// Commands
 			// status
@@ -62,24 +63,14 @@ public:
 			};
 			_outgoing.push_back({ _id, _T("error"), parameters });
 		}
+		*/
 	}
 
-	virtual std::vector<LibPipeMessage> receive() = 0;
+	virtual tstring receive() = 0;
 
-	virtual std::vector<tstring> children(tstring address) = 0;
-	virtual PipeExtensionServiceNodeInfo info(tstring address) = 0;
+	virtual tstring nodeChildren(tstring address) = 0;
+	virtual tstring nodeMessageTypes(tstring address) = 0;
+	virtual tstring nodeInfo(tstring address) = 0;
 };
 
 //======================================================================================================================
-
-/*
-Was jeder service gleich machen muss:
-- Die basic commands handlen, das bedeutet send zuerst hooken
-- info ( bekommt infos aus info funktion )
-- commands (bekommt infos aus info funktion)
-- messages (bekommt infos aus info funktion)
-- children (bekommt infos aus children funktion
-- id, settings und path bekommen das bedeutet immer diese als construtcor fordern
-- Bei receive messages in outgoing weitergeben
-
-*/

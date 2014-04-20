@@ -9,32 +9,37 @@
 //======================================================================================================================
 
 const tstring NamePipeExtensionGetServiceTypes = _T("PipeExtensionGetServiceTypes");
+const tstring NamePipeExtensionGetServiceTypeSettings = _T("PipeExtensionGetServiceTypeSettings");
 const tstring NamePipeExtensionServiceCreate = _T("PipeExtensionServiceCreate");
 const tstring NamePipeExtensionServiceDestroy = _T("PipeExtensionServiceDestroy");
 const tstring NamePipeExtensionServiceSend = _T("PipeExtensionServiceSend");
 const tstring NamePipeExtensionServiceReceive = _T("PipeExtensionServiceReceive");
 const tstring NamePipeExtensionServiceGetNodeChildren = _T("PipeExtensionServiceGetNodeChildren");
+const tstring NamePipeExtensionServiceGetNodeMessageTypes = _T("PipeExtensionServiceGetNodeMessageTypes");
 const tstring NamePipeExtensionServiceGetNodeInfo = _T("PipeExtensionServiceGetNodeInfo");
 
-
-typedef void(*FktPipeExtensionGetServiceTypes)(PipeExtensionCbContext, PipeExtensionCbServiceType);
-typedef void(*FktPipeExtensionServiceCreate)(PipeExtensionStr, PipeExtensionStr, PipeExtensionStr, PipeExtensionServiceSettingData*, PipeExtensionEleCnt, HPipeExtensionService*);
+typedef void(*FktPipeExtensionGetServiceTypes)(PipeExtensionCbContext, PipeExtensionCbStr);
+typedef void(*FktPipeExtensionGetServiceTypeSettings)(PipeExtensionCbContext, PipeExtensionStr, PipeExtensionCbStr);
+typedef void(*FktPipeExtensionServiceCreate)(PipeExtensionStr, PipeExtensionStr, PipeExtensionStr, PipeExtensionStr, HPipeExtensionService*);
 typedef void(*FktPipeExtensionServiceDestroy)(HPipeExtensionService);
-typedef void(*FktPipeExtensionServiceSend)(HPipeExtensionService, PipeExtensionMessageData*);
-typedef void(*FktPipeExtensionServiceReceive)(HPipeExtensionService, PipeExtensionCbContext, PipeExtensionCbMessages);
-typedef void(*FktPipeExtensionServiceGetNodeChildren)(HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStrList);
-typedef void(*FktPipeExtensionServiceGetNodeInfo)(HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbServiceNodeInfo);
+typedef void(*FktPipeExtensionServiceSend)(HPipeExtensionService, PipeExtensionStr);
+typedef void(*FktPipeExtensionServiceReceive)(HPipeExtensionService, PipeExtensionCbContext, PipeExtensionCbStr);
+typedef void(*FktPipeExtensionServiceGetNodeChildren)(HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
+typedef void(*FktPipeExtensionServiceGetNodeMessageTypes)(HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
+typedef void(*FktPipeExtensionServiceGetNodeInfo)(HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
 
 //======================================================================================================================
 
 struct PipeExtensionFunctions {
-	FktPipeExtensionGetServiceTypes						fktPipeExtensionGetServiceTypes = nullptr;
-	FktPipeExtensionServiceCreate						fktPipeExtensionServiceCreate = nullptr;
-	FktPipeExtensionServiceDestroy						fktPipeExtensionServiceDestroy = nullptr;
-	FktPipeExtensionServiceSend							fktPipeExtensionServiceSend = nullptr;
-	FktPipeExtensionServiceReceive						fktPipeExtensionServiceReceive = nullptr;
-	FktPipeExtensionServiceGetNodeChildren				fktPipeExtensionServiceGetNodeChildren = nullptr;
-	FktPipeExtensionServiceGetNodeInfo					fktPipeExtensionServiceGetNodeInfo = nullptr;
+	FktPipeExtensionGetServiceTypes							fktPipeExtensionGetServiceTypes				= nullptr;
+	FktPipeExtensionGetServiceTypeSettings					fktPipeExtensionGetServiceTypeSettings		= nullptr;
+	FktPipeExtensionServiceCreate							fktPipeExtensionServiceCreate				= nullptr;
+	FktPipeExtensionServiceDestroy							fktPipeExtensionServiceDestroy				= nullptr;
+	FktPipeExtensionServiceSend								fktPipeExtensionServiceSend					= nullptr;
+	FktPipeExtensionServiceReceive							fktPipeExtensionServiceReceive				= nullptr;
+	FktPipeExtensionServiceGetNodeChildren					fktPipeExtensionServiceGetNodeChildren		= nullptr;
+	FktPipeExtensionServiceGetNodeMessageTypes				fktPipeExtensionServiceGetNodeMessageTypes	= nullptr;
+	FktPipeExtensionServiceGetNodeInfo						fktPipeExtensionServiceGetNodeInfo			= nullptr;
 };
 
 //======================================================================================================================
@@ -52,7 +57,8 @@ public:
 	}
 
 public:
-	virtual void send(const LibPipeMessage& message) {
+	virtual void send(const tstring& message) {
+		/* TODO
 		std::vector<LibPipeEleCnt> parameterLengthPointers;
 		std::vector<LibPipeStr> parameterDataPointers;
 
@@ -70,10 +76,14 @@ public:
 		};
 
 		_functions.fktPipeExtensionServiceSend(_service, &messageData);
+		*/
 	}
 
-	virtual std::vector<LibPipeMessage> receive() {
-		std::vector<LibPipeMessage> messageList;
+	//------------------------------------------------------------------------------------------------------------------
+
+	virtual tstring receive() {
+		tstring messages;
+		/* TODO
 		_functions.fktPipeExtensionServiceReceive(_service, &messageList, [](PipeExtensionCbContext context, PipeExtensionMessageData* messages, PipeExtensionEleCnt messageCount) {
 			std::vector<LibPipeMessage>* pMessages = static_cast<std::vector<LibPipeMessage>*>(context);
 			for(auto idxMessage = 0; idxMessage < messageCount; idxMessage++) {
@@ -92,25 +102,39 @@ public:
 				});
 			}
 		});
-		return messageList;
+		*/
+		return messages;
 	}
+	
+	//------------------------------------------------------------------------------------------------------------------
 
-	virtual std::vector<tstring> children(tstring address) {
-		std::vector<tstring> childNodes;
-
+	virtual tstring nodeChildren(tstring address) {
+		tstring children;
+		/* TODO
 		_functions.fktPipeExtensionServiceGetNodeChildren(_service, address.c_str(), &childNodes, [](PipeExtensionCbContext context, PipeExtensionStr* childrenData, PipeExtensionEleCnt childrenCount) {
 			std::vector<tstring>* pList = static_cast<std::vector<tstring>*>(context);
 			for(auto i = 0; i < childrenCount; i++) {
 				pList->push_back(tstring(childrenData[i]));
 			}
 		});
-
-		return childNodes;
+		*/
+		return children;
 	}
 
-	virtual PipeExtensionServiceNodeInfo info(tstring address) {
-		PipeExtensionServiceNodeInfo info;
+	//------------------------------------------------------------------------------------------------------------------
+
+	virtual tstring nodeMessageTypes(tstring address) {
+		tstring messageTypes;
+		// TODO
+		return messageTypes;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	virtual tstring nodeInfo(tstring address) {
+		tstring info;
 		
+		/* TODO
 		_functions.fktPipeExtensionServiceGetNodeInfo(_service, address.c_str(), &info, [](PipeExtensionCbContext context, PipeExtensionServiceNodeInfoData* infoData) {
 			PipeExtensionServiceNodeInfo* pInfo = static_cast<PipeExtensionServiceNodeInfo*>(context);
 
@@ -141,6 +165,7 @@ public:
 				});
 			}
 		});
+		*/
 		
 		return info;
 	}
@@ -157,9 +182,10 @@ public:
 	virtual ~PipeExtensionInstance() {}
 
 public:
-	virtual std::vector<PipeExtensionServiceType> serviceTypes() {
-		std::vector<PipeExtensionServiceType> serviceTypeList;
+	virtual tstring serviceTypes() {
+		tstring types;
 		
+		/* TODO
 		_functions.fktPipeExtensionGetServiceTypes(&serviceTypeList, [](PipeExtensionCbContext context, PipeExtensionServiceTypeData* serviceTypesData, PipeExtensionEleCnt serviceTypesCount) {
 			std::vector<PipeExtensionServiceType>* pList = static_cast<std::vector<PipeExtensionServiceType>*>(context);
 			for(auto i = 0; i < serviceTypesCount; i++) {
@@ -175,13 +201,25 @@ public:
 				pList->push_back(curServiceType);
 			}
 		});
-		
-		return serviceTypeList;
+		*/
+
+		return types;
 	}
 
-	virtual IPipeExtensionService* create(tstring serviceTypeId, tstring id, tstring path, std::map<tstring, tstring> settings) {
+	//------------------------------------------------------------------------------------------------------------------
+
+	virtual tstring serviceTypeSettings(tstring serviceType) {
+		tstring typeSettings;
+		// TODO
+		return typeSettings;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	virtual IPipeExtensionService* create(tstring serviceType, tstring id, tstring path, tstring settings) {
 		HPipeExtensionService service = 0;
 
+		/* TODO
 		std::vector<PipeExtensionServiceSettingData> settingList;
 
 		for(auto it = begin(settings); it != end(settings); it++) {
@@ -189,8 +227,12 @@ public:
 		}
 
 		_functions.fktPipeExtensionServiceCreate(serviceTypeId.c_str(), id.c_str(), path.c_str(), settingList.data(), settingList.size(), &service);
+		*/
+
 		return new PipeExtensionServiceInstance(_functions, service);
 	}
+
+	//------------------------------------------------------------------------------------------------------------------
 
 	virtual void destroy(IPipeExtensionService* service) {
 		_functions.fktPipeExtensionServiceDestroy(reinterpret_cast<HPipeExtensionService>(service));

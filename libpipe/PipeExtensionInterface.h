@@ -9,58 +9,17 @@
 
 //======================================================================================================================
 
-struct PipeExtensionServiceType {
-	tstring id;
-	tstring description;
-	std::map<tstring, tstring> settings;
-};
-
-//======================================================================================================================
-
-struct PipeExtensionMessageParameterType {
-	tstring id;
-	tstring description;
-	bool optional;
-	bool binary;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-struct PipeExtensionMessageType {
-	tstring id;
-	tstring description;
-	bool command;
-	std::vector<PipeExtensionMessageParameterType> parameterTypes;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-struct PipeExtensionServiceNodeType {
-	tstring id;
-	tstring description;
-	std::vector<PipeExtensionMessageType> messageTypes;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-struct PipeExtensionServiceNodeInfo {
-	tstring id;
-	PipeExtensionServiceNodeType type;
-	std::map<tstring, tstring> meta;
-};
-
-//======================================================================================================================
-
 class IPipeExtensionService {
 public:
 	virtual ~IPipeExtensionService() {}
 
 public:
-	virtual void send(const LibPipeMessage& message) = 0;
-	virtual std::vector<LibPipeMessage> receive() = 0;
+	virtual void send(const tstring& message) = 0;
+	virtual tstring receive() = 0;
 
-	virtual std::vector<tstring> children(tstring address) = 0;
-	virtual PipeExtensionServiceNodeInfo info(tstring address) = 0;
+	virtual tstring nodeChildren(tstring address) = 0;
+	virtual tstring nodeMessageTypes(tstring address) = 0;
+	virtual tstring nodeInfo(tstring address) = 0;
 };
 
 //======================================================================================================================
@@ -70,8 +29,9 @@ public:
 	virtual ~IPipeExtension() {}
 
 public:
-	virtual std::vector<PipeExtensionServiceType> serviceTypes() = 0;
-	virtual IPipeExtensionService* create(tstring serviceTypeId, tstring id, tstring path, std::map<tstring, tstring> settings) = 0;
+	virtual tstring serviceTypes() = 0;
+	virtual tstring serviceTypeSettings(tstring serviceType) = 0;
+	virtual IPipeExtensionService* create(tstring serviceType, tstring id, tstring path, tstring settings) = 0;
 	virtual void destroy(IPipeExtensionService* service) = 0;
 };
 

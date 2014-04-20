@@ -13,16 +13,16 @@ private:
 	std::map<tstring, std::shared_ptr<IPipeExtensionService>> _services;
 
 public:
-	ServiceRoot(tstring id, tstring path, std::map<tstring, tstring> settings);
+	ServiceRoot(tstring id, tstring path, tstring settings);
 	virtual ~ServiceRoot();
 
 public:
-	virtual void send(const LibPipeMessage& message);
-	virtual std::vector<LibPipeMessage> receive();
+	virtual void send(const tstring& message);
+	virtual tstring receive();
 
-	virtual std::vector<tstring> children(tstring address);
-	virtual PipeExtensionServiceNodeInfo info(tstring address);
-
+	virtual tstring nodeChildren(tstring address);
+	virtual tstring nodeMessageTypes(tstring address);
+	virtual tstring nodeInfo(tstring address);
 };
 
 //======================================================================================================================

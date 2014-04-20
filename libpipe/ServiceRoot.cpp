@@ -6,7 +6,7 @@ using namespace std;
 
 //======================================================================================================================
 
-ServiceRoot::ServiceRoot(tstring id, tstring path, map<tstring, tstring> settings) : PipeServiceBase(id, path, settings) {
+ServiceRoot::ServiceRoot(tstring id, tstring path, tstring settings) : PipeServiceBase(id, path, settings) {
 
 }
 
@@ -18,10 +18,10 @@ ServiceRoot::~ServiceRoot() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void ServiceRoot::send(const LibPipeMessage& message) {
+void ServiceRoot::send(const tstring& message) {
 
 	// TODO: Check for hooks
-
+	/* TODO
 	auto lenId = _id.length();
 
 	if(message.address.empty()) {
@@ -71,14 +71,15 @@ void ServiceRoot::send(const LibPipeMessage& message) {
 		_outgoing.push_back({ _id, _T("error"), parameters });
 		return;
 	}
-
+	*/
 	__super::send(message);
 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::vector<LibPipeMessage> ServiceRoot::receive() {
+tstring ServiceRoot::receive() {
+	/* TODO
 	vector<LibPipeMessage> messages = move(_outgoing);
 	_outgoing.clear();
 
@@ -90,18 +91,25 @@ std::vector<LibPipeMessage> ServiceRoot::receive() {
 	// TODO: Check for hooks
 
 	return messages;
+	*/
+	return _T("");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-std::vector<tstring> ServiceRoot::children(tstring address) {
-	return {};
+tstring ServiceRoot::nodeChildren(tstring address) {
+	return _T("");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PipeExtensionServiceNodeInfo ServiceRoot::info(tstring address) {
-	return {};
+tstring ServiceRoot::nodeMessageTypes(tstring address) {
+	return _T("");
+}
+//----------------------------------------------------------------------------------------------------------------------
+
+tstring ServiceRoot::nodeInfo(tstring address) {
+	return _T("");
 }
 
 //======================================================================================================================
