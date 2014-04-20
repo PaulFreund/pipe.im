@@ -8,25 +8,6 @@
 
 //======================================================================================================================
 
-	/*
-		Build something like this?:
-
-		class CommandProcessor : public IPipeExtensionService {
-		private:
-			
-
-		public:
-			virtual void process();
-		
-		private:
-			virtual void commands();
-			virtual void status();
-			virtual void about();
-			virtual void messages();
-			virtual void children();
-		};	
-	*/
-
 class ServiceIRC : public PipeServiceBase {
 private:
 	tstring _id;

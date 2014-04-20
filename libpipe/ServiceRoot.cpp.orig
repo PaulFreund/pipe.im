@@ -21,12 +21,16 @@ ServiceRoot::~ServiceRoot() {
 void ServiceRoot::send(const tstring& message) {
 
 	// TODO: Check for hooks
+<<<<<<< HEAD
 	/* TODO
+=======
+
 	if(isBasicCommand(message.type)) {
 		PipeServiceBase::send(message);
 		return;
 	}
 
+>>>>>>> ab95d46e279562f37a88e787b3c622bb8dbb7605
 	auto lenId = _id.length();
 
 	if(message.address.empty()) {
@@ -60,7 +64,12 @@ void ServiceRoot::send(const tstring& message) {
 		_outgoing.push_back({ _id, _T("error"), vector<tstring> { _T("Invalid Address"), _T("Start from \"") + _id + _T("\" and use the children command to find available addresses") } });
 		return;
 	}
+<<<<<<< HEAD
 	*/
+	__super::send(message);
+=======
+
+>>>>>>> ab95d46e279562f37a88e787b3c622bb8dbb7605
 
 }
 

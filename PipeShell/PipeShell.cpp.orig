@@ -121,8 +121,12 @@ int main(int argc, char* argv[]) {
 					idxToken++;
 				}
 
-				pipe.send(pipeMessage);
+<<<<<<< HEAD
+				pipe.send({ pipeMessage });
 				*/
+=======
+				pipe.send(pipeMessage);
+>>>>>>> ab95d46e279562f37a88e787b3c622bb8dbb7605
 			}
 		});
 

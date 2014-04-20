@@ -24,6 +24,29 @@
 typedef std::basic_string<TCHAR> tstring;
 typedef unsigned char ubyte;
 
+/*
+	pipe.irc.#shadowmind say "hey wie gehts \"euch\""
+	pipe.irc commands 
+	pipe.irc commands "[[commands,Requests all available commands,],[info,Requests info about node,],[messages,Requests all available messages,],[children,Requests all children of node,]]"
+	pipe.irc messages 
+	pipe.irc messages "[commands,Returns all available commands,[commandlist...]]"
+
+	pipe.service settings irc
+	pipe.service settings irc [[key:value]]
+
+	Lists: [a,b,c]
+	Key-Value pairs: [key,value]
+
+	Special chars: " [ ] \ , 
+	Special address chars: .
+
+	schnitstelle von LibPipeMessage auf string aendern? was mache ich um auf verschiedene client anforderungen zu reagieren?
+
+	client in jeder nachricht?
+
+	[<reference>,<reference>] <rcpt> <cmd> [nestable parameters]
+*/
+
 const TCHAR PAS = _T('.'); // Pipe Address Separator
 
 //======================================================================================================================
