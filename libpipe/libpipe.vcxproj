@@ -92,6 +92,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonHeader.h" />
+    <ClInclude Include="LibPipeDataTypes.h" />
     <ClInclude Include="LibPipeInterface.h" />
     <ClInclude Include="LibPipeInstance.h" />
     <ClInclude Include="PipeExtensionInterface.h" />

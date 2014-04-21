@@ -5,22 +5,7 @@
 //======================================================================================================================
 
 #include "LibPipeAPI.h"
-
-#include <vector>
-#include <string>
-#include <map>
-#include <memory>
-
-#define _TCHAR_DEFINED
-#ifdef UNICODE
-#define _T(x) L ##x
-#define TCHAR wchar_t
-#else
-#define _T(x) x
-#define TCHAR char
-#endif
-
-typedef std::basic_string<TCHAR> tstring;
+#include "LibPipeDataTypes.h"
 
 //======================================================================================================================
 
@@ -29,8 +14,8 @@ public:
 	virtual ~ILibPipe() {};
 
 public:
-	virtual void send(const tstring& message) = 0;
-	virtual tstring receive() = 0;
+	virtual void send(PipeJSON& message) = 0;
+	virtual PipeJSON receive() = 0;
 };
 
 //======================================================================================================================

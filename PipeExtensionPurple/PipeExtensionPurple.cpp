@@ -103,7 +103,7 @@ PipeExtensionPurple::~PipeExtensionPurple() {
 	}
 }
 
-tstring PipeExtensionPurple::serviceTypes() {
+PipeJSON PipeExtensionPurple::serviceTypes() {
 	/* TODO
 	if(!_libpurple_init_done) {
 		tstring userDir = tstring(purple_user_dir());
@@ -141,16 +141,16 @@ tstring PipeExtensionPurple::serviceTypes() {
 		});
 	}
 	*/
-	tstring serviceTypes;
+	PipeJSON serviceTypes;
 	return serviceTypes;
 }
 
-tstring PipeExtensionPurple::serviceTypeSettings(tstring serviceType) {
-	return _T(""); // TODO
+PipeJSON PipeExtensionPurple::serviceTypeSettings(tstring serviceType) {
+	return PipeJSON(); // TODO
 }
 
 
-IPipeExtensionService* PipeExtensionPurple::create(tstring serviceType, tstring id, tstring path, tstring settings) {
+IPipeExtensionService* PipeExtensionPurple::create(tstring serviceType, tstring id, tstring path, PipeJSON settings) {
 	if(serviceType == _T("irc")) {
 		return (_services[id] = new ServiceIRC(id, path, settings));
 	}

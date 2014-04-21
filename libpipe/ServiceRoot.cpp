@@ -6,7 +6,7 @@ using namespace std;
 
 //======================================================================================================================
 
-ServiceRoot::ServiceRoot(tstring id, tstring path, tstring settings) : PipeServiceBase(id, path, settings) {
+ServiceRoot::ServiceRoot(tstring id, tstring path, PipeJSON settings) : PipeServiceBase(id, path, settings) {
 
 }
 
@@ -18,7 +18,7 @@ ServiceRoot::~ServiceRoot() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void ServiceRoot::send(const tstring& message) {
+void ServiceRoot::send(PipeJSON& message) {
 
 	// TODO: Check for hooks
 	/* TODO
@@ -66,7 +66,7 @@ void ServiceRoot::send(const tstring& message) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-tstring ServiceRoot::receive() {
+PipeJSON ServiceRoot::receive() {
 	/* TODO
 	vector<LibPipeMessage> messages = move(_outgoing);
 	_outgoing.clear();
@@ -80,24 +80,24 @@ tstring ServiceRoot::receive() {
 
 	return messages;
 	*/
-	return _T("");
+	return PipeJSON();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-tstring ServiceRoot::nodeChildren(tstring address) {
-	return _T("");
+PipeJSON ServiceRoot::nodeChildren(tstring address) {
+	return PipeJSON();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-tstring ServiceRoot::nodeMessageTypes(tstring address) {
-	return _T("");
+PipeJSON ServiceRoot::nodeMessageTypes(tstring address) {
+	return PipeJSON();
 }
 //----------------------------------------------------------------------------------------------------------------------
 
-tstring ServiceRoot::nodeInfo(tstring address) {
-	return _T("");
+PipeJSON ServiceRoot::nodeInfo(tstring address) {
+	return PipeJSON();
 }
 
 //======================================================================================================================

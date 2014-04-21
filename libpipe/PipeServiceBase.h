@@ -18,17 +18,17 @@ public:
 public:
 	const tstring _id;
 	const tstring _path;
-	const tstring _settings;
+	const PipeJSON _settings;
 
 protected:
-	tstring _outgoing;
+	PipeJSON _outgoing;
 
 public:
-	PipeServiceBase(tstring id, tstring path, tstring settings) : _id(id), _path(path), _settings(settings) {}
+	PipeServiceBase(tstring id, tstring path, PipeJSON settings) : _id(id), _path(path), _settings(settings) {}
 	virtual ~PipeServiceBase() {}
 
 public:
-	virtual void send(const tstring& message) {
+	virtual void send(PipeJSON& message) {
 		/* TODO
 		if(message.type == basicCommandCommands) {
 
@@ -61,11 +61,11 @@ public:
 		*/
 	}
 
-	virtual tstring receive() = 0;
+	virtual PipeJSON receive() = 0;
 
-	virtual tstring nodeChildren(tstring address) = 0;
-	virtual tstring nodeMessageTypes(tstring address) = 0;
-	virtual tstring nodeInfo(tstring address) = 0;
+	virtual PipeJSON nodeChildren(tstring address) = 0;
+	virtual PipeJSON nodeMessageTypes(tstring address) = 0;
+	virtual PipeJSON nodeInfo(tstring address) = 0;
 
 };
 //======================================================================================================================

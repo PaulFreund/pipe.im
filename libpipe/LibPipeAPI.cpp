@@ -5,7 +5,6 @@
 
 using namespace std;
 using namespace Poco;
-using namespace rapidjson;
 
 //======================================================================================================================
 
@@ -73,7 +72,7 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 }
 
 LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr cbServiceTypes) {
-	Document serviceTypes;
+	PipeJSON serviceTypes;
 	serviceTypes.SetArray();
 	
 	for(auto&& extension : LibPipe::Extensions) {
@@ -83,18 +82,15 @@ LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr c
 		}
 	}
 
-	StringBuffer strbuf;
-	Writer<StringBuffer> writer(strbuf);
-	serviceTypes.Accept(writer);
-	tstring result = strbuf.GetString();
-
-	cbServiceTypes(context, result.c_str());
+	cbServiceTypes(context, serviceTypes.toString().c_str());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr serviceTypes, HLibPipe* instance) {
-	LibPipe::Instances.push_back(LibPipe(tstring(path), serviceTypes));
+	PipeJSON serviceTypesData;
+	serviceTypesData.Parse<0>(serviceTypes);
+	LibPipe::Instances.push_back(LibPipe(tstring(path), serviceTypesData));
 	(*instance) = reinterpret_cast<HLibPipe>(&LibPipe::Instances.back());
 }
 
@@ -113,12 +109,14 @@ LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeStr message) {
-	reinterpret_cast<LibPipe*>(instance)->send(message);
+	PipeJSON messageData;
+	messageData.Parse<0>(message);
+	reinterpret_cast<LibPipe*>(instance)->send(messageData);
 }
 
 LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, LibPipeCbStr cbMessages) {
 	auto&& messages = reinterpret_cast<LibPipe*>(instance)->receive();
-	cbMessages(context, messages.c_str());
+	cbMessages(context, messages.toString().c_str());
 }
 
 //======================================================================================================================

@@ -14,11 +14,13 @@ std::vector<PipeExtensionInstance> LibPipe::Extensions;
 
 //======================================================================================================================
 
-LibPipe::LibPipe(tstring path, tstring serviceTypes){
-	/* TODO
-	map<tstring, tstring> settings { make_pair(_T("serviceTypes"), timplode(serviceTypes, _T(','))) };
+LibPipe::LibPipe(tstring path, PipeJSON serviceTypes) {
+	PipeJSON settings;
+	settings.SetObject();
+	settings.AddMember(_T("serviceTypes"), serviceTypes, settings.GetAllocator());
+	//map<tstring, tstring> settings { make_pair(_T("serviceTypes"), timplode(serviceTypes, _T(','))) };
+	// TODO: TEST!
 	_serviceRoot = make_shared<ServiceRoot>(_T("pipe"), path, settings);
-	*/
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -29,13 +31,13 @@ LibPipe::~LibPipe() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void LibPipe::send(const tstring& message) {
+void LibPipe::send(PipeJSON& message) {
 	_serviceRoot->send(message);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-tstring LibPipe::receive() {
+PipeJSON LibPipe::receive() {
 	return _serviceRoot->receive();
 }
 

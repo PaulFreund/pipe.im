@@ -9,33 +9,29 @@
 //======================================================================================================================
 
 class ServiceIRC : public PipeServiceBase {
-private:
-	tstring _id;
-	tstring _settings;
-
 public:
-	ServiceIRC(tstring id, tstring path, tstring settings) : PipeServiceBase(id, path, settings) {}
+	ServiceIRC(tstring id, tstring path, PipeJSON settings) : PipeServiceBase(id, path, settings) {}
 	virtual ~ServiceIRC() {}
 
 public:
-	virtual void send(const tstring& message) {
+	virtual void send(PipeJSON& message) {
 	// TODO
 	}
 
-	virtual tstring receive() {
-		return _T(""); // TODO
+	virtual PipeJSON receive() {
+		return PipeJSON(); // TODO
 	}
 
-	virtual tstring nodeChildren(tstring address) {
-		return _T(""); // TODO
+	virtual PipeJSON nodeChildren(tstring address) {
+		return PipeJSON(); // TODO
 	}
 
-	virtual tstring nodeMessageTypes(tstring address) {
-		return _T(""); // TODO
+	virtual PipeJSON nodeMessageTypes(tstring address) {
+		return PipeJSON(); // TODO
 	}
 
-	virtual tstring nodeInfo(tstring address) {
-		return _T(""); // TODO
+	virtual PipeJSON nodeInfo(tstring address) {
+		return PipeJSON(); // TODO
 	}
 };
 

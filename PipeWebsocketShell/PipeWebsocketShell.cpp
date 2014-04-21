@@ -119,14 +119,15 @@ public:
 			const int bufferSize = 2048;
 			ws.setReceiveBufferSize(bufferSize);
 
-			auto serviceTypes = LibPipeInstance::serviceTypes();
+			auto&& serviceTypes = LibPipeInstance::serviceTypes();
 			LibPipeInstance pipe(pApp->_datadir, serviceTypes);
 
 			vector<tstring> incoming;
 			vector<tstring> outgoing;
 
 			tstring serviceTypesMessage = _T("Available services: ");
-			for(auto&& serviceType : serviceTypes) { serviceTypesMessage.append(_T(" ") + serviceType); }
+			//for(PipeJSON& serviceType : serviceTypes) { serviceTypesMessage.append(_T(" ") + serviceType.toString()); }
+			serviceTypesMessage.append(serviceTypes.toString());
 			outgoing.push_back(serviceTypesMessage);
 
 			char buffer[bufferSize];

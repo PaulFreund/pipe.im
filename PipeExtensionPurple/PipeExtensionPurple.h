@@ -21,9 +21,9 @@ public:
 	virtual ~PipeExtensionPurple();
 
 public:
-	virtual tstring serviceTypes();
-	virtual tstring serviceTypeSettings(tstring serviceType);
-	virtual IPipeExtensionService* create(tstring serviceType, tstring id, tstring path, tstring settings);
+	virtual PipeJSON serviceTypes();
+	virtual PipeJSON serviceTypeSettings(tstring serviceType);
+	virtual IPipeExtensionService* create(tstring serviceType, tstring id, tstring path, PipeJSON settings);
 	virtual void destroy(IPipeExtensionService* service);
 };
 

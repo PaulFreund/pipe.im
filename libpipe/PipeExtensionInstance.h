@@ -57,17 +57,17 @@ public:
 	}
 
 public:
-	virtual void send(const tstring& message) {
-		_functions.fktPipeExtensionServiceSend(_service, message.c_str());
+	virtual void send(PipeJSON& message) {
+		_functions.fktPipeExtensionServiceSend(_service, message.toString().c_str());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual tstring receive() {
-		tstring messages;
+	virtual PipeJSON receive() {
+		PipeJSON messages;
 
 		_functions.fktPipeExtensionServiceReceive(_service, &messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
-			(*static_cast<tstring*>(context)) = messagesData;
+			(*static_cast<PipeJSON*>(context)).Parse<0>(messagesData);
 		});
 
 		return messages;
@@ -75,11 +75,11 @@ public:
 	
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual tstring nodeChildren(tstring address) {
-		tstring children;
+	virtual PipeJSON nodeChildren(tstring address) {
+		PipeJSON children;
 
 		_functions.fktPipeExtensionServiceGetNodeChildren(_service, address.c_str(), &children, [](PipeExtensionCbContext context, PipeExtensionStr childrenData) {
-			(*static_cast<tstring*>(context)) = childrenData;
+			(*static_cast<PipeJSON*>(context)).Parse<0>(childrenData);
 		});
 
 		return children;
@@ -87,11 +87,11 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual tstring nodeMessageTypes(tstring address) {
-		tstring messageTypes;
+	virtual PipeJSON nodeMessageTypes(tstring address) {
+		PipeJSON messageTypes;
 
 		_functions.fktPipeExtensionServiceGetNodeMessageTypes(_service, address.c_str(), &messageTypes, [](PipeExtensionCbContext context, PipeExtensionStr messageTypesData) {
-			(*static_cast<tstring*>(context)) = messageTypesData;
+			(*static_cast<PipeJSON*>(context)).Parse<0>(messageTypesData);
 		});
 
 		return messageTypes;
@@ -99,11 +99,11 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual tstring nodeInfo(tstring address) {
-		tstring info;
+	virtual PipeJSON nodeInfo(tstring address) {
+		PipeJSON info;
 
 		_functions.fktPipeExtensionServiceGetNodeInfo(_service, address.c_str(), &info, [](PipeExtensionCbContext context, PipeExtensionStr infoData) {
-			(*static_cast<tstring*>(context)) = infoData;
+			(*static_cast<PipeJSON*>(context)).Parse<0>(infoData);
 		});
 
 		return info;
@@ -121,11 +121,11 @@ public:
 	virtual ~PipeExtensionInstance() {}
 
 public:
-	virtual tstring serviceTypes() {
-		tstring types;
+	virtual PipeJSON serviceTypes() {
+		PipeJSON types;
 		
 		_functions.fktPipeExtensionGetServiceTypes(&types, [](PipeExtensionCbContext context, PipeExtensionStr typesData) {
-			(*static_cast<tstring*>(context)) = typesData;
+			(*static_cast<PipeJSON*>(context)).Parse<0>(typesData);
 		});
 
 		return types;
@@ -133,11 +133,11 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual tstring serviceTypeSettings(tstring serviceType) {
-		tstring typeSettings;
+	virtual PipeJSON serviceTypeSettings(tstring serviceType) {
+		PipeJSON typeSettings;
 
 		_functions.fktPipeExtensionGetServiceTypeSettings(&typeSettings, serviceType.c_str(), [](PipeExtensionCbContext context, PipeExtensionStr typeSettingsData) {
-			(*static_cast<tstring*>(context)) = typeSettingsData;
+			(*static_cast<PipeJSON*>(context)).Parse<0>(typeSettingsData);
 		});
 
 		return typeSettings;
@@ -145,10 +145,10 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual IPipeExtensionService* create(tstring serviceType, tstring id, tstring path, tstring settings) {
+	virtual IPipeExtensionService* create(tstring serviceType, tstring id, tstring path, PipeJSON settings) {
 		HPipeExtensionService service = 0;
 
-		_functions.fktPipeExtensionServiceCreate(serviceType.c_str(), id.c_str(), path.c_str(), settings.c_str(), &service);
+		_functions.fktPipeExtensionServiceCreate(serviceType.c_str(), id.c_str(), path.c_str(), settings.toString().c_str(), &service);
 
 		return new PipeExtensionServiceInstance(_functions, service);
 	}

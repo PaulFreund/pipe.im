@@ -95,6 +95,9 @@
     <ClInclude Include="rapidjson\writer.h">
       <Filter>rapidjson</Filter>
     </ClInclude>
+    <ClInclude Include="LibPipeDataTypes.h">
+      <Filter>LibPipe\Wrapper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LibPipeAPI.cpp">
