@@ -64,10 +64,8 @@ int main(int argc, char* argv[]) {
 		cout << _T("------------------------------------------") << endl;
 		cout << _T("Welcome to pipe shell") << endl;
 		cout << _T("------------------------------------------") << endl;
-		cout << _T("Available service types: ") << endl;
-		for(auto& serviceType : serviceTypes) {
-			cout << _T('\t') << serviceType << endl;
-		}
+		cout << _T("Available service types: ") << serviceTypes.dump() << endl;
+
 		cout << _T("------------------------------------------") << endl;
 		cout << endl;
 
