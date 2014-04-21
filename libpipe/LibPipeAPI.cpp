@@ -5,6 +5,7 @@
 
 using namespace std;
 using namespace Poco;
+using namespace rapidjson;
 
 //======================================================================================================================
 
@@ -72,36 +73,29 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 }
 
 LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr cbServiceTypes) {
-	/* TODO
-	vector<tstring> serviceTypes;
+	Document serviceTypes;
+	serviceTypes.SetArray();
+	
 	for(auto&& extension : LibPipe::Extensions) {
 		auto extensionServiceTypes = extension.serviceTypes();
 		for(auto&& extensionServiceType : extensionServiceTypes) {
-			serviceTypes.push_back(extensionServiceType.id);
+			serviceTypes.PushBack(extensionServiceType, serviceTypes.GetAllocator());
 		}
 	}
 
-	vector<LibPipeStr> pointers;
-	for(auto& serviceType : serviceTypes) {
-		pointers.push_back(serviceType.c_str());
-	}
+	StringBuffer strbuf;
+	Writer<StringBuffer> writer(strbuf);
+	serviceTypes.Accept(writer);
+	tstring result = strbuf.GetString();
 
-	cbServiceTypes(context, pointers.data(), pointers.size());
-	*/
+	cbServiceTypes(context, result.c_str());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr serviceTypes, HLibPipe* instance) {
-	/* TODO
-	vector<tstring> Types;
-	for(auto i = 0; i < serviceTypeCount; i++) {
-		Types.push_back(tstring(serviceTypes[i]));
-	}
-
-	LibPipe::Instances.push_back(LibPipe(tstring(path), Types));
+	LibPipe::Instances.push_back(LibPipe(tstring(path), serviceTypes));
 	(*instance) = reinterpret_cast<HLibPipe>(&LibPipe::Instances.back());
-	*/
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -119,53 +113,12 @@ LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeStr message) {
-	/* TODO
-	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
-	
-	std::vector<tstring> parameters;
-	for(auto idxParameter = 0; idxParameter < message->parameterCount; idxParameter++) {
-		parameters.push_back(tstring(
-			message->parameterData[idxParameter],
-			message->parameterData[idxParameter] + message->parameterLength[idxParameter]
-		));
-	}
-
-	pInstance->send({
-		tstring(message->address),
-		tstring(message->type),
-		parameters
-	});
-	*/
+	reinterpret_cast<LibPipe*>(instance)->send(message);
 }
 
 LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, LibPipeCbStr cbMessages) {
-	/* TODO
-	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
-	auto&& messages = pInstance->receive();
-
-	std::vector<LibPipeMessageData> messagePointers;
-	std::vector<std::vector<LibPipeEleCnt>> parameterLengthPointers;
-	std::vector<std::vector<LibPipeStr>> parameterDataPointers;
-
-	for(auto i = 0; i < messages.size(); i++) {
-		parameterLengthPointers.push_back({});
-		parameterDataPointers.push_back({});
-		for(auto& parameter : messages[i].parameters) {
-			parameterLengthPointers[i].push_back(parameter.length());
-			parameterDataPointers[i].push_back(parameter.c_str());
-		}
-
-		messagePointers.push_back({
-			messages[i].address.c_str(),
-			messages[i].type.c_str(),
-			messages[i].parameters.size(),
-			parameterLengthPointers[i].data(),
-			parameterDataPointers[i].data()
-		});
-	}
-
-	cbMessages(context, messagePointers.data(), messagePointers.size());
-	*/
+	auto&& messages = reinterpret_cast<LibPipe*>(instance)->receive();
+	cbMessages(context, messages.c_str());
 }
 
 //======================================================================================================================
