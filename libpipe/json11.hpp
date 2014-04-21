@@ -159,6 +159,20 @@ public:
             return nullptr;
         }
     }
+
+	static Json parse(const std::string & in) {
+		std::string err;
+		return parse(in, err);
+	}
+
+	static Json parse(const char * in) {
+		if(in) {
+			return parse(std::string(in));
+		}
+		else {
+			return nullptr;
+		}
+	}
     // Parse multiple objects, concatenated or separated by whitespace
     static std::vector<Json> parse_multi(const std::string & in, std::string & err);
 

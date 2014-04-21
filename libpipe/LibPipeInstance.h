@@ -32,7 +32,7 @@ public:
 		PipeJSON messages;
 
 		LibPipeReceive(_instance, &messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
-			(*static_cast<PipeJSON*>(context)).parse(messagesData, tstring());
+			(*static_cast<PipeJSON*>(context)).parse(messagesData);
 		});
 
 		return messages;
@@ -47,7 +47,7 @@ public:
 		PipeJSON serviceTypes;
 
 		LibPipeGetServiceTypes(&serviceTypes, [](LibPipeCbContext context, LibPipeStr serviceTypesData) {
-			(*static_cast<PipeJSON*>(context)).parse(serviceTypesData, tstring());
+			(*static_cast<PipeJSON*>(context)).parse(serviceTypesData);
 		});
 
 		return serviceTypes;

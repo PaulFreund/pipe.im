@@ -67,7 +67,7 @@ public:
 		PipeJSON messages;
 
 		_functions.fktPipeExtensionServiceReceive(_service, &messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
-			(*static_cast<PipeJSON*>(context)).parse(messagesData, tstring());
+			(*static_cast<PipeJSON*>(context)).parse(messagesData);
 		});
 
 		return messages;
@@ -79,7 +79,7 @@ public:
 		PipeJSON children;
 
 		_functions.fktPipeExtensionServiceGetNodeChildren(_service, address.c_str(), &children, [](PipeExtensionCbContext context, PipeExtensionStr childrenData) {
-			(*static_cast<PipeJSON*>(context)).parse(childrenData, tstring());
+			(*static_cast<PipeJSON*>(context)).parse(childrenData);
 		});
 
 		return children;
@@ -91,7 +91,7 @@ public:
 		PipeJSON messageTypes;
 
 		_functions.fktPipeExtensionServiceGetNodeMessageTypes(_service, address.c_str(), &messageTypes, [](PipeExtensionCbContext context, PipeExtensionStr messageTypesData) {
-			(*static_cast<PipeJSON*>(context)).parse(messageTypesData, tstring());
+			(*static_cast<PipeJSON*>(context)).parse(messageTypesData);
 		});
 
 		return messageTypes;
@@ -103,7 +103,7 @@ public:
 		PipeJSON info;
 
 		_functions.fktPipeExtensionServiceGetNodeInfo(_service, address.c_str(), &info, [](PipeExtensionCbContext context, PipeExtensionStr infoData) {
-			(*static_cast<PipeJSON*>(context)).parse(infoData, tstring());
+			(*static_cast<PipeJSON*>(context)).parse(infoData);
 		});
 
 		return info;
@@ -125,7 +125,7 @@ public:
 		PipeJSON types;
 		
 		_functions.fktPipeExtensionGetServiceTypes(&types, [](PipeExtensionCbContext context, PipeExtensionStr typesData) {
-			(*static_cast<PipeJSON*>(context)).parse(typesData, tstring());
+			(*static_cast<PipeJSON*>(context)).parse(typesData);
 		});
 
 		return types;
@@ -137,7 +137,7 @@ public:
 		PipeJSON typeSettings;
 
 		_functions.fktPipeExtensionGetServiceTypeSettings(&typeSettings, serviceType.c_str(), [](PipeExtensionCbContext context, PipeExtensionStr typeSettingsData) {
-			(*static_cast<PipeJSON*>(context)).parse(typeSettingsData, tstring());
+			(*static_cast<PipeJSON*>(context)).parse(typeSettingsData);
 		});
 
 		return typeSettings;
