@@ -7,51 +7,22 @@ using namespace std;
 //======================================================================================================================
 
 PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypes(PipeExtensionCbContext context, PipeExtensionCbStr cbServiceTypes) {
-	/* TODO
-	auto&& serviceTypes = PipeExtensionPurple::ExtensionInstance.serviceTypes();
-
-	std::vector<PipeExtensionServiceTypeData> serviceTypesPointers;
-	std::vector<std::vector<PipeExtensionStr>> serviceTypeSettingIdsPointers;
-	std::vector<std::vector<PipeExtensionStr>> serviceTypeSettingDescriptionsPointers;
-
-	for(int i = 0; i < serviceTypes.size(); i++) {
-		serviceTypeSettingIdsPointers.push_back({});
-		serviceTypeSettingDescriptionsPointers.push_back({});
-		for(auto it = begin(serviceTypes[i].settings); it != end(serviceTypes[i].settings); it++) {
-			serviceTypeSettingIdsPointers[i].push_back(it->first.c_str());
-			serviceTypeSettingDescriptionsPointers[i].push_back(it->first.c_str());
-		}
-
-		serviceTypesPointers.push_back({
-			serviceTypes[i].id.c_str(),
-			serviceTypes[i].description.c_str(),
-			serviceTypes[i].settings.size(),
-			serviceTypeSettingIdsPointers[i].data(),
-			serviceTypeSettingDescriptionsPointers[i].data(),
-		});
-	}
-
-	cbServiceTypes(context, serviceTypesPointers.data(), serviceTypesPointers.size());
-	*/
+	auto&& types = PipeExtensionPurple::ExtensionInstance.serviceTypes();
+	cbServiceTypes(context, types.c_str());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypeSettings(PipeExtensionCbContext context, PipeExtensionStr serviceType, PipeExtensionCbStr cbServiceTypeSettings) {
-
+	auto&& typeSettings = PipeExtensionPurple::ExtensionInstance.serviceTypeSettings(serviceType);
+	cbServiceTypeSettings(context, typeSettings.c_str());
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceType, PipeExtensionStr id, PipeExtensionStr path, PipeExtensionStr settings, HPipeExtensionService* service) {
-	/* TODO
-	std::map<string, string> settingsData;
-	for(auto i = 0; i < count; i++) {
-		settingsData[settings[i].id] = settings[i].value;
-	}
-	(*service) = reinterpret_cast<HPipeExtensionService>(PipeExtensionPurple::ExtensionInstance.create(serviceTypeId, id, path, settingsData));
-	*/
+	(*service) = reinterpret_cast<HPipeExtensionService>(PipeExtensionPurple::ExtensionInstance.create(serviceType, id, path, settings));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -63,135 +34,35 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy(HPipeExtensionService servic
 //----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceSend(HPipeExtensionService service, PipeExtensionStr message) {
-	/* TODO
-	std::vector<tstring> parameters;
-	for(auto idxParameter = 0; idxParameter < message->parameterCount; idxParameter++) {
-		parameters.push_back(tstring(
-			message->parameterData[idxParameter],
-			message->parameterData[idxParameter] + message->parameterLength[idxParameter]
-			));
-	}
-
-	reinterpret_cast<IPipeExtensionService*>(service)->send({
-		tstring(message->address),
-		tstring(message->type),
-		parameters
-	});
-	*/
+	reinterpret_cast<IPipeExtensionService*>(service)->send(message);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceReceive(HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbStr cbMessages) {
-	/* TODO
-	IPipeExtensionService* pService = reinterpret_cast<IPipeExtensionService*>(service);
-	auto&& messages = pService->receive();
-
-	std::vector<PipeExtensionMessageData> messagePointers;
-	std::vector<std::vector<PipeExtensionEleCnt>> parameterLengthPointers;
-	std::vector<std::vector<PipeExtensionStr>> parameterDataPointers;
-
-	for(auto i = 0; i < messages.size(); i++) {
-		parameterLengthPointers.push_back({});
-		parameterDataPointers.push_back({});
-		for(auto& parameter : messages[i].parameters) {
-			parameterLengthPointers[i].push_back(parameter.length());
-			parameterDataPointers[i].push_back(parameter.c_str());
-		}
-
-		messagePointers.push_back({
-			messages[i].address.c_str(),
-			messages[i].type.c_str(),
-			messages[i].parameters.size(),
-			parameterLengthPointers[i].data(),
-			parameterDataPointers[i].data()
-		});
-	}
-
-	cbMessages(context, messagePointers.data(), messagePointers.size());
-	*/
+	auto&& messages = reinterpret_cast<IPipeExtensionService*>(service)->receive();
+	cbMessages(context, messages.c_str());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeChildren(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbChildNodes) {
-	/* TODO
-	IPipeExtensionService* pService = reinterpret_cast<IPipeExtensionService*>(service);
-	auto&& childNodes = pService->children(tstring(address));
-
-	vector<PipeExtensionStr> childNodePointers;
-	for(auto i = 0; i < childNodes.size(); i++) {
-		childNodePointers.push_back(childNodes[i].c_str());
-	}
-
-	cbChildNodes(context, childNodePointers.data(), childNodePointers.size());
-	*/
+	auto&& children = reinterpret_cast<IPipeExtensionService*>(service)->nodeChildren(tstring(address));
+	cbChildNodes(context, children.c_str());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeMessageTypes(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeMessageTypes) {
-
+	auto&& messageTypes = reinterpret_cast<IPipeExtensionService*>(service)->nodeMessageTypes(tstring(address));
+	cbNodeMessageTypes(context, messageTypes.c_str());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeInfo(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeInfo) {
-	/* TODO
-	IPipeExtensionService* pService = reinterpret_cast<IPipeExtensionService*>(service);
-	auto&& info = pService->info(tstring(address));
-
-	PipeExtensionServiceNodeInfoData infoData;
-
-	infoData.id = info.id.c_str();
-
-	{
-		std::vector<PipeExtensionStr> metaInfoKeysPointers;
-		std::vector<PipeExtensionStr> metaInfoValuesPointers;
-
-		for(auto it = begin(info.meta); it != end(info.meta); it++) {
-			metaInfoKeysPointers.push_back(it->first.c_str());
-			metaInfoValuesPointers.push_back(it->first.c_str());
-		}
-
-		infoData.metaInfoCount = info.meta.size();
-		infoData.metaInfoKeys = metaInfoKeysPointers.data();
-		infoData.metaInfoValues = metaInfoValuesPointers.data();
-	}
-
-	{
-		infoData.type.id = info.type.id.c_str();
-		infoData.type.description = info.type.description.c_str();
-
-		std::vector<PipeExtensionMessageTypeData> messageTypePointers;
-		std::vector<std::vector<PipeExtensionMessageParameterTypeData>> parameterDataPointers;
-
-		for(auto i = 0; i < info.type.messageTypes.size(); i++) {
-			parameterDataPointers.push_back({});
-			for(auto& parameter : info.type.messageTypes[i].parameterTypes) {
-				parameterDataPointers[i].push_back({
-					parameter.id.c_str(),
-					parameter.description.c_str(),
-					parameter.optional,
-					parameter.binary
-				});
-			}
-
-			messageTypePointers.push_back({
-				info.type.messageTypes[i].id.c_str(),
-				info.type.messageTypes[i].description.c_str(),
-				info.type.messageTypes[i].command,
-				info.type.messageTypes[i].parameterTypes.size(),
-				parameterDataPointers[i].data()
-			});
-		}
-
-		infoData.type.messageTypeCount = info.type.messageTypes.size();
-		infoData.type.messageTypes = messageTypePointers.data();
-	}
-
-	cbNodeMessageTypes(context, &infoData);
-	*/
+	auto&& info = reinterpret_cast<IPipeExtensionService*>(service)->nodeInfo(tstring(address));
+	cbNodeInfo(context, info.c_str());
 }
 
 //======================================================================================================================
