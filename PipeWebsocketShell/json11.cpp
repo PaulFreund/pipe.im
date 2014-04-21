@@ -210,16 +210,23 @@ public:
  * Static globals - static-init-safe
  */
 struct Statics {
-    const std::shared_ptr<JsonValue> null = make_shared<JsonNull>();
-    const std::shared_ptr<JsonValue> t = make_shared<JsonBoolean>(true);
-    const std::shared_ptr<JsonValue> f = make_shared<JsonBoolean>(false);
-    const string empty_string = string();
-    const vector<Json> empty_vector = vector<Json>();
-    const map<string, Json> empty_map = map<string, Json>();
+    const std::shared_ptr<JsonValue> null;
+    const std::shared_ptr<JsonValue> t;
+    const std::shared_ptr<JsonValue> f;
+    const string empty_string;
+	const vector<Json> empty_vector;
+	const map<string, Json> empty_map;
 };
 
 const Statics & statics() {
-    static const Statics s {};
+    static const Statics s {
+		make_shared<JsonNull>(),
+		make_shared<JsonBoolean>(true),
+		make_shared<JsonBoolean>(false),
+		"",
+		vector<Json>(),
+		map<string, Json>()
+	};
     return s;
 }
 
