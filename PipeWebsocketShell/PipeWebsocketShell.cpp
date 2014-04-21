@@ -127,7 +127,7 @@ public:
 
 			tstring serviceTypesMessage = _T("Available services: ");
 			//for(PipeJSON& serviceType : serviceTypes) { serviceTypesMessage.append(_T(" ") + serviceType.toString()); }
-			serviceTypesMessage.append(serviceTypes.toString());
+			serviceTypesMessage.append(serviceTypes.dump());
 			outgoing.push_back(serviceTypesMessage);
 
 			char buffer[bufferSize];

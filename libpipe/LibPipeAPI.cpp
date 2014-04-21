@@ -72,24 +72,23 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 }
 
 LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr cbServiceTypes) {
-	PipeJSON serviceTypes;
-	serviceTypes.SetArray();
-	
+	PipeJSON::array serviceTypes {};
+
 	for(auto&& extension : LibPipe::Extensions) {
 		auto extensionServiceTypes = extension.serviceTypes();
-		for(auto&& extensionServiceType : extensionServiceTypes) {
-			serviceTypes.PushBack(extensionServiceType, serviceTypes.GetAllocator());
+		for(auto&& extensionServiceType : extensionServiceTypes.array_items()) {
+			serviceTypes.push_back(extensionServiceType);
 		}
 	}
 
-	cbServiceTypes(context, serviceTypes.toString().c_str());
+	cbServiceTypes(context, PipeJSON(serviceTypes).dump().c_str());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr serviceTypes, HLibPipe* instance) {
 	PipeJSON serviceTypesData;
-	serviceTypesData.Parse<0>(serviceTypes);
+	serviceTypesData.parse(serviceTypes, tstring());
 	LibPipe::Instances.push_back(LibPipe(tstring(path), serviceTypesData));
 	(*instance) = reinterpret_cast<HLibPipe>(&LibPipe::Instances.back());
 }
@@ -110,13 +109,13 @@ LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 
 LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeStr message) {
 	PipeJSON messageData;
-	messageData.Parse<0>(message);
+	messageData.parse(message, tstring());
 	reinterpret_cast<LibPipe*>(instance)->send(messageData);
 }
 
 LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, LibPipeCbStr cbMessages) {
 	auto&& messages = reinterpret_cast<LibPipe*>(instance)->receive();
-	cbMessages(context, messages.toString().c_str());
+	cbMessages(context, messages.dump().c_str());
 }
 
 //======================================================================================================================

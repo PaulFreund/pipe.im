@@ -58,7 +58,7 @@ public:
 
 public:
 	virtual void send(PipeJSON& message) {
-		_functions.fktPipeExtensionServiceSend(_service, message.toString().c_str());
+		_functions.fktPipeExtensionServiceSend(_service, message.dump().c_str());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ public:
 		PipeJSON messages;
 
 		_functions.fktPipeExtensionServiceReceive(_service, &messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
-			(*static_cast<PipeJSON*>(context)).Parse<0>(messagesData);
+			(*static_cast<PipeJSON*>(context)).parse(messagesData, tstring());
 		});
 
 		return messages;
@@ -79,7 +79,7 @@ public:
 		PipeJSON children;
 
 		_functions.fktPipeExtensionServiceGetNodeChildren(_service, address.c_str(), &children, [](PipeExtensionCbContext context, PipeExtensionStr childrenData) {
-			(*static_cast<PipeJSON*>(context)).Parse<0>(childrenData);
+			(*static_cast<PipeJSON*>(context)).parse(childrenData, tstring());
 		});
 
 		return children;
@@ -91,7 +91,7 @@ public:
 		PipeJSON messageTypes;
 
 		_functions.fktPipeExtensionServiceGetNodeMessageTypes(_service, address.c_str(), &messageTypes, [](PipeExtensionCbContext context, PipeExtensionStr messageTypesData) {
-			(*static_cast<PipeJSON*>(context)).Parse<0>(messageTypesData);
+			(*static_cast<PipeJSON*>(context)).parse(messageTypesData, tstring());
 		});
 
 		return messageTypes;
@@ -103,7 +103,7 @@ public:
 		PipeJSON info;
 
 		_functions.fktPipeExtensionServiceGetNodeInfo(_service, address.c_str(), &info, [](PipeExtensionCbContext context, PipeExtensionStr infoData) {
-			(*static_cast<PipeJSON*>(context)).Parse<0>(infoData);
+			(*static_cast<PipeJSON*>(context)).parse(infoData, tstring());
 		});
 
 		return info;
@@ -125,7 +125,7 @@ public:
 		PipeJSON types;
 		
 		_functions.fktPipeExtensionGetServiceTypes(&types, [](PipeExtensionCbContext context, PipeExtensionStr typesData) {
-			(*static_cast<PipeJSON*>(context)).Parse<0>(typesData);
+			(*static_cast<PipeJSON*>(context)).parse(typesData, tstring());
 		});
 
 		return types;
@@ -137,7 +137,7 @@ public:
 		PipeJSON typeSettings;
 
 		_functions.fktPipeExtensionGetServiceTypeSettings(&typeSettings, serviceType.c_str(), [](PipeExtensionCbContext context, PipeExtensionStr typeSettingsData) {
-			(*static_cast<PipeJSON*>(context)).Parse<0>(typeSettingsData);
+			(*static_cast<PipeJSON*>(context)).parse(typeSettingsData, tstring());
 		});
 
 		return typeSettings;
@@ -148,7 +148,7 @@ public:
 	virtual IPipeExtensionService* create(tstring serviceType, tstring id, tstring path, PipeJSON settings) {
 		HPipeExtensionService service = 0;
 
-		_functions.fktPipeExtensionServiceCreate(serviceType.c_str(), id.c_str(), path.c_str(), settings.toString().c_str(), &service);
+		_functions.fktPipeExtensionServiceCreate(serviceType.c_str(), id.c_str(), path.c_str(), settings.dump().c_str(), &service);
 
 		return new PipeExtensionServiceInstance(_functions, service);
 	}

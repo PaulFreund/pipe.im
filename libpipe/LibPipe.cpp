@@ -15,10 +15,8 @@ std::vector<PipeExtensionInstance> LibPipe::Extensions;
 //======================================================================================================================
 
 LibPipe::LibPipe(tstring path, PipeJSON serviceTypes) {
-	PipeJSON settings;
-	settings.SetObject();
-	settings.AddMember(_T("serviceTypes"), serviceTypes, settings.GetAllocator());
-	//map<tstring, tstring> settings { make_pair(_T("serviceTypes"), timplode(serviceTypes, _T(','))) };
+	PipeJSON::object settings {};
+	settings[_T("serviceTypes")] = serviceTypes;
 	// TODO: TEST!
 	_serviceRoot = make_shared<ServiceRoot>(_T("pipe"), path, settings);
 }
