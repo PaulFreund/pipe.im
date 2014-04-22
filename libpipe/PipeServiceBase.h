@@ -24,11 +24,25 @@ public:
 
 public:
 	virtual void send(PipeJSON::object& message) {
-		if(!message.count(PipeMessageConstants::msgKeyAddress)) {
+		if(!message.count(PipeMessageConstants::basicMsgKeyAddress)) {
 			_outgoing.push_back(PipeJSON::object {
-				{ PipeMessageConstants::msgKeyAddress, _id },
-				{ PipeMessageConstants::msgKeyType, PipeMessageConstants::msgTypeBasicError }
+				{ PipeMessageConstants::basicMsgKeyAddress, _id },
+				{ PipeMessageConstants::basicMsgKeyType, PipeMessageConstants::basicMsgTypeError },
+				{ PipeMessageConstants::errorMsgKeyDescription, PipeMessageConstants::errorMsgDescriptionMissingAddress }
 			});
+			message.clear();
+			return;
+		}
+
+		if(!message.count(PipeMessageConstants::basicMsgKeyType)) {
+			_outgoing.push_back(PipeJSON::object {
+				{ PipeMessageConstants::basicMsgKeyAddress, _id },
+				{ PipeMessageConstants::basicMsgKeyType, PipeMessageConstants::basicMsgTypeError },
+				{ PipeMessageConstants::errorMsgKeyDescription, PipeMessageConstants::errorMsgDescriptionMissingType }
+			});
+			message.clear();
+			return;
+
 		}
 		/* TODO
 		if(message.type == basicCommandCommands) {

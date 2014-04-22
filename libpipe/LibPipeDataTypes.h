@@ -27,13 +27,18 @@ typedef unsigned char ubyte;
 const TCHAR PAS = _T('.'); // Pipe Address Separator
 
 namespace PipeMessageConstants {
-	const tstring msgKeyAddress = _T("address");
-	const tstring msgKeyType = _T("type");
-	const tstring msgTypeBasicCommands = _T("commands");
-	const tstring msgTypeBasicMessages = _T("messages");
-	const tstring msgTypeBasicChildren = _T("children");
-	const tstring msgTypeBasicInfo = _T("info");
-	const tstring msgTypeBasicError = _T("error");
+	const tstring basicMsgKeyAddress					= _T("address");
+	const tstring basicMsgKeyType						= _T("type");
+	const tstring basicMsgTypeCommands					= _T("commands");
+	const tstring basicMsgTypeMessages					= _T("messages");
+	const tstring basicMsgTypeChildren					= _T("children");
+	const tstring basicMsgTypeInfo						= _T("info");
+	const tstring basicMsgTypeError						= _T("error");
+
+	const tstring errorMsgKeyDescription				= _T("description");
+	const tstring errorMsgDescriptionMissingAddress		= _T("Missing address field");
+	const tstring errorMsgDescriptionMissingType		= _T("Missing type field");
+
 };
 
 
