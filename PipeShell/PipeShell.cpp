@@ -73,16 +73,12 @@ int main(int argc, char* argv[]) {
 
 		thread receive([&]() {
 			while(!exit) {
-				/* TODO
-				auto messages = pipe.receive();
+
+				auto messages = pipe.receive().array_items();
 				for(auto& message: messages) {
-					cout << message.address << _T(" ") << message.type;
-					for(auto& parameter : message.parameters) {
-						cout << _T(" ") << parameter;
-					}
-					cout << endl;
+					cout << message.dump() << endl;
 				}
-				*/
+
 				Thread::sleep(100);
 			}
 		});
@@ -101,26 +97,9 @@ int main(int argc, char* argv[]) {
 					continue;
 				}
 
-				StringTokenizer tokens(message, _T(" "), StringTokenizer::TOK_IGNORE_EMPTY);
-				/* TODO
-				LibPipeMessage pipeMessage;
-
-				size_t idxToken = 0;
-				for(auto& token : tokens) {
-					if(idxToken == 0)
-						pipeMessage.address = token;
-
-					else if(idxToken == 1)
-						pipeMessage.type = token;
-
-					else
-						pipeMessage.parameters.push_back(token);
-
-					idxToken++;
-				}
-
-				pipe.send(pipeMessage);
-				*/
+				PipeJSON::array messages;
+				messages.push_back(PipeJSON::parse(message));
+				pipe.send(PipeJSON(messages));
 			}
 		});
 

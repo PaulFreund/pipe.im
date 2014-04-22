@@ -67,20 +67,18 @@ void ServiceRoot::send(PipeJSON& message) {
 //----------------------------------------------------------------------------------------------------------------------
 
 PipeJSON ServiceRoot::receive() {
-	/* TODO
-	vector<LibPipeMessage> messages = move(_outgoing);
-	_outgoing.clear();
+	PipeJSON messages = move(_outgoing);
+	_outgoing = {};
 
+	auto messagesArray = messages.array_items();
 	for(auto&& service : _services) {
-		auto&& serviceOutgoing = service.second->receive();
-		messages.insert(end(messages), begin(serviceOutgoing), end(serviceOutgoing));
+		auto&& serviceOutgoing = service.second->receive().array_items();
+		messagesArray.insert(end(messagesArray), begin(serviceOutgoing), end(serviceOutgoing));
 	}
 
-	// TODO: Check for hooks
+	// TODO: Check for hooks`
 
 	return messages;
-	*/
-	return PipeJSON();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

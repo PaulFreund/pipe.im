@@ -32,6 +32,4 @@ const TCHAR PAS = _T('.'); // Pipe Address Separator
 
 typedef json11::Json PipeJSON;
 
-// TODO: typedef for json and helper functions/class
-
 //======================================================================================================================

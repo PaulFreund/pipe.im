@@ -145,49 +145,26 @@ public:
 
 				// Send to pipe
 				if(incoming.size() > 0) {
+					PipeJSON::array messages;
+
 					for(auto& message : incoming) {
 						if(pApp->_debug) { cout << _T("Websocket message received: ") << message << endl; }
 
 						if(message == _T("debug")) { pApp->_debug = !pApp->_debug; }
 
-						StringTokenizer tokens(message, _T(" "), StringTokenizer::TOK_IGNORE_EMPTY);
-						/* TODO
-						LibPipeMessage pipeMessage;
-
-						size_t idxToken = 0;
-						for(auto& token : tokens) {
-							if(idxToken == 0)
-								pipeMessage.address = token;
-
-							else if(idxToken == 1)
-								pipeMessage.type = token;
-
-							else
-								pipeMessage.parameters.push_back(token);
-
-							idxToken++;
-						}
-
-						pipe.send(pipeMessage);
-						*/
+						messages.push_back(PipeJSON::parse(message));
 					}
+
+					pipe.send(PipeJSON(messages));
 
 					incoming.clear();
 				}
 
 				// Receive from pipe
-				/* TODO
-				auto pipeMessages = pipe.receive();
+				auto pipeMessages = pipe.receive().array_items();
 				for(auto& pipeMessage : pipeMessages) {
-					tstring message = pipeMessage.address + _T(" ") + pipeMessage.type;
-
-					for(auto& parameter : pipeMessage.parameters) {
-						message.append(_T(" ") + parameter);
-					}
-
-					outgoing.push_back(message);
+					outgoing.push_back(pipeMessage.dump());
 				}
-				*/
 
 				// Send to client
 				if(outgoing.size() > 0) {

@@ -15,11 +15,12 @@ public:
 
 public:
 	virtual void send(PipeJSON& message) {
-	// TODO
+		_outgoing = message;
 	}
 
 	virtual PipeJSON receive() {
-		return PipeJSON(); // TODO
+		// TODO
+		return _outgoing;
 	}
 
 	virtual PipeJSON nodeChildren(tstring address) {

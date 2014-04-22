@@ -87,8 +87,7 @@ LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr c
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr serviceTypes, HLibPipe* instance) {
-	PipeJSON serviceTypesData;
-	serviceTypesData.parse(serviceTypes);
+	PipeJSON serviceTypesData = PipeJSON::parse(serviceTypes);
 	LibPipe::Instances.push_back(LibPipe(tstring(path), serviceTypesData));
 	(*instance) = reinterpret_cast<HLibPipe>(&LibPipe::Instances.back());
 }
@@ -108,8 +107,7 @@ LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeStr message) {
-	PipeJSON messageData;
-	messageData.parse(message);
+	PipeJSON messageData = PipeJSON::parse(message);
 	reinterpret_cast<LibPipe*>(instance)->send(messageData);
 }
 

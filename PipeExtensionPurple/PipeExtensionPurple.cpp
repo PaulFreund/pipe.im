@@ -104,7 +104,6 @@ PipeExtensionPurple::~PipeExtensionPurple() {
 }
 
 PipeJSON PipeExtensionPurple::serviceTypes() {
-	/* TODO
 	if(!_libpurple_init_done) {
 		tstring userDir = tstring(purple_user_dir());
 		tstring replaceName = _T(".pipe.im");
@@ -129,24 +128,19 @@ PipeJSON PipeExtensionPurple::serviceTypes() {
 
 	//purple_plugins_init();
 
-	tstring serviceTypes;
+	PipeJSON::array serviceTypes;
 	GList * protocols = purple_plugins_get_protocols();
 	for(; protocols; protocols = protocols->next) {
 		PurplePlugin* plugin = reinterpret_cast<PurplePlugin*>(protocols->data);
 		PurplePluginInfo *info = plugin->info;
-		serviceTypes.push_back({
-			tstring(info->name),
-			tstring(info->name),
-			{}
-		});
+		serviceTypes.push_back(info->name);
 	}
-	*/
-	PipeJSON serviceTypes;
+
 	return serviceTypes;
 }
 
 PipeJSON PipeExtensionPurple::serviceTypeSettings(tstring serviceType) {
-	return PipeJSON(); // TODO
+	return PipeJSON();
 }
 
 
