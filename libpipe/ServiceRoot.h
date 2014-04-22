@@ -13,16 +13,16 @@ private:
 	std::map<tstring, std::shared_ptr<IPipeExtensionService>> _services;
 
 public:
-	ServiceRoot(tstring id, tstring path, PipeJSON settings);
+	ServiceRoot(tstring id, tstring path, PipeJSON::object settings);
 	virtual ~ServiceRoot();
 
 public:
-	virtual void send(PipeJSON& message);
-	virtual PipeJSON receive();
+	virtual void send(PipeJSON::object& message);
+	virtual PipeJSON::array receive();
 
-	virtual PipeJSON nodeChildren(tstring address);
-	virtual PipeJSON nodeMessageTypes(tstring address);
-	virtual PipeJSON nodeInfo(tstring address);
+	virtual PipeJSON::array nodeChildren(tstring address);
+	virtual PipeJSON::array nodeMessageTypes(tstring address);
+	virtual PipeJSON::object nodeInfo(tstring address);
 };
 
 //======================================================================================================================

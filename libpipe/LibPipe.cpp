@@ -9,12 +9,12 @@ using namespace std;
 
 //======================================================================================================================
 
-std::vector<LibPipe> LibPipe::Instances;
-std::vector<PipeExtensionInstance> LibPipe::Extensions;
+vector<shared_ptr<LibPipe>> LibPipe::Instances;
+vector<shared_ptr<PipeExtensionInstance>> LibPipe::Extensions;
 
 //======================================================================================================================
 
-LibPipe::LibPipe(tstring path, PipeJSON serviceTypes) {
+LibPipe::LibPipe(tstring path, PipeJSON::array serviceTypes) {
 	PipeJSON::object settings {};
 	settings[_T("serviceTypes")] = serviceTypes;
 	// TODO: TEST!
@@ -29,13 +29,13 @@ LibPipe::~LibPipe() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void LibPipe::send(PipeJSON& message) {
+void LibPipe::send(PipeJSON::object& message) {
 	_serviceRoot->send(message);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PipeJSON LibPipe::receive() {
+PipeJSON::array LibPipe::receive() {
 	return _serviceRoot->receive();
 }
 

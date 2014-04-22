@@ -6,7 +6,7 @@ using namespace std;
 
 //======================================================================================================================
 
-ServiceRoot::ServiceRoot(tstring id, tstring path, PipeJSON settings) : PipeServiceBase(id, path, settings) {
+ServiceRoot::ServiceRoot(tstring id, tstring path, PipeJSON::object settings) : PipeServiceBase(id, path, settings) {
 
 }
 
@@ -18,15 +18,13 @@ ServiceRoot::~ServiceRoot() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void ServiceRoot::send(PipeJSON& message) {
+void ServiceRoot::send(PipeJSON::object& message) {
 
-	// TODO: Check for hooks
-	/* TODO
-	if(isBasicCommand(message.type)) {
-		PipeServiceBase::send(message);
+	PipeServiceBase::send(message);
+	if(message.empty())
 		return;
-	}
 
+	/*
 	auto lenId = _id.length();
 
 	if(message.address.empty()) {
@@ -66,36 +64,35 @@ void ServiceRoot::send(PipeJSON& message) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PipeJSON ServiceRoot::receive() {
-	PipeJSON messages = move(_outgoing);
+PipeJSON::array ServiceRoot::receive() {
+	PipeJSON::array messages = move(_outgoing);
 	_outgoing = {};
 
-	auto messagesArray = messages.array_items();
 	for(auto&& service : _services) {
-		auto&& serviceOutgoing = service.second->receive().array_items();
-		messagesArray.insert(end(messagesArray), begin(serviceOutgoing), end(serviceOutgoing));
+		auto&& serviceOutgoing = service.second->receive();
+		messages.insert(end(messages), begin(serviceOutgoing), end(serviceOutgoing));
 	}
 
-	// TODO: Check for hooks`
+	// TODO: Check for hooks
 
 	return messages;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PipeJSON ServiceRoot::nodeChildren(tstring address) {
-	return PipeJSON();
+PipeJSON::array ServiceRoot::nodeChildren(tstring address) {
+	return {};
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PipeJSON ServiceRoot::nodeMessageTypes(tstring address) {
-	return PipeJSON();
+PipeJSON::array ServiceRoot::nodeMessageTypes(tstring address) {
+	return {};
 }
 //----------------------------------------------------------------------------------------------------------------------
 
-PipeJSON ServiceRoot::nodeInfo(tstring address) {
-	return PipeJSON();
+PipeJSON::object ServiceRoot::nodeInfo(tstring address) {
+	return {};
 }
 
 //======================================================================================================================

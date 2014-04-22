@@ -103,7 +103,7 @@ PipeExtensionPurple::~PipeExtensionPurple() {
 	}
 }
 
-PipeJSON PipeExtensionPurple::serviceTypes() {
+PipeJSON::array PipeExtensionPurple::serviceTypes() {
 	if(!_libpurple_init_done) {
 		tstring userDir = tstring(purple_user_dir());
 		tstring replaceName = _T(".pipe.im");
@@ -139,12 +139,12 @@ PipeJSON PipeExtensionPurple::serviceTypes() {
 	return serviceTypes;
 }
 
-PipeJSON PipeExtensionPurple::serviceTypeSettings(tstring serviceType) {
-	return PipeJSON();
+PipeJSON::object PipeExtensionPurple::serviceTypeSettings(tstring serviceType) {
+	return {};
 }
 
 
-IPipeExtensionService* PipeExtensionPurple::create(tstring serviceType, tstring id, tstring path, PipeJSON settings) {
+IPipeExtensionService* PipeExtensionPurple::create(tstring serviceType, tstring id, tstring path, PipeJSON::object settings) {
 	if(serviceType == _T("irc")) {
 		return (_services[id] = new ServiceIRC(id, path, settings));
 	}

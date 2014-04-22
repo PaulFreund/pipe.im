@@ -9,26 +9,27 @@
 //======================================================================================================================
 
 class PipeServiceBase : public IPipeExtensionService {
-public:
-	const tstring basicCommandCommands = _T("commands");
-	const tstring basicCommandMessages = _T("messages");
-	const tstring basicCommandChildren = _T("children");
-	const tstring basicCommandInfo = _T("info");
 
 public:
 	const tstring _id;
 	const tstring _path;
-	const PipeJSON _settings;
+	const PipeJSON::object _settings;
 
 protected:
-	PipeJSON _outgoing;
+	PipeJSON::array _outgoing;
 
 public:
-	PipeServiceBase(tstring id, tstring path, PipeJSON settings) : _id(id), _path(path), _settings(settings) {}
+	PipeServiceBase(tstring id, tstring path, PipeJSON::object settings) : _id(id), _path(path), _settings(settings) {}
 	virtual ~PipeServiceBase() {}
 
 public:
-	virtual void send(PipeJSON& message) {
+	virtual void send(PipeJSON::object& message) {
+		if(!message.count(PipeMessageConstants::msgKeyAddress)) {
+			_outgoing.push_back(PipeJSON::object {
+				{ PipeMessageConstants::msgKeyAddress, _id },
+				{ PipeMessageConstants::msgKeyType, PipeMessageConstants::msgTypeBasicError }
+			});
+		}
 		/* TODO
 		if(message.type == basicCommandCommands) {
 
@@ -61,11 +62,14 @@ public:
 		*/
 	}
 
-	virtual PipeJSON receive() = 0;
 
-	virtual PipeJSON nodeChildren(tstring address) = 0;
-	virtual PipeJSON nodeMessageTypes(tstring address) = 0;
-	virtual PipeJSON nodeInfo(tstring address) = 0;
+
+public:
+	virtual PipeJSON::array receive() = 0;
+
+	virtual PipeJSON::array nodeChildren(tstring address) = 0;
+	virtual PipeJSON::array nodeMessageTypes(tstring address) = 0;
+	virtual PipeJSON::object nodeInfo(tstring address) = 0;
 
 };
 //======================================================================================================================

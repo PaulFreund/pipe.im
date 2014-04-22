@@ -51,7 +51,7 @@ void loadExtension(tstring path) {
 	}
 	catch(...) { return; }
 
-	LibPipe::Extensions.push_back(PipeExtensionInstance(extensionFunctions));
+	LibPipe::Extensions.push_back(make_shared<PipeExtensionInstance>(extensionFunctions));
 }
 
 //======================================================================================================================
@@ -75,8 +75,8 @@ LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr c
 	PipeJSON::array serviceTypes {};
 
 	for(auto&& extension : LibPipe::Extensions) {
-		auto extensionServiceTypes = extension.serviceTypes();
-		for(auto&& extensionServiceType : extensionServiceTypes.array_items()) {
+		auto extensionServiceTypes = extension->serviceTypes();
+		for(auto&& extensionServiceType : extensionServiceTypes) {
 			serviceTypes.push_back(extensionServiceType);
 		}
 	}
@@ -87,9 +87,9 @@ LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr c
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr serviceTypes, HLibPipe* instance) {
-	PipeJSON serviceTypesData = PipeJSON::parse(serviceTypes);
-	LibPipe::Instances.push_back(LibPipe(tstring(path), serviceTypesData));
-	(*instance) = reinterpret_cast<HLibPipe>(&LibPipe::Instances.back());
+	PipeJSON::array serviceTypesData = PipeJSON::parse(serviceTypes).array_items();
+	LibPipe::Instances.push_back(make_shared<LibPipe>(tstring(path), serviceTypesData));
+	(*instance) = reinterpret_cast<HLibPipe>(LibPipe::Instances.back().get());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -97,7 +97,7 @@ LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr serviceTypes, HLibPip
 LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
 	for(auto it = begin(LibPipe::Instances); it != end(LibPipe::Instances); it++) {
-		if(&(*it) == pInstance) {
+		if((*it).get() == pInstance) {
 			LibPipe::Instances.erase(it);
 			return;
 		}
@@ -107,13 +107,13 @@ LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeStr message) {
-	PipeJSON messageData = PipeJSON::parse(message);
+	PipeJSON::object messageData = PipeJSON::parse(message).object_items(); // TODO!
 	reinterpret_cast<LibPipe*>(instance)->send(messageData);
 }
 
 LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, LibPipeCbStr cbMessages) {
 	auto&& messages = reinterpret_cast<LibPipe*>(instance)->receive();
-	cbMessages(context, messages.dump().c_str());
+	cbMessages(context, PipeJSON(messages).dump().c_str());
 }
 
 //======================================================================================================================

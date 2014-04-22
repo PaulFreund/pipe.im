@@ -57,17 +57,17 @@ public:
 	}
 
 public:
-	virtual void send(PipeJSON& message) {
-		_functions.fktPipeExtensionServiceSend(_service, message.dump().c_str());
+	virtual void send(PipeJSON::object& message) {
+		_functions.fktPipeExtensionServiceSend(_service, PipeJSON(message).dump().c_str());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeJSON receive() {
-		PipeJSON messages;
+	virtual PipeJSON::array receive() {
+		PipeJSON::array messages;
 
 		_functions.fktPipeExtensionServiceReceive(_service, &messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
-			(*static_cast<PipeJSON*>(context)) = PipeJSON::parse(messagesData);
+			(*static_cast<PipeJSON::array*>(context)) = PipeJSON::parse(messagesData).array_items();
 		});
 
 		return messages;
@@ -75,11 +75,11 @@ public:
 	
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeJSON nodeChildren(tstring address) {
-		PipeJSON children;
+	virtual PipeJSON::array nodeChildren(tstring address) {
+		PipeJSON::array children;
 
 		_functions.fktPipeExtensionServiceGetNodeChildren(_service, address.c_str(), &children, [](PipeExtensionCbContext context, PipeExtensionStr childrenData) {
-			(*static_cast<PipeJSON*>(context)) = PipeJSON::parse(childrenData);
+			(*static_cast<PipeJSON::array*>(context)) = PipeJSON::parse(childrenData).array_items();
 		});
 
 		return children;
@@ -87,11 +87,11 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeJSON nodeMessageTypes(tstring address) {
-		PipeJSON messageTypes;
+	virtual PipeJSON::array nodeMessageTypes(tstring address) {
+		PipeJSON::array messageTypes;
 
 		_functions.fktPipeExtensionServiceGetNodeMessageTypes(_service, address.c_str(), &messageTypes, [](PipeExtensionCbContext context, PipeExtensionStr messageTypesData) {
-			(*static_cast<PipeJSON*>(context)) = PipeJSON::parse(messageTypesData);
+			(*static_cast<PipeJSON::array*>(context)) = PipeJSON::parse(messageTypesData).array_items();
 		});
 
 		return messageTypes;
@@ -99,11 +99,11 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeJSON nodeInfo(tstring address) {
-		PipeJSON info;
+	virtual PipeJSON::object nodeInfo(tstring address) {
+		PipeJSON::object info;
 
 		_functions.fktPipeExtensionServiceGetNodeInfo(_service, address.c_str(), &info, [](PipeExtensionCbContext context, PipeExtensionStr infoData) {
-			(*static_cast<PipeJSON*>(context)) = PipeJSON::parse(infoData);
+			(*static_cast<PipeJSON::object*>(context)) = PipeJSON::parse(infoData).object_items(); // TODO!
 		});
 
 		return info;
@@ -121,11 +121,11 @@ public:
 	virtual ~PipeExtensionInstance() {}
 
 public:
-	virtual PipeJSON serviceTypes() {
-		PipeJSON types;
+	virtual PipeJSON::array serviceTypes() {
+		PipeJSON::array types;
 		
 		_functions.fktPipeExtensionGetServiceTypes(&types, [](PipeExtensionCbContext context, PipeExtensionStr typesData) {
-			(*static_cast<PipeJSON*>(context)) = PipeJSON::parse(typesData);
+			(*static_cast<PipeJSON::array*>(context)) = PipeJSON::parse(typesData).array_items();
 		});
 
 		return types;
@@ -133,11 +133,11 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeJSON serviceTypeSettings(tstring serviceType) {
-		PipeJSON typeSettings;
+	virtual PipeJSON::object serviceTypeSettings(tstring serviceType) {
+		PipeJSON::object typeSettings;
 
 		_functions.fktPipeExtensionGetServiceTypeSettings(&typeSettings, serviceType.c_str(), [](PipeExtensionCbContext context, PipeExtensionStr typeSettingsData) {
-			(*static_cast<PipeJSON*>(context)) = PipeJSON::parse(typeSettingsData);
+			(*static_cast<PipeJSON::object*>(context)) = PipeJSON::parse(typeSettingsData).object_items(); // TODO!
 		});
 
 		return typeSettings;
@@ -145,10 +145,10 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual IPipeExtensionService* create(tstring serviceType, tstring id, tstring path, PipeJSON settings) {
+	virtual IPipeExtensionService* create(tstring serviceType, tstring id, tstring path, PipeJSON::object settings) {
 		HPipeExtensionService service = 0;
 
-		_functions.fktPipeExtensionServiceCreate(serviceType.c_str(), id.c_str(), path.c_str(), settings.dump().c_str(), &service);
+		_functions.fktPipeExtensionServiceCreate(serviceType.c_str(), id.c_str(), path.c_str(), PipeJSON(settings).dump().c_str(), &service);
 
 		return new PipeExtensionServiceInstance(_functions, service);
 	}

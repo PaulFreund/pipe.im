@@ -127,7 +127,7 @@ public:
 
 			tstring serviceTypesMessage = _T("Available services: ");
 			//for(PipeJSON& serviceType : serviceTypes) { serviceTypesMessage.append(_T(" ") + serviceType.toString()); }
-			serviceTypesMessage.append(serviceTypes.dump());
+			serviceTypesMessage.append(PipeJSON(serviceTypes).dump());
 			outgoing.push_back(serviceTypesMessage);
 
 			char buffer[bufferSize];
@@ -145,25 +145,23 @@ public:
 
 				// Send to pipe
 				if(incoming.size() > 0) {
-					PipeJSON::array messages;
-
 					for(auto& message : incoming) {
+						if(message.empty())
+							continue;
+
 						if(pApp->_debug) { cout << _T("Websocket message received: ") << message << endl; }
 
 						if(message == _T("debug")) { pApp->_debug = !pApp->_debug; }
 
-						messages.push_back(PipeJSON::parse(message));
+						PipeJSON::object messageData = PipeJSON::parse(message).object_items();
+						pipe.send(messageData);
 					}
-
-					PipeJSON messagesData = PipeJSON(messages);
-					pipe.send(messagesData);
 
 					incoming.clear();
 				}
 
 				// Receive from pipe
-				auto pipeMessages = pipe.receive().array_items();
-				for(auto& pipeMessage : pipeMessages) {
+				for(auto& pipeMessage : pipe.receive()) {
 					outgoing.push_back(pipeMessage.dump());
 				}
 
