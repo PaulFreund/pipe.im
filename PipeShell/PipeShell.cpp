@@ -99,7 +99,8 @@ int main(int argc, char* argv[]) {
 
 				PipeJSON::array messages;
 				messages.push_back(PipeJSON::parse(message));
-				pipe.send(PipeJSON(messages));
+				PipeJSON messagesData(messages);
+				pipe.send(messagesData);
 			}
 		});
 

@@ -155,7 +155,8 @@ public:
 						messages.push_back(PipeJSON::parse(message));
 					}
 
-					pipe.send(PipeJSON(messages));
+					PipeJSON messagesData = PipeJSON(messages);
+					pipe.send(messagesData);
 
 					incoming.clear();
 				}
