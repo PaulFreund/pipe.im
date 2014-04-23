@@ -8,7 +8,7 @@
 
 //======================================================================================================================
 
-class PipeServiceBase : public IPipeExtensionService {
+class PipeServiceNodeBase : public IPipeExtensionService {
 
 public:
 	const tstring _id;
@@ -16,11 +16,17 @@ public:
 	const PipeJSON::object _settings;
 
 protected:
+	std::map<tstring, std::shared_ptr<PipeServiceNodeBase>> _children; 
 	PipeJSON::array _outgoing;
 
+// These have to be overwritten or completed by deriving class
+protected:
+	tstring _type;
+	PipeJSON::array _messageTypes;
+
 public:
-	PipeServiceBase(tstring id, tstring path, PipeJSON::object settings) : _id(id), _path(path), _settings(settings) {}
-	virtual ~PipeServiceBase() {}
+	PipeServiceNodeBase(tstring id, tstring path, PipeJSON::object settings) : _id(id), _path(path), _settings(settings) {}
+	virtual ~PipeServiceNodeBase() {}
 
 public:
 	virtual void send(PipeJSON::object& message) {
@@ -77,13 +83,37 @@ public:
 	}
 
 
-
 public:
-	virtual PipeJSON::array receive() = 0;
+	virtual PipeJSON::array receive() {
+		PipeJSON::array messages = move(_outgoing);
+		_outgoing = {};
 
-	virtual PipeJSON::array nodeChildren(tstring address) = 0;
-	virtual PipeJSON::array nodeMessageTypes(tstring address) = 0;
-	virtual PipeJSON::object nodeInfo(tstring address) = 0;
+		for(auto&& child : _children) {
+			auto&& serviceOutgoing = child.second->receive();
+			messages.insert(end(messages), begin(serviceOutgoing), end(serviceOutgoing));
+		}
+
+		return messages;
+	}
+
+	virtual PipeJSON::array nodeChildren(tstring address) {
+		PipeJSON::array children;
+		
+		for(auto&& child : _children) {
+			children.push_back(child.first);
+		}
+
+		return children;
+	}
+
+	virtual PipeJSON::array nodeMessageTypes(tstring address) {
+		return _messageTypes;
+	}
+
+	virtual PipeJSON::object nodeInfo(tstring address) {
+		// Return info from this node
+		return {} ;
+	}
 
 };
 //======================================================================================================================

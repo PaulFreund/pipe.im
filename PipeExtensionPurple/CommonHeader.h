@@ -11,6 +11,6 @@
 #include <libpipe/LibPipeAPI.h>
 #include <libpipe/PipeExtensionAPI.h>
 #include <libpipe/PipeExtensionInterface.h>
-#include <libpipe/PipeServiceBase.h>
+#include <libpipe/PipeServiceNodeBase.h>
 
 //======================================================================================================================

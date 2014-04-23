@@ -59,14 +59,14 @@
     <ClInclude Include="ServiceRoot.h">
       <Filter>LibPipe\ServiceRoot</Filter>
     </ClInclude>
-    <ClInclude Include="PipeServiceBase.h">
-      <Filter>PipeExtension\Wrapper</Filter>
-    </ClInclude>
     <ClInclude Include="LibPipeDataTypes.h">
       <Filter>LibPipe\Wrapper</Filter>
     </ClInclude>
     <ClInclude Include="json11.hpp">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeServiceNodeBase.h">
+      <Filter>PipeExtension\Wrapper</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -6,7 +6,7 @@ using namespace std;
 
 //======================================================================================================================
 
-ServiceRoot::ServiceRoot(tstring id, tstring path, PipeJSON::object settings) : PipeServiceBase(id, path, settings) {
+ServiceRoot::ServiceRoot(tstring id, tstring path, PipeJSON::object settings) : PipeServiceNodeBase(id, path, settings) {
 
 }
 
@@ -20,7 +20,7 @@ ServiceRoot::~ServiceRoot() {
 
 void ServiceRoot::send(PipeJSON::object& message) {
 
-	PipeServiceBase::send(message);
+	PipeServiceNodeBase::send(message);
 	if(message.empty())
 		return;
 
@@ -68,31 +68,14 @@ PipeJSON::array ServiceRoot::receive() {
 	PipeJSON::array messages = move(_outgoing);
 	_outgoing = {};
 
-	for(auto&& service : _services) {
-		auto&& serviceOutgoing = service.second->receive();
+	for(auto&& child : _children) {
+		auto&& serviceOutgoing = child.second->receive();
 		messages.insert(end(messages), begin(serviceOutgoing), end(serviceOutgoing));
 	}
 
 	// TODO: Check for hooks
 
 	return messages;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-PipeJSON::array ServiceRoot::nodeChildren(tstring address) {
-	return {};
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-PipeJSON::array ServiceRoot::nodeMessageTypes(tstring address) {
-	return {};
-}
-//----------------------------------------------------------------------------------------------------------------------
-
-PipeJSON::object ServiceRoot::nodeInfo(tstring address) {
-	return {};
 }
 
 //======================================================================================================================
