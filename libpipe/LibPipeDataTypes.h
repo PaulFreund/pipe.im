@@ -29,6 +29,7 @@ const TCHAR PAS = _T('.'); // Pipe Address Separator
 namespace PipeMessageConstants {
 	const tstring basicMsgKeyAddress					= _T("address");
 	const tstring basicMsgKeyType						= _T("type");
+	const tstring basicMsgKeyReference					= _T("reference");
 	const tstring basicMsgTypeCommands					= _T("commands");
 	const tstring basicMsgTypeMessages					= _T("messages");
 	const tstring basicMsgTypeChildren					= _T("children");
@@ -39,6 +40,10 @@ namespace PipeMessageConstants {
 	const tstring errorMsgDescriptionMissingAddress		= _T("Missing address field");
 	const tstring errorMsgDescriptionMissingType		= _T("Missing type field");
 
+	const tstring basicInfoKeyAddress					= _T("address");
+	const tstring basicInfoKeyType						= _T("type");
+	const tstring basicInfoKeyDescription				= _T("description");
+	const tstring basicInfoKeyMeta						= _T("meta");
 };
 
 

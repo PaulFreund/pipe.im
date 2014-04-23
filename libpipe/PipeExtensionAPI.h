@@ -29,7 +29,7 @@ PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypeSettings				(PipeExtensionCbC
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceCreate						(PipeExtensionStr serviceType, PipeExtensionStr id, PipeExtensionStr path, PipeExtensionStr settings, HPipeExtensionService* service);
+PIPE_EXTENSION_ITF void PipeExtensionServiceCreate						(PipeExtensionStr serviceType, PipeExtensionStr address, PipeExtensionStr path, PipeExtensionStr settings, HPipeExtensionService* service);
 PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy						(HPipeExtensionService service);
 
 //----------------------------------------------------------------------------------------------------------------------

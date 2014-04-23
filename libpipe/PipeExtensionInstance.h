@@ -145,10 +145,10 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual IPipeExtensionService* create(tstring serviceType, tstring id, tstring path, PipeJSON::object settings) {
+	virtual IPipeExtensionService* create(tstring serviceType, tstring address, tstring path, PipeJSON::object settings) {
 		HPipeExtensionService service = 0;
 
-		_functions.fktPipeExtensionServiceCreate(serviceType.c_str(), id.c_str(), path.c_str(), PipeJSON(settings).dump().c_str(), &service);
+		_functions.fktPipeExtensionServiceCreate(serviceType.c_str(), address.c_str(), path.c_str(), PipeJSON(settings).dump().c_str(), &service);
 
 		return new PipeExtensionServiceInstance(_functions, service);
 	}

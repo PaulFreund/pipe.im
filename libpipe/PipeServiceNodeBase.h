@@ -11,7 +11,7 @@
 class PipeServiceNodeBase : public IPipeExtensionService {
 
 public:
-	const tstring _id;
+	const tstring _address;
 	const tstring _path;
 	const PipeJSON::object _settings;
 
@@ -22,17 +22,19 @@ protected:
 // These have to be overwritten or completed by deriving class
 protected:
 	tstring _type;
+	tstring _description;
+	PipeJSON::object _metaInfo;
 	PipeJSON::array _messageTypes;
 
 public:
-	PipeServiceNodeBase(tstring id, tstring path, PipeJSON::object settings) : _id(id), _path(path), _settings(settings) {}
+	PipeServiceNodeBase(tstring address, tstring path, PipeJSON::object settings) : _address(address), _path(path), _settings(settings) {}
 	virtual ~PipeServiceNodeBase() {}
 
 public:
 	virtual void send(PipeJSON::object& message) {
 		if(!message.count(PipeMessageConstants::basicMsgKeyAddress)) {
 			_outgoing.push_back(PipeJSON::object {
-				{ PipeMessageConstants::basicMsgKeyAddress, _id },
+				{ PipeMessageConstants::basicMsgKeyAddress, _address },
 				{ PipeMessageConstants::basicMsgKeyType, PipeMessageConstants::basicMsgTypeError },
 				{ PipeMessageConstants::errorMsgKeyDescription, PipeMessageConstants::errorMsgDescriptionMissingAddress }
 			});
@@ -42,7 +44,7 @@ public:
 
 		if(!message.count(PipeMessageConstants::basicMsgKeyType)) {
 			_outgoing.push_back(PipeJSON::object {
-				{ PipeMessageConstants::basicMsgKeyAddress, _id },
+				{ PipeMessageConstants::basicMsgKeyAddress, _address },
 				{ PipeMessageConstants::basicMsgKeyType, PipeMessageConstants::basicMsgTypeError },
 				{ PipeMessageConstants::errorMsgKeyDescription, PipeMessageConstants::errorMsgDescriptionMissingType }
 			});
@@ -50,6 +52,9 @@ public:
 			return;
 
 		}
+
+		// Check reference?
+
 		/* TODO
 		if(message.type == basicCommandCommands) {
 
@@ -78,6 +83,43 @@ public:
 		}
 		else {
 		_outgoing.push_back({ _id, _T("error"), std::vector<tstring> { _T("Unknown command"), _T("Use: ") + _id + _T(" commands to get all available commands") } });
+		}
+		*/
+
+
+		/*
+		auto lenId = _id.length();
+
+		if(message.address.empty()) {
+		_outgoing.push_back({ _id, _T("error"), vector<tstring>{_T("Missing address"), _T("Syntax is: address command [<parameter>...]")} });
+		return;
+		}
+
+		if(message.type.empty()) {
+		_outgoing.push_back({ _id, _T("error"), vector<tstring> { _T("Missing command"), _T("Syntax is: address command [<parameter>...]") } });
+		return;
+		}
+
+		// This is the destination
+		if(message.address == _id) {
+		}
+		// The address can be dispatched
+		else if(message.address.length() >= (lenId + 2) && message.address[lenId] == PAS) {
+
+		auto second = message.address.find(PAS, lenId + 1);
+		if(second == -1) { second = message.address.length(); }
+		auto target = message.address.substr(lenId + 1, second);
+
+		if(_services.find(target) == end(_services)) {
+		_outgoing.push_back({ _id, _T("error"), vector<tstring> { _T("Address not available"), _T("Start from \"") + _id + _T("\" and use the children command to find available addresses") } });
+		return;
+		}
+
+		_services[target]->send(message);
+		}
+		else {
+		_outgoing.push_back({ _id, _T("error"), vector<tstring> { _T("Invalid Address"), _T("Start from \"") + _id + _T("\" and use the children command to find available addresses") } });
+		return;
 		}
 		*/
 	}
@@ -111,8 +153,12 @@ public:
 	}
 
 	virtual PipeJSON::object nodeInfo(tstring address) {
-		// Return info from this node
-		return {} ;
+		return {
+			{ PipeMessageConstants::basicInfoKeyAddress, _address },
+			{ PipeMessageConstants::basicInfoKeyType, _type },
+			{ PipeMessageConstants::basicInfoKeyDescription, _description },
+			{ PipeMessageConstants::basicInfoKeyMeta, _metaInfo }
+		};
 	}
 
 };

@@ -31,7 +31,7 @@ public:
 public:
 	virtual PipeJSON::array serviceTypes() = 0;
 	virtual PipeJSON::object serviceTypeSettings(tstring serviceType) = 0;
-	virtual IPipeExtensionService* create(tstring serviceType, tstring id, tstring path, PipeJSON::object settings) = 0;
+	virtual IPipeExtensionService* create(tstring serviceType, tstring address, tstring path, PipeJSON::object settings) = 0;
 	virtual void destroy(IPipeExtensionService* service) = 0;
 };
 

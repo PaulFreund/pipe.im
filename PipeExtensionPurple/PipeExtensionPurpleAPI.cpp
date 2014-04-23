@@ -21,9 +21,9 @@ PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypeSettings(PipeExtensionCbConte
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceType, PipeExtensionStr id, PipeExtensionStr path, PipeExtensionStr settings, HPipeExtensionService* service) {
+PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceType, PipeExtensionStr address, PipeExtensionStr path, PipeExtensionStr settings, HPipeExtensionService* service) {
 	PipeJSON::object settingsData = PipeJSON::parse(settings).object_items(); // TODO
-	(*service) = reinterpret_cast<HPipeExtensionService>(PipeExtensionPurple::ExtensionInstance.create(serviceType, id, path, settingsData));
+	(*service) = reinterpret_cast<HPipeExtensionService>(PipeExtensionPurple::ExtensionInstance.create(serviceType, address, path, settingsData));
 }
 
 //----------------------------------------------------------------------------------------------------------------------

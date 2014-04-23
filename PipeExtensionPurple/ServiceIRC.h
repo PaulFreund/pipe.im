@@ -10,7 +10,7 @@
 
 class ServiceIRC : public PipeServiceNodeBase {
 public:
-	ServiceIRC(tstring id, tstring path, PipeJSON::object settings) : PipeServiceNodeBase(id, path, settings) {}
+	ServiceIRC(tstring address, tstring path, PipeJSON::object settings) : PipeServiceNodeBase(address, path, settings) {}
 	virtual ~ServiceIRC() {}
 
 public:

@@ -144,9 +144,9 @@ PipeJSON::object PipeExtensionPurple::serviceTypeSettings(tstring serviceType) {
 }
 
 
-IPipeExtensionService* PipeExtensionPurple::create(tstring serviceType, tstring id, tstring path, PipeJSON::object settings) {
+IPipeExtensionService* PipeExtensionPurple::create(tstring serviceType, tstring address, tstring path, PipeJSON::object settings) {
 	if(serviceType == _T("irc")) {
-		return (_services[id] = new ServiceIRC(id, path, settings));
+		return (_services[address] = new ServiceIRC(address, path, settings));
 	}
 
 	return nullptr;
