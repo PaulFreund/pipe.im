@@ -11,6 +11,8 @@
 class PipeServiceNodeBase : public IPipeExtensionService {
 
 public:
+	const tstring _type;
+	const tstring _description;
 	const tstring _address;
 	const tstring _path;
 	const PipeJSON::object _settings;
@@ -18,114 +20,70 @@ public:
 protected:
 	std::map<tstring, std::shared_ptr<PipeServiceNodeBase>> _children; 
 	PipeJSON::array _outgoing;
-
-// These have to be overwritten or completed by deriving class
-protected:
-	tstring _type;
-	tstring _description;
-	PipeJSON::object _metaInfo;
+	std::map<tstring, std::function<void(PipeJSON::object&)> > _commands;
 	PipeJSON::array _messageTypes;
+	PipeJSON::object _properties;
 
 public:
-	PipeServiceNodeBase(tstring address, tstring path, PipeJSON::object settings) : _address(address), _path(path), _settings(settings) {}
+	PipeServiceNodeBase(tstring type, tstring description, tstring address, tstring path, PipeJSON::object settings) 
+		: _type(type)
+		, _description(description)
+		, _address(address) 
+		, _path(path)
+		, _settings(settings) 
+	{
+		// Add default commands
+	}
+
 	virtual ~PipeServiceNodeBase() {}
 
 public:
-	virtual void send(PipeJSON::object& message) {
-		if(!message.count(PipeMessageConstants::basicMsgKeyAddress)) {
-			_outgoing.push_back(PipeJSON::object {
-				{ PipeMessageConstants::basicMsgKeyAddress, _address },
-				{ PipeMessageConstants::basicMsgKeyType, PipeMessageConstants::basicMsgTypeError },
-				{ PipeMessageConstants::errorMsgKeyDescription, PipeMessageConstants::errorMsgDescriptionMissingAddress }
-			});
-			message.clear();
-			return;
-		}
-
-		if(!message.count(PipeMessageConstants::basicMsgKeyType)) {
-			_outgoing.push_back(PipeJSON::object {
-				{ PipeMessageConstants::basicMsgKeyAddress, _address },
-				{ PipeMessageConstants::basicMsgKeyType, PipeMessageConstants::basicMsgTypeError },
-				{ PipeMessageConstants::errorMsgKeyDescription, PipeMessageConstants::errorMsgDescriptionMissingType }
-			});
-			message.clear();
-			return;
-
-		}
-
-		// Check reference?
-
-		/* TODO
-		if(message.type == basicCommandCommands) {
-
-		}
-
-		else if(message.type == basicCommandInfo) {
-
-		}
-
-		else if(message.type == basicCommandMessages) {
-
-		}
-		else if(message.type == basicCommandChildren) {
-		auto&& childNodes = children(message.address);
-		tstring childNodeList;
-
-		for(size_t i = 0, c = childNodes.size(); i < c; i++) {
-		childNodeList.append(childNodes[i]);
-		if(i < (c - 1)) {
-		childNodeList += _T(',');
-		}
-		}
-
-		std::vector<tstring> parameters = { childNodeList };
-		_outgoing.push_back({ _id, _T("children"), parameters });
-		}
-		else {
-		_outgoing.push_back({ _id, _T("error"), std::vector<tstring> { _T("Unknown command"), _T("Use: ") + _id + _T(" commands to get all available commands") } });
-		}
-		*/
-
-
-		/*
-		auto lenId = _id.length();
-
-		if(message.address.empty()) {
-		_outgoing.push_back({ _id, _T("error"), vector<tstring>{_T("Missing address"), _T("Syntax is: address command [<parameter>...]")} });
-		return;
-		}
-
-		if(message.type.empty()) {
-		_outgoing.push_back({ _id, _T("error"), vector<tstring> { _T("Missing command"), _T("Syntax is: address command [<parameter>...]") } });
-		return;
-		}
-
-		// This is the destination
-		if(message.address == _id) {
-		}
-		// The address can be dispatched
-		else if(message.address.length() >= (lenId + 2) && message.address[lenId] == PAS) {
-
-		auto second = message.address.find(PAS, lenId + 1);
-		if(second == -1) { second = message.address.length(); }
-		auto target = message.address.substr(lenId + 1, second);
-
-		if(_services.find(target) == end(_services)) {
-		_outgoing.push_back({ _id, _T("error"), vector<tstring> { _T("Address not available"), _T("Start from \"") + _id + _T("\" and use the children command to find available addresses") } });
-		return;
-		}
-
-		_services[target]->send(message);
-		}
-		else {
-		_outgoing.push_back({ _id, _T("error"), vector<tstring> { _T("Invalid Address"), _T("Start from \"") + _id + _T("\" and use the children command to find available addresses") } });
-		return;
-		}
-		*/
+	void addCommand(tstring name, PipeJSON::object& messageType, std::function<void(PipeJSON::object&)> handler) {
+		_commands[name] = handler;
+		addMessageType(messageType);
 	}
 
+	void addMessageType(PipeJSON::object messageType) {
+		_messageTypes.push_back(messageType);
+	}
 
 public:
+	virtual void send(PipeJSON::object& message) {
+		if(!message.count(PipeConstants::basicMsgKeyReference) || !message[PipeConstants::basicMsgKeyReference].is_string()) {
+			pushError(PipeConstants::errorMsgDescriptionInvalidReference);
+			return;
+		}
+
+		if(!message.count(PipeConstants::basicMsgKeyAddress) || !message[PipeConstants::basicMsgKeyAddress].is_string()) {
+			pushError(PipeConstants::errorMsgDescriptionInvalidAddress, message[PipeConstants::basicMsgKeyReference].string_value());
+			return;
+		}
+
+		if(!message.count(PipeConstants::basicMsgKeyType) || !message[PipeConstants::basicMsgKeyType].is_string()) {
+			pushError(PipeConstants::errorMsgDescriptionInvalidType, message[PipeConstants::basicMsgKeyReference].string_value());
+			return;
+		}
+
+		auto&& messageAddress = message[PipeConstants::basicMsgKeyAddress].string_value();
+
+		if(messageAddress == _address) {
+			auto&& messageCommand = message[PipeConstants::basicMsgKeyType].string_value();
+			if(!_commands.count(messageCommand)) {
+				pushError(PipeConstants::errorMsgDescriptionUnknownCommand, message[PipeConstants::basicMsgKeyReference].string_value());
+				return;
+			}
+
+			_commands[messageCommand](message);
+		}
+		else if(messageAddress.length() >= (_address.length() + 2) && messageAddress[_address.length()] == PAS && _children.count(messageAddress)) {
+			_children[messageAddress]->send(message);
+		}
+		else {
+			pushError(PipeConstants::errorMsgDescriptionUnknownAddress, message[PipeConstants::basicMsgKeyReference].string_value());
+			return;
+		}
+	}
+	
 	virtual PipeJSON::array receive() {
 		PipeJSON::array messages = move(_outgoing);
 		_outgoing = {};
@@ -154,13 +112,22 @@ public:
 
 	virtual PipeJSON::object nodeInfo(tstring address) {
 		return {
-			{ PipeMessageConstants::basicInfoKeyAddress, _address },
-			{ PipeMessageConstants::basicInfoKeyType, _type },
-			{ PipeMessageConstants::basicInfoKeyDescription, _description },
-			{ PipeMessageConstants::basicInfoKeyMeta, _metaInfo }
+			{ PipeConstants::basicInfoKeyAddress, _address },
+			{ PipeConstants::basicInfoKeyType, _type },
+			{ PipeConstants::basicInfoKeyDescription, _description },
+			{ PipeConstants::basicInfoKeyProperties, _properties }
 		};
 	}
 
+private:
+	void pushError(const tstring& description, tstring reference = _T("")) {
+		_outgoing.push_back(PipeJSON::object {
+			{ PipeConstants::basicMsgKeyAddress, _address },
+			{ PipeConstants::basicMsgKeyReference, reference },
+			{ PipeConstants::basicMsgKeyType, PipeConstants::basicMsgTypeError },
+			{ PipeConstants::errorMsgKeyDescription, description }
+		});
+	}
 };
 //======================================================================================================================
 

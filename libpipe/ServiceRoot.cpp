@@ -6,8 +6,10 @@ using namespace std;
 
 //======================================================================================================================
 
-ServiceRoot::ServiceRoot(tstring address, tstring path, PipeJSON::object settings) : PipeServiceNodeBase(address, path, settings) {
-
+ServiceRoot::ServiceRoot(tstring address, tstring path, PipeJSON::object settings) : PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), address, path, settings) {
+	// TODO: Add command for testing
+	// TODO: Add subnode for testing
+	// TODO: Add real nodes (scripting, services etc)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -20,9 +22,9 @@ ServiceRoot::~ServiceRoot() {
 
 void ServiceRoot::send(PipeJSON::object& message) {
 
+	// TODO: Process scripts
+
 	PipeServiceNodeBase::send(message);
-	if(message.empty())
-		return;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -36,7 +38,7 @@ PipeJSON::array ServiceRoot::receive() {
 		messages.insert(end(messages), begin(serviceOutgoing), end(serviceOutgoing));
 	}
 
-	// TODO: Check for hooks
+	// TODO: Process scripts
 
 	return messages;
 }
