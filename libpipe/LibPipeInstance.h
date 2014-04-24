@@ -24,8 +24,8 @@ public:
 	}
 
 public:
-	virtual void send(PipeJSON::object& message) {
-		LibPipeSend(_instance, PipeJSON(message).dump().c_str());
+	virtual void send(PipeJSON::array& messages) {
+		LibPipeSend(_instance, PipeJSON(messages).dump().c_str());
 	}
 
 	virtual PipeJSON::array receive() {

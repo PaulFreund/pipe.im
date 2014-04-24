@@ -57,8 +57,8 @@ public:
 	}
 
 public:
-	virtual void send(PipeJSON::object& message) {
-		_functions.fktPipeExtensionServiceSend(_service, PipeJSON(message).dump().c_str());
+	virtual void send(PipeJSON::array& messages) {
+		_functions.fktPipeExtensionServiceSend(_service, PipeJSON(messages).dump().c_str());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

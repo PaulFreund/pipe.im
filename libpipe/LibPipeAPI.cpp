@@ -106,9 +106,9 @@ LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeStr message) {
-	PipeJSON::object messageData = PipeJSON::parse(message).object_items(); // TODO!
-	reinterpret_cast<LibPipe*>(instance)->send(messageData);
+LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeStr messages) {
+	PipeJSON::array messagesData = PipeJSON::parse(messages).array_items();
+	reinterpret_cast<LibPipe*>(instance)->send(messagesData);
 }
 
 LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, LibPipeCbStr cbMessages) {

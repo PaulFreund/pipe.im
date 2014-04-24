@@ -14,7 +14,7 @@ public:
 	virtual ~IPipeExtensionService() {}
 
 public:
-	virtual void send(PipeJSON::object& message) = 0;
+	virtual void send(PipeJSON::array& messages) = 0;
 	virtual PipeJSON::array receive() = 0;
 
 	virtual PipeJSON::array nodeChildren(tstring address) = 0;

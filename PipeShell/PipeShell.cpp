@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
 				}
 
 				PipeJSON::object msg = PipeJSON::parse(message).object_items(); // TODO
-				pipe.send(msg);
+				pipe.send(PipeJSON::array {msg});
 			}
 		});
 

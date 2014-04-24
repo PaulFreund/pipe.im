@@ -22,7 +22,7 @@ public:
 	virtual ~LibPipe();
 
 public:
-	virtual void send(PipeJSON::object& message);
+	virtual void send(PipeJSON::array& messages);
 	virtual PipeJSON::array receive();
 };
 

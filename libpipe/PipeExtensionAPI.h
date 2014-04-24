@@ -34,7 +34,7 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy						(HPipeExtensionService 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceSend						(HPipeExtensionService service, PipeExtensionStr message);
+PIPE_EXTENSION_ITF void PipeExtensionServiceSend						(HPipeExtensionService service, PipeExtensionStr messages);
 PIPE_EXTENSION_ITF void PipeExtensionServiceReceive						(HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbStr cbMessages);
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -22,7 +22,7 @@ PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypeSettings(PipeExtensionCbConte
 //----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceType, PipeExtensionStr address, PipeExtensionStr path, PipeExtensionStr settings, HPipeExtensionService* service) {
-	PipeJSON::object settingsData = PipeJSON::parse(settings).object_items(); // TODO
+	PipeJSON::object settingsData = PipeJSON::parse(settings).object_items();
 	(*service) = reinterpret_cast<HPipeExtensionService>(PipeExtensionPurple::ExtensionInstance.create(serviceType, address, path, settingsData));
 }
 
@@ -34,9 +34,9 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy(HPipeExtensionService servic
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceSend(HPipeExtensionService service, PipeExtensionStr message) {
-	PipeJSON::object messageData = PipeJSON::parse(message).object_items(); // TODO
-	reinterpret_cast<IPipeExtensionService*>(service)->send(messageData);
+PIPE_EXTENSION_ITF void PipeExtensionServiceSend(HPipeExtensionService service, PipeExtensionStr messages) {
+	PipeJSON::array messagesData = PipeJSON::parse(messages).array_items();
+	reinterpret_cast<IPipeExtensionService*>(service)->send(messagesData);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

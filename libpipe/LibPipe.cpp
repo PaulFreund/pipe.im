@@ -29,8 +29,8 @@ LibPipe::~LibPipe() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void LibPipe::send(PipeJSON::object& message) {
-	_serviceRoot->send(message);
+void LibPipe::send(PipeJSON::array& messages) {
+	_serviceRoot->send(messages);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

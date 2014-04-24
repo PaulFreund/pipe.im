@@ -154,7 +154,7 @@ public:
 						if(message == _T("debug")) { pApp->_debug = !pApp->_debug; }
 
 						PipeJSON::object messageData = PipeJSON::parse(message).object_items();
-						pipe.send(messageData);
+						pipe.send(PipeJSON::array {messageData});
 					}
 
 					incoming.clear();
