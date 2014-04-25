@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 		cout << _T("------------------------------------------") << endl;
 		cout << _T("Welcome to pipe shell") << endl;
 		cout << _T("------------------------------------------") << endl;
-		cout << _T("Available service types: ") << PipeJSON(serviceTypes).dump() << endl;
+		cout << _T("Available service types: ") << PipeJSON(*serviceTypes).dump() << endl;
 
 		cout << _T("------------------------------------------") << endl;
 		cout << endl;
@@ -73,8 +73,9 @@ int main(int argc, char* argv[]) {
 
 		thread receive([&]() {
 			while(!exit) {
-
-				for(auto& message: pipe.receive()) {
+				
+				auto messages = pipe.receive();
+				for(auto& message: *messages) {
 					cout << message.dump() << endl;
 				}
 
@@ -96,8 +97,8 @@ int main(int argc, char* argv[]) {
 					continue;
 				}
 
-				PipeJSON::object msg = PipeJSON::parse(message).object_items(); // TODO
-				pipe.send(PipeJSON::array {msg});
+				PipeMessageData messageData = PipeJSON::parse(message).object_items();
+				pipe.send(std::make_shared<PipeMessageListData>(PipeMessageListData({ messageData })));
 			}
 		});
 

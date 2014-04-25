@@ -41,42 +41,49 @@ public:
 	const tstring errorMsgDescriptionUnknownAddress = _T("Address not found");
 	const tstring errorMsgDescriptionUnknownCommand = _T("Command not found");
 
+	typedef std::function<void(PipeMessage)> PipeCommandFunction;
+	typedef std::function<void(PipeMessageList)> PipeHookFunction;
+
 public:
 	const tstring _type;
 	const tstring _description;
 	const tstring _address;
 	const tstring _path;
-	const PipeJSON::object _settings;
+	const PipeServiceSettings _settings;
 
 private:
 	std::map<tstring, std::shared_ptr<PipeServiceNodeBase>> _children; 
-	PipeJSON::array _outgoing;
-	std::map<tstring, std::function<void(const PipeJSON::object&)> > _commands;
-	PipeJSON::array _messageTypes;
-	PipeJSON::object _properties;
+	PipeMessageList _outgoing;
+	std::map<tstring, PipeCommandFunction> _commands;
+	PipeServiceNodeMessageTypes _messageTypes;
+	PipeServiceNodeProperties _properties;
 
 	bool _preSendHookEnabled = false;
-	std::function<PipeJSON::array(const PipeJSON::array&)> _preSendHook;
+	PipeHookFunction _preSendHook;
 
 	bool _postReceiveHookEnabled = false;
-	std::function<PipeJSON::array(PipeJSON::array&)> _postReceiveHook;
+	PipeHookFunction _postReceiveHook;
 
 public:
-	PipeServiceNodeBase(const tstring& type, const tstring& description, const tstring& address, const tstring& path, const PipeJSON::object& settings) 
+	PipeServiceNodeBase(const tstring& type, const tstring& description, const tstring& address, const tstring& path, PipeServiceSettings settings)
 		: _type(type)
 		, _description(description)
 		, _address(address) 
 		, _path(path)
-		, _settings(settings) {
+		, _settings(settings)
+		, _outgoing(std::make_shared<PipeMessageListData>())
+		, _messageTypes(std::make_shared<PipeServiceNodeMessageTypesData>())
+		, _properties(std::make_shared<PipeServiceNodePropertiesData>())
+	{
 
 		// TODO: Add default commands and remove test
 
 		addCommand(
 			_T("base_test"),
 			_T("A test command"),
-			PipeJSON::object {
-			},
-			[&](const PipeJSON::object& message) {
+			std::make_shared<PipeServiceNodeMessageTypeData>(PipeServiceNodeMessageTypeData {
+			}),
+			[&](PipeMessage) {
 				//pushOutgoing(message[msgKeyRef].string_value(), _T("base_test"), PipeJSON::object {
 				//	{ _T("response"), _T("BASE") }
 				//});
@@ -87,7 +94,7 @@ public:
 	virtual ~PipeServiceNodeBase() {}
 
 public:
-	void enablePreSendHook(std::function<PipeJSON::array(const PipeJSON::array&)> hook) {
+	void enablePreSendHook(PipeHookFunction hook) {
 		_preSendHook = hook;
 		_preSendHookEnabled = true;
 	}
@@ -96,7 +103,7 @@ public:
 		_preSendHookEnabled = false;
 	}
 
-	void enablePostReceiveHook(std::function<PipeJSON::array(const PipeJSON::array&)> hook) {
+	void enablePostReceiveHook(PipeHookFunction hook) {
 		_postReceiveHook = hook;
 		_postReceiveHookEnabled = true;
 	}
@@ -105,19 +112,19 @@ public:
 		_postReceiveHookEnabled = false;
 	}
 
-	void pushOutgoing(const tstring& reference, const tstring& type, PipeJSON::object& messageData) {
-		if(!messageData.count(msgKeyAddress))
-			messageData[msgKeyAddress] = _address;
+	void pushOutgoing(const tstring& reference, const tstring& type, PipeMessage message) {
+		if(!message->count(msgKeyAddress))
+			message->operator[](msgKeyAddress) = _address;
 
-		if(!messageData.count(msgKeyRef))
-			messageData[msgKeyRef] = reference;
+		if(!message->count(msgKeyRef))
+			message->operator[](msgKeyRef) = reference;
 
-		if(!messageData.count(msgKeyType))
-			messageData[msgKeyType] = type;
+		if(!message->count(msgKeyType))
+			message->operator[](msgKeyType) = type;
 
 		// TODO: Optional, validate messages with message type when debugging
 
-		_outgoing.push_back(messageData);
+		_outgoing->push_back(*message);
 
 	}
 
@@ -134,55 +141,56 @@ public:
 			_children.erase(name);
 	}
 
-	void addCommand(const tstring& name, const tstring& description, const PipeJSON::object& structure, const std::function<void(const PipeJSON::object&)>& handler) {
+	void addCommand(const tstring& name, const tstring& description, PipeServiceNodeMessageType messageTypeDefinition, PipeCommandFunction handler) {
 		if(_commands.count(name))
 		   throw _T("Command already defined");
 
-		addMessageType(name, description, true, structure);
+		addMessageType(name, description, true, messageTypeDefinition);
 		_commands[name] = handler;
 	}
 
-	void addMessageType(const tstring& type, const tstring& description, const bool& isCommand, const PipeJSON::object& structure) {
+	void addMessageType(const tstring& type, const tstring& description, const bool& isCommand, PipeServiceNodeMessageType messageTypeDefinition) {
 
 		// TODO: Assert that the structure has the right format!
 
-		for(auto&& messageType : _messageTypes) {
+		for(auto&& messageType : *_messageTypes) {
 			if(messageType[messageTypeKeyType].string_value() == messageType.string_value())
 				throw _T("Message type already defined");
 		}
 
-		_messageTypes.push_back(PipeJSON::object {
+		_messageTypes->push_back(PipeServiceNodeMessageTypeData {
 			{ messageTypeKeyType, type },
 			{ messageTypeKeyDescription, description },
 			{ messageTypeKeyCommand, isCommand },
-			{ messageTypeKeyStructure, structure }
+			{ messageTypeKeyStructure, *messageTypeDefinition }
 		});
 	}
 
 public:
-	virtual void send(const PipeJSON::array& messages) {
-		auto&& messagesData = _preSendHookEnabled ? _preSendHook(messages) : messages;
+	virtual void send(PipeMessageList messages) {
+		if(_preSendHookEnabled)
+			_preSendHook(messages);
 
-		for(auto&& messagesMember : messagesData) {
+		for(auto&& messagesMember : *messages) {
 			auto message = messagesMember.object_items();
 
 			if(message.empty()) {
-				pushOutgoing(_T(""), msgTypeError, PipeJSON::object { { errorMsgKeyDescription, errorMsgDescriptionInvalidMessageData } });
+				pushOutgoing(_T(""), msgTypeError, std::make_shared<PipeMessageData>(PipeMessageData { { errorMsgKeyDescription, errorMsgDescriptionInvalidMessageData } }));
 				continue;
 			}
 
 			if(!message.count(msgKeyRef) || !message[msgKeyRef].is_string()) {
-				pushOutgoing(_T(""), msgTypeError, PipeJSON::object { { errorMsgKeyDescription, errorMsgDescriptionInvalidReference } });
+				pushOutgoing(_T(""), msgTypeError, std::make_shared<PipeMessageData>(PipeMessageData { { errorMsgKeyDescription, errorMsgDescriptionInvalidReference } }));
 				continue;
 			}
 
 			if(!message.count(msgKeyAddress) || !message[msgKeyAddress].is_string()) {
-				pushOutgoing(message[msgKeyRef].string_value(), msgTypeError, PipeJSON::object { { errorMsgKeyDescription, errorMsgDescriptionInvalidAddress } });
+				pushOutgoing(_T(""), msgTypeError, std::make_shared<PipeMessageData>(PipeMessageData { { errorMsgKeyDescription, errorMsgDescriptionInvalidAddress } }));
 				return;
 			}
 
 			if(!message.count(msgKeyType) || !message[msgKeyType].is_string()) {
-				pushOutgoing(message[msgKeyRef].string_value(), msgTypeError, PipeJSON::object { { errorMsgKeyDescription, errorMsgDescriptionInvalidType } });
+				pushOutgoing(_T(""), msgTypeError, std::make_shared<PipeMessageData>(PipeMessageData { { errorMsgKeyDescription, errorMsgDescriptionInvalidType } }));
 				return;
 			}
 
@@ -191,55 +199,58 @@ public:
 			if(messageAddress == _address) {
 				auto&& messageCommand = message[msgKeyType].string_value();
 				if(!_commands.count(messageCommand)) {
-					pushOutgoing(message[msgKeyRef].string_value(), msgTypeError, PipeJSON::object { { errorMsgKeyDescription, errorMsgDescriptionUnknownCommand } });
+					pushOutgoing(_T(""), msgTypeError, std::make_shared<PipeMessageData>(PipeMessageData { { errorMsgKeyDescription, errorMsgDescriptionUnknownCommand } }));
 					return;
 				}
 
-				_commands[messageCommand](message);
+				_commands[messageCommand](std::make_shared<PipeMessageData>(message));
 			}
 			else if(messageAddress.length() >= (_address.length() + 2) && messageAddress[_address.length()] == addressSeparator && _children.count(messageAddress)) {
-				_children[messageAddress]->send(PipeJSON::array {message});
+				_children[messageAddress]->send(std::make_shared<PipeMessageListData>(PipeMessageListData({ message }))); // TODO: dafuq? xD
 			}
 			else {
-				pushOutgoing(message[msgKeyRef].string_value(), msgTypeError, PipeJSON::object { { errorMsgKeyDescription, errorMsgDescriptionUnknownAddress } });
+				pushOutgoing(_T(""), msgTypeError, std::make_shared<PipeMessageData>(PipeMessageData { { errorMsgKeyDescription, errorMsgDescriptionUnknownAddress } }));
 				return;
 			}
 		}
 	}
 	
-	virtual PipeJSON::array receive() {
-		PipeJSON::array messages = move(_outgoing);
-		_outgoing = {};
+	virtual PipeMessageList receive() {
+		PipeMessageList messages = _outgoing;
+		_outgoing = std::make_shared<PipeMessageListData>(PipeMessageListData());
 
 		for(auto&& child : _children) {
 			auto&& serviceOutgoing = child.second->receive();
-			messages.insert(end(messages), begin(serviceOutgoing), end(serviceOutgoing));
+			messages->insert(end(*messages), begin(*serviceOutgoing), end(*serviceOutgoing));
 		}
 
-		return _postReceiveHookEnabled ? _postReceiveHook(messages) : messages;
+		if(_postReceiveHookEnabled)
+			_postReceiveHook(messages);
+
+		return messages;
 	}
 
-	virtual PipeJSON::array nodeChildren(const tstring& address) {
-		PipeJSON::array children;
+	virtual PipeServiceNodeChildren nodeChildren(const tstring& address) {
+		PipeServiceNodeChildren children;
 		
 		for(auto&& child : _children) {
-			children.push_back(child.first);
+			children->push_back(child.first);
 		}
 
 		return children;
 	}
 
-	virtual PipeJSON::array nodeMessageTypes(const tstring& address) {
+	virtual PipeServiceNodeMessageTypes nodeMessageTypes(const tstring& address) {
 		return _messageTypes;
 	}
 
-	virtual PipeJSON::object nodeInfo(const tstring& address) {
-		return {
+	virtual PipeServiceNodeInfo nodeInfo(const tstring& address) {
+		return std::make_shared<PipeServiceNodeInfoData>(PipeServiceNodeInfoData({
 			{ infoKeyAddress, _address },
 			{ infoKeyType, _type },
 			{ infoKeyDescription, _description },
-			{ infoKeyProperties, _properties }
-		};
+			{ infoKeyProperties, *_properties }
+		}));
 	}
 };
 //======================================================================================================================

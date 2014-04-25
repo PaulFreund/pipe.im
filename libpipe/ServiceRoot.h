@@ -10,7 +10,7 @@
 
 class ServiceRoot : public PipeServiceNodeBase {
 public:
-	ServiceRoot(const tstring& address, const tstring& path, const PipeJSON::object& settings);
+	ServiceRoot(const tstring& address, const tstring& path, PipeServiceSettings settings);
 	virtual ~ServiceRoot();
 };
 

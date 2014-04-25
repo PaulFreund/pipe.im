@@ -153,15 +153,15 @@ public:
 
 						if(message == _T("debug")) { pApp->_debug = !pApp->_debug; }
 
-						PipeJSON::object messageData = PipeJSON::parse(message).object_items();
-						pipe.send(PipeJSON::array {messageData});
+						PipeMessageData messageData = PipeJSON::parse(message).object_items();
+						pipe.send(std::make_shared<PipeMessageListData>(PipeMessageListData({ messageData })));
 					}
 
 					incoming.clear();
 				}
 
 				// Receive from pipe
-				for(auto& pipeMessage : pipe.receive()) {
+				for(auto& pipeMessage : *pipe.receive()) {
 					outgoing.push_back(pipeMessage.dump());
 				}
 
