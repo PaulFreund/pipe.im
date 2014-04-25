@@ -128,7 +128,7 @@ PipeJsonArray PipeExtensionPurple::serviceTypes() {
 
 	//purple_plugins_init();
 
-	PipeJsonArray serviceTypes = std::make_shared<PipeJsonArrayData>();
+	PipeJsonArray serviceTypes = newArray();
 	GList * protocols = purple_plugins_get_protocols();
 	for(; protocols; protocols = protocols->next) {
 		PurplePlugin* plugin = reinterpret_cast<PurplePlugin*>(protocols->data);
@@ -140,7 +140,7 @@ PipeJsonArray PipeExtensionPurple::serviceTypes() {
 }
 
 PipeJsonObject PipeExtensionPurple::serviceTypeSettings(const tstring& serviceType) {
-	return make_shared<PipeJsonObjectData>();
+	return newObject();
 }
 
 

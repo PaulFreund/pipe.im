@@ -67,7 +67,7 @@ public:
 		PipeJsonArray messages;
 
 		_functions.fktPipeExtensionServiceReceive(_service, &messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
-			(*static_cast<PipeJsonArray*>(context)) = std::make_shared<PipeJsonArrayData>(PipeJson::parse(messagesData).array_items());
+			(*static_cast<PipeJsonArray*>(context)) = parseArray(messagesData);
 		});
 
 		return messages;
@@ -79,7 +79,7 @@ public:
 		PipeJsonArray children;
 
 		_functions.fktPipeExtensionServiceGetNodeChildren(_service, address.c_str(), &children, [](PipeExtensionCbContext context, PipeExtensionStr childrenData) {
-			(*static_cast<PipeJsonArray*>(context)) = std::make_shared<PipeJsonArrayData>(PipeJson::parse(childrenData).array_items());
+			(*static_cast<PipeJsonArray*>(context)) = parseArray(childrenData);
 		});
 
 		return children;
@@ -91,7 +91,7 @@ public:
 		PipeJsonArray messageTypes;
 
 		_functions.fktPipeExtensionServiceGetNodeMessageTypes(_service, address.c_str(), &messageTypes, [](PipeExtensionCbContext context, PipeExtensionStr messageTypesData) {
-			(*static_cast<PipeJsonArray*>(context)) = std::make_shared<PipeJsonArrayData>(PipeJson::parse(messageTypesData).array_items());
+			(*static_cast<PipeJsonArray*>(context)) = parseArray(messageTypesData);
 		});
 
 		return messageTypes;
@@ -103,7 +103,7 @@ public:
 		PipeJsonObject info;
 
 		_functions.fktPipeExtensionServiceGetNodeInfo(_service, address.c_str(), &info, [](PipeExtensionCbContext context, PipeExtensionStr infoData) {
-			(*static_cast<PipeJsonObject*>(context)) = std::make_shared<PipeJsonObjectData>(PipeJson::parse(infoData).object_items());
+			(*static_cast<PipeJsonObject*>(context)) = parseObject(infoData);
 		});
 
 		return info;
@@ -125,7 +125,7 @@ public:
 		PipeJsonArray types;
 		
 		_functions.fktPipeExtensionGetServiceTypes(&types, [](PipeExtensionCbContext context, PipeExtensionStr typesData) {
-			(*static_cast<PipeJsonArray*>(context)) = std::make_shared<PipeJsonArrayData>(PipeJson::parse(typesData).array_items());
+			(*static_cast<PipeJsonArray*>(context)) = parseArray(typesData);
 		});
 
 		return types;
@@ -137,7 +137,7 @@ public:
 		PipeJsonObject typeSettings;
 
 		_functions.fktPipeExtensionGetServiceTypeSettings(&typeSettings, serviceType.c_str(), [](PipeExtensionCbContext context, PipeExtensionStr typeSettingsData) {
-			(*static_cast<PipeJsonObject*>(context)) = std::make_shared<PipeJsonObjectData>(PipeJson::parse(typeSettingsData).object_items());
+			(*static_cast<PipeJsonObject*>(context)) = parseObject(typeSettingsData);
 		});
 
 		return typeSettings;
@@ -148,7 +148,7 @@ public:
 	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeJsonObject settings) {
 		HPipeExtensionService service = 0;
 
-		_functions.fktPipeExtensionServiceCreate(serviceType.c_str(), address.c_str(), path.c_str(), PipeJson(*settings).dump().c_str(), &service);
+		_functions.fktPipeExtensionServiceCreate(serviceType.c_str(), address.c_str(), path.c_str(), dumpObject(settings).c_str(), &service);
 
 		return new PipeExtensionServiceInstance(_functions, service);
 	}

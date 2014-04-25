@@ -33,7 +33,7 @@ public:
 	const tstring messageTypeKeyStructure = _T("structure");
 
 	const tstring errorMsgKeyDescription = _T("description");
-	
+
 	const tstring errorMsgDescriptionInvalidMessageData = _T("Message data is invalid or missing");
 	const tstring errorMsgDescriptionInvalidAddress = _T("Missing or invalid address field");
 	const tstring errorMsgDescriptionInvalidType = _T("Missing or invalid type field");
@@ -52,7 +52,7 @@ public:
 	const PipeJsonObject _settings;
 
 private:
-	std::map<tstring, std::shared_ptr<PipeServiceNodeBase>> _children; 
+	std::map<tstring, std::shared_ptr<PipeServiceNodeBase>> _children;
 	PipeJsonArray _outgoing;
 	std::map<tstring, PipeCommandFunction> _commands;
 	PipeJsonArray _messageTypes;
@@ -68,12 +68,12 @@ public:
 	PipeServiceNodeBase(const tstring& type, const tstring& description, const tstring& address, const tstring& path, PipeJsonObject settings)
 		: _type(type)
 		, _description(description)
-		, _address(address) 
+		, _address(address)
 		, _path(path)
 		, _settings(settings)
-		, _outgoing(newArray({}))
+		, _outgoing(newArray())
 		, _messageTypes(newArray())
-		, _properties(newObject(PipeJsonObjectData {}))
+		, _properties(newObject())
 	{
 
 		// TODO: Add default commands and remove test
@@ -81,12 +81,11 @@ public:
 		addCommand(
 			_T("base_test"),
 			_T("A test command"),
-			newObject({
-			}),
-			[&](PipeJsonObject) {
-				//pushOutgoing(message[msgKeyRef].string_value(), _T("base_test"), PipeJSON::object {
-				//	{ _T("response"), _T("BASE") }
-				//});
+			newObject(),
+			[&](PipeJsonObject message) {
+				pushOutgoing((*message)[msgKeyRef].string_value(), _T("base_test"), newObject({
+					{ _T("response"), _T("BASE") }
+				}));
 			}
 		);
 	}
@@ -114,46 +113,17 @@ public:
 
 	void pushOutgoing(const tstring& reference, const tstring& type, PipeJsonObject message) {
 		if(!message->count(msgKeyAddress))
-			message->operator[](msgKeyAddress) = _address;
+			(*message)[msgKeyAddress] = _address;
 
 		if(!message->count(msgKeyRef))
-			message->operator[](msgKeyRef) = reference;
+			(*message)[msgKeyRef] = reference;
 
 		if(!message->count(msgKeyType))
-			message->operator[](msgKeyType) = type;
+			(*message)[msgKeyType] = type;
 
 		// TODO: Optional, validate messages with message type when debugging
 
-		auto a01 = newArray();
-		auto a02 = newArray({});
-		auto a03 = newArray(PipeJsonArrayData{});
-		auto a04 = newArray(PipeJsonArrayData());
-		auto a05 = newArray(PipeJsonArrayData({}));
-		auto a06 = newArray(PipeJsonArrayData(PipeJsonArrayData {}));
-		auto a07 = newArray(PipeJsonArrayData { _T("a") });
-		auto a08 = newArray(PipeJsonArrayData({ _T("a") }));
-		auto a09 = newArray(PipeJsonArrayData(PipeJsonArrayData { _T("a") }));
-		auto a10 = newArray(PipeJsonArrayData { _T("a"), _T("b") });
-		auto a11 = newArray(PipeJsonArrayData({ _T("a"), _T("b") }));
-		auto a12 = newArray(PipeJsonArrayData(PipeJsonArrayData { _T("a"), _T("b") }));
-		auto a13 = newArray(PipeJsonArrayData { { _T("a"), _T("b") } });
-		auto a14 = newArray(PipeJsonArrayData({ { _T("a"), _T("b") } }));
-		auto a15 = newArray(PipeJsonArrayData(PipeJsonArrayData { { _T("a"), _T("b") } }));
-
-		auto o01 = newObject();
-		auto o02 = newObject({});
-		auto o03 = newObject(PipeJsonObjectData {});
-		auto o04 = newObject(PipeJsonObjectData());
-		auto o05 = newObject(PipeJsonObjectData({}));
-		auto o06 = newObject(PipeJsonObjectData(PipeJsonObjectData {}));
-		auto o07 = newObject(PipeJsonObjectData { { _T("a"), _T("b") } });
-		auto o08 = newObject(PipeJsonObjectData({ { _T("a"), _T("b") } }));
-		auto o09 = newObject(PipeJsonObjectData(PipeJsonObjectData { { _T("a"), _T("b") } }));
-		auto o10 = newObject(PipeJsonObjectData { { { _T("a"), _T("b") }, { _T("c"), _T("d") } } });
-		auto o11 = newObject(PipeJsonObjectData({ { { _T("a"), _T("b") }, { _T("c"), _T("d") } } }));
-		auto o12 = newObject(PipeJsonObjectData(PipeJsonObjectData { { { _T("a"), _T("b") }, { _T("c"), _T("d") } } }));
-
-		_outgoing->push_back(*message);
+		_outgoing->push_back(std::move(*message));
 
 	}
 
@@ -204,7 +174,7 @@ public:
 			auto message = messagesMember.object_items();
 
 			if(message.empty()) {
-				pushOutgoing(_T(""), msgTypeError, newObject(PipeJsonObjectData { { errorMsgKeyDescription, errorMsgDescriptionInvalidMessageData } }));
+				pushOutgoing(_T(""), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionInvalidMessageData } }));
 				continue;
 			}
 
@@ -214,12 +184,12 @@ public:
 			}
 
 			if(!message.count(msgKeyAddress) || !message[msgKeyAddress].is_string()) {
-				pushOutgoing(_T(""), msgTypeError, std::make_shared<PipeJsonObjectData>(PipeJsonObjectData { { errorMsgKeyDescription, errorMsgDescriptionInvalidAddress } }));
+				pushOutgoing(_T(""), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionInvalidAddress } }));
 				return;
 			}
 
 			if(!message.count(msgKeyType) || !message[msgKeyType].is_string()) {
-				pushOutgoing(_T(""), msgTypeError, std::make_shared<PipeJsonObjectData>(PipeJsonObjectData { { errorMsgKeyDescription, errorMsgDescriptionInvalidType } }));
+				pushOutgoing(_T(""), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionInvalidType } }));
 				return;
 			}
 
@@ -228,17 +198,17 @@ public:
 			if(messageAddress == _address) {
 				auto&& messageCommand = message[msgKeyType].string_value();
 				if(!_commands.count(messageCommand)) {
-					pushOutgoing(_T(""), msgTypeError, std::make_shared<PipeJsonObjectData>(PipeJsonObjectData { { errorMsgKeyDescription, errorMsgDescriptionUnknownCommand } }));
+					pushOutgoing(_T(""), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionUnknownCommand } }));
 					return;
 				}
 
-				_commands[messageCommand](std::make_shared<PipeJsonObjectData>(message));
+				_commands[messageCommand](std::make_shared<PipeJsonObjectData>(message)); // TODO!
 			}
 			else if(messageAddress.length() >= (_address.length() + 2) && messageAddress[_address.length()] == addressSeparator && _children.count(messageAddress)) {
 				_children[messageAddress]->send(newArray({ message }));
 			}
 			else {
-				pushOutgoing(_T(""), msgTypeError, std::make_shared<PipeJsonObjectData>(PipeJsonObjectData { { errorMsgKeyDescription, errorMsgDescriptionUnknownAddress } }));
+				pushOutgoing(_T(""), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionUnknownAddress } }));
 				return;
 			}
 		}
@@ -246,7 +216,7 @@ public:
 	
 	virtual PipeJsonArray receive() {
 		PipeJsonArray messages = _outgoing;
-		_outgoing = newArray(PipeJsonArrayData {});
+		_outgoing = newArray();
 
 		for(auto&& child : _children) {
 			auto&& serviceOutgoing = child.second->receive();
@@ -274,12 +244,12 @@ public:
 	}
 
 	virtual PipeJsonObject nodeInfo(const tstring& address) {
-		return std::make_shared<PipeJsonObjectData>(PipeJsonObjectData({
+		return newObject({
 			{ infoKeyAddress, _address },
 			{ infoKeyType, _type },
 			{ infoKeyDescription, _description },
 			{ infoKeyProperties, *_properties }
-		}));
+		});
 	}
 };
 //======================================================================================================================

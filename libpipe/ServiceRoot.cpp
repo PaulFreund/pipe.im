@@ -12,9 +12,9 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeJsonOb
 		_T("A test command"),
 		newObject(),
 		[&](PipeJsonObject message) {
-			//pushOutgoing(message[msgKeyRef].string_value(), _T("root_test"), PipeJSON::object {
-			//	{ _T("response"), _T("ROOT") }
-			//});
+			pushOutgoing((*message)[msgKeyRef].string_value(), _T("root_test"), newObject({
+				{ _T("response"), _T("ROOT") }
+			}));
 		}
 	);
 
@@ -23,12 +23,11 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeJsonOb
 	childNode->addCommand(
 		_T("child_test"),
 		_T("A test command"),
-		std::make_shared<PipeJsonObjectData>(PipeJsonObjectData {
-		}),
+		newObject(),
 		[&](PipeJsonObject message) {
-			//pushOutgoing(message[msgKeyRef].string_value(), _T("child_test"), PipeJSON::object {
-			//	{ _T("response"), _T("CHILD") }
-			//});
+			pushOutgoing((*message)[msgKeyRef].string_value(), _T("child_test"), newObject({
+				{ _T("response"), _T("CHILD") }
+			}));
 		}
 	);
 

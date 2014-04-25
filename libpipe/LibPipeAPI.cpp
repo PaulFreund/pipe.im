@@ -23,6 +23,8 @@ void* loadExtensionSymbol(SharedLibrary& library, const tstring& name) {
 	return symbol;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 void loadExtension(const tstring& path) {
 	auto suffix = SharedLibrary::suffix();
 	if(path.length() <= suffix.length())
@@ -55,6 +57,7 @@ void loadExtension(const tstring& path) {
 }
 
 //======================================================================================================================
+
 LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 	File extensionPath(path);
 
@@ -71,8 +74,10 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 	}
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr cbServiceTypes) {
-	PipeJson::array serviceTypes;
+	PipeJsonArrayData serviceTypes;
 
 	for(auto&& extension : LibPipe::Extensions) {
 		auto extensionServiceTypes = extension->serviceTypes();
@@ -81,14 +86,13 @@ LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr c
 		}
 	}
 
-	cbServiceTypes(context, PipeJson(serviceTypes).dump().c_str());
+	cbServiceTypes(context, dumpArray(serviceTypes).c_str());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr serviceTypes, HLibPipe* instance) {
-	auto serviceTypesData = std::make_shared<PipeJsonArrayData>(PipeJson::parse(serviceTypes).array_items());
-	LibPipe::Instances.push_back(make_shared<LibPipe>(tstring(path), serviceTypesData));
+	LibPipe::Instances.push_back(make_shared<LibPipe>(tstring(path), parseArray(serviceTypes)));
 	(*instance) = reinterpret_cast<HLibPipe>(LibPipe::Instances.back().get());
 }
 
@@ -107,13 +111,11 @@ LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeStr messages) {
-	auto messagesData = std::make_shared<PipeJsonArrayData>(PipeJson::parse(messages).array_items());
-	reinterpret_cast<LibPipe*>(instance)->send(messagesData);
+	reinterpret_cast<LibPipe*>(instance)->send(parseArray(messages));
 }
 
 LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, LibPipeCbStr cbMessages) {
-	auto&& messages = reinterpret_cast<LibPipe*>(instance)->receive();
-	cbMessages(context, PipeJson(*messages).dump().c_str());
+	cbMessages(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->receive()).c_str());
 }
 
 //======================================================================================================================

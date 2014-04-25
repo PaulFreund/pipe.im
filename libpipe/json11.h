@@ -615,7 +615,7 @@
 				return m_value < reinterpret_cast<const Value<tag, T> *>(other)->m_value;
 			}
 
-			const T m_value;
+			T m_value; // TODO: EXPERIMENTAL
 			void dump(std::string &out) const { 
 				Json::dump(m_value, out); 
 			}
