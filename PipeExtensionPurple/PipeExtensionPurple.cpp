@@ -139,12 +139,12 @@ PipeJSON::array PipeExtensionPurple::serviceTypes() {
 	return serviceTypes;
 }
 
-PipeJSON::object PipeExtensionPurple::serviceTypeSettings(tstring serviceType) {
+PipeJSON::object PipeExtensionPurple::serviceTypeSettings(const tstring& serviceType) {
 	return {};
 }
 
 
-IPipeExtensionService* PipeExtensionPurple::create(tstring serviceType, tstring address, tstring path, PipeJSON::object settings) {
+IPipeExtensionService* PipeExtensionPurple::create(const tstring& serviceType, const tstring& address, const tstring& path, const PipeJSON::object& settings) {
 	if(serviceType == _T("irc")) {
 		return (_services[address] = new ServiceIRC(address, path, settings));
 	}

@@ -13,7 +13,7 @@ private:
 	HLibPipe _instance;
 
 public:
-	LibPipeInstance(const tstring& path, PipeJSON::array& serviceTypes) {
+	LibPipeInstance(const tstring& path, const PipeJSON::array& serviceTypes) {
 		HLibPipe instance;
 		LibPipeCreate(path.c_str(), PipeJSON(serviceTypes).dump().c_str(), &instance);
 		_instance = instance;
@@ -24,7 +24,7 @@ public:
 	}
 
 public:
-	virtual void send(PipeJSON::array& messages) {
+	virtual void send(const PipeJSON::array& messages) {
 		LibPipeSend(_instance, PipeJSON(messages).dump().c_str());
 	}
 

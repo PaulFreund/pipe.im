@@ -12,7 +12,7 @@ using namespace Poco;
 
 //======================================================================================================================
 
-void* loadExtensionSymbol(SharedLibrary& library, tstring name) {
+void* loadExtensionSymbol(SharedLibrary& library, const tstring& name) {
 	if(!library.hasSymbol(name))
 		throw;
 
@@ -23,7 +23,7 @@ void* loadExtensionSymbol(SharedLibrary& library, tstring name) {
 	return symbol;
 }
 
-void loadExtension(tstring path) {
+void loadExtension(const tstring& path) {
 	auto suffix = SharedLibrary::suffix();
 	if(path.length() <= suffix.length())
 		return;
@@ -72,7 +72,7 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 }
 
 LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr cbServiceTypes) {
-	PipeJSON::array serviceTypes {};
+	PipeJSON::array serviceTypes;
 
 	for(auto&& extension : LibPipe::Extensions) {
 		auto extensionServiceTypes = extension->serviceTypes();
@@ -87,7 +87,7 @@ LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr c
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr serviceTypes, HLibPipe* instance) {
-	PipeJSON::array serviceTypesData = PipeJSON::parse(serviceTypes).array_items();
+	auto serviceTypesData = PipeJSON::parse(serviceTypes).array_items();
 	LibPipe::Instances.push_back(make_shared<LibPipe>(tstring(path), serviceTypesData));
 	(*instance) = reinterpret_cast<HLibPipe>(LibPipe::Instances.back().get());
 }
@@ -107,7 +107,7 @@ LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeStr messages) {
-	PipeJSON::array messagesData = PipeJSON::parse(messages).array_items();
+	auto messagesData = PipeJSON::parse(messages).array_items();
 	reinterpret_cast<LibPipe*>(instance)->send(messagesData);
 }
 

@@ -10,7 +10,7 @@
 
 class ServiceIRC : public PipeServiceNodeBase {
 public:
-	ServiceIRC(tstring address, tstring path, PipeJSON::object settings) : PipeServiceNodeBase(_T("irc"), _T("Internet relay Chat"),address, path, settings) {
+	ServiceIRC(const tstring& address, const tstring& path, const PipeJSON::object& settings) : PipeServiceNodeBase(_T("irc"), _T("Internet relay Chat"),address, path, settings) {
 		// TODO: Add stuff
 	}
 	

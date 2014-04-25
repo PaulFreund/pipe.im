@@ -6,16 +6,16 @@ using namespace std;
 
 //======================================================================================================================
 
-ServiceRoot::ServiceRoot(tstring address, tstring path, PipeJSON::object settings) : PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), address, path, settings) {
+ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, const PipeJSON::object& settings) : PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), address, path, settings) {
 	addCommand(
 		_T("root_test"), 
 		_T("A test command"),
 		PipeJSON::object {
 		}, 
-		[&](PipeJSON::object& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), _T("root_test"), PipeJSON::object {
-				{ _T("response"), _T("ROOT") }
-			});
+		[&](const PipeJSON::object& message) {
+			//pushOutgoing(message[msgKeyRef].string_value(), _T("root_test"), PipeJSON::object {
+			//	{ _T("response"), _T("ROOT") }
+			//});
 		}
 	);
 
@@ -26,23 +26,25 @@ ServiceRoot::ServiceRoot(tstring address, tstring path, PipeJSON::object setting
 		_T("A test command"),
 		PipeJSON::object {
 		},
-		[&](PipeJSON::object& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), _T("child_test"), PipeJSON::object {
-				{ _T("response"), _T("CHILD") }
-			});
+		[&] (const PipeJSON::object& message) {
+			//pushOutgoing(message[msgKeyRef].string_value(), _T("child_test"), PipeJSON::object {
+			//	{ _T("response"), _T("CHILD") }
+			//});
 		}
 	);
 
 	addChild(childNode);
 
-	enablePreSendHook([&](PipeJSON::array& messages) {
+	enablePreSendHook([&](const PipeJSON::array& messages)-> PipeJSON::array {
 		// TODO!!! Make json types const where applicable, make the hooks return the new array
 
 		// TODO: Process scripts
+		return messages;
 	});
 
-	enablePostReceiveHook([&](PipeJSON::array& messages) {
+	enablePostReceiveHook([&](const PipeJSON::array& messages)->PipeJSON::array {
 		// TODO: Process scripts
+		return messages;
 	});
 
 	// TODO: Add real nodes (scripting, services etc) and remove tests

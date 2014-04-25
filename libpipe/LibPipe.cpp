@@ -14,7 +14,7 @@ vector<shared_ptr<PipeExtensionInstance>> LibPipe::Extensions;
 
 //======================================================================================================================
 
-LibPipe::LibPipe(tstring path, PipeJSON::array serviceTypes) {
+LibPipe::LibPipe(const tstring& path, const PipeJSON::array& serviceTypes) {
 	PipeJSON::object settings {};
 	settings[_T("serviceTypes")] = serviceTypes;
 	// TODO: TEST!
@@ -29,7 +29,7 @@ LibPipe::~LibPipe() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void LibPipe::send(PipeJSON::array& messages) {
+void LibPipe::send(const PipeJSON::array& messages) {
 	_serviceRoot->send(messages);
 }
 

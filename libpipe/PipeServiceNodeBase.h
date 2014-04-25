@@ -51,18 +51,18 @@ public:
 private:
 	std::map<tstring, std::shared_ptr<PipeServiceNodeBase>> _children; 
 	PipeJSON::array _outgoing;
-	std::map<tstring, std::function<void(PipeJSON::object&)> > _commands;
+	std::map<tstring, std::function<void(const PipeJSON::object&)> > _commands;
 	PipeJSON::array _messageTypes;
 	PipeJSON::object _properties;
 
 	bool _preSendHookEnabled = false;
-	std::function<void(PipeJSON::array&)> _preSendHook;
+	std::function<PipeJSON::array(const PipeJSON::array&)> _preSendHook;
 
 	bool _postReceiveHookEnabled = false;
-	std::function<void(PipeJSON::array&)> _postReceiveHook;
+	std::function<PipeJSON::array(PipeJSON::array&)> _postReceiveHook;
 
 public:
-	PipeServiceNodeBase(const tstring& type, const tstring& description, const tstring& address, const tstring& path, PipeJSON::object& settings) 
+	PipeServiceNodeBase(const tstring& type, const tstring& description, const tstring& address, const tstring& path, const PipeJSON::object& settings) 
 		: _type(type)
 		, _description(description)
 		, _address(address) 
@@ -76,12 +76,10 @@ public:
 			_T("A test command"),
 			PipeJSON::object {
 			},
-			[&](PipeJSON::object& message) {
-				_outgoing.push_back(PipeJSON::object {
-					{ msgKeyAddress, _address },
-					{ msgKeyRef, message[msgKeyRef] },
-					{ _T("response"), _T("BASE") }
-				});
+			[&](const PipeJSON::object& message) {
+				//pushOutgoing(message[msgKeyRef].string_value(), _T("base_test"), PipeJSON::object {
+				//	{ _T("response"), _T("BASE") }
+				//});
 			}
 		);
 	}
@@ -89,7 +87,7 @@ public:
 	virtual ~PipeServiceNodeBase() {}
 
 public:
-	void enablePreSendHook(std::function<void(PipeJSON::array&)> hook) {
+	void enablePreSendHook(std::function<PipeJSON::array(const PipeJSON::array&)> hook) {
 		_preSendHook = hook;
 		_preSendHookEnabled = true;
 	}
@@ -98,7 +96,7 @@ public:
 		_preSendHookEnabled = false;
 	}
 
-	void enablePostReceiveHook(std::function<void(PipeJSON::array&)> hook) {
+	void enablePostReceiveHook(std::function<PipeJSON::array(const PipeJSON::array&)> hook) {
 		_postReceiveHook = hook;
 		_postReceiveHookEnabled = true;
 	}
@@ -136,7 +134,7 @@ public:
 			_children.erase(name);
 	}
 
-	void addCommand(const tstring& name, const tstring& description, PipeJSON::object& structure, const std::function<void(PipeJSON::object&)>& handler) {
+	void addCommand(const tstring& name, const tstring& description, const PipeJSON::object& structure, const std::function<void(const PipeJSON::object&)>& handler) {
 		if(_commands.count(name))
 		   throw _T("Command already defined");
 
@@ -144,7 +142,7 @@ public:
 		_commands[name] = handler;
 	}
 
-	void addMessageType(const tstring& type, const tstring& description, const bool& isCommand, PipeJSON::object& structure) {
+	void addMessageType(const tstring& type, const tstring& description, const bool& isCommand, const PipeJSON::object& structure) {
 
 		// TODO: Assert that the structure has the right format!
 
@@ -162,11 +160,10 @@ public:
 	}
 
 public:
-	virtual void send(PipeJSON::array& messages) {
-		if(_preSendHookEnabled)
-			_preSendHook(messages);
+	virtual void send(const PipeJSON::array& messages) {
+		auto&& messagesData = _preSendHookEnabled ? _preSendHook(messages) : messages;
 
-		for(auto&& messagesMember : messages) {
+		for(auto&& messagesMember : messagesData) {
 			auto message = messagesMember.object_items();
 
 			if(message.empty()) {
@@ -219,13 +216,10 @@ public:
 			messages.insert(end(messages), begin(serviceOutgoing), end(serviceOutgoing));
 		}
 
-		if(_postReceiveHookEnabled)
-			_postReceiveHook(messages);
-
-		return messages;
+		return _postReceiveHookEnabled ? _postReceiveHook(messages) : messages;
 	}
 
-	virtual PipeJSON::array nodeChildren(tstring address) {
+	virtual PipeJSON::array nodeChildren(const tstring& address) {
 		PipeJSON::array children;
 		
 		for(auto&& child : _children) {
@@ -235,11 +229,11 @@ public:
 		return children;
 	}
 
-	virtual PipeJSON::array nodeMessageTypes(tstring address) {
+	virtual PipeJSON::array nodeMessageTypes(const tstring& address) {
 		return _messageTypes;
 	}
 
-	virtual PipeJSON::object nodeInfo(tstring address) {
+	virtual PipeJSON::object nodeInfo(const tstring& address) {
 		return {
 			{ infoKeyAddress, _address },
 			{ infoKeyType, _type },
