@@ -72,7 +72,7 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 }
 
 LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr cbServiceTypes) {
-	PipeJSON::array serviceTypes;
+	PipeJson::array serviceTypes;
 
 	for(auto&& extension : LibPipe::Extensions) {
 		auto extensionServiceTypes = extension->serviceTypes();
@@ -81,13 +81,13 @@ LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr c
 		}
 	}
 
-	cbServiceTypes(context, PipeJSON(serviceTypes).dump().c_str());
+	cbServiceTypes(context, PipeJson(serviceTypes).dump().c_str());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr serviceTypes, HLibPipe* instance) {
-	auto serviceTypesData = std::make_shared<PipeServiceTypesData>(PipeJSON::parse(serviceTypes).array_items());
+	auto serviceTypesData = std::make_shared<PipeJsonArrayData>(PipeJson::parse(serviceTypes).array_items());
 	LibPipe::Instances.push_back(make_shared<LibPipe>(tstring(path), serviceTypesData));
 	(*instance) = reinterpret_cast<HLibPipe>(LibPipe::Instances.back().get());
 }
@@ -107,13 +107,13 @@ LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeStr messages) {
-	auto messagesData = std::make_shared<PipeMessageListData>(PipeJSON::parse(messages).array_items());
+	auto messagesData = std::make_shared<PipeJsonArrayData>(PipeJson::parse(messages).array_items());
 	reinterpret_cast<LibPipe*>(instance)->send(messagesData);
 }
 
 LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, LibPipeCbStr cbMessages) {
 	auto&& messages = reinterpret_cast<LibPipe*>(instance)->receive();
-	cbMessages(context, PipeJSON(*messages).dump().c_str());
+	cbMessages(context, PipeJson(*messages).dump().c_str());
 }
 
 //======================================================================================================================

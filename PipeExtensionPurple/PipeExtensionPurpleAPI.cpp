@@ -8,21 +8,21 @@ using namespace std;
 
 PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypes(PipeExtensionCbContext context, PipeExtensionCbStr cbServiceTypes) {
 	auto&& types = PipeExtensionPurple::ExtensionInstance.serviceTypes();
-	cbServiceTypes(context, PipeJSON(*types).dump().c_str());
+	cbServiceTypes(context, PipeJson(*types).dump().c_str());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypeSettings(PipeExtensionCbContext context, PipeExtensionStr serviceType, PipeExtensionCbStr cbServiceTypeSettings) {
 	auto&& typeSettings = PipeExtensionPurple::ExtensionInstance.serviceTypeSettings(serviceType);
-	cbServiceTypeSettings(context, PipeJSON(*typeSettings).dump().c_str());
+	cbServiceTypeSettings(context, PipeJson(*typeSettings).dump().c_str());
 }
 
 
 //----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceType, PipeExtensionStr address, PipeExtensionStr path, PipeExtensionStr settings, HPipeExtensionService* service) {
-	PipeServiceSettings settingsData = std::make_shared<PipeServiceSettingsData>(PipeJSON::parse(settings).object_items());
+	PipeJsonObject settingsData = std::make_shared<PipeJsonObjectData>(PipeJson::parse(settings).object_items());
 	(*service) = reinterpret_cast<HPipeExtensionService>(PipeExtensionPurple::ExtensionInstance.create(serviceType, address, path, settingsData));
 }
 
@@ -35,7 +35,7 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy(HPipeExtensionService servic
 //----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceSend(HPipeExtensionService service, PipeExtensionStr messages) {
-	PipeMessageList messagesData = std::make_shared<PipeMessageListData>(PipeJSON::parse(messages).array_items());
+	PipeJsonArray messagesData = std::make_shared<PipeJsonArrayData>(PipeJson::parse(messages).array_items());
 	reinterpret_cast<IPipeExtensionService*>(service)->send(messagesData);
 }
 
@@ -43,28 +43,28 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceSend(HPipeExtensionService service, 
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceReceive(HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbStr cbMessages) {
 	auto&& messages = reinterpret_cast<IPipeExtensionService*>(service)->receive();
-	cbMessages(context, PipeJSON(*messages).dump().c_str());
+	cbMessages(context, PipeJson(*messages).dump().c_str());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeChildren(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbChildNodes) {
 	auto&& children = reinterpret_cast<IPipeExtensionService*>(service)->nodeChildren(tstring(address));
-	cbChildNodes(context, PipeJSON(*children).dump().c_str());
+	cbChildNodes(context, PipeJson(*children).dump().c_str());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeMessageTypes(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeMessageTypes) {
 	auto&& messageTypes = reinterpret_cast<IPipeExtensionService*>(service)->nodeMessageTypes(tstring(address));
-	cbNodeMessageTypes(context, PipeJSON(*messageTypes).dump().c_str());
+	cbNodeMessageTypes(context, PipeJson(*messageTypes).dump().c_str());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeInfo(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeInfo) {
 	auto&& info = reinterpret_cast<IPipeExtensionService*>(service)->nodeInfo(tstring(address));
-	cbNodeInfo(context, PipeJSON(*info).dump().c_str());
+	cbNodeInfo(context, PipeJson(*info).dump().c_str());
 }
 
 //======================================================================================================================

@@ -126,8 +126,8 @@ public:
 			vector<tstring> outgoing;
 
 			tstring serviceTypesMessage = _T("Available services: ");
-			//for(PipeJSON& serviceType : serviceTypes) { serviceTypesMessage.append(_T(" ") + serviceType.toString()); }
-			serviceTypesMessage.append(PipeJSON(*serviceTypes).dump());
+			//for(PipeJson& serviceType : serviceTypes) { serviceTypesMessage.append(_T(" ") + serviceType.toString()); }
+			serviceTypesMessage.append(PipeJson(*serviceTypes).dump());
 			outgoing.push_back(serviceTypesMessage);
 
 			char buffer[bufferSize];
@@ -153,8 +153,8 @@ public:
 
 						if(message == _T("debug")) { pApp->_debug = !pApp->_debug; }
 
-						PipeMessageData messageData = PipeJSON::parse(message).object_items();
-						pipe.send(std::make_shared<PipeMessageListData>(PipeMessageListData({ messageData })));
+						PipeJsonObjectData messageData = PipeJson::parse(message).object_items();
+						pipe.send(std::make_shared<PipeJsonArrayData>(PipeJsonArrayData({ messageData })));
 					}
 
 					incoming.clear();

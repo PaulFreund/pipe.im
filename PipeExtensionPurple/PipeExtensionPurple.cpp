@@ -103,7 +103,7 @@ PipeExtensionPurple::~PipeExtensionPurple() {
 	}
 }
 
-PipeServiceTypes PipeExtensionPurple::serviceTypes() {
+PipeJsonArray PipeExtensionPurple::serviceTypes() {
 	if(!_libpurple_init_done) {
 		tstring userDir = tstring(purple_user_dir());
 		tstring replaceName = _T(".pipe.im");
@@ -128,7 +128,7 @@ PipeServiceTypes PipeExtensionPurple::serviceTypes() {
 
 	//purple_plugins_init();
 
-	PipeServiceTypes serviceTypes = std::make_shared<PipeServiceTypesData>();
+	PipeJsonArray serviceTypes = std::make_shared<PipeJsonArrayData>();
 	GList * protocols = purple_plugins_get_protocols();
 	for(; protocols; protocols = protocols->next) {
 		PurplePlugin* plugin = reinterpret_cast<PurplePlugin*>(protocols->data);
@@ -139,12 +139,12 @@ PipeServiceTypes PipeExtensionPurple::serviceTypes() {
 	return serviceTypes;
 }
 
-PipeServiceTypeSettings PipeExtensionPurple::serviceTypeSettings(const tstring& serviceType) {
-	return make_shared<PipeServiceTypeSettingsData>();
+PipeJsonObject PipeExtensionPurple::serviceTypeSettings(const tstring& serviceType) {
+	return make_shared<PipeJsonObjectData>();
 }
 
 
-IPipeExtensionService* PipeExtensionPurple::create(const tstring& serviceType, const tstring& address, const tstring& path, PipeServiceTypeSettings settings) {
+IPipeExtensionService* PipeExtensionPurple::create(const tstring& serviceType, const tstring& address, const tstring& path, PipeJsonObject settings) {
 	if(serviceType == _T("irc")) {
 		return (_services[address] = new ServiceIRC(address, path, settings));
 	}

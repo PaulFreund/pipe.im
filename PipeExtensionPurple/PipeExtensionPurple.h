@@ -21,9 +21,9 @@ public:
 	virtual ~PipeExtensionPurple();
 
 public:
-	virtual PipeServiceTypes serviceTypes();
-	virtual PipeServiceTypeSettings serviceTypeSettings(const tstring& serviceType);
-	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeServiceSettings settings);
+	virtual PipeJsonArray serviceTypes();
+	virtual PipeJsonObject serviceTypeSettings(const tstring& serviceType);
+	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeJsonObject settings);
 	virtual void destroy(IPipeExtensionService* service);
 };
 

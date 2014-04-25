@@ -13,9 +13,9 @@ private:
 	HLibPipe _instance;
 
 public:
-	LibPipeInstance(const tstring& path, PipeServiceTypes serviceTypes) {
+	LibPipeInstance(const tstring& path, PipeJsonArray serviceTypes) {
 		HLibPipe instance;
-		LibPipeCreate(path.c_str(), PipeJSON(*serviceTypes).dump().c_str(), &instance);
+		LibPipeCreate(path.c_str(), PipeJson(*serviceTypes).dump().c_str(), &instance);
 		_instance = instance;
 	}
 
@@ -24,15 +24,15 @@ public:
 	}
 
 public:
-	virtual void send(PipeMessageList messages) {
-		LibPipeSend(_instance, PipeJSON(*messages).dump().c_str());
+	virtual void send(PipeJsonArray messages) {
+		LibPipeSend(_instance, PipeJson(*messages).dump().c_str());
 	}
 
-	virtual PipeMessageList receive() {
-		PipeMessageList messages;
+	virtual PipeJsonArray receive() {
+		PipeJsonArray messages;
 
 		LibPipeReceive(_instance, &messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
-			(*static_cast<PipeMessageList*>(context)) = std::make_shared<PipeMessageListData>(PipeJSON::parse(messagesData).array_items());
+			(*static_cast<PipeJsonArray*>(context)) = std::make_shared<PipeJsonArrayData>(PipeJson::parse(messagesData).array_items());
 		});
 
 		return messages;
@@ -43,11 +43,11 @@ public:
 		LibPipeLoadExtensions(path.c_str());
 	}
 
-	static PipeServiceTypes serviceTypes() {
-		PipeServiceTypes serviceTypes;
+	static PipeJsonArray serviceTypes() {
+		PipeJsonArray serviceTypes;
 
 		LibPipeGetServiceTypes(&serviceTypes, [](LibPipeCbContext context, LibPipeStr serviceTypesData) {
-			(*static_cast<PipeServiceTypes*>(context)) = std::make_shared<PipeServiceTypesData>(PipeJSON::parse(serviceTypesData).array_items());
+			(*static_cast<PipeJsonArray*>(context)) = std::make_shared<PipeJsonArrayData>(PipeJson::parse(serviceTypesData).array_items());
 		});
 
 		return serviceTypes;

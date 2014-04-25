@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 		cout << _T("------------------------------------------") << endl;
 		cout << _T("Welcome to pipe shell") << endl;
 		cout << _T("------------------------------------------") << endl;
-		cout << _T("Available service types: ") << PipeJSON(*serviceTypes).dump() << endl;
+		cout << _T("Available service types: ") << PipeJson(*serviceTypes).dump() << endl;
 
 		cout << _T("------------------------------------------") << endl;
 		cout << endl;
@@ -97,8 +97,8 @@ int main(int argc, char* argv[]) {
 					continue;
 				}
 
-				PipeMessageData messageData = PipeJSON::parse(message).object_items();
-				pipe.send(std::make_shared<PipeMessageListData>(PipeMessageListData({ messageData })));
+				PipeJsonObjectData messageData = PipeJson::parse(message).object_items();
+				pipe.send(std::make_shared<PipeJsonArrayData>(PipeJsonArrayData({ messageData })));
 			}
 		});
 

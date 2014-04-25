@@ -14,11 +14,11 @@ vector<shared_ptr<PipeExtensionInstance>> LibPipe::Extensions;
 
 //======================================================================================================================
 
-LibPipe::LibPipe(const tstring& path, PipeServiceTypes serviceTypes) {
-	PipeServiceSettingsData settings {};
+LibPipe::LibPipe(const tstring& path, PipeJsonArray serviceTypes) {
+	PipeJsonObjectData settings {};
 	settings[_T("serviceTypes")] = *serviceTypes;
 	// TODO: TEST!
-	_serviceRoot = make_shared<ServiceRoot>(_T("pipe"), path, std::make_shared<PipeServiceTypeSettingsData>(settings));
+	_serviceRoot = make_shared<ServiceRoot>(_T("pipe"), path, std::make_shared<PipeJsonObjectData>(settings));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -29,13 +29,13 @@ LibPipe::~LibPipe() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void LibPipe::send(PipeMessageList messages) {
+void LibPipe::send(PipeJsonArray messages) {
 	_serviceRoot->send(messages);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PipeMessageList LibPipe::receive() {
+PipeJsonArray LibPipe::receive() {
 	return _serviceRoot->receive();
 }
 

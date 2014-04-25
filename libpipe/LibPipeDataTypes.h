@@ -28,37 +28,24 @@ typedef unsigned char ubyte;
 //======================================================================================================================
 
 #include "json11.h"
+typedef Json PipeJson;
 
-typedef Json PipeJSON;
+//----------------------------------------------------------------------------------------------------------------------
 
-typedef PipeJSON::object                                    PipeMessageData;
-typedef std::shared_ptr<PipeMessageData>                    PipeMessage;
+typedef PipeJson::array                                     PipeJsonArrayData;
+typedef std::shared_ptr<PipeJsonArrayData>					PipeJsonArray;
 
-typedef PipeJSON::array                                     PipeMessageListData;
-typedef std::shared_ptr<PipeMessageListData>                PipeMessageList;
+inline std::shared_ptr<PipeJsonArrayData> newArray(PipeJsonArrayData&& data = PipeJsonArrayData {}) {
+	return std::make_shared<PipeJsonArrayData>(std::move(data));
+}
 
-typedef PipeJSON::array                                     PipeServiceTypesData;
-typedef std::shared_ptr<PipeServiceTypesData>               PipeServiceTypes;
+//----------------------------------------------------------------------------------------------------------------------
 
-typedef PipeJSON::object                                    PipeServiceTypeSettingsData;
-typedef std::shared_ptr<PipeServiceTypeSettingsData>        PipeServiceTypeSettings;
+typedef PipeJson::object                                    PipeJsonObjectData;
+typedef std::shared_ptr<PipeJsonObjectData>					PipeJsonObject;
 
-typedef PipeJSON::object                                    PipeServiceSettingsData;
-typedef std::shared_ptr<PipeServiceSettingsData>            PipeServiceSettings;
-
-typedef PipeJSON::array                                     PipeServiceNodeChildrenData;
-typedef std::shared_ptr<PipeServiceNodeChildrenData>        PipeServiceNodeChildren;
-
-typedef PipeJSON::object                                    PipeServiceNodeMessageTypeData;
-typedef std::shared_ptr<PipeServiceNodeMessageTypeData>     PipeServiceNodeMessageType;
-
-typedef PipeJSON::array                                     PipeServiceNodeMessageTypesData;
-typedef std::shared_ptr<PipeServiceNodeMessageTypesData>    PipeServiceNodeMessageTypes;
-
-typedef PipeJSON::object                                    PipeServiceNodeInfoData;
-typedef std::shared_ptr<PipeServiceNodeInfoData>            PipeServiceNodeInfo;
-
-typedef PipeJSON::object                                    PipeServiceNodePropertiesData;
-typedef std::shared_ptr<PipeServiceNodePropertiesData>      PipeServiceNodeProperties;
+inline std::shared_ptr<PipeJsonObjectData> newObject(PipeJsonObjectData&& data = PipeJsonObjectData {}) {
+	return std::make_shared<PipeJsonObjectData>(std::move(data));
+}
 
 //======================================================================================================================

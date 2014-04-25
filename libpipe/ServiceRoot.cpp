@@ -6,13 +6,12 @@ using namespace std;
 
 //======================================================================================================================
 
-ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeServiceSettings settings) : PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), address, path, settings) {
+ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeJsonObject settings) : PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), address, path, settings) {
 	addCommand(
 		_T("root_test"), 
 		_T("A test command"),
-		std::make_shared<PipeServiceNodeMessageTypeData>(PipeServiceNodeMessageTypeData {
-		}),
-		[&](PipeMessage message) {
+		newObject(),
+		[&](PipeJsonObject message) {
 			//pushOutgoing(message[msgKeyRef].string_value(), _T("root_test"), PipeJSON::object {
 			//	{ _T("response"), _T("ROOT") }
 			//});
@@ -24,9 +23,9 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeServic
 	childNode->addCommand(
 		_T("child_test"),
 		_T("A test command"),
-		std::make_shared<PipeServiceNodeMessageTypeData>(PipeServiceNodeMessageTypeData {
+		std::make_shared<PipeJsonObjectData>(PipeJsonObjectData {
 		}),
-		[&](PipeMessage message) {
+		[&](PipeJsonObject message) {
 			//pushOutgoing(message[msgKeyRef].string_value(), _T("child_test"), PipeJSON::object {
 			//	{ _T("response"), _T("CHILD") }
 			//});
@@ -35,13 +34,13 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeServic
 
 	addChild(childNode);
 
-	enablePreSendHook([&](PipeMessageList messages) {
+	enablePreSendHook([&](PipeJsonArray messages) {
 		// TODO!!! Make json types const where applicable, make the hooks return the new array
 
 		// TODO: Process scripts
 	});
 
-	enablePostReceiveHook([&](PipeMessageList messages) {
+	enablePostReceiveHook([&](PipeJsonArray messages) {
 		// TODO: Process scripts
 	});
 
