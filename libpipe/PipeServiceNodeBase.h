@@ -33,6 +33,7 @@ public:
 	const tstring messageTypeKeyStructure = _T("structure");
 
 	const tstring errorMsgKeyDescription = _T("description");
+	const tstring errorMsgKeyErrorMessage = _T("errorMessage");
 
 	const tstring errorMsgDescriptionInvalidMessageData = _T("Message data is invalid or missing");
 	const tstring errorMsgDescriptionInvalidAddress = _T("Missing or invalid address field");
@@ -40,6 +41,7 @@ public:
 	const tstring errorMsgDescriptionInvalidReference = _T("Missing or invalid reference field");
 	const tstring errorMsgDescriptionUnknownAddress = _T("Address not found");
 	const tstring errorMsgDescriptionUnknownCommand = _T("Command not found");
+	const tstring errorMsgDescriptionProcessingFailure = _T("There was an error executing the command");
 
 	typedef std::function<void(PipeJsonObjectData&)> PipeCommandFunction;
 	typedef std::function<void(PipeJsonArray)> PipeHookFunction;
@@ -202,7 +204,27 @@ public:
 					return;
 				}
 
-				_commands[messageCommand](message); 
+				try {
+					_commands[messageCommand](message);
+				}
+
+				catch(std::exception ex) {
+					pushOutgoing(message[msgKeyRef].string_value(), msgTypeError, newObject({
+						{ errorMsgKeyDescription, errorMsgDescriptionProcessingFailure },
+						{ errorMsgKeyErrorMessage, ex.what() }
+					}));
+				}
+				catch(tstring msg) {
+					pushOutgoing(message[msgKeyRef].string_value(), msgTypeError, newObject({
+						{ errorMsgKeyDescription, errorMsgDescriptionProcessingFailure },
+						{ errorMsgKeyErrorMessage, msg }
+					}));
+				}
+				catch(...) {
+					pushOutgoing(message[msgKeyRef].string_value(), msgTypeError, newObject({
+						{ errorMsgKeyDescription, errorMsgDescriptionProcessingFailure }
+					}));
+				}
 			}
 			else if(messageAddress.length() >= (_address.length() + 2) && messageAddress[_address.length()] == addressSeparator && _children.count(messageAddress)) {
 				_children[messageAddress]->send(newArray({ message }));

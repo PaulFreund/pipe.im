@@ -34,12 +34,18 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeJsonOb
 	addChild(childNode);
 
 	enablePreSendHook([&](PipeJsonArray messages) {
-		// TODO!!! Make json types const where applicable, make the hooks return the new array
+		for(auto& message: *messages) {
+			message[msgKeyRef].string_value() = _T("PRE_") + message[msgKeyRef].string_value();
+		}
 
 		// TODO: Process scripts
 	});
 
 	enablePostReceiveHook([&](PipeJsonArray messages) {
+		for(auto& message : *messages) {
+			message[msgKeyRef].string_value() = message[msgKeyRef].string_value() + _T("_POST");
+		}
+
 		// TODO: Process scripts
 	});
 
