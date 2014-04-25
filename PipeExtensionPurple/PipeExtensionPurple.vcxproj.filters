@@ -17,9 +17,6 @@
     <ClCompile Include="PipeExtensionPurple.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="json11.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PipeExtensionPurple.h">

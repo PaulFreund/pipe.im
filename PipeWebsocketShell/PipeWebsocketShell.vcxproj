@@ -88,7 +88,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="json11.cpp" />
     <ClCompile Include="PipeWebsocketShell.cpp" />
   </ItemGroup>
   <ItemGroup>

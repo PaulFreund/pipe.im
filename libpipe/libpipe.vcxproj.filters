@@ -62,11 +62,11 @@
     <ClInclude Include="LibPipeDataTypes.h">
       <Filter>LibPipe\Wrapper</Filter>
     </ClInclude>
-    <ClInclude Include="json11.hpp">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="PipeServiceNodeBase.h">
       <Filter>PipeExtension\Wrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="json11.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -81,9 +81,6 @@
     </ClCompile>
     <ClCompile Include="ServiceRoot.cpp">
       <Filter>LibPipe\ServiceRoot</Filter>
-    </ClCompile>
-    <ClCompile Include="json11.cpp">
-      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

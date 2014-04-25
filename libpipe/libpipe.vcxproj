@@ -86,14 +86,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="json11.cpp" />
     <ClCompile Include="LibPipe.cpp" />
     <ClCompile Include="LibPipeAPI.cpp" />
     <ClCompile Include="ServiceRoot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonHeader.h" />
-    <ClInclude Include="json11.hpp" />
+    <ClInclude Include="json11.h" />
     <ClInclude Include="LibPipeDataTypes.h" />
     <ClInclude Include="LibPipeInterface.h" />
     <ClInclude Include="LibPipeInstance.h" />
