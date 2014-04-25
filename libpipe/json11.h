@@ -506,6 +506,100 @@ namespace json11 {
 			virtual ~JsonValue() {}
 		};
 
+		static void dump(std::nullptr_t, std::string &out) {
+			out += "null";
+		}
+
+		static void dump(double value, std::string &out) {
+			char buf[32];
+			snprintf(buf, sizeof buf, "%.17g", value);
+			out += buf;
+		}
+
+		static void dump(int value, std::string &out) {
+			char buf[32];
+			snprintf(buf, sizeof buf, "%d", value);
+			out += buf;
+		}
+
+		static void dump(bool value, std::string &out) {
+			out += value ? "true" : "false";
+		}
+
+		static void dump(const std::string &value, std::string &out) {
+			out += '"';
+			for(size_t i = 0; i < value.length(); i++) {
+				const char ch = value[i];
+				if(ch == '\\') {
+					out += "\\\\";
+				}
+				else if(ch == '"') {
+					out += "\\\"";
+				}
+				else if(ch == '\b') {
+					out += "\\b";
+				}
+				else if(ch == '\f') {
+					out += "\\f";
+				}
+				else if(ch == '\n') {
+					out += "\\n";
+				}
+				else if(ch == '\r') {
+					out += "\\r";
+				}
+				else if(ch == '\t') {
+					out += "\\t";
+				}
+				else if((uint8_t)ch <= 0x1f) {
+					char buf[8];
+					snprintf(buf, sizeof buf, "\\u%04x", ch);
+					out += buf;
+				}
+				else if((uint8_t)ch == 0xe2 && (uint8_t)value[i + 1] == 0x80
+						&& (uint8_t)value[i + 2] == 0xa8) {
+					out += "\\u2028";
+					i += 2;
+				}
+				else if((uint8_t)ch == 0xe2 && (uint8_t)value[i + 1] == 0x80
+						&& (uint8_t)value[i + 2] == 0xa9) {
+					out += "\\u2029";
+					i += 2;
+				}
+				else {
+					out += ch;
+				}
+			}
+			out += '"';
+		}
+
+		static void dump(const Json::array &values, std::string &out) {
+			bool first = true;
+			out += "[";
+			for(auto &value : values) {
+				if(!first)
+					out += ", ";
+				value.dump(out);
+				first = false;
+			}
+			out += "]";
+		}
+
+		static void dump(const Json::object &values, std::string &out) {
+			bool first = true;
+			out += "{";
+			for(const std::pair<std::string, Json> &kv : values) {
+				if(!first)
+					out += ", ";
+				dump(kv.first, out);
+				out += ": ";
+				kv.second.dump(out);
+				first = false;
+			}
+			out += "}";
+		}
+
+
 		template <Json::Type tag, typename T>
 		class Value : public JsonValue {
 		protected:
@@ -527,7 +621,9 @@ namespace json11 {
 			}
 
 			const T m_value;
-			void dump(std::string &out) const { json11::dump(m_value, out); }
+			void dump(std::string &out) const { 
+				Json::dump(m_value, out); 
+			}
 		};
 
 		class JsonDouble final : public Value<Json::NUMBER, double> {
@@ -673,7 +769,7 @@ public:
 		}
 
 		// Return the enclosed value if this is a boolean, false otherwise.
-		bool Json::bool_value() const { 
+		bool bool_value() const { 
 			return m_ptr->bool_value(); 
 		}
 
@@ -694,12 +790,12 @@ public:
 		}
 
 		// Return a reference to arr[i] if this is an array, Json() otherwise.
-		const Json & Json::operator[] (size_t i) const { 
+		const Json & operator[] (size_t i) const { 
 			return (*m_ptr)[i]; 
 		}
 
 		// Return a reference to obj[key] if this is an object, Json() otherwise.
-		const Json & Json::operator[] (const std::string &key) const {
+		const Json & operator[] (const std::string &key) const {
 			return (*m_ptr)[key]; 
 		}
 
@@ -813,97 +909,5 @@ public:
 
 	//==================================================================================================================================================================================================================================================================================================================
 
-	static void dump(std::nullptr_t, std::string &out) {
-		out += "null";
-	}
-
-	static void dump(double value, std::string &out) {
-		char buf[32];
-		snprintf(buf, sizeof buf, "%.17g", value);
-		out += buf;
-	}
-
-	static void dump(int value, std::string &out) {
-		char buf[32];
-		snprintf(buf, sizeof buf, "%d", value);
-		out += buf;
-	}
-
-	static void dump(bool value, std::string &out) {
-		out += value ? "true" : "false";
-	}
-
-	static void dump(const std::string &value, std::string &out) {
-		out += '"';
-		for(size_t i = 0; i < value.length(); i++) {
-			const char ch = value[i];
-			if(ch == '\\') {
-				out += "\\\\";
-			}
-			else if(ch == '"') {
-				out += "\\\"";
-			}
-			else if(ch == '\b') {
-				out += "\\b";
-			}
-			else if(ch == '\f') {
-				out += "\\f";
-			}
-			else if(ch == '\n') {
-				out += "\\n";
-			}
-			else if(ch == '\r') {
-				out += "\\r";
-			}
-			else if(ch == '\t') {
-				out += "\\t";
-			}
-			else if((uint8_t)ch <= 0x1f) {
-				char buf[8];
-				snprintf(buf, sizeof buf, "\\u%04x", ch);
-				out += buf;
-			}
-			else if((uint8_t)ch == 0xe2 && (uint8_t)value[i + 1] == 0x80
-					&& (uint8_t)value[i + 2] == 0xa8) {
-				out += "\\u2028";
-				i += 2;
-			}
-			else if((uint8_t)ch == 0xe2 && (uint8_t)value[i + 1] == 0x80
-					&& (uint8_t)value[i + 2] == 0xa9) {
-				out += "\\u2029";
-				i += 2;
-			}
-			else {
-				out += ch;
-			}
-		}
-		out += '"';
-	}
-
-	static void dump(const Json::array &values, std::string &out) {
-		bool first = true;
-		out += "[";
-		for(auto &value : values) {
-			if(!first)
-				out += ", ";
-			value.dump(out);
-			first = false;
-		}
-		out += "]";
-	}
-
-	static void dump(const Json::object &values, std::string &out) {
-		bool first = true;
-		out += "{";
-		for(const std::pair<std::string, Json> &kv : values) {
-			if(!first)
-				out += ", ";
-			dump(kv.first, out);
-			out += ": ";
-			kv.second.dump(out);
-			first = false;
-		}
-		out += "}";
-	}
 
 } // namespace json11
