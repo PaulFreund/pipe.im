@@ -127,7 +127,7 @@ public:
 
 			tstring serviceTypesMessage = _T("Available services: ");
 			//for(PipeJSON& serviceType : serviceTypes) { serviceTypesMessage.append(_T(" ") + serviceType.toString()); }
-			serviceTypesMessage.append(PipeJSON(serviceTypes).dump());
+			serviceTypesMessage.append(PipeJSON(*serviceTypes).dump());
 			outgoing.push_back(serviceTypesMessage);
 
 			char buffer[bufferSize];
@@ -161,7 +161,8 @@ public:
 				}
 
 				// Receive from pipe
-				for(auto& pipeMessage : *pipe.receive()) {
+				auto pipeMessages = pipe.receive();
+				for(auto& pipeMessage : *pipeMessages) {
 					outgoing.push_back(pipeMessage.dump());
 				}
 
