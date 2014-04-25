@@ -40,7 +40,7 @@ inline std::shared_ptr<PipeJsonArrayData> newArray(PipeJsonArrayData&& data = Pi
 }
 
 inline PipeJsonArray parseArray(const tstring& data) {
-	return std::make_shared<PipeJsonArrayData>(PipeJson::parse(data).array_items());
+	return PipeJson::parse(data).array_items();
 }
 
 inline tstring dumpArray(const PipeJsonArrayData& array) { return std::move(PipeJson(array).dump()); }
@@ -56,7 +56,7 @@ inline std::shared_ptr<PipeJsonObjectData> newObject(PipeJsonObjectData&& data =
 }
 
 inline PipeJsonObject parseObject(const tstring& data) {
-	return std::make_shared<PipeJsonObjectData>(PipeJson::parse(data).object_items());
+	return PipeJson::parse(data).object_items();
 }
 
 inline tstring dumpObject(const PipeJsonObjectData& object) { return std::move(PipeJson(object).dump()); }

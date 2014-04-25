@@ -463,40 +463,19 @@
 			friend class JsonInt;
 			friend class JsonDouble;
 			virtual Json::Type type() const = 0;
-			virtual bool equals(const JsonValue * other) const = 0;
-			virtual bool less(const JsonValue * other) const = 0;
+			virtual bool equals(JsonValue * other) const = 0;
+			virtual bool less(JsonValue * other) const = 0;
 			virtual void dump(std::string &out) const = 0;
-			virtual double number_value() const { 
-				return 0; 
-			}
 
-			virtual int int_value() const { 
-				return 0; 
-			}
+			virtual std::shared_ptr<double> number_value() {  return std::make_shared<double>(0.0); }
+			virtual std::shared_ptr<int> int_value() { return std::make_shared<int>(0); }
+			virtual std::shared_ptr<bool> bool_value() { return std::make_shared<bool>(false); }
+			virtual std::shared_ptr<std::string> string_value() { return std::make_shared<std::string>(statics().empty_string); }
+			virtual std::shared_ptr<std::vector<Json> > array_items() { return std::make_shared<std::vector<Json> >(statics().empty_vector); }
+			virtual std::shared_ptr<std::map<std::string, Json> > object_items() { return std::make_shared<std::map<std::string, Json> >(statics().empty_map); }
 
-			virtual bool bool_value() const { 
-				return false; 
-			}
-
-			virtual const std::string & string_value() const {
-				return statics().empty_string; 
-			}
-
-			virtual const std::vector<Json> & array_items() const {
-				return statics().empty_vector; 
-			}
-
-			virtual const std::map<std::string, Json> & object_items() const {
-				return statics().empty_map;
-			}
-
-			virtual const Json & operator[] (size_t) const {
-				return static_null(); 
-			}
-
-			virtual const Json & operator[] (const std::string &) const {
-				return static_null(); 
-			}
+			virtual std::shared_ptr<Json> operator[] (size_t) { return std::make_shared<Json>(static_null()); }
+			virtual std::shared_ptr<Json> operator[] (const std::string &) { return std::make_shared<Json>(static_null()); }
 
 			virtual ~JsonValue() {}
 		};
@@ -599,8 +578,8 @@
 		class Value : public JsonValue {
 		protected:
 			// Constructors
-			Value(const T &value) : m_value(value) {}
-			Value(T &&value) : m_value(std::move(value)) {}
+			Value(const T &value) : m_value(std::make_shared<T>(value)) {}
+			Value(T &&value) : m_value(std::make_shared<T>(std::move(value))) {}
 
 			// Get type tag
 			Json::Type type() const {
@@ -608,55 +587,55 @@
 			}
 
 			// Comparisons
-			bool equals(const JsonValue * other) const {
+			bool equals(JsonValue * other) const {
 				return m_value == reinterpret_cast<const Value<tag, T> *>(other)->m_value;
 			}
-			bool less(const JsonValue * other) const {
+			bool less(JsonValue * other) const {
 				return m_value < reinterpret_cast<const Value<tag, T> *>(other)->m_value;
 			}
 
-			T m_value; // TODO: EXPERIMENTAL
+			std::shared_ptr<T> m_value;
 			void dump(std::string &out) const { 
-				Json::dump(m_value, out); 
+				Json::dump(*m_value, out); 
 			}
 		};
 
 		class JsonDouble final : public Value<Json::NUMBER, double> {
-			double number_value() const { return m_value; }
-			int int_value() const { return m_value; }
-			bool equals(const JsonValue * other) const { return m_value == other->number_value(); }
-			bool less(const JsonValue * other)   const { return m_value <  other->number_value(); }
+			std::shared_ptr<double> number_value() { return m_value; }
+			bool equals(JsonValue * other) const { return (*m_value) == (*other->number_value()); }
+			bool less(JsonValue * other)   const { return (*m_value) <  (*other->number_value()); }
 		public:
 			JsonDouble(double value) : Value(value) {}
 		};
 
 		class JsonInt final : public Value<Json::NUMBER, int> {
-			double number_value() const { return m_value; }
-			int int_value() const { return m_value; }
-			bool equals(const JsonValue * other) const { return m_value == other->number_value(); }
-			bool less(const JsonValue * other)   const { return m_value <  other->number_value(); }
+			std::shared_ptr<int> int_value() { return m_value; }
+			bool equals(JsonValue * other) const { return (*m_value) == (*other->number_value()); }
+			bool less(JsonValue * other)   const { return (*m_value) <  (*other->number_value()); }
 		public:
-			JsonInt(double value) : Value(value) {}
+			JsonInt(int value) : Value(value) {}
 		};
 
 		class JsonBoolean final : public Value<Json::BOOL, bool> {
-			bool bool_value() const { return m_value; }
+			std::shared_ptr<bool> bool_value() { return m_value; }
 		public:
 			JsonBoolean(bool value) : Value(value) {}
 		};
 
 		class JsonString final : public Value<Json::STRING, std::string> {
-			const std::string &string_value() const { return m_value; }
+			std::shared_ptr<std::string> string_value() { return m_value; }
 		public:
 			JsonString(const std::string &value) : Value(value) {}
 			JsonString(std::string &&value) : Value(std::move(value)) {}
 		};
 
 		class JsonArray final : public Value<Json::ARRAY, Json::array> {
-			const Json::array &array_items() const { return m_value; }
-			const Json & operator[] (size_t i) const {
-				if(i >= m_value.size()) return static_null();
-				else return m_value[i];
+			std::shared_ptr<Json::array> array_items() { return m_value; }
+			std::shared_ptr<Json> operator[] (size_t i) { 
+				if(i < m_value->size()) 
+					return std::shared_ptr<Json>(&(*m_value)[i]);
+
+				return std::make_shared<Json>(static_null());
 			}
 		public:
 			JsonArray(const Json::array &value) : Value(value) {}
@@ -664,10 +643,12 @@
 		};
 
 		class JsonObject final : public Value<Json::OBJECT, Json::object> {
-			const Json::object &object_items() const { return m_value; }
-			const Json & operator[] (const std::string &key) const {
-				auto iter = m_value.find(key);
-				return (iter == m_value.end()) ? static_null() : iter->second;
+			std::shared_ptr<Json::object> object_items() { return m_value; }
+			std::shared_ptr<Json> operator[] (const std::string &key) {
+				if(m_value->count(key))
+					return (*m_value)[key];
+
+				return std::make_shared<Json>(static_null());
 			}
 		public:
 			JsonObject(const Json::object &value) : Value(value) {}
@@ -752,47 +733,16 @@ public:
 		bool is_array()  const { return type() == ARRAY; }
 		bool is_object() const { return type() == OBJECT; }
 
-		// Return the enclosed value if this is a number, 0 otherwise. Note that json11 does not
-		// distinguish between integer and non-integer numbers - number_value() and int_value()
-		// can both be applied to a NUMBER-typed object.
-		double number_value() const { 
-			return m_ptr->number_value(); 
-		}
 
-		int int_value() const { 
-			return m_ptr->int_value(); 
-		}
+		std::shared_ptr<double> number_value() {  return m_ptr->number_value();  }
+		std::shared_ptr<int> int_value() { return m_ptr->int_value();  }
+		std::shared_ptr<bool> bool_value() { return m_ptr->bool_value();  }
+		std::shared_ptr<std::string> string_value() { return m_ptr->string_value();  }
+		std::shared_ptr<std::vector<Json> > array_items() { return m_ptr->array_items();  }
+		std::shared_ptr<std::map<std::string, Json> > object_items() { return m_ptr->object_items(); }
 
-		// Return the enclosed value if this is a boolean, false otherwise.
-		bool bool_value() const { 
-			return m_ptr->bool_value(); 
-		}
-
-
-		// Return the enclosed string if this is a string, "" otherwise.
-		const std::string & string_value() const {
-			return m_ptr->string_value(); 
-		}
-
-		// Return the enclosed std::vector if this is an array, or an empty vector otherwise.
-		const std::vector<Json> & array_items() const {
-			return m_ptr->array_items(); 
-		}
-
-		// Return the enclosed std::map if this is an object, or an empty map otherwise.
-		const std::map<std::string, Json> & object_items() const {
-			return m_ptr->object_items(); 
-		}
-
-		// Return a reference to arr[i] if this is an array, Json() otherwise.
-		const Json & operator[] (size_t i) const { 
-			return (*m_ptr)[i]; 
-		}
-
-		// Return a reference to obj[key] if this is an object, Json() otherwise.
-		const Json & operator[] (const std::string &key) const {
-			return (*m_ptr)[key]; 
-		}
+		std::shared_ptr<Json> operator[] (size_t i) { return (*m_ptr)[i];  }
+		std::shared_ptr<Json> operator[] (const std::string &key) { return (*m_ptr)[key]; }
 
 		// Serialize.
 		void dump(std::string &out) const {
@@ -873,22 +823,20 @@ public:
 		bool operator>(const Json &rhs) const { return  (rhs < *this); }
 		bool operator>= (const Json &rhs) const { return !(*this < rhs); }
 
-
-
 		/* has_shape(types, err)
 		*
 		* Return true if this is a JSON object and, for each item in types, has a field of
 		* the given type. If not, return false and set err to a descriptive message.
 		*/
 		typedef std::initializer_list<std::pair<std::string, Type>> shape;
-		bool has_shape(const shape & types, std::string & err) const {
+		bool has_shape(const shape & types, std::string & err) {
 			if(!is_object()) {
 				err = "expected JSON object, got " + dump();
 				return false;
 			}
 
-			for(auto & item : types) {
-				if((*this)[item.first].type() != item.second) {
+			for(auto& item : types) {
+				if((*object_items())[item.first].type() != item.second) {
 					err = "bad type for " + item.first + " in " + dump();
 					return false;
 				}

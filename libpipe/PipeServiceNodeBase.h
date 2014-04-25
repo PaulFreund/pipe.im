@@ -83,7 +83,7 @@ public:
 			_T("A test command"),
 			newObject(),
 			[&](PipeJsonObject message) {
-				pushOutgoing((*message)[msgKeyRef].string_value(), _T("base_test"), newObject({
+				pushOutgoing(*(*message)[msgKeyRef].string_value(), _T("base_test"), newObject({
 					{ _T("response"), _T("BASE") }
 				}));
 			}
@@ -153,7 +153,7 @@ public:
 		// TODO: Assert that the structure has the right format!
 
 		for(auto&& messageType : *_messageTypes) {
-			if(messageType[messageTypeKeyType].string_value() == messageType.string_value())
+			if(*messageType[messageTypeKeyType]->string_value() == *messageType.string_value())
 				throw _T("Message type already defined");
 		}
 
@@ -173,42 +173,42 @@ public:
 		for(auto&& messagesMember : *messages) {
 			auto message = messagesMember.object_items();
 
-			if(message.empty()) {
+			if(message->empty()) {
 				pushOutgoing(_T(""), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionInvalidMessageData } }));
 				continue;
 			}
 
-			if(!message.count(msgKeyRef) || !message[msgKeyRef].is_string()) {
+			if(!message->count(msgKeyRef) || !(*message)[msgKeyRef].is_string()) {
 				pushOutgoing(_T(""), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionInvalidReference } }));
 				continue;
 			}
 
-			if(!message.count(msgKeyAddress) || !message[msgKeyAddress].is_string()) {
-				pushOutgoing(_T(""), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionInvalidAddress } }));
+			if(!message->count(msgKeyAddress) || !(*message)[msgKeyAddress].is_string()) {
+				pushOutgoing(*(*message)[msgKeyRef].string_value(), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionInvalidAddress } }));
 				return;
 			}
 
-			if(!message.count(msgKeyType) || !message[msgKeyType].is_string()) {
-				pushOutgoing(_T(""), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionInvalidType } }));
+			if(!message->count(msgKeyType) || !(*message)[msgKeyType].is_string()) {
+				pushOutgoing(*(*message)[msgKeyRef].string_value(), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionInvalidType } }));
 				return;
 			}
 
-			auto&& messageAddress = message[msgKeyAddress].string_value();
+			auto messageAddress = (*message)[msgKeyAddress].string_value();
 
-			if(messageAddress == _address) {
-				auto&& messageCommand = message[msgKeyType].string_value();
-				if(!_commands.count(messageCommand)) {
-					pushOutgoing(_T(""), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionUnknownCommand } }));
+			if(*messageAddress == _address) {
+				auto messageCommand = (*message)[msgKeyType].string_value();
+				if(!_commands.count(*messageCommand)) {
+					pushOutgoing(*(*message)[msgKeyRef].string_value(), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionUnknownCommand } }));
 					return;
 				}
 
-				_commands[messageCommand](std::make_shared<PipeJsonObjectData>(message)); // TODO!
+				_commands[*messageCommand](message); 
 			}
-			else if(messageAddress.length() >= (_address.length() + 2) && messageAddress[_address.length()] == addressSeparator && _children.count(messageAddress)) {
-				_children[messageAddress]->send(newArray({ message }));
+			else if(messageAddress->length() >= (_address.length() + 2) && (*messageAddress)[_address.length()] == addressSeparator && _children.count(*messageAddress)) {
+				_children[*messageAddress]->send(newArray({ *message }));
 			}
 			else {
-				pushOutgoing(_T(""), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionUnknownAddress } }));
+				pushOutgoing(*(*message)[msgKeyRef].string_value(), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionUnknownAddress } }));
 				return;
 			}
 		}

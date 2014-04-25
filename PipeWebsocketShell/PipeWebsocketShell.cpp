@@ -153,7 +153,7 @@ public:
 
 						if(message == _T("debug")) { pApp->_debug = !pApp->_debug; }
 
-						pipe.send(newArray({ PipeJson::parse(message).object_items() }));
+						pipe.send(newArray({ *PipeJson::parse(message).object_items() }));
 					}
 
 					incoming.clear();
