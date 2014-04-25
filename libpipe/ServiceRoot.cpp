@@ -11,8 +11,8 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeJsonOb
 		_T("root_test"), 
 		_T("A test command"),
 		newObject(),
-		[&](PipeJsonObject message) {
-			pushOutgoing(*(*message)[msgKeyRef].string_value(), _T("root_test"), newObject({
+		[&](PipeJsonObjectData& message) {
+			pushOutgoing(message[msgKeyRef].string_value(), _T("root_test"), newObject({
 				{ _T("response"), _T("ROOT") }
 			}));
 		}
@@ -24,8 +24,8 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeJsonOb
 		_T("child_test"),
 		_T("A test command"),
 		newObject(),
-		[&](PipeJsonObject message) {
-			pushOutgoing(*(*message)[msgKeyRef].string_value(), _T("child_test"), newObject({
+		[&](PipeJsonObjectData& message) {
+			pushOutgoing(message[msgKeyRef].string_value(), _T("child_test"), newObject({
 				{ _T("response"), _T("CHILD") }
 			}));
 		}
