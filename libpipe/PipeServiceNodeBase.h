@@ -10,38 +10,27 @@
 
 class PipeServiceNodeBase : public IPipeExtensionService {
 public:
-	const TCHAR addressSeparator = _T('.');
+	const TCHAR addressSeparator    = _T('.');
 
-	const tstring msgKeyCommand = _T("command");
-	const tstring msgKeyType = _T("type");
-	const tstring msgKeyRef = _T("ref");
+	const tstring msgKeyRef         = _T("ref");
+	const tstring msgKeyAddress     = _T("address");
+	const tstring msgKeyCommand     = _T("command");
+	const tstring msgKeyMessage     = _T("message");
 
-	const tstring msgTypeCommands = _T("commands");
-	const tstring msgTypeMessages = _T("messages");
-	const tstring msgTypeChildren = _T("children");
-	const tstring msgTypeInfo = _T("info");
-	const tstring msgTypeError = _T("error");
-
-	const tstring infoKeyAddress = _T("address");
-	const tstring infoKeyType = _T("type");
-	const tstring infoKeyProperties = _T("properties");
-
-	const tstring msgKeyAddress = _T("address");
-
-
-	const tstring msgFieldName = _T("name");
-	const tstring msgFieldStructure = _T("structure");
-	const tstring msgFieldDescription = _T("description");
+	const tstring msgTypeCommands   = _T("commands");
+	const tstring msgTypeMessages   = _T("messages");
+	const tstring msgTypeChildren   = _T("children");
+	const tstring msgTypeInfo       = _T("info");
 
 	typedef std::function<void(PipeJsonObjectData&)> PipeCommandFunction;
 	typedef std::function<void(PipeJsonArray)> PipeHookFunction;
 
 public:
-	const tstring _type;
-	const tstring _description;
-	const tstring _address;
-	const tstring _path;
-	const PipeJsonObject _settings;
+	const tstring           _type;
+	const tstring           _description;
+	const tstring           _address;
+	const tstring           _path;
+	const PipeJsonObject    _settings;
 
 	//------------------------------------------------------------------------------------------------------------------
 
@@ -73,60 +62,54 @@ public:
 		, _messageTypes(newArray())
 		, _properties(newObject())
 	{
+		//--------------------------------------------------------------------------------------------------------------
+		addCommand(msgTypeChildren, _T("Get a list of all child nodes"), newObject(), [&](PipeJsonObjectData& message) {
+			pushOutgoing(message[msgKeyRef].string_value(), msgTypeChildren, newObject({
+				{ _T("children"), *nodeChildren(message[msgKeyAddress].string_value()) }
+			}));
+		});
 
-		// TODO: Add default commands and remove test
+		addMessageType(msgTypeChildren, _T("List of all child nodes"), newObject({
+			{ _T("children"), _T("The list of child nodes") }
+		}));
 
-		addCommand(
-			msgTypeChildren,
-			_T("Get a list of all child nodes"),
-			newObject({
-				//{ _T("childNodes"),  }
-			}),
-			[&](PipeJsonObjectData& message) {
-				pushOutgoing(message[msgKeyRef].string_value(), msgTypeChildren, newObject({
-					{ _T("children"), *nodeChildren(message[msgKeyAddress].string_value()) }
-				}));
-			}
-		);
+		//--------------------------------------------------------------------------------------------------------------
+		addCommand(msgTypeCommands, _T("Get a list of all available commands"), newObject(), [&](PipeJsonObjectData& message) {
+			pushOutgoing(message[msgKeyRef].string_value(), msgTypeCommands, newObject({
+				{ _T("commands"), *nodeCommandTypes(message[msgKeyAddress].string_value()) }
+			}));
+		});
 
-		addCommand(
-			msgTypeCommands,
-			_T("Get a list of all available commands"),
-			newObject({
-			//{ _T("childNodes"),  }
-			}),
-			[&](PipeJsonObjectData& message) {
-				pushOutgoing(message[msgKeyRef].string_value(), msgTypeCommands, newObject({
-					{ _T("commands"), *nodeCommandTypes(message[msgKeyAddress].string_value()) }
-				}));
-			}
-		);
+		addMessageType(msgTypeCommands, _T("List of all available commands"), newObject({ 
+			{ _T("commands"), _T("The list of command types") } // TODO!
+			// TODO: Add the structure of a command to this
+		}));
 
-		addCommand(
-			msgTypeMessages,
-			_T("Get a list of all emmitable message types"),
-			newObject({
-			//{ _T("childNodes"),  }
-			}),
-			[&](PipeJsonObjectData& message) {
-				pushOutgoing(message[msgKeyRef].string_value(), msgTypeMessages, newObject({
-					{ _T("messages"), *nodeMessageTypes(message[msgKeyAddress].string_value()) }
-				}));
-			}
-		);
+		//--------------------------------------------------------------------------------------------------------------
+		addCommand(msgTypeMessages, _T("Get a list of all message types this node can emmit"), newObject(), [&](PipeJsonObjectData& message) {
+			pushOutgoing(message[msgKeyRef].string_value(), msgTypeMessages, newObject({
+				{ _T("messages"), *nodeMessageTypes(message[msgKeyAddress].string_value()) }
+			}));
+		});
 
-		addCommand(
-			msgTypeInfo,
-			_T("Get a list of all child nodes"),
-			newObject({
-				//{ _T("childNodes"),  }
-			}),
-			[&](PipeJsonObjectData& message) {
-				pushOutgoing(message[msgKeyRef].string_value(), msgTypeInfo, newObject({
-					{ _T("info"), *nodeInfo(message[msgKeyAddress].string_value()) }
-				}));
-			}
-		);
+		addMessageType(msgTypeMessages, _T("List of all message types this node can emmit"), newObject({ 
+			{ _T("messages"), _T("The list of message types") } // TODO!
+			// TODO: Add the structure of a message to this
+		}));
+
+		//--------------------------------------------------------------------------------------------------------------
+		addCommand(msgTypeInfo, _T("Get a list of all child nodes"), newObject(), [&](PipeJsonObjectData& message) {
+			pushOutgoing(message[msgKeyRef].string_value(), msgTypeInfo, newObject({
+				{ _T("info"), *nodeInfo(message[msgKeyAddress].string_value()) }
+			}));
+		});
+
+		addMessageType(msgTypeInfo, _T("Information about this node"), newObject({
+			{ _T("info"), _T("The information about the node") } // TODO!
+			// TODO: Add the structure of a command to this
+		}));
+
+		//--------------------------------------------------------------------------------------------------------------
 	}
 
 	virtual ~PipeServiceNodeBase() {}
@@ -166,13 +149,12 @@ public:
 		if(!message->count(msgKeyRef))
 			(*message)[msgKeyRef] = reference;
 
-		if(!message->count(msgKeyType))
-			(*message)[msgKeyType] = type;
+		if(!message->count(msgKeyMessage))
+			(*message)[msgKeyMessage] = type;
 
-		// Optional, validate messages with message type when debugging
+		// Optional: validate messages with message type when debugging
 
 		_outgoing->push_back(std::move(*message));
-
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -180,7 +162,7 @@ public:
 	void addChild(const std::shared_ptr<PipeServiceNodeBase>& child) {
 		auto& name = child->_address;
 		if(_children.count(name))
-			throw _T("There already is a child with the name \"") + name + _T("\"");
+			throw tstring(_T("There already is a child with the name \"") + name + _T("\""));
 
 		_children[name] = child;
 	}
@@ -196,19 +178,19 @@ public:
 
 	void addCommand(const tstring& name, const tstring& description, PipeJsonObject commandTypeDefinition, PipeCommandFunction handler) {
 		if(_commands.count(name))
-		   throw _T("Command already defined");
+		   throw tstring(_T("Command already defined"));
 		
-		// TODO: Assert that the definition has the right format!
+		// Optinal: Assert that the definition has the right format!
 
 		for(auto&& commandType : *_commandTypes) {
-			if(commandType[msgFieldName].string_value() == name)
-				throw _T("Message type already defined");
+			if(commandType[msgKeyCommand].string_value() == name)
+				throw tstring(_T("Message type already defined"));
 		}
 
 		_commandTypes->push_back(PipeJsonObjectData {
-			{ msgFieldName, name },
-			{ msgFieldDescription, description },
-			{ msgFieldStructure, *commandTypeDefinition }
+			{ msgKeyCommand, name },
+			{ _T("description"), description },
+			{ _T("structure"), *commandTypeDefinition }
 		});
 
 		_commands[name] = handler;
@@ -218,17 +200,17 @@ public:
 
 	void addMessageType(const tstring& name, const tstring& description, PipeJsonObject messageTypeDefinition) {
 
-		// TODO: Assert that the definition has the right format!
+		// Optinal: Assert that the definition has the right format!
 
 		for(auto&& messageType : *_messageTypes) {
-			if(messageType[msgFieldName].string_value() == name)
-				throw _T("Message type already defined");
+			if(messageType[msgKeyMessage].string_value() == name)
+				throw tstring(_T("Message type already defined"));
 		}
 
 		_messageTypes->push_back(PipeJsonObjectData {
-			{ msgFieldName, name },
-			{ msgFieldDescription, description },
-			{ msgFieldStructure, *messageTypeDefinition }
+			{ msgKeyMessage, name },
+			{ _T("description"), description },
+			{ _T("structure"), *messageTypeDefinition }
 		});
 	}
 
@@ -242,50 +224,43 @@ public:
 		for(auto&& messagesMember : *messages) {
 			auto& message = messagesMember.object_items();
 
-			if(message.empty()) {
-				pushOutgoing(_T(""), msgTypeError, newObject({ { msgFieldDescription, _T("Message data is invalid or missing") } }));
+			// Without a reference, everything is meaningless
+			if(message.empty() || (!message.count(msgKeyRef) || !message[msgKeyRef].is_string()))
 				continue;
-			}
 
-			if(!message.count(msgKeyRef) || !message[msgKeyRef].is_string()) {
-				pushOutgoing(_T(""), msgTypeError, newObject({ { msgFieldDescription, _T("Missing or invalid reference field") } }));
-				continue;
-			}
+			try {
+				if(!message.count(msgKeyAddress) || !message[msgKeyAddress].is_string())
+					throw tstring(_T("Missing or invalid address field"));
 
-			if(!message.count(msgKeyAddress) || !message[msgKeyAddress].is_string()) {
-				pushOutgoing(message[msgKeyRef].string_value(), msgTypeError, newObject({ { msgFieldDescription, _T("Missing or invalid address field") } }));
-				return;
-			}
+				if(!message.count(msgKeyCommand) || !message[msgKeyCommand].is_string())
+					throw tstring(_T("Missing or invalid command field"));
 
-			if(!message.count(msgKeyCommand) || !message[msgKeyCommand].is_string()) {
-				pushOutgoing(message[msgKeyRef].string_value(), msgTypeError, newObject({ { msgFieldDescription, _T("Missing or invalid command field") } }));
-				return;
-			}
+				auto& messageAddress = message[msgKeyAddress].string_value();
 
-			auto& messageAddress = message[msgKeyAddress].string_value();
+				if(messageAddress == _address) {
+					auto messageCommand = message[msgKeyCommand].string_value();
+					if(!_commands.count(messageCommand))
+						throw tstring(_T("Command not found"));
 
-			if(messageAddress == _address) {
-				auto messageCommand = message[msgKeyCommand].string_value();
-				if(!_commands.count(messageCommand)) {
-					pushOutgoing(message[msgKeyRef].string_value(), msgTypeError, newObject({ { msgFieldDescription, _T("Command not found") } }));
-					return;
+					try {
+						_commands[messageCommand](message);
+					}
+					catch(...) {
+						throw tstring(_T("There was an error executing the command"));
+					}
 				}
-
-				try {
-					_commands[messageCommand](message);
+				else if(messageAddress.length() >= (_address.length() + 2) && messageAddress[_address.length()] == addressSeparator && _children.count(messageAddress)) {
+					_children[messageAddress]->send(newArray({ message }));
 				}
-				catch(...) {
-					pushOutgoing(message[msgKeyRef].string_value(), msgTypeError, newObject({
-						{ msgFieldDescription, _T("There was an error executing the command") }
-					}));
+				else {
+					throw tstring(_T("Address not found"));
 				}
 			}
-			else if(messageAddress.length() >= (_address.length() + 2) && messageAddress[_address.length()] == addressSeparator && _children.count(messageAddress)) {
-				_children[messageAddress]->send(newArray({ message }));
+			catch(tstring errorDescription) {
+				pushOutgoing(message[msgKeyRef].string_value(), _T("error"), newObject({ { _T("description"), errorDescription } }));
 			}
-			else {
-				pushOutgoing(message[msgKeyRef].string_value(), msgTypeError, newObject({ { msgFieldDescription, _T("Address not found") } }));
-				return;
+			catch(...) {
+				pushOutgoing(message[msgKeyRef].string_value(), _T("error"), newObject({ { _T("description"), _T("Unknown error") } }));
 			}
 		}
 	}
@@ -298,7 +273,7 @@ public:
 
 		for(auto&& child : _children) {
 			auto&& serviceOutgoing = child.second->receive();
-			messages->insert(end(*messages), begin(*serviceOutgoing), end(*serviceOutgoing));
+			messages->insert(messages->end(), serviceOutgoing->begin(), serviceOutgoing->end());
 		}
 
 		if(_postReceiveHookEnabled)
@@ -356,10 +331,10 @@ public:
 	virtual PipeJsonObject nodeInfo(const tstring& address) {
 		PipeJsonObject info = newObject();
 		if(address == _address) {
-			(*info)[infoKeyAddress] = _address;
-			(*info)[infoKeyType] = _type;
-			(*info)[msgFieldDescription] = _description;
-			(*info)[infoKeyProperties] = *_properties;
+			(*info)[msgKeyAddress] = _address;
+			(*info)[msgKeyMessage] = _type;
+			(*info)[_T("description")] = _description;
+			(*info)[_T("properties")] = *_properties;
 		}
 		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == addressSeparator && _children.count(address)) {
 			info = _children[address]->nodeInfo(address);
