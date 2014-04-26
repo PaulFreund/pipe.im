@@ -49,6 +49,12 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeChildren(HPipeExtensionServic
 
 //----------------------------------------------------------------------------------------------------------------------
 
+PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeCommandTypes(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeCommandTypes) {
+	cbNodeCommandTypes(context, dumpArray(reinterpret_cast<IPipeExtensionService*>(service)->nodeCommandTypes(tstring(address))).c_str());
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeMessageTypes(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeMessageTypes) {
 	cbNodeMessageTypes(context, dumpArray(reinterpret_cast<IPipeExtensionService*>(service)->nodeMessageTypes(tstring(address))).c_str());
 }

@@ -24,23 +24,24 @@ typedef void(*PipeExtensionCbStr)(PipeExtensionCbContext, PipeExtensionStr);
 
 //======================================================================================================================
 
-PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypes					(PipeExtensionCbContext context, PipeExtensionCbStr cbServiceTypes);
-PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypeSettings				(PipeExtensionCbContext context, PipeExtensionStr serviceType, PipeExtensionCbStr cbServiceTypeSettings);
+PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypes                    (PipeExtensionCbContext context, PipeExtensionCbStr cbServiceTypes);
+PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypeSettings             (PipeExtensionCbContext context, PipeExtensionStr serviceType, PipeExtensionCbStr cbServiceTypeSettings);
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceCreate						(PipeExtensionStr serviceType, PipeExtensionStr address, PipeExtensionStr path, PipeExtensionStr settings, HPipeExtensionService* service);
-PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy						(HPipeExtensionService service);
+PIPE_EXTENSION_ITF void PipeExtensionServiceCreate                      (PipeExtensionStr serviceType, PipeExtensionStr address, PipeExtensionStr path, PipeExtensionStr settings, HPipeExtensionService* service);
+PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy                     (HPipeExtensionService service);
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceSend						(HPipeExtensionService service, PipeExtensionStr messages);
-PIPE_EXTENSION_ITF void PipeExtensionServiceReceive						(HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbStr cbMessages);
+PIPE_EXTENSION_ITF void PipeExtensionServiceSend                        (HPipeExtensionService service, PipeExtensionStr messages);
+PIPE_EXTENSION_ITF void PipeExtensionServiceReceive                     (HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbStr cbMessages);
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeChildren				(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbChildNodes);
-PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeMessageTypes			(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeMessageTypes);
-PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeInfo					(HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeInfo);
+PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeChildren             (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbChildNodes);
+PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeCommandTypes         (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeCommandTypes);
+PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeMessageTypes         (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeMessageTypes);
+PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeInfo                 (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeInfo);
 
 //======================================================================================================================

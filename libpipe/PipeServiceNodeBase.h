@@ -13,6 +13,7 @@ public:
 	const TCHAR addressSeparator = _T('.');
 
 	const tstring msgKeyAddress = _T("address");
+	const tstring msgKeyCommand = _T("command");
 	const tstring msgKeyType = _T("type");
 	const tstring msgKeyRef = _T("ref");
 
@@ -27,9 +28,12 @@ public:
 	const tstring infoKeyDescription = _T("description");
 	const tstring infoKeyProperties = _T("properties");
 
+	const tstring commandTypeKeyType = _T("type");
+	const tstring commandTypeKeyDescription = _T("description");
+	const tstring commandTypeKeyStructure = _T("structure");
+
 	const tstring messageTypeKeyType = _T("type");
 	const tstring messageTypeKeyDescription = _T("description");
-	const tstring messageTypeKeyCommand = _T("command");
 	const tstring messageTypeKeyStructure = _T("structure");
 
 	const tstring errorMsgKeyDescription = _T("description");
@@ -37,7 +41,7 @@ public:
 
 	const tstring errorMsgDescriptionInvalidMessageData = _T("Message data is invalid or missing");
 	const tstring errorMsgDescriptionInvalidAddress = _T("Missing or invalid address field");
-	const tstring errorMsgDescriptionInvalidType = _T("Missing or invalid type field");
+	const tstring errorMsgDescriptionInvalidCommand = _T("Missing or invalid command field");
 	const tstring errorMsgDescriptionInvalidReference = _T("Missing or invalid reference field");
 	const tstring errorMsgDescriptionUnknownAddress = _T("Address not found");
 	const tstring errorMsgDescriptionUnknownCommand = _T("Command not found");
@@ -57,6 +61,7 @@ private:
 	std::map<tstring, std::shared_ptr<PipeServiceNodeBase>> _children;
 	PipeJsonArray _outgoing;
 	std::map<tstring, PipeCommandFunction> _commands;
+	PipeJsonArray _commandTypes;
 	PipeJsonArray _messageTypes;
 	PipeJsonObject _properties;
 
@@ -74,11 +79,25 @@ public:
 		, _path(path)
 		, _settings(settings)
 		, _outgoing(newArray())
+		, _commandTypes(newArray())
 		, _messageTypes(newArray())
 		, _properties(newObject())
 	{
 
 		// TODO: Add default commands and remove test
+
+		addCommand(
+			msgTypeChildren,
+			_T("Get a list of all child nodes"),
+			newObject({
+				//{ _T("childNodes"),  }
+			}),
+			[&](PipeJsonObjectData& message) {
+				pushOutgoing(message[msgKeyRef].string_value(), msgTypeChildren, newObject({
+					{ _T("childNodes"), *nodeChildren(message[msgKeyAddress].string_value()) }
+				}));
+			}
+		);
 
 		addCommand(
 			_T("base_test"),
@@ -123,7 +142,7 @@ public:
 		if(!message->count(msgKeyType))
 			(*message)[msgKeyType] = type;
 
-		// TODO: Optional, validate messages with message type when debugging
+		// Optional, validate messages with message type when debugging
 
 		_outgoing->push_back(std::move(*message));
 
@@ -142,27 +161,36 @@ public:
 			_children.erase(name);
 	}
 
-	void addCommand(const tstring& name, const tstring& description, PipeJsonObject messageTypeDefinition, PipeCommandFunction handler) {
-		if(_commands.count(name))
+	void addCommand(const tstring& type, const tstring& description, PipeJsonObject commandTypeDefinition, PipeCommandFunction handler) {
+		if(_commands.count(type))
 		   throw _T("Command already defined");
 
-		addMessageType(name, description, true, messageTypeDefinition);
-		_commands[name] = handler;
+		for(auto&& commandType : *_commandTypes) {
+			if(commandType[commandTypeKeyType].string_value() == type)
+				throw _T("Message type already defined");
+		}
+
+		_commandTypes->push_back(PipeJsonObjectData {
+			{ commandTypeKeyType, type },
+			{ commandTypeKeyDescription, description },
+			{ commandTypeKeyStructure, *commandTypeDefinition }
+		});
+
+		_commands[type] = handler;
 	}
 
-	void addMessageType(const tstring& type, const tstring& description, const bool& isCommand, PipeJsonObject messageTypeDefinition) {
+	void addMessageType(const tstring& type, const tstring& description, PipeJsonObject messageTypeDefinition) {
 
 		// TODO: Assert that the structure has the right format!
 
 		for(auto&& messageType : *_messageTypes) {
-			if(messageType[messageTypeKeyType].string_value() == messageType.string_value())
+			if(messageType[messageTypeKeyType].string_value() == type)
 				throw _T("Message type already defined");
 		}
 
 		_messageTypes->push_back(PipeJsonObjectData {
 			{ messageTypeKeyType, type },
 			{ messageTypeKeyDescription, description },
-			{ messageTypeKeyCommand, isCommand },
 			{ messageTypeKeyStructure, *messageTypeDefinition }
 		});
 	}
@@ -190,15 +218,15 @@ public:
 				return;
 			}
 
-			if(!message.count(msgKeyType) || !message[msgKeyType].is_string()) {
-				pushOutgoing(message[msgKeyRef].string_value(), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionInvalidType } }));
+			if(!message.count(msgKeyCommand) || !message[msgKeyCommand].is_string()) {
+				pushOutgoing(message[msgKeyRef].string_value(), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionInvalidCommand } }));
 				return;
 			}
 
 			auto& messageAddress = message[msgKeyAddress].string_value();
 
 			if(messageAddress == _address) {
-				auto messageCommand = message[msgKeyType].string_value();
+				auto messageCommand = message[msgKeyCommand].string_value();
 				if(!_commands.count(messageCommand)) {
 					pushOutgoing(message[msgKeyRef].string_value(), msgTypeError, newObject({ { errorMsgKeyDescription, errorMsgDescriptionUnknownCommand } }));
 					return;
@@ -252,26 +280,56 @@ public:
 	}
 
 	virtual PipeJsonArray nodeChildren(const tstring& address) {
-		PipeJsonArray children;
-		
-		for(auto&& child : _children) {
-			children->push_back(child.first);
+		PipeJsonArray children = newArray();
+		if(address == _address) {
+			for(auto&& child : _children) {
+				children->push_back(child.first);
+			}
+		}
+		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == addressSeparator && _children.count(address)) {
+			children = _children[address]->nodeChildren(address);
 		}
 
 		return children;
 	}
 
+	virtual PipeJsonArray nodeCommandTypes(const tstring& address) {
+		PipeJsonArray commandTypes = newArray();
+		if(address == _address) {
+			commandTypes = _commandTypes;
+		}
+		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == addressSeparator && _children.count(address)) {
+			commandTypes = _children[address]->nodeCommandTypes(address);
+		}
+
+		return commandTypes;
+	}
+
 	virtual PipeJsonArray nodeMessageTypes(const tstring& address) {
-		return _messageTypes;
+		PipeJsonArray messageTypes = newArray();
+		if(address == _address) {
+			messageTypes = _messageTypes;
+		}
+		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == addressSeparator && _children.count(address)) {
+			messageTypes = _children[address]->nodeMessageTypes(address);
+		}
+
+		return messageTypes;
 	}
 
 	virtual PipeJsonObject nodeInfo(const tstring& address) {
-		return newObject({
-			{ infoKeyAddress, _address },
-			{ infoKeyType, _type },
-			{ infoKeyDescription, _description },
-			{ infoKeyProperties, *_properties }
-		});
+		PipeJsonObject info = newObject();
+		if(address == _address) {
+			(*info)[infoKeyAddress] = _address;
+			(*info)[infoKeyType] = _type;
+			(*info)[infoKeyDescription] = _description;
+			(*info)[infoKeyProperties] = *_properties;
+		}
+		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == addressSeparator && _children.count(address)) {
+			info = _children[address]->nodeInfo(address);
+		}
+
+		return info;
 	}
 };
 //======================================================================================================================

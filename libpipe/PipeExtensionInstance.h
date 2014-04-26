@@ -15,6 +15,7 @@ const tstring NamePipeExtensionServiceDestroy = _T("PipeExtensionServiceDestroy"
 const tstring NamePipeExtensionServiceSend = _T("PipeExtensionServiceSend");
 const tstring NamePipeExtensionServiceReceive = _T("PipeExtensionServiceReceive");
 const tstring NamePipeExtensionServiceGetNodeChildren = _T("PipeExtensionServiceGetNodeChildren");
+const tstring NamePipeExtensionServiceGetNodeCommandTypes = _T("PipeExtensionServiceGetNodeCommandTypes");
 const tstring NamePipeExtensionServiceGetNodeMessageTypes = _T("PipeExtensionServiceGetNodeMessageTypes");
 const tstring NamePipeExtensionServiceGetNodeInfo = _T("PipeExtensionServiceGetNodeInfo");
 
@@ -25,6 +26,7 @@ typedef void(*FktPipeExtensionServiceDestroy)(HPipeExtensionService);
 typedef void(*FktPipeExtensionServiceSend)(HPipeExtensionService, PipeExtensionStr);
 typedef void(*FktPipeExtensionServiceReceive)(HPipeExtensionService, PipeExtensionCbContext, PipeExtensionCbStr);
 typedef void(*FktPipeExtensionServiceGetNodeChildren)(HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
+typedef void(*FktPipeExtensionServiceGetNodeCommandTypes)(HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
 typedef void(*FktPipeExtensionServiceGetNodeMessageTypes)(HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
 typedef void(*FktPipeExtensionServiceGetNodeInfo)(HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
 
@@ -38,6 +40,7 @@ struct PipeExtensionFunctions {
 	FktPipeExtensionServiceSend								fktPipeExtensionServiceSend					= nullptr;
 	FktPipeExtensionServiceReceive							fktPipeExtensionServiceReceive				= nullptr;
 	FktPipeExtensionServiceGetNodeChildren					fktPipeExtensionServiceGetNodeChildren		= nullptr;
+	FktPipeExtensionServiceGetNodeCommandTypes				fktPipeExtensionServiceGetNodeCommandTypes	= nullptr;
 	FktPipeExtensionServiceGetNodeMessageTypes				fktPipeExtensionServiceGetNodeMessageTypes	= nullptr;
 	FktPipeExtensionServiceGetNodeInfo						fktPipeExtensionServiceGetNodeInfo			= nullptr;
 };
@@ -83,6 +86,18 @@ public:
 		});
 
 		return children;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	virtual PipeJsonArray nodeCommandTypes(const tstring& address) {
+		PipeJsonArray commandTypes;
+
+		_functions.fktPipeExtensionServiceGetNodeCommandTypes(_service, address.c_str(), &commandTypes, [](PipeExtensionCbContext context, PipeExtensionStr commandTypesData) {
+			(*static_cast<PipeJsonArray*>(context)) = parseArray(commandTypesData);
+		});
+
+		return commandTypes;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

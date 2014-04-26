@@ -18,6 +18,7 @@ public:
 	virtual PipeJsonArray receive() = 0;
 
 	virtual PipeJsonArray nodeChildren(const tstring& address) = 0;
+	virtual PipeJsonArray nodeCommandTypes(const tstring& address) = 0;
 	virtual PipeJsonArray nodeMessageTypes(const tstring& address) = 0;
 	virtual PipeJsonObject nodeInfo(const tstring& address) = 0;
 };
