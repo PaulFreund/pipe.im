@@ -6,12 +6,12 @@ using namespace std;
 
 //======================================================================================================================
 
-ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeJsonObject settings) : PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), address, path, settings) {
+ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObjectPtr settings) : PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), address, path, settings) {
 	addCommand(
 		_T("root_test"), 
 		_T("A test command"),
 		newObject(),
-		[&](PipeJsonObjectData& message) {
+		[&](PipeObject& message) {
 			pushOutgoing(message[msgKeyRef].string_value(), _T("root_test"), newObject({
 				{ _T("response"), _T("ROOT") }
 			}));
@@ -24,7 +24,7 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeJsonOb
 		_T("child_test"),
 		_T("A test command"),
 		newObject(),
-		[&](PipeJsonObjectData& message) {
+		[&](PipeObject& message) {
 			pushOutgoing(message[msgKeyRef].string_value(), _T("child_test"), newObject({
 				{ _T("response"), _T("CHILD") }
 			}));
@@ -33,7 +33,7 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeJsonOb
 
 	addChild(childNode);
 
-	enablePreSendHook([&](PipeJsonArray messages) {
+	enablePreSendHook([&](PipeArrayPtr messages) {
 		for(auto& message: *messages) {
 			message[msgKeyRef].string_value() = _T("PRE_") + message[msgKeyRef].string_value();
 		}
@@ -41,7 +41,7 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeJsonOb
 		// TODO: Process scripts
 	});
 
-	enablePostReceiveHook([&](PipeJsonArray messages) {
+	enablePostReceiveHook([&](PipeArrayPtr messages) {
 		for(auto& message : *messages) {
 			message[msgKeyRef].string_value() = message[msgKeyRef].string_value() + _T("_POST");
 		}

@@ -14,13 +14,13 @@ public:
 	virtual ~IPipeExtensionService() {}
 
 public:
-	virtual void send(PipeJsonArray messages) = 0;
-	virtual PipeJsonArray receive() = 0;
+	virtual void send(PipeArrayPtr messages) = 0;
+	virtual PipeArrayPtr receive() = 0;
 
-	virtual PipeJsonArray nodeChildren(const tstring& address) = 0;
-	virtual PipeJsonArray nodeCommandTypes(const tstring& address) = 0;
-	virtual PipeJsonArray nodeMessageTypes(const tstring& address) = 0;
-	virtual PipeJsonObject nodeInfo(const tstring& address) = 0;
+	virtual PipeArrayPtr nodeChildren(const tstring& address) = 0;
+	virtual PipeArrayPtr nodeCommandTypes(const tstring& address) = 0;
+	virtual PipeArrayPtr nodeMessageTypes(const tstring& address) = 0;
+	virtual PipeObjectPtr nodeInfo(const tstring& address) = 0;
 };
 
 //======================================================================================================================
@@ -30,9 +30,9 @@ public:
 	virtual ~IPipeExtension() {}
 
 public:
-	virtual PipeJsonArray serviceTypes() = 0;
-	virtual PipeJsonObject serviceTypeSettings(const tstring& serviceType) = 0;
-	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeJsonObject settings) = 0;
+	virtual PipeArrayPtr serviceTypes() = 0;
+	virtual PipeObjectPtr serviceTypeSettings(const tstring& serviceType) = 0;
+	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings) = 0;
 	virtual void destroy(IPipeExtensionService* service) = 0;
 };
 

@@ -103,7 +103,7 @@ PipeExtensionPurple::~PipeExtensionPurple() {
 	}
 }
 
-PipeJsonArray PipeExtensionPurple::serviceTypes() {
+PipeArrayPtr PipeExtensionPurple::serviceTypes() {
 	if(!_libpurple_init_done) {
 		tstring userDir = tstring(purple_user_dir());
 		tstring replaceName = _T(".pipe.im");
@@ -128,7 +128,7 @@ PipeJsonArray PipeExtensionPurple::serviceTypes() {
 
 	//purple_plugins_init();
 
-	PipeJsonArray serviceTypes = newArray();
+	PipeArrayPtr serviceTypes = newArray();
 	GList * protocols = purple_plugins_get_protocols();
 	for(; protocols; protocols = protocols->next) {
 		PurplePlugin* plugin = reinterpret_cast<PurplePlugin*>(protocols->data);
@@ -139,12 +139,12 @@ PipeJsonArray PipeExtensionPurple::serviceTypes() {
 	return serviceTypes;
 }
 
-PipeJsonObject PipeExtensionPurple::serviceTypeSettings(const tstring& serviceType) {
+PipeObjectPtr PipeExtensionPurple::serviceTypeSettings(const tstring& serviceType) {
 	return newObject();
 }
 
 
-IPipeExtensionService* PipeExtensionPurple::create(const tstring& serviceType, const tstring& address, const tstring& path, PipeJsonObject settings) {
+IPipeExtensionService* PipeExtensionPurple::create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings) {
 	if(serviceType == _T("irc")) {
 		return (_services[address] = new ServiceIRC(address, path, settings));
 	}

@@ -60,17 +60,17 @@ public:
 	}
 
 public:
-	virtual void send(PipeJsonArray messages) {
+	virtual void send(PipeArrayPtr messages) {
 		_functions.fktPipeExtensionServiceSend(_service, PipeJson(*messages).dump().c_str());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeJsonArray receive() {
-		PipeJsonArray messages;
+	virtual PipeArrayPtr receive() {
+		PipeArrayPtr messages;
 
 		_functions.fktPipeExtensionServiceReceive(_service, &messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
-			(*static_cast<PipeJsonArray*>(context)) = parseArray(messagesData);
+			(*static_cast<PipeArrayPtr*>(context)) = parseArray(messagesData);
 		});
 
 		return messages;
@@ -78,11 +78,11 @@ public:
 	
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeJsonArray nodeChildren(const tstring& address) {
-		PipeJsonArray children;
+	virtual PipeArrayPtr nodeChildren(const tstring& address) {
+		PipeArrayPtr children;
 
 		_functions.fktPipeExtensionServiceGetNodeChildren(_service, address.c_str(), &children, [](PipeExtensionCbContext context, PipeExtensionStr childrenData) {
-			(*static_cast<PipeJsonArray*>(context)) = parseArray(childrenData);
+			(*static_cast<PipeArrayPtr*>(context)) = parseArray(childrenData);
 		});
 
 		return children;
@@ -90,11 +90,11 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeJsonArray nodeCommandTypes(const tstring& address) {
-		PipeJsonArray commandTypes;
+	virtual PipeArrayPtr nodeCommandTypes(const tstring& address) {
+		PipeArrayPtr commandTypes;
 
 		_functions.fktPipeExtensionServiceGetNodeCommandTypes(_service, address.c_str(), &commandTypes, [](PipeExtensionCbContext context, PipeExtensionStr commandTypesData) {
-			(*static_cast<PipeJsonArray*>(context)) = parseArray(commandTypesData);
+			(*static_cast<PipeArrayPtr*>(context)) = parseArray(commandTypesData);
 		});
 
 		return commandTypes;
@@ -102,11 +102,11 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeJsonArray nodeMessageTypes(const tstring& address) {
-		PipeJsonArray messageTypes;
+	virtual PipeArrayPtr nodeMessageTypes(const tstring& address) {
+		PipeArrayPtr messageTypes;
 
 		_functions.fktPipeExtensionServiceGetNodeMessageTypes(_service, address.c_str(), &messageTypes, [](PipeExtensionCbContext context, PipeExtensionStr messageTypesData) {
-			(*static_cast<PipeJsonArray*>(context)) = parseArray(messageTypesData);
+			(*static_cast<PipeArrayPtr*>(context)) = parseArray(messageTypesData);
 		});
 
 		return messageTypes;
@@ -114,11 +114,11 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeJsonObject nodeInfo(const tstring& address) {
-		PipeJsonObject info;
+	virtual PipeObjectPtr nodeInfo(const tstring& address) {
+		PipeObjectPtr info;
 
 		_functions.fktPipeExtensionServiceGetNodeInfo(_service, address.c_str(), &info, [](PipeExtensionCbContext context, PipeExtensionStr infoData) {
-			(*static_cast<PipeJsonObject*>(context)) = parseObject(infoData);
+			(*static_cast<PipeObjectPtr*>(context)) = parseObject(infoData);
 		});
 
 		return info;
@@ -136,11 +136,11 @@ public:
 	virtual ~PipeExtensionInstance() {}
 
 public:
-	virtual PipeJsonArray serviceTypes() {
-		PipeJsonArray types;
+	virtual PipeArrayPtr serviceTypes() {
+		PipeArrayPtr types;
 		
 		_functions.fktPipeExtensionGetServiceTypes(&types, [](PipeExtensionCbContext context, PipeExtensionStr typesData) {
-			(*static_cast<PipeJsonArray*>(context)) = parseArray(typesData);
+			(*static_cast<PipeArrayPtr*>(context)) = parseArray(typesData);
 		});
 
 		return types;
@@ -148,11 +148,11 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeJsonObject serviceTypeSettings(const tstring& serviceType) {
-		PipeJsonObject typeSettings;
+	virtual PipeObjectPtr serviceTypeSettings(const tstring& serviceType) {
+		PipeObjectPtr typeSettings;
 
 		_functions.fktPipeExtensionGetServiceTypeSettings(&typeSettings, serviceType.c_str(), [](PipeExtensionCbContext context, PipeExtensionStr typeSettingsData) {
-			(*static_cast<PipeJsonObject*>(context)) = parseObject(typeSettingsData);
+			(*static_cast<PipeObjectPtr*>(context)) = parseObject(typeSettingsData);
 		});
 
 		return typeSettings;
@@ -160,7 +160,7 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeJsonObject settings) {
+	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings) {
 		HPipeExtensionService service = 0;
 
 		_functions.fktPipeExtensionServiceCreate(serviceType.c_str(), address.c_str(), path.c_str(), dumpObject(settings).c_str(), &service);

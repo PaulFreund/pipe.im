@@ -13,7 +13,7 @@ private:
 	HLibPipe _instance;
 
 public:
-	LibPipeInstance(const tstring& path, PipeJsonArray serviceTypes) {
+	LibPipeInstance(const tstring& path, PipeArrayPtr serviceTypes) {
 		HLibPipe instance;
 		LibPipeCreate(path.c_str(), dumpArray(serviceTypes).c_str(), &instance);
 		_instance = instance;
@@ -24,15 +24,15 @@ public:
 	}
 
 public:
-	virtual void send(PipeJsonArray messages) {
+	virtual void send(PipeArrayPtr messages) {
 		LibPipeSend(_instance, dumpArray(messages).c_str());
 	}
 
-	virtual PipeJsonArray receive() {
-		PipeJsonArray messages;
+	virtual PipeArrayPtr receive() {
+		PipeArrayPtr messages;
 
 		LibPipeReceive(_instance, &messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
-			(*static_cast<PipeJsonArray*>(context)) = parseArray(messagesData);
+			(*static_cast<PipeArrayPtr*>(context)) = parseArray(messagesData);
 		});
 
 		return messages;
@@ -43,11 +43,11 @@ public:
 		LibPipeLoadExtensions(path.c_str());
 	}
 
-	static PipeJsonArray serviceTypes() {
-		PipeJsonArray serviceTypes;
+	static PipeArrayPtr serviceTypes() {
+		PipeArrayPtr serviceTypes;
 
 		LibPipeGetServiceTypes(&serviceTypes, [](LibPipeCbContext context, LibPipeStr serviceTypesData) {
-			(*static_cast<PipeJsonArray*>(context)) = parseArray(serviceTypesData);
+			(*static_cast<PipeArrayPtr*>(context)) = parseArray(serviceTypesData);
 		});
 
 		return serviceTypes;

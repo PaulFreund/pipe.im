@@ -18,12 +18,12 @@ private:
 	std::shared_ptr<ServiceRoot> _serviceRoot;
 
 public:
-	LibPipe(const tstring& path, PipeJsonArray serviceTypes);
+	LibPipe(const tstring& path, PipeArrayPtr serviceTypes);
 	virtual ~LibPipe();
 
 public:
-	virtual void send(PipeJsonArray messages);
-	virtual PipeJsonArray receive();
+	virtual void send(PipeArrayPtr messages);
+	virtual PipeArrayPtr receive();
 };
 
 //======================================================================================================================

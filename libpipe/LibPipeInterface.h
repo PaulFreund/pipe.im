@@ -14,8 +14,8 @@ public:
 	virtual ~ILibPipe() {};
 
 public:
-	virtual void send(PipeJsonArray messages) = 0;
-	virtual PipeJsonArray receive() = 0;
+	virtual void send(PipeArrayPtr messages) = 0;
+	virtual PipeArrayPtr receive() = 0;
 };
 
 //======================================================================================================================

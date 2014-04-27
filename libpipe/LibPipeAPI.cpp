@@ -77,7 +77,7 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr cbServiceTypes) {
-	PipeJsonArrayData serviceTypes;
+	PipeArray serviceTypes;
 
 	for(auto&& extension : LibPipe::Extensions) {
 		auto extensionServiceTypes = extension->serviceTypes();
