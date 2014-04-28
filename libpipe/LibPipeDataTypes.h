@@ -64,8 +64,45 @@ inline tstring dumpObject(PipeObjectPtr object) { return std::move(dumpObject(*o
 
 //----------------------------------------------------------------------------------------------------------------------
 
-inline PipeJson schemaAddField(const PipeObject& schema, const tstring& key, PipeJson::Type type, const tstring& description, const tstring& path) {
+enum SchemaValueType {
+	SchemaString,
+	SchemaBool,
+	SchemaNumber
+};
 
+inline PipeObject& schemaAddObject(PipeObject& schema, const tstring& key, const tstring& description, bool optional = false) {
+	schema[key] = PipeObject ();
+	auto& schemaData = schema[key].object_items();
+	schemaData[_T("type")] = _T("object");
+	schemaData[_T("description")] = description;
+	schemaData[_T("optional")] = optional;
+	schemaData[_T("fields")] = PipeObject ();
+	return schemaData[_T("fields")].object_items();
+}
+
+inline PipeObject& schemaAddArray(PipeObject& schema, const tstring& key, const tstring& description, bool optional = false) {
+	schema[key] = PipeObject ();
+	auto& schemaData = schema[key].object_items();
+	schemaData[_T("type")] = _T("array");
+	schemaData[_T("description")] = description;
+	schemaData[_T("optional")] = optional;
+	schemaData[_T("items")] = PipeObject ();
+	return schemaData[_T("items")].object_items();
+}
+
+inline void schemaAddValue(PipeObject& schema, const tstring& key, const SchemaValueType type, const tstring& description, bool optional = false) {
+	tstring typeString = _T("");
+	switch(type) {
+		case SchemaString:     { typeString = _T("string");    break; }
+		case SchemaBool:       { typeString = _T("bool");      break; }
+		case SchemaNumber:     { typeString = _T("number");    break; }
+	}
+
+	schema[key] = PipeObject {
+		{ _T("type"), typeString },
+		{ _T("description"), description },
+		{ _T("optional"), optional },
+	};
 }
 
 //======================================================================================================================

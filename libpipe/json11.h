@@ -585,18 +585,18 @@ public:
 	class Value : public JsonValue {
 	protected:
 		// Constructors
-		Value(const T &value) : m_value(value) {}
-		Value(T &&value) : m_value(std::move(value)) {}
+		Value(const T& value) : m_value(value) {}
+		Value(T&& value) : m_value(std::move(value)) {}
 
 		// Get type tag
 		Json::Type type() const { return tag; }
 
 		// Comparisons
-		bool equals(JsonValue * other) const { return m_value == reinterpret_cast<const Value<tag, T> *>(other)->m_value; }
-		bool less(JsonValue * other) const { return m_value < reinterpret_cast<const Value<tag, T> *>(other)->m_value; }
+		bool equals(JsonValue* other) const { return m_value == reinterpret_cast<const Value<tag, T> *>(other)->m_value; }
+		bool less(JsonValue* other) const { return m_value < reinterpret_cast<const Value<tag, T> *>(other)->m_value; }
 
 		T m_value;
-		void dump(std::string &out) const {  Json::dump(m_value, out);  }
+		void dump(std::string& out) const {  Json::dump(m_value, out);  }
 	};
 
 	class JsonDouble final : public Value<Json::NUMBER, double> {

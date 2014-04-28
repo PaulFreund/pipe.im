@@ -52,7 +52,7 @@ private:
 	std::map<tstring, PipeCommandFunction> _commands;
 	PipeArrayPtr _commandTypes;
 	PipeArrayPtr _messageTypes;
-	PipeObjectPtr _properties;
+	PipeArrayPtr _properties;
 
 	bool _preSendHookEnabled = false;
 	PipeHookFunction _preSendHook;
@@ -72,132 +72,19 @@ public:
 		, _outgoing(newArray())
 		, _commandTypes(newArray())
 		, _messageTypes(newArray())
-		, _properties(newObject())
+		, _properties(newArray())
 	{
-		//--------------------------------------------------------------------------------------------------------------
-		addCommand(msgTypeChildren, _T("Get a list of all child nodes"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), msgTypeChildren, newObject({
-				{ _T("children"), *nodeChildren(message[msgKeyAddress].string_value()) }
-			}));
-		});
+		PipeObject schemaInfo;
+		auto&& schemaInfoFields = schemaAddObject(schemaInfo, _T("info"), _T("The information about the node"));
+		schemaAddValue(schemaInfoFields, _T("address"), SchemaString, _T("The address of the node"));
+		schemaAddValue(schemaInfoFields, _T("type"), SchemaString, _T("The (unique) type of this node"));
+		schemaAddValue(schemaInfoFields, _T("description"), SchemaString, _T("The description of the node"));
+		auto&& schemaInfoPropertiesItems = schemaAddArray(schemaInfoFields, _T("properties"), _T("Runtime properties of the node"));
+		schemaAddValue(schemaInfoPropertiesItems, _T("key"), SchemaString, _T("The name of the property"));
+		schemaAddValue(schemaInfoPropertiesItems, _T("value"), SchemaString, _T("The value of the property"));
 
-		addMessageType(msgTypeChildren, _T("List of all child nodes"), newObject({
-			{ _T("children"), _T("The list of child nodes") }
-		}));
-
-		//--------------------------------------------------------------------------------------------------------------
-		addCommand(msgTypeCommands, _T("Get a list of all available commands"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), msgTypeCommands, newObject({
-				{ _T("commands"), *nodeCommandTypes(message[msgKeyAddress].string_value()) }
-			}));
-		});
-
-		addMessageType(msgTypeCommands, _T("List of all available commands"), newObject({ 
-			{ _T("commands"), _T("The list of command types") } // TODO!
-			// TODO: Add the structure of a command to this
-		}));
-
-		//--------------------------------------------------------------------------------------------------------------
-		addCommand(msgTypeMessages, _T("Get a list of all message types this node can emmit"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), msgTypeMessages, newObject({
-				{ _T("messages"), *nodeMessageTypes(message[msgKeyAddress].string_value()) }
-			}));
-		});
-
-		addMessageType(msgTypeMessages, _T("List of all message types this node can emmit"), newObject({ 
-			{ _T("messages"), _T("The list of message types") } // TODO!
-			// TODO: Add the structure of a message to this
-		}));
-
-		//--------------------------------------------------------------------------------------------------------------
-		addCommand(msgTypeInfo, _T("Get a list of all child nodes"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), msgTypeInfo, newObject({
-				{ _T("info"), *nodeInfo(message[msgKeyAddress].string_value()) }
-			}));
-		});
-
-		//auto infoField = schemaAddObject(schema, _T("info"), Json::OBJECT, _T("The information about the node"));
-		//schemaAddField(infoField, _T("address"), Json::STRING, _T("The address of the node"));
-		//schemaAddField(infoField, _T("type"), Json::STRING, _T("The (unique) type of this node"));
-		//schemaAddField(infoField, _T("description"), Json::STRING, _T("The description of the node"));
-		//auto propertiesField = schemaAddField(infoField, _T("properties"), Json::OBJECT, _T("Runtime properties of the node"));
-
-
-		//schemaSetItemType(schema, _T("info.properties"), )
-
-		auto format = parseObject(_T("\
-			{\
-				\"info\": {\
-					\"type\": \"object\",\
-					\"description\" : \"The information about the node\",\
-					\"fields\" : {\
-						\"address\": {\
-							\"type\": \"string\",\
-							\"description\" : \"The address of the node\"\
-						},\
-						\"type\" : {\
-							\"type\": \"string\",\
-							\"description\" : \"The (unique) type of this node\"\
-						},\
-						\"description\" : {\
-							\"type\": \"string\",\
-							\"description\" : \"The description of the node\"\
-						},\
-						\"properties\" : {\
-							\"type\": \"array\",\
-							\"description\" : \"Runtime properties of the node\",\
-							\"items\" : {\
-								\"key\": {\
-									\"type\": \"string\",\
-									\"description\" : \"The name of the property\",\
-								},\
-								\"value\" : {\
-									\"type\": \"string\",\
-									\"description\" : \"The value of the property\",\
-								}\
-							}\
-						}\
-					}\
-				}\
-			}\
-		"));
-
-		addMessageType(msgTypeInfo, _T("Information about this node"), newObject({{
-			_T("info"), PipeObject {
-				{ schemaType, schemaTypeObject },
-				{ schemaDescription, _T("The information about the node") },
-				{ schemaFields, PipeObject {
-					{ msgKeyAddress, PipeObject {
-						{ schemaType, schemaTypeString },
-						{ schemaDescription, _T("The address of the node") }
-					}},
-					{ _T("type"), PipeObject {
-						{ schemaType, schemaTypeString },
-						{ schemaDescription, _T("The (unique) type of this node") }
-					}},
-					{ _T("description"), PipeObject {
-						{ schemaType, schemaTypeString },
-						{ schemaDescription, _T("The description of the node") }
-					}},
-					{ _T("properties"), PipeObject {
-						{ schemaType, schemaTypeArray },
-						{ schemaDescription, _T("Runtime properties of the node") },
-						{ schemaItems, PipeObject {
-							{ _T("key"), PipeObject {
-								{ schemaType, schemaTypeString },
-								{ schemaDescription, _T("The name of the property") }
-							}},
-							{ _T("value"), PipeObject {
-								{ schemaType, schemaTypeString },
-								{ schemaDescription, _T("The value of the property") }
-							}}
-						}}
-					}}
-				}}
-			}				
-		}}));
-
-		//--------------------------------------------------------------------------------------------------------------
+		addBaseMessageTypes();
+		addBaseCommandTypes();
 	}
 
 	virtual ~PipeServiceNodeBase() {}
@@ -434,10 +321,71 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 
 private:
-	bool validateSchema(PipeObjectPtr schema) {
+	void addBaseCommandTypes() {
+		//--------------------------------------------------------------------------------------------------------------
+		addCommand(msgTypeChildren, _T("Get a list of all child nodes"), newObject(), [&](PipeObject& message) {
+			pushOutgoing(message[msgKeyRef].string_value(), msgTypeChildren, newObject({
+				{ _T("children"), *nodeChildren(message[msgKeyAddress].string_value()) }
+			}));
+		});
 
-		return false;
+		//--------------------------------------------------------------------------------------------------------------
+		addCommand(msgTypeCommands, _T("Get a list of all available commands"), newObject(), [&](PipeObject& message) {
+			pushOutgoing(message[msgKeyRef].string_value(), msgTypeCommands, newObject({
+				{ _T("commands"), *nodeCommandTypes(message[msgKeyAddress].string_value()) }
+			}));
+		});
+
+		//--------------------------------------------------------------------------------------------------------------
+		addCommand(msgTypeMessages, _T("Get a list of all message types this node can emmit"), newObject(), [&](PipeObject& message) {
+			pushOutgoing(message[msgKeyRef].string_value(), msgTypeMessages, newObject({
+				{ _T("messages"), *nodeMessageTypes(message[msgKeyAddress].string_value()) }
+			}));
+		});
+
+		//--------------------------------------------------------------------------------------------------------------
+		addCommand(msgTypeInfo, _T("Get a list of all child nodes"), newObject(), [&](PipeObject& message) {
+			pushOutgoing(message[msgKeyRef].string_value(), msgTypeInfo, newObject({
+				{ _T("info"), *nodeInfo(message[msgKeyAddress].string_value()) }
+			}));
+		});
 	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	void addBaseMessageTypes() {
+		////--------------------------------------------------------------------------------------------------------------
+		addMessageType(msgTypeChildren, _T("List of all child nodes"), newObject({
+			{ _T("children"), _T("The list of child nodes") }
+		}));
+
+		////--------------------------------------------------------------------------------------------------------------
+		//addMessageType(msgTypeCommands, _T("List of all available commands"), newObject({
+		//	{ _T("commands"), _T("The list of command types") } // TODO!
+		//	// TODO: Add the structure of a command to this
+		//}));
+
+		////--------------------------------------------------------------------------------------------------------------
+		//addMessageType(msgTypeMessages, _T("List of all message types this node can emmit"), newObject({
+		//	{ _T("messages"), _T("The list of message types") } // TODO!
+		//	// TODO: Add the structure of a message to this
+		//}));
+
+		//--------------------------------------------------------------------------------------------------------------
+		PipeObjectPtr schemaInfo = newObject(); {
+			auto&& schemaInfoFields = schemaAddObject(*schemaInfo, _T("info"), _T("The information about the node")); {
+				schemaAddValue(schemaInfoFields, _T("address"), SchemaString, _T("The address of the node"));
+				schemaAddValue(schemaInfoFields, _T("type"), SchemaString, _T("The (unique) type of this node"));
+				schemaAddValue(schemaInfoFields, _T("description"), SchemaString, _T("The description of the node"));
+				auto&& schemaInfoPropertiesItems = schemaAddArray(schemaInfoFields, _T("properties"), _T("Runtime properties of the node")); {
+					schemaAddValue(schemaInfoPropertiesItems, _T("key"), SchemaString, _T("The name of the property"));
+					schemaAddValue(schemaInfoPropertiesItems, _T("value"), SchemaString, _T("The value of the property"));
+				}
+			}
+		}
+		addMessageType(msgTypeInfo, _T("Information about this node"), schemaInfo);
+	}
+
 };
 //======================================================================================================================
 
