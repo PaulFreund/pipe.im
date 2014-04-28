@@ -80,16 +80,6 @@ inline PipeObject& schemaAddObject(PipeObject& schema, const tstring& key, const
 	return schemaData[_T("fields")].object_items();
 }
 
-inline PipeObject& schemaAddArray(PipeObject& schema, const tstring& key, const tstring& description, bool optional = false) {
-	schema[key] = PipeObject ();
-	auto& schemaData = schema[key].object_items();
-	schemaData[_T("type")] = _T("array");
-	schemaData[_T("description")] = description;
-	schemaData[_T("optional")] = optional;
-	schemaData[_T("items")] = PipeObject ();
-	return schemaData[_T("items")].object_items();
-}
-
 inline void schemaAddValue(PipeObject& schema, const tstring& key, const SchemaValueType type, const tstring& description, bool optional = false) {
 	tstring typeString = _T("");
 	switch(type) {
@@ -103,6 +93,36 @@ inline void schemaAddValue(PipeObject& schema, const tstring& key, const SchemaV
 		{ _T("description"), description },
 		{ _T("optional"), optional },
 	};
+}
+
+inline PipeObject& schemaAddObjectArray(PipeObject& schema, const tstring& key, const tstring& description, bool optional = false) {
+	schema[key] = PipeObject();
+	auto& schemaData = schema[key].object_items();
+	schemaData[_T("type")] = _T("array");
+	schemaData[_T("description")] = description;
+	schemaData[_T("optional")] = optional;
+	schemaData[_T("items")] = PipeObject();
+	return schemaData[_T("items")].object_items();
+}
+
+inline void schemaAddValueArray(PipeObject& schema, const tstring& key, const tstring& description, const SchemaValueType itemType, const tstring& itemDescription, bool optional = false) {
+	schema[key] = PipeObject();
+	auto& schemaData = schema[key].object_items();
+	schemaData[_T("type")] = _T("array");
+	schemaData[_T("description")] = description;
+	schemaData[_T("optional")] = optional;
+	schemaData[_T("items")] = PipeObject();
+
+	tstring typeString = _T("");
+	switch(itemType) {
+		case SchemaString:     { typeString = _T("string");    break; }
+		case SchemaBool:       { typeString = _T("bool");      break; }
+		case SchemaNumber:     { typeString = _T("number");    break; }
+	}
+
+	auto& schemaItemData = schemaData[_T("items")].object_items();
+	schemaItemData[_T("type")] = typeString;
+	schemaItemData[_T("description")] = itemDescription;
 }
 
 //======================================================================================================================
