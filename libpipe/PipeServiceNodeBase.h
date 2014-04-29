@@ -347,24 +347,28 @@ private:
 	void addBaseMessageTypes() {
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaChildren = newObject(); {
-			schemaAddValueArray(*schemaChildren, _T("children"), _T("The list of child nodes"), SchemaString, _T("The name of a child node"));
+			schemaAddValueArray(*schemaChildren, _T("children"), _T("List of child nodes"), SchemaString, _T("Name of a child node"));
 		}
 
 		addMessageType(msgTypeChildren, _T("List of all child nodes"), schemaChildren);
 
 		////--------------------------------------------------------------------------------------------------------------
-		//addMessageType(msgTypeCommands, _T("List of all available commands"), newObject({
-		//	{ _T("commands"), _T("The list of command types") } // TODO!
-		//	// TODO: Add the structure of a command to this
-		//}));
+		PipeObjectPtr schemaCommands = newObject(); {
+			auto&& schemaCommandsItems = schemaAddObjectArray(*schemaCommands, _T("commands"), _T("List of commands this node accepts")); {
+				// TODO
+			}
+		}
+
+		addMessageType(msgTypeCommands, _T("List of all available commands"), schemaCommands);
 
 		////--------------------------------------------------------------------------------------------------------------
-		
-		
-		//addMessageType(msgTypeMessages, _T("List of all message types this node can emmit"), newObject({
-		//	{ _T("messages"), _T("The list of message types") } // TODO!
-		//	// TODO: Add the structure of a message to this
-		//}));
+		PipeObjectPtr schemaMessages = newObject(); {
+			auto&& schemaMessagesItems = schemaAddObjectArray(*schemaMessages, _T("messages"), _T("List of messages this node can emmit")); {
+				// TODO
+			}
+		}
+
+		addMessageType(msgTypeMessages, _T("List of all message types this node can emmit"), schemaMessages);
 
 		//--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaInfo = newObject(); {
