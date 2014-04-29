@@ -15,7 +15,7 @@ $().ready(function () {
         }, {
             greetings: 'Welcome to the pipe.im shell\n',
             name: 'pipe_shell',
-            prompt: 'pipe.im> ',
+            prompt: 'pipe> ',
             onBlur: function() {
                 return false;
             }

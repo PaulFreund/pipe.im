@@ -34,10 +34,10 @@ using namespace Poco::Util;
 
 //======================================================================================================================
 
-class PipeShellApplication : public Application {
+class PipeTerminalApplication : public Application {
 public:
-	PipeShellApplication(int argc, char* argv[]) : Application(argc, argv) {}
-	~PipeShellApplication() {}
+	PipeTerminalApplication(int argc, char* argv[]) : Application(argc, argv) {}
+	~PipeTerminalApplication() {}
 };
 
 //======================================================================================================================
@@ -49,11 +49,11 @@ public:
 int main(int argc, char* argv[]) {
 	try {
 		// Get application path
-		PipeShellApplication self(argc, argv);
+		PipeTerminalApplication self(argc, argv);
 		Path commandPath(self.commandPath());
 
 		auto appPath = commandPath.parent().toString();
-		auto userPath = appPath + _T("PipeShellData");
+		auto userPath = appPath + _T("PipeTerminalData");
 
 		LibPipeInstance::loadExtensions(appPath);
 		auto serviceTypes = LibPipeInstance::serviceTypes();

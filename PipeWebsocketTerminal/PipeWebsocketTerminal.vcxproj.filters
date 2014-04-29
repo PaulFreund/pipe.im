@@ -40,13 +40,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PipeWebsocketShell.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="PipeWebsocketShell.cpp">
+    <ClCompile Include="PipeWebsocketTerminal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PipeWebsocketTerminal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

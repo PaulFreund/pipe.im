@@ -13,7 +13,8 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5EB09F56-E1FC-44B4-90FB-C8666EDD1BF5}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>PipeWebsocketShell</RootNamespace>
+    <RootNamespace>PipeWebsocketTerminal</RootNamespace>
+    <ProjectName>PipeWebsocketTerminal</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -88,7 +89,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="PipeWebsocketShell.cpp" />
+    <ClCompile Include="PipeWebsocketTerminal.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="static\css\jquery.terminal.css" />
@@ -99,7 +100,7 @@
     <None Include="static\js\pipe.js" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PipeWebsocketShell.h" />
+    <ClInclude Include="PipeWebsocketTerminal.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

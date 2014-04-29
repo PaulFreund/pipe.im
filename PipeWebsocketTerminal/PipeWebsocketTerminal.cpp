@@ -1,6 +1,6 @@
 //======================================================================================================================
 
-#include "PipeWebsocketShell.h"
+#include "PipeWebsocketTerminal.h"
 
 #include <thread>
 #include <chrono>
@@ -51,7 +51,7 @@ using namespace Poco::Net;
 class PipeRequestHandlerPage : public HTTPRequestHandler {
 public:
 	void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
-		PipeWebsocketShellApplication* pApp = reinterpret_cast<PipeWebsocketShellApplication*>(&Application::instance());
+		PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
 
 		auto uri = request.getURI();
 		if(uri.compare(0, pApp->_uripath.length(), pApp->_uripath) == 0)
@@ -107,7 +107,7 @@ public:
 class PipeRequestHandlerWebSocket : public HTTPRequestHandler {
 public:
 	void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
-		PipeWebsocketShellApplication* pApp = reinterpret_cast<PipeWebsocketShellApplication*>(&Application::instance());
+		PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
 
 		try {
 			WebSocket ws(request, response);
@@ -216,11 +216,11 @@ public:
 
 //======================================================================================================================
 
-PipeWebsocketShellApplication::PipeWebsocketShellApplication() :_help(false), _debug(false) { setUnixOptions(true); }
-PipeWebsocketShellApplication::~PipeWebsocketShellApplication() {}
+PipeWebsocketTerminalApplication::PipeWebsocketTerminalApplication() :_help(false), _debug(false) { setUnixOptions(true); }
+PipeWebsocketTerminalApplication::~PipeWebsocketTerminalApplication() {}
 
 
-void PipeWebsocketShellApplication::defineOptions(OptionSet& options) {
+void PipeWebsocketTerminalApplication::defineOptions(OptionSet& options) {
 	options.addOption(
 		Option(_T("extdir"), _T("e"), _T("Path to folder where extensions are located"))
 		.required(false)
@@ -265,14 +265,14 @@ void PipeWebsocketShellApplication::defineOptions(OptionSet& options) {
 		);
 }
 
-int PipeWebsocketShellApplication::main(const vector<tstring>& args) {
+int PipeWebsocketTerminalApplication::main(const vector<tstring>& args) {
 	try {
 		if(_help) {
 			HelpFormatter helpFormatter(options());
 			helpFormatter.setUnixStyle(true);
 			helpFormatter.setCommand(commandName());
 			helpFormatter.setUsage("OPTIONS");
-			helpFormatter.setHeader("PipeWebsocketShell - Tester");
+			helpFormatter.setHeader("PipeWebsocketTerminal - Tester");
 			helpFormatter.format(cout);
 			return Application::EXIT_OK;
 		}
@@ -307,7 +307,7 @@ int PipeWebsocketShellApplication::main(const vector<tstring>& args) {
 	return EXIT_OK;
 }
 
-void PipeWebsocketShellApplication::displayHelp(const tstring& name, const tstring& value) {
+void PipeWebsocketTerminalApplication::displayHelp(const tstring& name, const tstring& value) {
 	_help = true;
 	stopOptionsProcessing();
 }
@@ -315,7 +315,7 @@ void PipeWebsocketShellApplication::displayHelp(const tstring& name, const tstri
 //======================================================================================================================
 
 int main(int argc, char* argv[]) {
-	PipeWebsocketShellApplication self;
+	PipeWebsocketTerminalApplication self;
 	self.run(argc, argv);
 	return 0;
 }

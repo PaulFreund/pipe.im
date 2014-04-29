@@ -24,7 +24,7 @@ typedef unsigned char ubyte;
 //======================================================================================================================
 
 class ServerApplication;
-class PipeWebsocketShellApplication : public Poco::Util::ServerApplication {
+class PipeWebsocketTerminalApplication : public Poco::Util::ServerApplication {
 public:
 	bool _help;
 	bool _debug;
@@ -38,8 +38,8 @@ public:
 	tstring _uripath;
 
 public:
-	PipeWebsocketShellApplication();
-	~PipeWebsocketShellApplication();
+	PipeWebsocketTerminalApplication();
+	~PipeWebsocketTerminalApplication();
 
 public:
 	void defineOptions(Poco::Util::OptionSet& options);
