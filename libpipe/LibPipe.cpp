@@ -38,4 +38,28 @@ PipeArrayPtr LibPipe::receive() {
 	return _serviceRoot->receive();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+PipeArrayPtr LibPipe::nodeChildren(const tstring& address) {
+	return _serviceRoot->nodeChildren(address);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+PipeArrayPtr LibPipe::nodeCommandTypes(const tstring& address) {
+	return _serviceRoot->nodeCommandTypes(address);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+PipeArrayPtr LibPipe::nodeMessageTypes(const tstring& address) {
+	return _serviceRoot->nodeMessageTypes(address);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+PipeObjectPtr LibPipe::nodeInfo(const tstring& address) {
+	return _serviceRoot->nodeInfo(address);
+}
+
 //======================================================================================================================

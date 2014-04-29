@@ -34,17 +34,17 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 	addChild(childNode);
 
 	enablePreSendHook([&](PipeArrayPtr messages) {
-		for(auto& message: *messages) {
-			message[msgKeyRef].string_value() = _T("PRE_") + message[msgKeyRef].string_value();
-		}
+		//for(auto& message: *messages) {
+		//	message[msgKeyRef].string_value() = _T("PRE_") + message[msgKeyRef].string_value();
+		//}
 
 		// TODO: Process scripts
 	});
 
 	enablePostReceiveHook([&](PipeArrayPtr messages) {
-		for(auto& message : *messages) {
-			message[msgKeyRef].string_value() = message[msgKeyRef].string_value() + _T("_POST");
-		}
+		//for(auto& message : *messages) {
+		//	message[msgKeyRef].string_value() = message[msgKeyRef].string_value() + _T("_POST");
+		//}
 
 		// TODO: Process scripts
 	});

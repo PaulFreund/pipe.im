@@ -28,6 +28,8 @@ public:
 		LibPipeSend(_instance, dumpArray(messages).c_str());
 	}
 
+	//------------------------------------------------------------------------------------------------------------------
+
 	virtual PipeArrayPtr receive() {
 		PipeArrayPtr messages;
 
@@ -36,6 +38,54 @@ public:
 		});
 
 		return messages;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	virtual PipeArrayPtr nodeChildren(const tstring& address) {
+		PipeArrayPtr children;
+
+		LibPipeGetNodeChildren(_instance, address.c_str(), &children, [](LibPipeCbContext context, LibPipeStr childrenData) {
+			(*static_cast<PipeArrayPtr*>(context)) = parseArray(childrenData);
+		});
+
+		return children;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	virtual PipeArrayPtr nodeCommandTypes(const tstring& address) {
+		PipeArrayPtr commandTypes;
+
+		LibPipeGetNodeCommandTypes(_instance, address.c_str(), &commandTypes, [](LibPipeCbContext context, LibPipeStr commandTypesData) {
+			(*static_cast<PipeArrayPtr*>(context)) = parseArray(commandTypesData);
+		});
+
+		return commandTypes;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	virtual PipeArrayPtr nodeMessageTypes(const tstring& address) {
+		PipeArrayPtr messageTypes;
+
+		LibPipeGetNodeMessageTypes(_instance, address.c_str(), &messageTypes, [](LibPipeCbContext context, LibPipeStr messageTypesData) {
+			(*static_cast<PipeArrayPtr*>(context)) = parseArray(messageTypesData);
+		});
+
+		return messageTypes;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	virtual PipeObjectPtr nodeInfo(const tstring& address) {
+		PipeObjectPtr info;
+
+		LibPipeGetNodeInfo(_instance, address.c_str(), &info, [](LibPipeCbContext context, LibPipeStr infoData) {
+			(*static_cast<PipeObjectPtr*>(context)) = parseObject(infoData);
+		});
+
+		return info;
 	}
 
 public:

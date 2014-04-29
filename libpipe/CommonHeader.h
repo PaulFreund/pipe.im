@@ -5,6 +5,7 @@
 //======================================================================================================================
 
 #include "LibPipeDataTypes.h"
+#include "LibPipeHelper.h"
 
 //======================================================================================================================
 
@@ -21,10 +22,5 @@
 #include "LibPipeAPI.h"
 #include "PipeExtensionAPI.h"
 #include "LibPipeInterface.h"
-
-//======================================================================================================================
-
-tstring timplode(const std::vector<tstring>& fragments, const TCHAR delimiter);
-std::vector<tstring> texplode(const tstring& fragments, const TCHAR delimiter);
 
 //======================================================================================================================

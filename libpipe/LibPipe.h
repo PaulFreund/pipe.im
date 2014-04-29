@@ -24,6 +24,11 @@ public:
 public:
 	virtual void send(PipeArrayPtr messages);
 	virtual PipeArrayPtr receive();
+
+	virtual PipeArrayPtr nodeChildren(const tstring& address);
+	virtual PipeArrayPtr nodeCommandTypes(const tstring& address);
+	virtual PipeArrayPtr nodeMessageTypes(const tstring& address);
+	virtual PipeObjectPtr nodeInfo(const tstring& address);
 };
 
 //======================================================================================================================

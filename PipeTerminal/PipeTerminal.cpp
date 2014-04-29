@@ -24,7 +24,6 @@ typedef unsigned char ubyte;
 
 //======================================================================================================================
 
-#include <Poco/DirectoryIterator.h>
 #include <Poco/String.h>
 #include <Poco/StringTokenizer.h>
 #include <Poco/Util/Application.h>
@@ -42,7 +41,7 @@ public:
 
 //======================================================================================================================
 
-#include <libpipe/LibPipeInstance.h>
+#include <libpipe/PipeShell.h>
 
 //======================================================================================================================
 
@@ -58,26 +57,17 @@ int main(int argc, char* argv[]) {
 		LibPipeInstance::loadExtensions(appPath);
 		auto serviceTypes = LibPipeInstance::serviceTypes();
 
-		LibPipeInstance pipe(userPath, serviceTypes);
-
-		// Create instance
-		cout << _T("------------------------------------------") << endl;
-		cout << _T("Welcome to pipe shell") << endl;
-		cout << _T("------------------------------------------") << endl;
-		cout << _T("Available service types: ") << dumpArray(serviceTypes) << endl;
-
-		cout << _T("------------------------------------------") << endl;
-		cout << endl;
+		auto instance = make_shared<LibPipeInstance>(userPath, serviceTypes);
+		PipeShell shell(instance, _T("terminal"), true);
 
 		bool exit = false;
 
 		thread receive([&]() {
+			tstring received;
 			while(!exit) {
-				
-				auto messages = pipe.receive();
-				for(auto& message: *messages) {
-					cout << message.dump() << endl;
-				}
+				received = shell.receive();
+				if(!received.empty())
+					cout << received << endl;
 
 				Thread::sleep(100);
 			}
@@ -97,7 +87,7 @@ int main(int argc, char* argv[]) {
 					continue;
 				}
 
-				pipe.send(newArray({ PipeJson::parse(message).object_items() }));
+				shell.send(message);
 			}
 		});
 

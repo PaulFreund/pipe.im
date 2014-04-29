@@ -68,6 +68,12 @@
     <ClInclude Include="json11.h">
       <Filter>LibPipe\Wrapper</Filter>
     </ClInclude>
+    <ClInclude Include="PipeShell.h">
+      <Filter>LibPipe\Wrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="LibPipeHelper.h">
+      <Filter>LibPipe\Wrapper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LibPipeAPI.cpp">

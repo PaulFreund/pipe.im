@@ -118,4 +118,23 @@ LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, Lib
 	cbMessages(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->receive()).c_str());
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+LIBPIPE_ITF void LibPipeGetNodeChildren(HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbChildNodes) {
+	cbChildNodes(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->nodeChildren(tstring(address))).c_str());
+}
+
+LIBPIPE_ITF void LibPipeGetNodeCommandTypes(HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeCommandTypes) {
+	cbNodeCommandTypes(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->nodeCommandTypes(tstring(address))).c_str());
+}
+
+LIBPIPE_ITF void LibPipeGetNodeMessageTypes(HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeMessageTypes) {
+	cbNodeMessageTypes(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->nodeMessageTypes(tstring(address))).c_str());
+}
+
+LIBPIPE_ITF void LibPipeGetNodeInfo(HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeInfo) {
+	cbNodeInfo(context, dumpObject(reinterpret_cast<LibPipe*>(instance)->nodeInfo(tstring(address))).c_str());
+}
+
+
 //======================================================================================================================

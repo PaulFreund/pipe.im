@@ -37,4 +37,11 @@ LIBPIPE_ITF void LibPipeDestroy                 (HLibPipe instance);
 LIBPIPE_ITF void LibPipeSend                    (HLibPipe instance, LibPipeStr messages);
 LIBPIPE_ITF void LibPipeReceive                 (HLibPipe instance, LibPipeCbContext context, LibPipeCbStr cbMessages);
 
+//----------------------------------------------------------------------------------------------------------------------
+
+LIBPIPE_ITF void LibPipeGetNodeChildren         (HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbChildNodes);
+LIBPIPE_ITF void LibPipeGetNodeCommandTypes     (HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeCommandTypes);
+LIBPIPE_ITF void LibPipeGetNodeMessageTypes     (HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeMessageTypes);
+LIBPIPE_ITF void LibPipeGetNodeInfo             (HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeInfo);
+
 //======================================================================================================================

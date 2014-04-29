@@ -44,7 +44,7 @@ using namespace Poco::Net;
 
 //======================================================================================================================
 
-#include <libpipe/LibPipeInstance.h>
+#include <libpipe/PipeShell.h>
 
 //======================================================================================================================
 
@@ -120,7 +120,9 @@ public:
 			ws.setReceiveBufferSize(bufferSize);
 
 			auto&& serviceTypes = LibPipeInstance::serviceTypes();
-			LibPipeInstance pipe(pApp->_datadir, serviceTypes);
+
+			auto instance = make_shared<LibPipeInstance>(pApp->_datadir, serviceTypes);
+			PipeShell shell(instance, _T("terminal"), true);
 
 			vector<tstring> incoming;
 			vector<tstring> outgoing;
@@ -153,17 +155,16 @@ public:
 
 						if(message == _T("debug")) { pApp->_debug = !pApp->_debug; }
 
-						pipe.send(newArray({ PipeJson::parse(message).object_items() }));
+						shell.send(message);
 					}
 
 					incoming.clear();
 				}
 
 				// Receive from pipe
-				auto pipeMessages = pipe.receive();
-				for(auto& pipeMessage : *pipeMessages) {
-					outgoing.push_back(pipeMessage.dump());
-				}
+				auto&& received = shell.receive();
+				if(!received.empty())
+					outgoing.push_back(received);
 
 				// Send to client
 				if(outgoing.size() > 0) {
