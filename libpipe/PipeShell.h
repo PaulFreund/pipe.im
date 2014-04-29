@@ -120,7 +120,7 @@ private:
 			}
 		}
 		else {
-			if(!arrayItem) { output << _T(": "); }
+			if(key != _T("  - ")) { output << _T(": "); }
 
 			if(data.is_string())
 				output << data.string_value();
