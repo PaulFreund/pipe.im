@@ -355,7 +355,9 @@ private:
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaCommands = newObject(); {
 			auto&& schemaCommandsItems = schemaAddObjectArray(*schemaCommands, _T("commands"), _T("List of commands this node accepts")); {
-				// TODO
+				schemaAddValue(schemaCommandsItems, _T("command"), SchemaString, _T("Name of the command"));
+				schemaAddValue(schemaCommandsItems, _T("description"), SchemaString, _T("Description of the command"));
+				schemaAddObject(schemaCommandsItems, _T("schema"), _T("Schema of the command"));
 			}
 		}
 
@@ -364,7 +366,9 @@ private:
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaMessages = newObject(); {
 			auto&& schemaMessagesItems = schemaAddObjectArray(*schemaMessages, _T("messages"), _T("List of messages this node can emmit")); {
-				// TODO
+				schemaAddValue(schemaMessagesItems, _T("message"), SchemaString, _T("Name of the message type"));
+				schemaAddValue(schemaMessagesItems, _T("description"), SchemaString, _T("Description of the message type"));
+				schemaAddObject(schemaMessagesItems, _T("schema"), _T("Schema of the message type"));
 			}
 		}
 
