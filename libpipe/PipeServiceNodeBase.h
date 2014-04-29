@@ -17,23 +17,6 @@ public:
 	const tstring msgKeyCommand         = _T("command");
 	const tstring msgKeyMessage         = _T("message");
 
-	const tstring schemaDescription     = _T("description");
-	const tstring schemaFields          = _T("fields");
-	const tstring schemaItems           = _T("items");
-	const tstring schemaType            = _T("type");
-
-	const tstring schemaTypeObject      = _T("object");
-	const tstring schemaTypeArray       = _T("array");
-	const tstring schemaTypeString      = _T("string");
-	const tstring schemaTypeNumber      = _T("number");
-	const tstring schemaTypeInteger     = _T("integer");
-	const tstring schemaTypeBool        = _T("bool");
-
-	const tstring msgTypeCommands       = _T("commands");
-	const tstring msgTypeMessages       = _T("messages");
-	const tstring msgTypeChildren       = _T("children");
-	const tstring msgTypeInfo           = _T("info");
-
 	typedef std::function<void(PipeObject&)> PipeCommandFunction;
 	typedef std::function<void(PipeArrayPtr)> PipeHookFunction;
 
@@ -314,29 +297,29 @@ public:
 private:
 	void addBaseCommandTypes() {
 		//--------------------------------------------------------------------------------------------------------------
-		addCommand(msgTypeChildren, _T("Get a list of all child nodes"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), msgTypeChildren, newObject({
+		addCommand(_T("children"), _T("Get a list of all child nodes"), newObject(), [&](PipeObject& message) {
+			pushOutgoing(message[msgKeyRef].string_value(), _T("children"), newObject({
 				{ _T("children"), *nodeChildren(message[msgKeyAddress].string_value()) }
 			}));
 		});
 
 		//--------------------------------------------------------------------------------------------------------------
-		addCommand(msgTypeCommands, _T("Get a list of all available commands"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), msgTypeCommands, newObject({
+		addCommand(_T("commands"), _T("Get a list of all available commands"), newObject(), [&](PipeObject& message) {
+			pushOutgoing(message[msgKeyRef].string_value(), _T("commands"), newObject({
 				{ _T("commands"), *nodeCommandTypes(message[msgKeyAddress].string_value()) }
 			}));
 		});
 
 		//--------------------------------------------------------------------------------------------------------------
-		addCommand(msgTypeMessages, _T("Get a list of all message types this node can emmit"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), msgTypeMessages, newObject({
+		addCommand(_T("messages"), _T("Get a list of all message types this node can emmit"), newObject(), [&](PipeObject& message) {
+			pushOutgoing(message[msgKeyRef].string_value(), _T("messages"), newObject({
 				{ _T("messages"), *nodeMessageTypes(message[msgKeyAddress].string_value()) }
 			}));
 		});
 
 		//--------------------------------------------------------------------------------------------------------------
-		addCommand(msgTypeInfo, _T("Get a list of all child nodes"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), msgTypeInfo, newObject({
+		addCommand(_T("info"), _T("Get a list of all child nodes"), newObject(), [&](PipeObject& message) {
+			pushOutgoing(message[msgKeyRef].string_value(), _T("info"), newObject({
 				{ _T("info"), *nodeInfo(message[msgKeyAddress].string_value()) }
 			}));
 		});
@@ -350,7 +333,7 @@ private:
 			schemaAddValueArray(*schemaChildren, _T("children"), _T("List of child nodes"), SchemaString, _T("Name of a child node"));
 		}
 
-		addMessageType(msgTypeChildren, _T("List of all child nodes"), schemaChildren);
+		addMessageType(_T("children"), _T("List of all child nodes"), schemaChildren);
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaCommands = newObject(); {
@@ -361,7 +344,7 @@ private:
 			}
 		}
 
-		addMessageType(msgTypeCommands, _T("List of all available commands"), schemaCommands);
+		addMessageType(_T("commands"), _T("List of all available commands"), schemaCommands);
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaMessages = newObject(); {
@@ -372,7 +355,7 @@ private:
 			}
 		}
 
-		addMessageType(msgTypeMessages, _T("List of all message types this node can emmit"), schemaMessages);
+		addMessageType(_T("messages"), _T("List of all message types this node can emmit"), schemaMessages);
 
 		//--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaInfo = newObject(); {
@@ -386,7 +369,7 @@ private:
 				}
 			}
 		}
-		addMessageType(msgTypeInfo, _T("Information about this node"), schemaInfo);
+		addMessageType(_T("info"), _T("Information about this node"), schemaInfo);
 	}
 
 };
