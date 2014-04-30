@@ -13,7 +13,7 @@ $().ready(function () {
                 term.echo('');
             }
         }, {
-            greetings: 'Welcome to the pipe.im shell\n',
+            greetings: '',
             name: 'pipe_shell',
             prompt: 'pipe> ',
             onBlur: function() {
@@ -22,7 +22,15 @@ $().ready(function () {
         });
     }
 
+    var newAddressToken = 'New address: ';
     pipeServer.onmessage = function (message) {
-        window.terminal.echo(message.data);
+        var messageText = message.data.toString();
+        if (messageText.indexOf(newAddressToken) == 0) {
+            var newAddress = messageText.substr(newAddressToken.length).trim();
+            window.terminal.set_prompt(newAddress + '>');
+        }
+        else {
+            window.terminal.echo(messageText);
+        }
     }
 });

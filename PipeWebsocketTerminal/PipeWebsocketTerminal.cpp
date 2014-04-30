@@ -127,10 +127,10 @@ public:
 			vector<tstring> incoming;
 			vector<tstring> outgoing;
 
-			tstring serviceTypesMessage = _T("Available services: ");
+			//tstring serviceTypesMessage = _T("Available services: ");
 			//for(PipeJson& serviceType : serviceTypes) { serviceTypesMessage.append(_T(" ") + serviceType.toString()); }
-			serviceTypesMessage.append(dumpArray(serviceTypes));
-			outgoing.push_back(serviceTypesMessage);
+			//serviceTypesMessage.append(dumpArray(serviceTypes));
+			//outgoing.push_back(serviceTypesMessage);
 
 			char buffer[bufferSize];
 			int flags;

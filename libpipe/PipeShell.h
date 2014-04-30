@@ -262,7 +262,7 @@ private:
 			if(!setAddress(parameters[0]))
 				_receiveBuffer << _T("Shell error! Invalid address") << std::endl;
 			else 
-				_receiveBuffer << _T("Changed address to ") << _address << std::endl;
+				_receiveBuffer << _T("New address: ") << _address << std::endl;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
