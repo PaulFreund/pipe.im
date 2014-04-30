@@ -16,6 +16,7 @@ public:
 	const tstring msgKeyAddress         = _T("address");
 	const tstring msgKeyCommand         = _T("command");
 	const tstring msgKeyMessage         = _T("message");
+	const tstring msgKeyData            = _T("data");
 
 	typedef std::function<void(PipeObject&)> PipeCommandFunction;
 	typedef std::function<void(PipeArrayPtr)> PipeHookFunction;
@@ -91,19 +92,16 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	void pushOutgoing(const tstring& reference, const tstring& type, PipeObjectPtr message) {
-		if(!message->count(msgKeyAddress))
-			(*message)[msgKeyAddress] = _address;
-
-		if(!message->count(msgKeyRef))
-			(*message)[msgKeyRef] = reference;
-
-		if(!message->count(msgKeyMessage))
-			(*message)[msgKeyMessage] = type;
+	void pushOutgoing(const tstring& reference, const tstring& type, PipeJson data) {
+		PipeObject message;
+		message[msgKeyAddress] = _address;
+		message[msgKeyRef] = reference;
+		message[msgKeyMessage] = type;
+		message[msgKeyData] = data;
 
 		// Optional: validate messages with message type when debugging
 
-		_outgoing->push_back(std::move(*message));
+		_outgoing->push_back(std::move(message));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -206,10 +204,10 @@ public:
 				}
 			}
 			catch(tstring errorDescription) {
-				pushOutgoing(message[msgKeyRef].string_value(), _T("error"), newObject({ { _T("description"), errorDescription } }));
+				pushOutgoing(message[msgKeyRef].string_value(), _T("error"), errorDescription);
 			}
 			catch(...) {
-				pushOutgoing(message[msgKeyRef].string_value(), _T("error"), newObject({ { _T("description"), _T("Unknown error") } }));
+				pushOutgoing(message[msgKeyRef].string_value(), _T("error"), _T("Unknown error"));
 			}
 		}
 	}
@@ -298,46 +296,44 @@ private:
 	void addBaseCommandTypes() {
 		//--------------------------------------------------------------------------------------------------------------
 		addCommand(_T("children"), _T("Get a list of all child nodes"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), _T("children"), newObject({
-				{ _T("children"), *nodeChildren(message[msgKeyAddress].string_value()) }
-			}));
+			pushOutgoing(message[msgKeyRef].string_value(), _T("children"), *nodeChildren(message[msgKeyAddress].string_value()));
 		});
 
 		//--------------------------------------------------------------------------------------------------------------
 		addCommand(_T("commands"), _T("Get a list of all available commands"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), _T("commands"), newObject({
-				{ _T("commands"), *nodeCommandTypes(message[msgKeyAddress].string_value()) }
-			}));
+			pushOutgoing(message[msgKeyRef].string_value(), _T("commands"), *nodeCommandTypes(message[msgKeyAddress].string_value()));
 		});
 
 		//--------------------------------------------------------------------------------------------------------------
 		addCommand(_T("messages"), _T("Get a list of all message types this node can emmit"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), _T("messages"), newObject({
-				{ _T("messages"), *nodeMessageTypes(message[msgKeyAddress].string_value()) }
-			}));
+			pushOutgoing(message[msgKeyRef].string_value(), _T("messages"), *nodeMessageTypes(message[msgKeyAddress].string_value()));
 		});
 
 		//--------------------------------------------------------------------------------------------------------------
 		addCommand(_T("info"), _T("Get a list of all child nodes"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), _T("info"), newObject({
-				{ _T("info"), *nodeInfo(message[msgKeyAddress].string_value()) }
-			}));
+			pushOutgoing(message[msgKeyRef].string_value(), _T("info"),*nodeInfo(message[msgKeyAddress].string_value()));
 		});
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
 	void addBaseMessageTypes() {
+		PipeObjectPtr schemaError = newObject(); {
+			schemaAddValue(*schemaError, msgKeyData, SchemaString, _T("Error message text"));
+		}
+
+		addMessageType(_T("error"), _T("Error message"), schemaError);
+
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaChildren = newObject(); {
-			schemaAddValueArray(*schemaChildren, _T("children"), _T("List of child nodes"), SchemaString, _T("Name of a child node"));
+			schemaAddValueArray(*schemaChildren, msgKeyData, _T("List of child nodes"), SchemaString, _T("Name of a child node"));
 		}
 
 		addMessageType(_T("children"), _T("List of all child nodes"), schemaChildren);
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaCommands = newObject(); {
-			auto&& schemaCommandsItems = schemaAddObjectArray(*schemaCommands, _T("commands"), _T("List of commands this node accepts")); {
+			auto&& schemaCommandsItems = schemaAddObjectArray(*schemaCommands, msgKeyData, _T("List of commands this node accepts")); {
 				schemaAddValue(schemaCommandsItems, _T("command"), SchemaString, _T("Name of the command"));
 				schemaAddValue(schemaCommandsItems, _T("description"), SchemaString, _T("Description of the command"));
 				schemaAddObject(schemaCommandsItems, _T("schema"), _T("Schema of the command"));
@@ -348,7 +344,7 @@ private:
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaMessages = newObject(); {
-			auto&& schemaMessagesItems = schemaAddObjectArray(*schemaMessages, _T("messages"), _T("List of messages this node can emmit")); {
+			auto&& schemaMessagesItems = schemaAddObjectArray(*schemaMessages, msgKeyData, _T("List of messages this node can emmit")); {
 				schemaAddValue(schemaMessagesItems, _T("message"), SchemaString, _T("Name of the message type"));
 				schemaAddValue(schemaMessagesItems, _T("description"), SchemaString, _T("Description of the message type"));
 				schemaAddObject(schemaMessagesItems, _T("schema"), _T("Schema of the message type"));
@@ -359,7 +355,7 @@ private:
 
 		//--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaInfo = newObject(); {
-			auto&& schemaInfoFields = schemaAddObject(*schemaInfo, _T("info"), _T("Information about the node")); {
+			auto&& schemaInfoFields = schemaAddObject(*schemaInfo, msgKeyData, _T("Information about the node")); {
 				schemaAddValue(schemaInfoFields, _T("address"), SchemaString, _T("Address of the node"));
 				schemaAddValue(schemaInfoFields, _T("type"), SchemaString, _T("Unique type of this node"));
 				schemaAddValue(schemaInfoFields, _T("description"), SchemaString, _T("Description of the node"));

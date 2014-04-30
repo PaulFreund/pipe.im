@@ -76,20 +76,33 @@ public:
 		tstringstream output;
 		auto messages = _instance->receive();
 		for(auto& msg : *messages) {
-			auto&& msgObject = msg.object_items();
+			if(!msg.is_object()) { continue; }
 
-			auto msgRef = msgObject[_T("ref")].string_value();
-			auto msgAddress = msgObject[_T("address")].string_value();
-			auto msgType = msgObject[_T("message")].string_value();
+			auto&& obj = msg.object_items();
+			if(!obj.count(_T("ref")) || !obj.count(_T("address")) || !obj.count(_T("message")) || !obj.count(_T("data"))) { continue; }
 
-			if(msgRef != _identifier && !msgRef.empty()) { continue; }
+			auto ref = obj[_T("ref")].string_value();
+			if(ref != _identifier && !ref.empty()) { continue; }
 
-			msgObject.erase(_T("ref"));
-			msgObject.erase(_T("address"));
-			msgObject.erase(_T("message"));
+			auto address = obj[_T("address")].string_value();
+			auto type = obj[_T("message")].string_value();
+			auto data = obj[_T("data")];
 
-			tstring source = _T("[") + msgAddress + _T("][") + msgType + _T("]");
-			generateOutput(output, source, msg);
+			tstring source = _T("[") + address + _T("][") + type + _T("]");
+
+			if(data.is_object() || data.is_array()) {
+				generateOutput(output, source, data);
+			} 
+			else {
+				output << source << _T(" ");
+				if(data.is_string())
+					output << data.string_value();
+				else if(data.is_bool())
+					output << data.bool_value() ? _T("true") : _T("false");
+				else if(data.is_number())
+					output << to_tstring(data.number_value());
+			}
+
 		}
 
 		return output.str();
