@@ -209,7 +209,27 @@ private:
 
 		//--------------------------------------------------------------------------------------------------------------
 		if(cmd == _T("help")) {
-			_receiveBuffer << _T("TODO: Generate help data") << std::endl; // TODO
+			size_t cmdWidth = 0;
+			for(auto&& command : *_addressCommands) {
+				auto&& cmd = command.object_items();
+				auto objWidth = cmd[_T("command")].string_value().length();
+				if(objWidth > cmdWidth)
+					cmdWidth = objWidth;
+			}
+
+			_receiveBuffer << std::setfill(_T(' ')) ;
+			_receiveBuffer << _T("Shell commands:") << std::endl;
+			_receiveBuffer << indentSymbol << std::setw(cmdWidth) << _T("help") << _T(" - ") << _T("Print this help message") << std::endl;
+			_receiveBuffer << indentSymbol << std::setw(cmdWidth) << _T("usage") << _T(" - ") << _T("Print additional usage information") << std::endl;
+			_receiveBuffer << indentSymbol << std::setw(cmdWidth) << _T("ls") << _T(" - ") << _T("Get a list of child nodes") << std::endl;
+			_receiveBuffer << indentSymbol << std::setw(cmdWidth) << _T("cd") << _T(" - ") << _T("Set current node address") << std::endl;
+			_receiveBuffer << indentSymbol << std::setw(cmdWidth) << _T("pwd") << _T(" - ") << _T("Get current node address") << std::endl;
+			_receiveBuffer << std::endl;
+			_receiveBuffer << _T("Node commands:") << std::endl;
+			for(auto&& command : *_addressCommands) {
+				auto&& cmd = command.object_items();
+				_receiveBuffer << indentSymbol << std::setw(cmdWidth) << cmd[_T("command")].string_value() << _T(" - ") << cmd[_T("description")].string_value() << std::endl;
+			}
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -281,7 +301,6 @@ private:
 	//------------------------------------------------------------------------------------------------------------------
 	bool isPipeCommand(const tstring& commandName, const PipeArrayPtr& addressCommands) {
 		for(auto&& command : *addressCommands) {
-			if(!command.is_object()) { continue; }
 			auto&& commandObj = command.object_items();
 			if(commandObj[_T("command")].string_value() == commandName) {
 				return true;
