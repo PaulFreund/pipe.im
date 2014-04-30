@@ -219,7 +219,7 @@ private:
 
 			_receiveBuffer << std::setfill(_T(' ')) ;
 			_receiveBuffer << _T("Shell commands:") << std::endl;
-			_receiveBuffer << indentSymbol << std::setw(cmdWidth) << _T("help") << _T(" - ") << _T("Print this help message") << std::endl;
+			_receiveBuffer << indentSymbol << std::setw(cmdWidth) << _T("help") << _T(" - ") << _T("Print a list of available commands") << std::endl;
 			_receiveBuffer << indentSymbol << std::setw(cmdWidth) << _T("usage") << _T(" - ") << _T("Print additional usage information") << std::endl;
 			_receiveBuffer << indentSymbol << std::setw(cmdWidth) << _T("ls") << _T(" - ") << _T("Get a list of child nodes") << std::endl;
 			_receiveBuffer << indentSymbol << std::setw(cmdWidth) << _T("cd") << _T(" - ") << _T("Set current node address") << std::endl;
@@ -234,7 +234,11 @@ private:
 
 		//--------------------------------------------------------------------------------------------------------------
 		if(cmd == _T("usage")) {
-			_receiveBuffer << _T("TODO: Generate usage data") << std::endl; // TODO
+			_receiveBuffer << _T("Syntax to supply parameters on demand:") << std::endl;
+			_receiveBuffer << indentSymbol << _T("[<address>] <command>") << std::endl;
+			_receiveBuffer << std::endl;
+			_receiveBuffer << _T("Syntax if there is only on parameter for the command:") << std::endl;
+			_receiveBuffer << indentSymbol << _T("[<address>] <command> <parameter>") << std::endl;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
