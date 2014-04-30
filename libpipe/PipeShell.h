@@ -247,7 +247,7 @@ private:
 			}
 
 			for(auto&& child : *children)
-				_receiveBuffer << child.string_value() << _T(" ");
+				_receiveBuffer << texplode(child.string_value(), _T('.')).back() << _T(" ");
 
 			_receiveBuffer << std::endl;
 		}
