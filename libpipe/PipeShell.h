@@ -319,6 +319,7 @@ private:
 		_sendMessageBuffer[_T("address")] = address;
 		_sendMessageBuffer[_T("command")] = command;
 
+		
 		// TODO
 
 		finishPipeCommand();
@@ -326,7 +327,9 @@ private:
 
 	//------------------------------------------------------------------------------------------------------------------
 	void extendPipeCommand(const tstring& input) {
+		
 		// TODO!
+
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
