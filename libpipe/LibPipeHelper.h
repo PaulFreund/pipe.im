@@ -39,7 +39,7 @@ inline PipeObject& schemaAddObject(PipeObject& schema, const tstring& key, const
 	auto& schemaData = schema[key].object_items();
 	schemaData[_T("type")] = _T("object");
 	schemaData[_T("description")] = description;
-	schemaData[_T("optional")] = optional;
+	schemaData[_T("optional")].bool_value() = optional;
 	schemaData[_T("fields")] = PipeObject();
 	return schemaData[_T("fields")].object_items();
 }
@@ -74,7 +74,7 @@ inline void schemaAddValueArray(PipeObject& schema, const tstring& key, const ts
 	auto& schemaData = schema[key].object_items();
 	schemaData[_T("type")] = _T("array");
 	schemaData[_T("description")] = description;
-	schemaData[_T("optional")] = optional;
+	schemaData[_T("optional")].bool_value() = optional;
 	schemaData[_T("items")] = PipeObject();
 
 	tstring typeString = _T("");

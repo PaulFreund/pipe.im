@@ -8,23 +8,6 @@
 
 //======================================================================================================================
 
-/*
-Local state for shell:
-$PATH = object path
-
-Inbuilt commands:
-help - display help
-cd - change $PATH
-ls - list child nodes
-
-
-$PATH>
-
-*/
-
-
-//======================================================================================================================
-
 class PipeShell {
 private:
 	//------------------------------------------------------------------------------------------------------------------
@@ -63,28 +46,17 @@ public:
 
 public:
 	//------------------------------------------------------------------------------------------------------------------
-	bool setAddress(tstring newAddress = _T("pipe")) {
-		if(newAddress == _T("..")) {
-			auto addressFragments = texplode(_address, _T('.'));
-			if(addressFragments.size() < 2)
-				return false;
-
-			addressFragments.erase(addressFragments.begin() + (addressFragments.size() - 1));
-			newAddress = timplode(addressFragments, _T('.'));
-		}
-		else if(newAddress == _T(".")) {
-			return true;
-		}
-		else if(newAddress != _T("pipe") && newAddress.find_first_of(_T('.')) == tstring::npos) {
-			newAddress = _address + _T(".") + newAddress;
-		}
+	bool setAddress(const tstring& newAddress = _T("pipe")) {
+		tstring newAddressAbsolute = getAbsoluteAddress(newAddress);
+		if(newAddressAbsolute.length() == 0)
+			return false;
 
 		PipeArrayPtr newAddressCommands;
-		newAddressCommands = _instance->nodeCommandTypes(newAddress);
+		newAddressCommands = _instance->nodeCommandTypes(newAddressAbsolute);
 		if(newAddressCommands->empty())
 			return false;
 
-		_address = newAddress;
+		_address = newAddressAbsolute;
 		_addressCommands = newAddressCommands;
 		return true;
 	}
@@ -130,10 +102,12 @@ public:
 				shellCommand = false;
 			}
 
+			tstring parameter = timplode(fragments, _T(' '));
+
 			if(shellCommand)
-				newShellCommand(command, fragments, address);
+				newShellCommand(command, parameter, address);
 			else
-				newPipeCommand(command, fragments, address, addressCommands);
+				newPipeCommand(command, parameter, address, addressCommands);
 		}
 		// This message has already been started
 		else {
@@ -202,7 +176,7 @@ private:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void newShellCommand(const tstring& command, const std::vector<tstring>& parameters, const tstring& address) {
+	void newShellCommand(const tstring& command, const tstring& parameter, const tstring& address) {
 		tstring cmd = command;
 		if(command[0] == _T('!'))
 			cmd.erase(begin(cmd));
@@ -243,25 +217,18 @@ private:
 
 		//--------------------------------------------------------------------------------------------------------------
 		else if(cmd == _T("ls")) {
-			if(parameters.size() > 1) {
-				_receiveBuffer << _T("Shell error! \"ls\" only accepts none or one parameter") << std::endl;
+			// Handle .. and .
+
+			tstring lsAddress = (parameter.length() > 0 ? getAbsoluteAddress(parameter) : getAbsoluteAddress(address));
+			if(lsAddress.length() == 0) {
+				_receiveBuffer << _T("Invalid address") << std::endl;
 				return;
 			}
 
-			// Handle .. and .
-			tstring lsAddress = address;
-			if(parameters.size() == 1) {
-				lsAddress = parameters[0];
-				if(lsAddress == _T("..")) {
-					auto addressFragments = texplode(_address, _T('.'));
-					if(addressFragments.size() >= 2) {
-						addressFragments.erase(addressFragments.begin() + (addressFragments.size() - 1));
-						lsAddress = timplode(addressFragments, _T('.'));
-					}
-				}
-				else if(lsAddress == _T(".")) {
-					lsAddress = _address;
-				}
+			auto info = _instance->nodeInfo(lsAddress);
+			if(info->size() == 0) {
+				_receiveBuffer << _T("Invalid address") << std::endl;
+				return;
 			}
 
 			auto children = _instance->nodeChildren(lsAddress);
@@ -278,12 +245,12 @@ private:
 
 		//--------------------------------------------------------------------------------------------------------------
 		else if(cmd == _T("cd")) {
-			if(parameters.size() != 1) {
-				_receiveBuffer << _T("Shell error! \"cd\" only accepts one parameter") << std::endl;
+			if(parameter.length() <= 0) {
+				_receiveBuffer << _T("Shell error! \"cd\" requires one parameter") << std::endl;
 				return;
 			}
 
-			if(!setAddress(parameters[0]))
+			if(!setAddress(parameter))
 				_receiveBuffer << _T("Shell error! Invalid address") << std::endl;
 			else 
 				_receiveBuffer << _T("New address: ") << _address << std::endl;
@@ -291,7 +258,7 @@ private:
 
 		//--------------------------------------------------------------------------------------------------------------
 		else if(cmd == _T("pwd")) {
-			if(parameters.size() > 0) {
+			if(parameter.length() > 0) {
 				_receiveBuffer << _T("Shell error! \"pwd\" does not accept any parameters") << std::endl;
 				return;
 			}
@@ -314,22 +281,68 @@ private:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void newPipeCommand(tstring& command, std::vector<tstring>& parameters, const tstring& address, PipeArrayPtr& addressCommands) {
+	void newPipeCommand(const tstring& command, const tstring& parameters, const tstring& address, PipeArrayPtr& addressCommands) {
+		PipeObject& schema = PipeObject {};
+		for(auto&& addressCommand : *addressCommands) {
+			auto&& cmd = addressCommand.object_items();
+			if(cmd[_T("command")].string_value() == command)
+				schema = cmd[_T("schema")].object_items()[_T("data")].object_items();
+		}
+
+		bool hasParameters = (schema.size() > 0);
+		bool multipleParameters = (schema.count(_T("fields")) || schema.count(_T("items")));
+
+		// Parametes have been supplied but are not accepted
+		if(!hasParameters && parameters.size() > 0) {
+			_receiveBuffer << _T("Error! Command does not accept any parameters") << std::endl;
+			return;
+		}
+
+		// More than one parameters have been supplied but only one is accepted
+		if(!multipleParameters && parameters.size() > 1) {
+			_receiveBuffer << _T("Error! Command can only be invoked with one or no parameter") << std::endl;
+			return;
+		}
+
+		// More than one parameters have been supplied but multiple would be needed which is impossible
+		if(multipleParameters && parameters.size() > 0) {
+			if(parameters.size() == 1)
+				_receiveBuffer << _T("Error! Parameters can not be supplied for commands with multiple parameters") << std::endl;
+			else
+				_receiveBuffer << _T("Error! Command can not be invoked with multiple parameters") << std::endl;
+
+			return;
+		}
+
 		_sendMessageBuffer[_T("ref")] = _identifier;
 		_sendMessageBuffer[_T("address")] = address;
 		_sendMessageBuffer[_T("command")] = command;
 
-		
-		// TODO
+		if(!hasParameters) {
+			finishPipeCommand();
+			return;
+		}
 
-		finishPipeCommand();
+		// command has one paramter
+		else if(!multipleParameters && parameters.size() == 1) {
+			_sendMessageBuffer[_T("data")] = parameters[0];
+			finishPipeCommand();
+			return;
+		}
+		else {
+			_sendMessageBuffer[_T("data")] = PipeObject();
+			_sendMessageSchema = schema;
+			extendPipeCommand(_T(""));
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	void extendPipeCommand(const tstring& input) {
-		
-		// TODO!
+		if(!input.empty()) {
+			// TODO: Add to sendMessage
+		}
 
+		// TODO: Poll for more input
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -370,12 +383,34 @@ private:
 			if(data.is_string())
 				output << data.string_value();
 			else if(data.is_bool())
-				output << data.bool_value() ? _T("true") : _T("false");
+				output << (data.bool_value() ? _T("true") : _T("false"));
 			else if(data.is_number())
 				output << to_tstring(data.number_value());
 
 			output << std::endl;
 		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	tstring getAbsoluteAddress(const tstring& address) {
+		tstring absolute = address;
+
+		if(address == _T("..")) {
+			auto addressFragments = texplode(_address, _T('.'));
+			if(addressFragments.size() < 2)
+				return _T("");
+
+			addressFragments.erase(addressFragments.begin() + (addressFragments.size() - 1));
+			absolute = timplode(addressFragments, _T('.'));
+		}
+		else if(address == _T(".")) {
+			return _address;
+		}
+		else if(address != _T("pipe") && address.find_first_of(_T('.')) == tstring::npos) {
+			absolute = _address + _T(".") + address;
+		}
+
+		return absolute;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

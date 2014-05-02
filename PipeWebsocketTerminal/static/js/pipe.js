@@ -27,7 +27,7 @@ $().ready(function () {
         var messageText = message.data.toString();
         if (messageText.indexOf(newAddressToken) == 0) {
             var newAddress = messageText.substr(newAddressToken.length).trim();
-            window.terminal.set_prompt(newAddress + '>');
+            window.terminal.set_prompt(newAddress + '> ');
         }
         else {
             window.terminal.echo(messageText);
