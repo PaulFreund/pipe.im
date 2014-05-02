@@ -285,15 +285,12 @@ private:
 
 	//------------------------------------------------------------------------------------------------------------------
 	void newPipeCommand(const tstring& command, const tstring& parameters, const tstring& address, PipeArrayPtr& addressCommands) {
-		PipeObject* schema = nullptr;
+		PipeObjectPtr schema = newObject();
 		for(auto&& addressCommand : *addressCommands) {
 			auto&& cmd = addressCommand.object_items();
 			if(cmd[_T("command")].string_value() == command)
-				schema = &cmd[_T("schema")].object_items()[_T("data")].object_items();
+				schema = PipeObjectPtr(&cmd[_T("schema")].object_items()[_T("data")].object_items());
 		}
-
-		if(schema == nullptr)
-			return;
 
 		bool hasParameters = (schema->size() > 0);
 		bool multipleParameters = (schema->count(_T("fields")) || schema->count(_T("items")));
