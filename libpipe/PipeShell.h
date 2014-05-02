@@ -23,19 +23,22 @@ private:
 	tstring _address;
 	PipeArrayPtr _addressCommands;
 
-	PipeObject _sendMessageBuffer;
-	PipeObject _sendMessageSchema;
 	tstringstream _receiveBuffer;
+
+	PipeObject _sendMessageBuffer;
+	tstring _sendMessageSchemaAddress;
+	PipeObject _sendMessageSchema;
 public:
 	//------------------------------------------------------------------------------------------------------------------
 
-	PipeShell(std::shared_ptr<LibPipeInstance> instance, const tstring& identifier, bool greeting = false) 
+	PipeShell(std::shared_ptr<LibPipeInstance> instance, const tstring& identifier, bool greeting = false)
 		: _instance(instance)
 		, _identifier(identifier)
 		, _greeting(greeting)
 		, _address(_T("pipe"))
 		, _addressCommands(_instance->nodeCommandTypes(_address))
 		, _sendMessageBuffer(PipeObject {})
+		, _sendMessageSchemaAddress(_T(""))
 		, _sendMessageSchema(PipeObject {})
 	{
 		if(_greeting)
@@ -282,7 +285,7 @@ private:
 
 	//------------------------------------------------------------------------------------------------------------------
 	void newPipeCommand(const tstring& command, const tstring& parameters, const tstring& address, PipeArrayPtr& addressCommands) {
-		PipeObject& schema = PipeObject {};
+		PipeObject& schema = PipeObject();
 		for(auto&& addressCommand : *addressCommands) {
 			auto&& cmd = addressCommand.object_items();
 			if(cmd[_T("command")].string_value() == command)
@@ -331,6 +334,7 @@ private:
 		}
 		else {
 			_sendMessageBuffer[_T("data")] = PipeObject();
+			_sendMessageSchemaAddress = _T("");
 			_sendMessageSchema = schema;
 			extendPipeCommand(_T(""));
 		}
@@ -338,8 +342,14 @@ private:
 
 	//------------------------------------------------------------------------------------------------------------------
 	void extendPipeCommand(const tstring& input) {
+		auto& currentNode = getSchemaNode(_sendMessageSchemaAddress);
+
 		if(!input.empty()) {
 			// TODO: Add to sendMessage
+
+			_sendMessageSchemaAddress = nextSchemaNode(_sendMessageSchemaAddress);
+			if(_sendMessageSchemaAddress.empty())
+				finishPipeCommand();
 		}
 
 		// TODO: Poll for more input
@@ -349,8 +359,70 @@ private:
 	void finishPipeCommand() {
 		auto sendMessages = newArray({ _sendMessageBuffer });
 		_instance->send(sendMessages);
+		_sendMessageSchemaAddress = _T("");
 		_sendMessageSchema = PipeObject {};
 		_sendMessageBuffer = PipeObject {};
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	PipeObject& getSchemaNode(const tstring& address) {
+		PipeObject* currentNode = &_sendMessageSchema;
+		
+		auto nodes = texplode(address, _T('.'));
+		for(auto& node : nodes) {
+			if(currentNode->count(node))
+				currentNode = &currentNode->operator[](node).object_items();
+		}
+
+		return *currentNode;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	tstring nextSchemaNode(const tstring& address) {
+		tstring lastElement = _T("");
+		auto nodes = texplode(address, _T('.'));
+		do {
+			auto& currentNode = getSchemaNode(timplode(nodes, _T('.')));
+
+			if(currentNode[_T("type")] == _T("object")) {
+				auto& fields = currentNode[_T("fields")].object_items();
+				if(fields.size() > 0) {
+					bool next = false;
+					tstring found = _T("");
+					for(auto& field : fields) {
+						if(next || lastElement.empty()) {
+							found = field.first;
+							break;
+						}
+
+						if(field.first == lastElement)
+							next = true;
+					}
+
+					if(!found.empty()) {
+						nodes.push_back(_T("fields"));
+						nodes.push_back(found);
+						return timplode(nodes, _T('.'));
+					}
+					else {
+						lastElement.clear();
+					}
+				}
+			}
+
+			if(nodes.size() > 0)
+				lastElement = nodes.back();
+			else
+				break;
+
+			nodes.pop_back();
+
+			if(nodes.back() == _T("fields") || nodes.back() == _T("items"))
+				nodes.pop_back();
+		}
+		while(nodes.size() > 0 || !lastElement.empty());
+
+		return _T("");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
