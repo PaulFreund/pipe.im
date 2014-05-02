@@ -285,15 +285,18 @@ private:
 
 	//------------------------------------------------------------------------------------------------------------------
 	void newPipeCommand(const tstring& command, const tstring& parameters, const tstring& address, PipeArrayPtr& addressCommands) {
-		PipeObject& schema = PipeObject();
+		PipeObject* schema = nullptr;
 		for(auto&& addressCommand : *addressCommands) {
 			auto&& cmd = addressCommand.object_items();
 			if(cmd[_T("command")].string_value() == command)
-				schema = cmd[_T("schema")].object_items()[_T("data")].object_items();
+				schema = &cmd[_T("schema")].object_items()[_T("data")].object_items();
 		}
 
-		bool hasParameters = (schema.size() > 0);
-		bool multipleParameters = (schema.count(_T("fields")) || schema.count(_T("items")));
+		if(schema == nullptr)
+			return;
+
+		bool hasParameters = (schema->size() > 0);
+		bool multipleParameters = (schema->count(_T("fields")) || schema->count(_T("items")));
 
 		// Parametes have been supplied but are not accepted
 		if(!hasParameters && parameters.size() > 0) {
@@ -335,7 +338,7 @@ private:
 		else {
 			_sendMessageBuffer[_T("data")] = PipeObject();
 			_sendMessageSchemaAddress = _T("");
-			_sendMessageSchema = schema;
+			_sendMessageSchema = *schema;
 			extendPipeCommand(_T(""));
 		}
 	}
