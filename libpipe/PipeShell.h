@@ -118,11 +118,11 @@ public:
 			if(shellCommand)
 				newShellCommand(command, parameter, address);
 			else
-				newPipeCommand(command, parameter, address, addressCommands);
+				pipeCommandStart(command, parameter, address, addressCommands);
 		}
 		// This message has already been started
 		else {
-			extendPipeCommand(input);
+			pipeCommandAdd(input);
 		}
 	}
 
@@ -292,7 +292,7 @@ private:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void newPipeCommand(const tstring& command, const tstring& parameters, const tstring& address, PipeArrayPtr& addressCommands) {
+	void pipeCommandStart(const tstring& command, const tstring& parameters, const tstring& address, PipeArrayPtr& addressCommands) {
 		PipeObject* schema = nullptr;
 		for(auto&& addressCommand : *addressCommands) {
 			auto&& cmd = addressCommand.object_items();
@@ -330,26 +330,36 @@ private:
 		_sendMessageBuffer[_T("command")] = command;
 
 		if(!hasParameters) {
-			finishPipeCommand();
+			pipeCommandFinish();
 			return;
 		}
 
 		// command has one paramter
 		else if(!multipleParameters && parameters.size() == 1) {
 			_sendMessageBuffer[_T("data")] = parameters[0];
-			finishPipeCommand();
+			pipeCommandFinish();
 			return;
 		}
 		else {
 			_sendMessageBuffer[_T("data")] = PipeObject();
 			_sendMessageSchemaAddress = _T("");
 			_sendMessageSchema = *schema;
-			extendPipeCommand(_T(""));
+			pipeCommandRequestNode();
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void extendPipeCommand(const tstring& input) {
+	void pipeCommandAdd(const tstring& input) {
+		// Fresh state, nothing hapened yet
+		
+		// A request has been printend and a response is awaited
+
+		// A optional parameter question has been printend and an answer is awaited
+			// If no, go to next node
+			// if yes, print request and await response
+			// If this is an array, ask again
+
+
 		auto& currentNode = getSchemaNode(_sendMessageSchemaAddress);
 
 		// Input has been supplied
@@ -379,7 +389,7 @@ private:
 			}
 			
 			// Input has been supplied so wie store it
-			auto& valueNode = getValueNode(_sendMessageSchemaAddress);
+			auto& valueNode = getValueNode(_sendMessageValueAddress);
 
 			if(currentNode[_T("type")] == _T("string")) {
 				valueNode = PipeJson(input);
@@ -396,16 +406,23 @@ private:
 			
 			// If this has been the last node, finish the command
 			if(_sendMessageSchemaAddress.empty()) {
-				finishPipeCommand();
+				pipeCommandFinish();
 				return;
 			}
 
 			currentNode = getSchemaNode(_sendMessageSchemaAddress);
 		}
 
+
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void pipeCommandRequestNode() {
+		auto& currentNode = getSchemaNode(_sendMessageSchemaAddress);
+
 		// if this value is optional, ask if it should be supplied
 		if(currentNode[_T("optional")].bool_value() && !_sendMessageOptionalQuestionAnswered) {
-			_receiveBuffer << currentNode[_T("description")].string_value() << _T(". Optional, add? y/n: ") ;
+			_receiveBuffer << currentNode[_T("description")].string_value() << _T(". Optional, add? y/n: ");
 			_sendMessageOptionalQuestionAsked = true;
 			return;
 		}
@@ -414,7 +431,7 @@ private:
 		if(currentNode[_T("type")] == _T("object")) {
 			_receiveBuffer << _T("[") << currentNode[_T("description")].string_value() << _T("]") << std::endl;
 			_sendMessageSchemaAddress = nextSchemaNode(_sendMessageSchemaAddress);
-			extendPipeCommand(_T(""));
+			pipeCommandRequestNode(); // Jump to next node
 		}
 		// TODO
 		else if(currentNode[_T("type")] == _T("array")) {
@@ -429,7 +446,7 @@ private:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void finishPipeCommand() {
+	void pipeCommandFinish() {
 		auto sendMessages = newArray({ _sendMessageBuffer });
 		_instance->send(sendMessages);
 		_sendMessageOptionalAnswer = false;
