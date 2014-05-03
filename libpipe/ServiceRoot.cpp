@@ -34,7 +34,7 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 	PipeObjectPtr schemaCmdTest2 = newObject();
 	auto& schemaCmdTest2Data = schemaAddObject(*schemaCmdTest2, msgKeyData, _T("Message data to changed"));
 	schemaAddValue(schemaCmdTest2Data, _T("key1"), SchemaString, _T("description 1 text"));
-	schemaAddValue(schemaCmdTest2Data, _T("key2"), SchemaString, _T("description 2 text"));
+	schemaAddValue(schemaCmdTest2Data, _T("key2"), SchemaString, _T("description 2 text"), true);
 
 	addCommand(_T("test2"), _T("A test command"), schemaCmdTest2, [&](PipeObject& message) {
 		if(message.count(msgKeyData) && message[msgKeyData].is_object()) {
@@ -43,12 +43,17 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 			msg1[0] = msg1[msg1.length()-1];
 			msg1[msg1.length()-1] = tmp1;
 
-			auto msg2 = message[msgKeyData][_T("key2")].string_value();
-			TCHAR tmp2 = msg2[0];
-			msg2[0] = msg2[msg2.length()-1];
-			msg2[msg2.length()-1] = tmp2;
+			if(message[msgKeyData].object_items().count(_T("key2"))) {
+				auto msg2 = message[msgKeyData][_T("key2")].string_value();
+				TCHAR tmp2 = msg2[0];
+				msg2[0] = msg2[msg2.length() - 1];
+				msg2[msg2.length() - 1] = tmp2;
 
-			pushOutgoing(message[msgKeyRef].string_value(), _T("test2"), PipeObject { { _T("key1"), msg1 }, { _T("key2"), msg2 } });
+				pushOutgoing(message[msgKeyRef].string_value(), _T("test2"), PipeObject { { _T("key1"), msg1 }, { _T("key2"), msg2 } });
+			}
+			else {
+				pushOutgoing(message[msgKeyRef].string_value(), _T("test2"), PipeObject { { _T("key1"), msg1 } });
+			}
 		}
 		else {
 			pushOutgoing(message[msgKeyRef].string_value(), _T("error"), _T("Invalid test2 request"));
@@ -58,7 +63,7 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 	PipeObjectPtr schemaMsgTest2 = newObject();
 	auto& schemaMsgTest2Data = schemaAddObject(*schemaMsgTest2, msgKeyData, _T("Message data to changed"));
 	schemaAddValue(schemaMsgTest2Data, _T("key1data"), SchemaString, _T("description data 1 text"));
-	schemaAddValue(schemaMsgTest2Data, _T("key2data"), SchemaString, _T("description data 2 text"));
+	schemaAddValue(schemaMsgTest2Data, _T("key2data"), SchemaString, _T("description data 2 text"), true);
 
 	addMessageType(_T("test2"), _T("Test command response data"), schemaMsgTest2);
 

@@ -25,8 +25,11 @@ private:
 
 	tstringstream _receiveBuffer;
 
-	bool _sendMessageQuestionAsked;
+	bool _sendMessageOptionalAnswer;
+	bool _sendMessageOptionalQuestionAsked;
+	bool _sendMessageOptionalQuestionAnswered;
 	PipeObject _sendMessageBuffer;
+	tstring _sendMessageValueAddress;
 	tstring _sendMessageSchemaAddress;
 	PipeObject _sendMessageSchema;
 public:
@@ -38,8 +41,11 @@ public:
 		, _greeting(greeting)
 		, _address(_T("pipe"))
 		, _addressCommands(_instance->nodeCommandTypes(_address))
-		, _sendMessageQuestionAsked(false)
+		, _sendMessageOptionalAnswer(false)
+		, _sendMessageOptionalQuestionAsked(false)
+		, _sendMessageOptionalQuestionAnswered(false)
 		, _sendMessageBuffer(PipeObject {})
+		, _sendMessageValueAddress(_T(""))
 		, _sendMessageSchemaAddress(_T(""))
 		, _sendMessageSchema(PipeObject {})
 	{
@@ -346,13 +352,33 @@ private:
 	void extendPipeCommand(const tstring& input) {
 		auto& currentNode = getSchemaNode(_sendMessageSchemaAddress);
 
+		// Input has been supplied
 		if(!input.empty()) {
-			//if(_sendMessageQuestionAsked) { // TODO: Optional and arrays
-			//	// TODO
-			//	assert(false);
-			//	return;
-			//}
+			if(_sendMessageOptionalQuestionAsked) {
+				if(input != _T("y") && input != _T("n")) {
+					_receiveBuffer << _T("Error! only 'y' or 'n' is accepted");
+					return;
+				}
+				
+				_sendMessageOptionalQuestionAsked = false;
+				_sendMessageOptionalQuestionAnswered = true;
 
+				if(input == _T("y")) {
+					_sendMessageOptionalAnswer = true;
+					_sendMessageOptionalQuestionAnswered = true;
+					_sendMessageOptionalQuestionAsked = false;
+				}
+				else if(input == _T("n")) {
+					_sendMessageOptionalAnswer = false;
+					_sendMessageOptionalQuestionAnswered = true;
+					_sendMessageOptionalQuestionAsked = false;
+				}
+				else {
+
+				}
+			}
+			
+			// Input has been supplied so wie store it
 			auto& valueNode = getValueNode(_sendMessageSchemaAddress);
 
 			if(currentNode[_T("type")] == _T("string")) {
@@ -364,12 +390,11 @@ private:
 			else if(currentNode[_T("type")] == _T("bool")) {
 				valueNode = PipeJson((input == _T("true") ? true : false));
 			}
-			else {
-				finishPipeCommand();
-				return;
-			}
 
+			// Go to next node
 			_sendMessageSchemaAddress = nextSchemaNode(_sendMessageSchemaAddress);
+			
+			// If this has been the last node, finish the command
 			if(_sendMessageSchemaAddress.empty()) {
 				finishPipeCommand();
 				return;
@@ -378,20 +403,26 @@ private:
 			currentNode = getSchemaNode(_sendMessageSchemaAddress);
 		}
 
-		//if(currentNode[_T("optional")].bool_value() && !_sendMessageQuestionAsked) {										// TODO: Optional and arrays
-		//	_receiveBuffer << currentNode[_T("description")].string_value() << _T(". Optional, add? y/n: ") << std::endl;
-		//}
+		// if this value is optional, ask if it should be supplied
+		if(currentNode[_T("optional")].bool_value() && !_sendMessageOptionalQuestionAnswered) {
+			_receiveBuffer << currentNode[_T("description")].string_value() << _T(". Optional, add? y/n: ") ;
+			_sendMessageOptionalQuestionAsked = true;
+			return;
+		}
 
+		// If this is an object show its header and move to the next node
 		if(currentNode[_T("type")] == _T("object")) {
 			_receiveBuffer << _T("[") << currentNode[_T("description")].string_value() << _T("]") << std::endl;
 			_sendMessageSchemaAddress = nextSchemaNode(_sendMessageSchemaAddress);
-			extendPipeCommand(input);
+			extendPipeCommand(_T(""));
 		}
+		// TODO
 		else if(currentNode[_T("type")] == _T("array")) {
 			_receiveBuffer << _T("[") << currentNode[_T("description")].string_value() << _T("]") << std::endl;
-			_receiveBuffer << _T("Do you want to add a value ?") << std::endl;
-
+			_receiveBuffer << _T("Do you want to add a(nother) value ? y/n:");
+			_sendMessageOptionalQuestionAsked = true;
 		}
+		// If this is a value, ask for the value
 		else {
 			_receiveBuffer << currentNode[_T("description")].string_value() << _T(": ");
 		}
@@ -401,6 +432,10 @@ private:
 	void finishPipeCommand() {
 		auto sendMessages = newArray({ _sendMessageBuffer });
 		_instance->send(sendMessages);
+		_sendMessageOptionalAnswer = false;
+		_sendMessageOptionalQuestionAsked = false;
+		_sendMessageOptionalQuestionAnswered = false;
+		_sendMessageValueAddress = _T("");
 		_sendMessageSchemaAddress = _T("");
 		_sendMessageSchema = PipeObject {};
 		_sendMessageBuffer = PipeObject {};
