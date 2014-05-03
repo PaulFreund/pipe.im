@@ -25,6 +25,7 @@ private:
 
 	tstringstream _receiveBuffer;
 
+	bool _sendMessageQuestionAsked;
 	PipeObject _sendMessageBuffer;
 	tstring _sendMessageSchemaAddress;
 	PipeObject _sendMessageSchema;
@@ -37,6 +38,7 @@ public:
 		, _greeting(greeting)
 		, _address(_T("pipe"))
 		, _addressCommands(_instance->nodeCommandTypes(_address))
+		, _sendMessageQuestionAsked(false)
 		, _sendMessageBuffer(PipeObject {})
 		, _sendMessageSchemaAddress(_T(""))
 		, _sendMessageSchema(PipeObject {})
@@ -345,14 +347,53 @@ private:
 		auto& currentNode = getSchemaNode(_sendMessageSchemaAddress);
 
 		if(!input.empty()) {
-			// TODO: Add to sendMessage
+			if(_sendMessageQuestionAsked) {
+				// TODO
+				assert(false);
+				return;
+			}
+
+			auto& valueNode = _sendMessageBuffer[_T("data")];
+
+			// TODO Get current object
+
+			if(currentNode[_T("type")] == _T("string")) {
+
+			}
+			else if(currentNode[_T("type")] == _T("number")) {
+
+			}
+			else if(currentNode[_T("type")] == _T("number")) {
+
+			}
+			else {
+				finishPipeCommand();
+				return;
+			}
 
 			_sendMessageSchemaAddress = nextSchemaNode(_sendMessageSchemaAddress);
-			if(_sendMessageSchemaAddress.empty())
+			if(_sendMessageSchemaAddress.empty()) {
 				finishPipeCommand();
+				return;
+			}
+
+			currentNode = getSchemaNode(_sendMessageSchemaAddress);
 		}
 
-		// TODO: Poll for more input
+		if(currentNode[_T("optional")].bool_value() && !_sendMessageQuestionAsked) {
+			_receiveBuffer << currentNode[_T("description")].string_value() << _T(". Optional, add? y/n: ") << std::endl;
+		}
+
+		if(currentNode[_T("type")] == _T("object")) {
+			_receiveBuffer << _T("[") << currentNode[_T("description")].string_value() << _T("]") << std::endl;
+		}
+		else if(currentNode[_T("type")] == _T("array")) {
+			_receiveBuffer << _T("[") << currentNode[_T("description")].string_value() << _T("]") << std::endl;
+			_receiveBuffer << _T("Do you want to add a value ?") << std::endl;
+		}
+		else {
+			_receiveBuffer << currentNode[_T("description")].string_value() << _T(": ") << std::endl;
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
