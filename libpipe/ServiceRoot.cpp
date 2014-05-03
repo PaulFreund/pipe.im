@@ -15,8 +15,8 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 		if(message.count(msgKeyData) && message[msgKeyData].is_string()) {
 			auto msg = message[msgKeyData].string_value();
 			TCHAR tmp = msg[0];
-			msg[0] = msg[msg.length()];
-			msg[msg.length()] = tmp;
+			msg[0] = msg[msg.length()-1];
+			msg[msg.length()-1] = tmp;
 
 			pushOutgoing(message[msgKeyRef].string_value(), _T("test"), msg);
 		}
@@ -37,16 +37,16 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 	schemaAddValue(schemaCmdTest2Data, _T("key2"), SchemaString, _T("description 2 text"));
 
 	addCommand(_T("test2"), _T("A test command"), schemaCmdTest2, [&](PipeObject& message) {
-		if(message.count(msgKeyData) && message[msgKeyData].is_string()) {
-			auto msg1 = message[msgKeyData].string_value();
+		if(message.count(msgKeyData) && message[msgKeyData].is_object()) {
+			auto msg1 = message[msgKeyData][_T("key1")].string_value();
 			TCHAR tmp1 = msg1[0];
-			msg1[0] = msg1[msg1.length()];
-			msg1[msg1.length()] = tmp1;
+			msg1[0] = msg1[msg1.length()-1];
+			msg1[msg1.length()-1] = tmp1;
 
-			auto msg2 = message[msgKeyData].string_value();
+			auto msg2 = message[msgKeyData][_T("key2")].string_value();
 			TCHAR tmp2 = msg2[0];
-			msg2[0] = msg2[msg2.length()];
-			msg2[msg2.length()] = tmp2;
+			msg2[0] = msg2[msg2.length()-1];
+			msg2[msg2.length()-1] = tmp2;
 
 			pushOutgoing(message[msgKeyRef].string_value(), _T("test2"), PipeObject { { _T("key1"), msg1 }, { _T("key2"), msg2 } });
 		}

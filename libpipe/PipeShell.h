@@ -347,24 +347,22 @@ private:
 		auto& currentNode = getSchemaNode(_sendMessageSchemaAddress);
 
 		if(!input.empty()) {
-			if(_sendMessageQuestionAsked) {
-				// TODO
-				assert(false);
-				return;
-			}
+			//if(_sendMessageQuestionAsked) { // TODO: Optional and arrays
+			//	// TODO
+			//	assert(false);
+			//	return;
+			//}
 
-			auto& valueNode = _sendMessageBuffer[_T("data")];
-
-			// TODO Get current object
+			auto& valueNode = getValueNode(_sendMessageSchemaAddress);
 
 			if(currentNode[_T("type")] == _T("string")) {
-
+				valueNode = PipeJson(input);
 			}
 			else if(currentNode[_T("type")] == _T("number")) {
-
+				valueNode = PipeJson(std::stof(input));
 			}
-			else if(currentNode[_T("type")] == _T("number")) {
-
+			else if(currentNode[_T("type")] == _T("bool")) {
+				valueNode = PipeJson((input == _T("true") ? true : false));
 			}
 			else {
 				finishPipeCommand();
@@ -380,19 +378,22 @@ private:
 			currentNode = getSchemaNode(_sendMessageSchemaAddress);
 		}
 
-		if(currentNode[_T("optional")].bool_value() && !_sendMessageQuestionAsked) {
-			_receiveBuffer << currentNode[_T("description")].string_value() << _T(". Optional, add? y/n: ") << std::endl;
-		}
+		//if(currentNode[_T("optional")].bool_value() && !_sendMessageQuestionAsked) {										// TODO: Optional and arrays
+		//	_receiveBuffer << currentNode[_T("description")].string_value() << _T(". Optional, add? y/n: ") << std::endl;
+		//}
 
 		if(currentNode[_T("type")] == _T("object")) {
 			_receiveBuffer << _T("[") << currentNode[_T("description")].string_value() << _T("]") << std::endl;
+			_sendMessageSchemaAddress = nextSchemaNode(_sendMessageSchemaAddress);
+			extendPipeCommand(input);
 		}
 		else if(currentNode[_T("type")] == _T("array")) {
 			_receiveBuffer << _T("[") << currentNode[_T("description")].string_value() << _T("]") << std::endl;
 			_receiveBuffer << _T("Do you want to add a value ?") << std::endl;
+
 		}
 		else {
-			_receiveBuffer << currentNode[_T("description")].string_value() << _T(": ") << std::endl;
+			_receiveBuffer << currentNode[_T("description")].string_value() << _T(": ");
 		}
 	}
 
@@ -403,6 +404,39 @@ private:
 		_sendMessageSchemaAddress = _T("");
 		_sendMessageSchema = PipeObject {};
 		_sendMessageBuffer = PipeObject {};
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	PipeJson& getValueNode(const tstring& address) {
+		PipeJson* currentNode = &_sendMessageBuffer[_T("data")];
+
+		auto nodes = texplode(address, _T('.'));
+		bool objectNext = false;
+		bool arrayNext = false;
+		for(auto& node : nodes) {
+			if(node == _T("fields")) { 
+				//*currentNode = PipeJson(PipeObject());
+				objectNext = true;  
+				continue; 
+			}
+			if(node == _T("items")) { 
+				//*currentNode = PipeJson(PipeArray());
+				arrayNext = true;
+				continue; 
+			}
+			
+			if(objectNext || arrayNext) {
+				 currentNode = &currentNode->object_items()[node];
+			}
+//			else if(arrayNext) {
+//				currentNode = &currentNode->array_items()[node];
+//			}
+
+			arrayNext = false;
+			objectNext = false;
+		}
+
+		return *currentNode;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
