@@ -145,7 +145,7 @@ public:
 			if(currentNode[_T("type")] == _T("array"))
 				description = _T("a ") + currentNode[_T("items")][_T("description")].string_value() + _T(" value");
 
-			response = _T("Do you want to add ") + description + _T("? y/n:");
+			response = _T("Do you want to add ") + description + _T("? y/n: ");
 			_clientState = QueriedOptional;
 			return response;
 		}
@@ -308,15 +308,14 @@ private:
 					// If found use it
 					if(next) {
 						nodes.push_back(field.first);
-
-						//// If this is an array, add first index
-						//if(schemaNode(timplode(nodes, _T('.')))[_T("type")] == _T("array"))
-						//	nodes.push_back(_T("0"));
-
 						_currentAddress = timplode(nodes, _T('.'));
 						return;
 					}
 				}
+			}
+			else if(levelSchemaNode[_T("type")] == _T("array")) {
+				_currentAddress = timplode(nodes, _T('.'));
+				return;
 			}
 
 			lastKey = nodes.back();
