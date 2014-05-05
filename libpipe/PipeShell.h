@@ -195,12 +195,6 @@ private:
 		else if(valueSchemaNode[_T("type")] == _T("bool")) {
 			valueMessageNode = PipeJson((data == _T("true") ? true : false));
 		}
-		else if(valueSchemaNode[_T("type")] == _T("object")) {
-			valueMessageNode = PipeJson(PipeObject());
-		}
-		else if(valueSchemaNode[_T("type")] == _T("array")) {
-			valueMessageNode = PipeJson(PipeArray());
-		}
 		else {
 			valueMessageNode = PipeJson(nullptr);
 		}
@@ -214,10 +208,10 @@ private:
 		for(size_t idx = 0, cnt = nodes.size(); idx < cnt; idx++) {
 			PipeJson& currentNode = resultNode->operator[](nodes[idx]);
 
-			if(currentNode[_T("type")] == _T("object")) {
+			if(currentNode[_T("type")] == _T("object") && ((idx + 1) < cnt)) {
 				resultNode = &currentNode[_T("fields")];
 			}
-			else if(currentNode[_T("type")] == _T("array")) {
+			else if(currentNode[_T("type")] == _T("array") && ((idx + 1) < cnt)) {
 				resultNode = &currentNode[_T("items")];
 				idx++; // Ignore the index
 			}
@@ -230,21 +224,30 @@ private:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	PipeJson& messageNode(const tstring& address) { // TODO: this should create fields that are missing
+	PipeJson& messageNode(const tstring& address) {
 		PipeJson* resultNode = &_message;
 
+		tstring currentPath;
 		auto nodes = texplode(address, _T('.'));
 		for(size_t idx = 0, cnt = nodes.size(); idx < cnt; idx++) {
-			// TODO: Object/field initialisation
-
 			PipeJson& currentNode = resultNode->operator[](nodes[idx]);
+
+			// Get schema for this node
+			currentPath += (idx == 0 ? _T("") : _T(".")) + nodes[idx];
+			PipeObject& currentSchema = schemaNode(currentPath);
+
+			// Initialize missing fields
+			if(currentSchema[_T("type")] == _T("object") && !currentNode.is_object())
+				currentNode = PipeJson(PipeObject());
+			else if(currentSchema[_T("type")] == _T("array") && !currentNode.is_array())
+				currentNode = PipeJson(PipeArray());
+
 			if(currentNode.is_array() && ((idx + 1) < cnt)) { // We address array elements
 				int arrIdx = std::stoi(nodes[idx + 1]);
 
 				// Add item if index is not yet created
 				if(currentNode.array_items().size() <= arrIdx) {
 					currentNode.array_items().push_back(PipeJson());
-					setValue(address, _T(""));
 				}
 
 				resultNode = &currentNode.array_items()[arrIdx];
@@ -277,55 +280,47 @@ private:
 			return;
 		}
 
-		// Go to next item
-		// TODO
-		/*
-		tstring lastElement = _T("");
-		do {
-			auto& currentNode = schemaNode(timplode(nodes, _T('.')));
+		// Current item has children, go to first
+		if(currentSchemaNode[_T("type")] == _T("object") && currentSchemaNode[_T("fields")].object_items().size() > 0) {
+			_currentAddress += _T(".") + currentSchemaNode[_T("fields")].object_items().begin()->first;
+			return;
+		}
 
-			if(currentNode[_T("type")] == _T("object")) {
-				auto& fields = currentNode[_T("fields")].object_items();
-				if(fields.size() > 0) {
-					bool next = false;
-					tstring found = _T("");
-					for(auto& field : fields) {
-						if(next || lastElement.empty()) {
-							found = field.first;
-							break;
-						}
-
-						if(field.first == lastElement)
-							next = true;
+		// Current item has no chidlren
+		
+		tstring lastKey = nodes.back();
+		nodes.pop_back();
+		for(auto& levelSchemaNode = schemaNode(timplode(nodes, _T('.'))); !nodes.empty(); nodes.pop_back()) {
+			if(levelSchemaNode[_T("type")] == _T("object")) {
+				bool next = false;
+				for(auto& field : levelSchemaNode[_T("fields")].object_items()) {
+					// Search for the current key
+					if(field.first == lastKey) {
+						next = true;
+						continue;
 					}
 
-					if(!found.empty()) {
-						nodes.push_back(_T("fields"));
-						nodes.push_back(found);
-						_addressSchema = timplode(nodes, _T('.'));
-					}
-					else {
-						lastElement.clear();
+					// If found use it
+					if(next) {
+						nodes.push_back(field.first);
+
+						// If this is an array, add first index
+						if(schemaNode(timplode(nodes, _T('.')))[_T("type")] == _T("array"))
+							nodes.push_back(_T(".0"));
+
+						_currentAddress = timplode(nodes, _T('.'));
+						return;
 					}
 				}
 			}
 
-			if(nodes.size() > 0)
-				lastElement = nodes.back();
-			else
-				break;
-
-			nodes.pop_back();
-
-			if(nodes.back() == _T("fields") || nodes.back() == _T("items"))
-				nodes.pop_back();
+			lastKey = nodes.back();
 		}
-		while(nodes.size() > 0 || !lastElement.empty());
 
-		// TODO: mark message as complete when it is
-
-		_addressSchema = _T("");
-		*/
+		if(nodes.empty()) {
+			_messageComplete = true;
+			return;
+		}
 	}
 };
 
