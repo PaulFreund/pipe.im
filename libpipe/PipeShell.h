@@ -59,13 +59,17 @@ public:
 		bool multipleParameters = (schemaData != nullptr && (schemaData->count(_T("fields")) || schemaData->count(_T("items"))));
 
 		// Parametes have been supplied but are not accepted
-		if(!hasParameters && parameter.size() > 0) {
+		if(!hasParameters && !parameter.empty())
 			return _T("Error! Command does not accept any parameters\n");
-		}
+
+		if(multipleParameters && !parameter.empty())
+			return _T("Error! Command can not be invoked with parameters\n");
+
 
 		_messageEmpty = false;
 		_messageComplete = false;
 
+		_schema = schema;
 		_message = PipeJson(PipeObject());
 		auto& messageData = _message.object_items();
 
@@ -79,13 +83,12 @@ public:
 		}
 
 		// command has one paramter
-		else if(!multipleParameters && parameter.size() > 0) {
+		else if(!multipleParameters && !parameter.empty()) {
 			setValue(_T("data"), parameter);
 			_messageComplete = true;
 			return _T("");
 		}
 		else {
-			_schema = schema;
 			return nextValue();
 		}
 	}
@@ -230,7 +233,7 @@ private:
 		tstring currentPath;
 		auto nodes = texplode(address, _T('.'));
 		for(size_t idx = 0, cnt = nodes.size(); idx < cnt; idx++) {
-			PipeJson& currentNode = resultNode->operator[](nodes[idx]);
+			PipeJson& currentNode = resultNode->object_items()[nodes[idx]];
 
 			// Get schema for this node
 			currentPath += (idx == 0 ? _T("") : _T(".")) + nodes[idx];
@@ -266,7 +269,7 @@ private:
 		// First run, set to data
 		if(_currentAddress.empty()) {
 			_currentAddress = _T("data");
-			messageNode(_currentAddress);
+			return;
 		}
 		
 		auto nodes = texplode(_currentAddress, _T('.'));
@@ -430,6 +433,13 @@ public:
 					auto&& cmd = addressCommand.object_items();
 					if(cmd[_T("command")].string_value() == command)
 						schema = &cmd[_T("schema")];
+				}
+
+				// invalid command
+				if(schema == nullptr) {
+					_receiveBuffer << _T("Error! command not found");
+					_sendBuffer.clear();
+					return;
 				}
 
 				_receiveBuffer << _sendBuffer.start(_identifier, command, parameter, address, *schema);
