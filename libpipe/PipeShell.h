@@ -24,20 +24,17 @@ private:
 	PipeShellSendMessageState _clientState;
 
 
-	tstring _addressMessage;
-	PipeObject _message;
-
-	tstring _addressSchema;
-	PipeObject _schema;
+	tstring _currentAddress;
+	PipeJson _message;
+	PipeJson _schema;
 
 public:
 	PipeShellSendMessage()
 		: _messageEmpty(true)
 		, _messageComplete(true)
 		, _clientState(None)
-		, _addressMessage(_T(""))
+		, _currentAddress(_T(""))
 		, _message(PipeObject {})
-		, _addressSchema(_T(""))
 		, _schema(PipeObject {}) {}
 
 public:
@@ -55,7 +52,7 @@ public:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	tstring start(const tstring& identifier, const tstring& command, const tstring& parameter, const tstring& address, PipeObject& schema) {
+	tstring start(const tstring& identifier, const tstring& command, const tstring& parameter, const tstring& address, PipeJson& schema) {
 		PipeObject* schemaData = &schema[_T("data")].object_items();
 
 		bool hasParameters = (schemaData != nullptr && schemaData->size() > 0);
@@ -69,9 +66,12 @@ public:
 		_messageEmpty = false;
 		_messageComplete = false;
 
-		_message[_T("ref")] = identifier;
-		_message[_T("address")] = address;
-		_message[_T("command")] = command;
+		_message = PipeJson(PipeObject());
+		auto& messageData = _message.object_items();
+
+		messageData[_T("ref")] = identifier;
+		messageData[_T("address")] = address;
+		messageData[_T("command")] = command;
 
 		if(!hasParameters) {
 			_messageComplete = true;
@@ -80,12 +80,12 @@ public:
 
 		// command has one paramter
 		else if(!multipleParameters && parameter.size() > 0) {
-			_message[_T("data")] = getValue(_addressSchema, parameter); // TODO: Test
+			setValue(_T("data"), parameter);
 			_messageComplete = true;
 			return _T("");
 		}
 		else {
-			_schema = *schemaData;
+			_schema = schema;
 			return nextValue();
 		}
 	}
@@ -98,7 +98,7 @@ public:
 			}
 
 			case QueriedValue: {
-				getMessageNode(_addressMessage) = getValue(_addressSchema, input);
+				setValue(_currentAddress, input);
 				_clientState = None;
 				break;
 			}
@@ -128,23 +128,15 @@ public:
 		if(_clientState == AcceptedOptional)
 			return queryValue();
 
-		auto& currentNode = getSchemaNode(_addressSchema);
+		// Go to next message node
+		nextNode(_clientState == DeclinedOptional);
 
-		// From here only None and DeclinedOptional are possible
-		// If the state is None we jump to the next 
-		//     if the current is an array we ask if we should add a new one
-		// 
-		// If the state is DeclinedOptional, we jump to the next
-		//     if the current is an array we really jump to the next
+		auto& currentNode = schemaNode(_currentAddress);
 
-		// Iterate to next value
-		if(currentNode[_T("type")] == _T("array") && _clientState != DeclinedOptional) {
-			// Only go to next item in array
-		}
-		else {
-			// Really go to next value
-		}
+		if(_messageComplete)
+			return _T("");
 
+		// Handle optional/array items
 		if(currentNode[_T("optional")].bool_value() || currentNode[_T("type")] == _T("array")) {
 			tstring description = currentNode[_T("description")].string_value();
 			if(currentNode[_T("type")] == _T("array"))
@@ -160,7 +152,7 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 	tstring queryValue() {
-		auto& currentNode = getSchemaNode(_addressSchema);
+		auto& currentNode = schemaNode(_currentAddress);
 
 		if(currentNode[_T("type")] == _T("object")) {
 			return  _T("[") + currentNode[_T("description")].string_value() + _T("]\n") + nextValue();
@@ -183,57 +175,114 @@ public:
 
 		_clientState = None;
 
-		_addressMessage = _T("");
-		_message = PipeObject {};
-		_message[_T("data")] = PipeObject();
-
-		_addressSchema = _T("");
-		_schema = PipeObject {};
+		_currentAddress = _T("");
+		_message = PipeJson(PipeObject());
+		_schema = PipeJson(PipeObject());
 	}
 
 private:
 	//------------------------------------------------------------------------------------------------------------------
-	PipeJson getValue(const tstring& schemaAddress, const tstring& data) {
-		auto& schemaNode = getSchemaNode(schemaAddress);
+	void setValue(const tstring& address, const tstring& data) {
+		auto& valueSchemaNode = schemaNode(address);
+		auto& valueMessageNode = messageNode(address);
 
-		if(schemaNode[_T("type")] == _T("string")) {
-			return PipeJson(data);
+		if(valueSchemaNode[_T("type")] == _T("string")) {
+			valueMessageNode = PipeJson(data);
 		}
-		else if(schemaNode[_T("type")] == _T("number")) {
-			return PipeJson(std::stof(data));
+		else if(valueSchemaNode[_T("type")] == _T("number")) {
+			valueMessageNode = PipeJson(std::stof(data));
 		}
-		else if(schemaNode[_T("type")] == _T("bool")) {
-			return PipeJson((data == _T("true") ? true : false));
+		else if(valueSchemaNode[_T("type")] == _T("bool")) {
+			valueMessageNode = PipeJson((data == _T("true") ? true : false));
 		}
-		else if(schemaNode[_T("type")] == _T("object")) {
-			return PipeJson(PipeObject());
+		else if(valueSchemaNode[_T("type")] == _T("object")) {
+			valueMessageNode = PipeJson(PipeObject());
 		}
-		else if(schemaNode[_T("type")] == _T("array")) {
-			return PipeJson(PipeArray());
+		else if(valueSchemaNode[_T("type")] == _T("array")) {
+			valueMessageNode = PipeJson(PipeArray());
 		}
-
-		return PipeJson(nullptr);
+		else {
+			valueMessageNode = PipeJson(nullptr);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	PipeObject& getSchemaNode(const tstring& address) {
-		PipeObject* currentNode = &_schema;
+	PipeObject& schemaNode(const tstring& address) {
+		PipeJson* resultNode = &_schema;
 
 		auto nodes = texplode(address, _T('.'));
-		for(auto& node : nodes) {
-			if(currentNode->count(node))
-				currentNode = &currentNode->operator[](node).object_items();
+		for(size_t idx = 0, cnt = nodes.size(); idx < cnt; idx++) {
+			PipeJson& currentNode = resultNode->operator[](nodes[idx]);
+
+			if(currentNode[_T("type")] == _T("object")) {
+				resultNode = &currentNode[_T("fields")];
+			}
+			else if(currentNode[_T("type")] == _T("array")) {
+				resultNode = &currentNode[_T("items")];
+				idx++; // Ignore the index
+			}
+			else {
+				resultNode = &currentNode;
+			}
 		}
 
-		return *currentNode;
+		return resultNode->object_items();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	tstring nextSchemaNode() {
+	PipeJson& messageNode(const tstring& address) { // TODO: this should create fields that are missing
+		PipeJson* resultNode = &_message;
+
+		auto nodes = texplode(address, _T('.'));
+		for(size_t idx = 0, cnt = nodes.size(); idx < cnt; idx++) {
+			// TODO: Object/field initialisation
+
+			PipeJson& currentNode = resultNode->operator[](nodes[idx]);
+			if(currentNode.is_array() && ((idx + 1) < cnt)) { // We address array elements
+				int arrIdx = std::stoi(nodes[idx + 1]);
+
+				// Add item if index is not yet created
+				if(currentNode.array_items().size() <= arrIdx) {
+					currentNode.array_items().push_back(PipeJson());
+					setValue(address, _T(""));
+				}
+
+				resultNode = &currentNode.array_items()[arrIdx];
+				idx++;
+			}
+			else {
+				resultNode = &currentNode;
+			}
+		}
+
+		return *resultNode;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void nextNode(bool endArray = false) {
+		// First run, set to data
+		if(_currentAddress.empty()) {
+			_currentAddress = _T("data");
+			messageNode(_currentAddress);
+		}
+		
+		auto nodes = texplode(_currentAddress, _T('.'));
+		auto& currentSchemaNode = schemaNode(_currentAddress);
+
+		// Go to next array index if neccessary
+		if(currentSchemaNode[_T("type")] == _T("array") && !endArray) {
+			int oldIdx = std::stoi(nodes.back());
+			nodes.back() = to_tstring(oldIdx + 1); // TODO: Test
+			_currentAddress = timplode(nodes, _T('.'));
+			return;
+		}
+
+		// Go to next item
+		// TODO
+		/*
 		tstring lastElement = _T("");
-		auto nodes = texplode(_addressSchema, _T('.'));
 		do {
-			auto& currentNode = getSchemaNode(timplode(nodes, _T('.')));
+			auto& currentNode = schemaNode(timplode(nodes, _T('.')));
 
 			if(currentNode[_T("type")] == _T("object")) {
 				auto& fields = currentNode[_T("fields")].object_items();
@@ -253,7 +302,7 @@ private:
 					if(!found.empty()) {
 						nodes.push_back(_T("fields"));
 						nodes.push_back(found);
-						return timplode(nodes, _T('.'));
+						_addressSchema = timplode(nodes, _T('.'));
 					}
 					else {
 						lastElement.clear();
@@ -273,45 +322,10 @@ private:
 		}
 		while(nodes.size() > 0 || !lastElement.empty());
 
-		return _T("");
-	}
+		// TODO: mark message as complete when it is
 
-	//------------------------------------------------------------------------------------------------------------------
-	PipeJson& getMessageNode(const tstring& address) {
-		PipeJson* currentNode = &_message[_T("data")];
-
-		auto nodes = texplode(address, _T('.'));
-		bool objectNext = false;
-		bool arrayNext = false;
-		for(auto& node : nodes) {
-			if(node == _T("fields")) {
-				//*currentNode = PipeJson(PipeObject());
-				objectNext = true;
-				continue;
-			}
-			if(node == _T("items")) {
-				//*currentNode = PipeJson(PipeArray());
-				arrayNext = true;
-				continue;
-			}
-
-			if(objectNext || arrayNext) {
-				currentNode = &currentNode->object_items()[node];
-			}
-			//			else if(arrayNext) {
-			//				currentNode = &currentNode->array_items()[node];
-			//			}
-
-			arrayNext = false;
-			objectNext = false;
-		}
-
-		return *currentNode;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-	tstring nextMessageNode() {
-		// TODO
+		_addressSchema = _T("");
+		*/
 	}
 };
 
@@ -416,11 +430,11 @@ public:
 				newShellCommand(command, parameter, address);
 			}
 			else {
-				PipeObject* schema = nullptr;
+				PipeJson* schema = nullptr;
 				for(auto&& addressCommand : *addressCommands) {
 					auto&& cmd = addressCommand.object_items();
 					if(cmd[_T("command")].string_value() == command)
-						schema = &cmd[_T("schema")].object_items();
+						schema = &cmd[_T("schema")];
 				}
 
 				_receiveBuffer << _sendBuffer.start(_identifier, command, parameter, address, *schema);
