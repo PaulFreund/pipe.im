@@ -68,6 +68,44 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 	addMessageType(_T("test2"), _T("Test command response data"), schemaMsgTest2);
 
 	//------------------------------------------------------------------------------------------------------------------
+	PipeObjectPtr schemaCmdTest3 = newObject();
+	auto& schemaCmdTest3Data = schemaAddObject(*schemaCmdTest3, msgKeyData, _T("Message data to changed"));
+	schemaAddValue(schemaCmdTest3Data, _T("key1"), SchemaString, _T("description 1 text"));
+	schemaAddValueArray(schemaCmdTest3Data, _T("key2"), _T("Array of strings"), SchemaString, _T("description 2 text"), true);
+
+	addCommand(_T("test3"), _T("A test command"), schemaCmdTest3, [&](PipeObject& message) {
+		if(message.count(msgKeyData) && message[msgKeyData].is_object()) {
+			auto msg1 = message[msgKeyData][_T("key1")].string_value();
+			TCHAR tmp1 = msg1[0];
+			msg1[0] = msg1[msg1.length() - 1];
+			msg1[msg1.length() - 1] = tmp1;
+
+			if(message[msgKeyData].object_items().count(_T("key2"))) {
+				tstring msg2 = _T("");
+				auto& stringArr = message[msgKeyData].object_items()[_T("key2")].array_items();
+				for(auto& str : stringArr) {
+					msg2 += str.string_value() + _T(" ");
+				}
+
+				pushOutgoing(message[msgKeyRef].string_value(), _T("test3"), PipeObject { { _T("key1"), msg1 }, { _T("key2"), msg2 } });
+			}
+			else {
+				pushOutgoing(message[msgKeyRef].string_value(), _T("test3"), PipeObject { { _T("key1"), msg1 } });
+			}
+		}
+		else {
+			pushOutgoing(message[msgKeyRef].string_value(), _T("error"), _T("Invalid test3 request"));
+		}
+	});
+
+	PipeObjectPtr schemaMsgTest3 = newObject();
+	auto& schemaMsgTest3Data = schemaAddObject(*schemaMsgTest3, msgKeyData, _T("Message data to changed"));
+	schemaAddValue(schemaMsgTest3Data, _T("key1data"), SchemaString, _T("description data 1 text"));
+	schemaAddValue(schemaMsgTest3Data, _T("key2data"), SchemaString, _T("description data 2 text"), true);
+
+	addMessageType(_T("test3"), _T("Test command response data"), schemaMsgTest3);
+
+	//------------------------------------------------------------------------------------------------------------------
 	auto&& childNode = make_shared<PipeServiceNodeBase>(_T("subtesttype"), _T("A sub test child"), _address + addressSeparator + _T("subtest"), path, settings);
 
 	childNode->addCommand(

@@ -94,7 +94,7 @@ public:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	tstring add(const tstring& input) { // Posible client states: None, QueriedValue, QueriedOptional
+	tstring add(const tstring& input) {
 		switch(_clientState) {
 			case None: {
 				break;
@@ -125,7 +125,7 @@ public:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	tstring nextValue() { // Possible client states: None, AcceptedOptional, DeclinedOptional
+	tstring nextValue() {
 		tstring response;
 
 		if(_clientState == AcceptedOptional)
@@ -158,10 +158,12 @@ public:
 		auto& currentNode = schemaNode(_currentAddress);
 
 		if(currentNode[_T("type")] == _T("object")) {
+			_clientState = None;
 			return  _T("[") + currentNode[_T("description")].string_value() + _T("]\n") + nextValue();
 		}
 
 		else if(currentNode[_T("type")] == _T("array")) {
+			_clientState = None;
 			return  _T("[") + currentNode[_T("description")].string_value() + _T("]\n") + nextValue();
 		}
 
@@ -277,8 +279,8 @@ private:
 
 		// Go to next array index if neccessary
 		if(currentSchemaNode[_T("type")] == _T("array") && !endArray) {
-			int oldIdx = std::stoi(nodes.back());
-			nodes.back() = to_tstring(oldIdx + 1); // TODO: Test
+			auto& arrayNode = messageNode(_currentAddress).array_items();
+			nodes.push_back(to_tstring(arrayNode.size()));
 			_currentAddress = timplode(nodes, _T('.'));
 			return;
 		}
@@ -307,9 +309,9 @@ private:
 					if(next) {
 						nodes.push_back(field.first);
 
-						// If this is an array, add first index
-						if(schemaNode(timplode(nodes, _T('.')))[_T("type")] == _T("array"))
-							nodes.push_back(_T(".0"));
+						//// If this is an array, add first index
+						//if(schemaNode(timplode(nodes, _T('.')))[_T("type")] == _T("array"))
+						//	nodes.push_back(_T("0"));
 
 						_currentAddress = timplode(nodes, _T('.'));
 						return;
