@@ -112,11 +112,15 @@ public:
 			throw tstring(_T("There already is a child with the name \"") + name + _T("\""));
 
 		_children[name] = child;
+
+		// TODO: Emit notification
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
 	void removeChild(const tstring& name) {
+		// TODO: Emit notification
+
 		if(_children.count(name))
 			_children.erase(name);
 	}
