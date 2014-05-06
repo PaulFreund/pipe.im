@@ -69,50 +69,11 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 
 	//------------------------------------------------------------------------------------------------------------------
 	PipeObjectPtr s = newObject();
-	/*
-		Tested:
-		optional object with optional value
-
-
-		Untested:
-
-			array
-				object
-					array
-			object
-				array
-					object
-			array
-				array
-					object
-			array
-				optional
-					object
-	*/
 
 	auto& b = schemaAddObject(*s, msgKeyData, _T("B"));
-		schemaAddValue(b, _T("B1"), SchemaString, _T("B1D"), true);
-		auto& b2 = schemaAddObject(b, _T("B2"), _T("B2D"), false);
-			schemaAddValue(b2, _T("B21"), SchemaString, _T("B21D"), false);
-			schemaAddValue(b2, _T("B22"), SchemaString, _T("B22D"), false);
-
-		auto& b3 = schemaAddObjectArray(b, _T("B3"), _T("B3D"), _T("B3DI"));
-			schemaAddValue(b3, _T("B31"), SchemaString, _T("B31D"), false);
-
-
-//	schemaAddValueArray(schemaCmdTest3Data, _T("B1"), _T("B1D"), SchemaBool, _T("description 2 text"));
-
-
-//	auto& objarra = schemaAddObjectArray(schemaCmdTest3Data, _T("BASE2"), _T("OBJARRDESC"), _T("OBJITEMDESC"));
-//	auto& subobjarra = schemaAddObjectArray(objarra, _T("SUBOBJARR"), _T("SUBOBJARRDESC"), _T("SUBOBJITEMDESC"));
-//	schemaAddValue(subobjarra, _T("OBJFIELD"), SchemaString, _T("OBJFIELDDESC"), false);
-
-
-	//schemaAddValue(schemaCmdTest3Data, _T("key1"), SchemaString, _T("description 1 text"), true);
-	//schemaAddValue(schemaCmdTest3Data, _T("key2"), SchemaString, _T("description 2 text"), true);
-	//schemaAddValue(objarra, _T("keyarr1"), SchemaString, _T("description 2 text"), true);
-	//schemaAddValueArray(objarra, _T("key3"), _T("Array of strings"), SchemaNumber, _T("description 2 text"), true);
-
+	auto& b3 = schemaAddObjectArray(b, _T("B3"), _T("B3D"), _T("B3DI"));
+		schemaAddValueArray(b3, _T("B3A"), _T("B3AD"), SchemaString, _T("B3ADI"));
+		
 	addCommand(_T("test3"), _T("A test command"), s, [&](PipeObject& message) {
 		pushOutgoing(message[msgKeyRef].string_value(), _T("test3"), PipeObject { { _T("keydata"), message[msgKeyData].dump() } });
 	});

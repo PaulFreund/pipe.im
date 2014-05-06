@@ -298,6 +298,7 @@ private:
 				}
 
 				resultNode = &currentNode.array_items()[arrIdx];
+				currentPath += _T(".") + nodes[idx+1];
 				idx++;
 			}
 			else {
