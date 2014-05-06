@@ -28,8 +28,8 @@ private:
 	PipeShellSendMessageState _clientState;
 
 	tstring _currentAddress;
-	int _objectLevel;
-	int _oldObjectLevel;
+	int _nodeLevel;
+	bool _newItem;
 
 	PipeJson _message;
 	PipeJson* _schema;
@@ -39,8 +39,8 @@ public:
 		: _messageEmpty(true)
 		, _messageComplete(true)
 		, _clientState(None)
-		, _objectLevel(0)
-		, _oldObjectLevel(0)
+		, _nodeLevel(0)
+		, _newItem(false)
 		, _currentAddress(_T(""))
 		, _message(PipeJson(PipeObject()))
 		, _schema(nullptr)
@@ -111,7 +111,9 @@ public:
 			}
 
 			case QueriedValue: {
-				setValue(_currentAddress, input);
+				if(!setValue(_currentAddress, input))
+					return _T("Error! Please submit a valid value");
+
 				_clientState = None;
 				break;
 			}
@@ -136,14 +138,13 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 	tstring nextValue() {
-		_oldObjectLevel = _objectLevel;
 
 		if(_clientState == AcceptedOptional)
 			return queryValue();
 
 		// Go to next message node
 		nextNode(_clientState == DeclinedOptional);
-		_objectLevel = texplode(_currentAddress, _T('.')).size();
+		_nodeLevel = texplode(_currentAddress, _T('.')).size();
 
 		if(_messageComplete)
 			return _T("");
@@ -156,12 +157,13 @@ public:
 		auto& currentNode = schemaNode(_currentAddress);
 		tstring nodeType = currentNode[_T("type")].string_value();
 
-		tstring indent; for(auto idx = 0; idx < _objectLevel; idx++) { indent += IndentSymbol; }
+		tstring indent; for(auto idx = 0; idx < _nodeLevel; idx++) { indent += IndentSymbol; }
 
 		tstring result;
-		if(_objectLevel > _oldObjectLevel && (nodeType == _T("object") || nodeType == _T("array"))) {
+		if(nodeType == _T("object") || (_newItem && nodeType == _T("array"))) {
 			result += indent + _T("[") + currentNode[_T("description")].string_value() + _T("]\n");
 		}
+		_newItem = false;
 
 		// Handle optional/array items
 		if(_clientState != AcceptedOptional && (currentNode[_T("optional")].bool_value() || nodeType == _T("array"))) {
@@ -193,8 +195,8 @@ public:
 		_clientState = None;
 
 		_currentAddress = _T("");
-		_objectLevel = 0;
-		_oldObjectLevel = 0;
+		_nodeLevel = 0;
+		_newItem = false;
 
 		_message = PipeJson(PipeObject());
 		_schema = nullptr;
@@ -202,7 +204,7 @@ public:
 
 private:
 	//------------------------------------------------------------------------------------------------------------------
-	void setValue(const tstring& address, const tstring& data) {
+	bool setValue(const tstring& address, const tstring& data) {
 		auto& valueSchemaNode = schemaNode(address);
 		auto& valueMessageNode = messageNode(address);
 
@@ -214,14 +216,21 @@ private:
 				valueMessageNode = PipeJson(std::stof(data));
 			}
 			else if(valueSchemaNode[_T("type")] == _T("bool")) {
-				valueMessageNode = PipeJson((data == _T("true") ? true : false));
+				if(data == _T("true"))
+					valueMessageNode = PipeJson(true);
+				else if(data == _T("false"))
+					valueMessageNode = PipeJson(false);
+				else 
+					return false;
 			}
 			else {
 				valueMessageNode = PipeJson(nullptr);
 			}
+
+			return true;
 		}
 		catch(...) {
-			valueMessageNode = PipeJson(nullptr);
+			return false;
 		}
 	}
 
@@ -345,6 +354,7 @@ private:
 
 						// If found use it
 						if(next || lastKey.empty()) {
+							_newItem = true;
 							nodes.push_back(field.first);
 							_currentAddress = timplode(nodes, _T('.'));
 							return;
