@@ -32,7 +32,7 @@ private:
 	int _oldObjectLevel;
 
 	PipeJson _message;
-	PipeJson _schema;
+	PipeJson* _schema;
 
 public:
 	PipeShellSendMessage()
@@ -42,8 +42,9 @@ public:
 		, _objectLevel(0)
 		, _oldObjectLevel(0)
 		, _currentAddress(_T(""))
-		, _message(PipeObject {})
-		, _schema(PipeObject {}) {}
+		, _message(PipeJson(PipeObject()))
+		, _schema(nullptr)
+		{}
 
 public:
 	//------------------------------------------------------------------------------------------------------------------
@@ -78,7 +79,7 @@ public:
 		_messageEmpty = false;
 		_messageComplete = false;
 
-		_schema = schema;
+		_schema = &schema;
 		_message = PipeJson(PipeObject());
 		auto& messageData = _message.object_items();
 
@@ -196,7 +197,7 @@ public:
 		_oldObjectLevel = 0;
 
 		_message = PipeJson(PipeObject());
-		_schema = PipeJson(PipeObject());
+		_schema = nullptr;
 	}
 
 private:
@@ -226,7 +227,7 @@ private:
 
 	//------------------------------------------------------------------------------------------------------------------
 	PipeObject& schemaNode(const tstring& address) {
-		PipeJson* resultNode = &_schema;
+		PipeJson* resultNode = _schema;
 
 		auto nodes = texplode(address, _T('.'));
 		for(size_t idx = 0, cnt = nodes.size(); idx < cnt; idx++) {
@@ -307,10 +308,11 @@ private:
 		}
 		
 		auto nodes = texplode(_currentAddress, _T('.'));
-		tstring lastKey = nodes.back();
+		tstring lastKey;
 
-		auto& currentNode = schemaNode(timplode(nodes, _T('.')));
-		tstring currentNodeType = currentNode[_T("type")].string_value();
+		tstring currentNodeAddress = timplode(nodes, _T('.'));
+		PipeObject* currentNode = &schemaNode(currentNodeAddress);
+		tstring currentNodeType = currentNode->operator[](_T("type")).string_value();
 
 		// Iterate over the levels
 		while(!nodes.empty()) {
@@ -319,59 +321,44 @@ private:
 			if(!jumpOut) {
 				// First array element
 				if(currentNodeType == _T("array")) {
-					auto& arrayNode = messageNode(_currentAddress).array_items();
-					nodes.push_back(to_tstring(arrayNode.size()));
-					_currentAddress = timplode(nodes, _T('.'));
-					return;
-				}
-
-				// First object field
-				else if(currentNodeType == _T("object") && currentNode[_T("fields")].object_items().size() > 0) {
-					_currentAddress += _T(".") + currentNode[_T("fields")].object_items().begin()->first;
-					return;
-				}
-				else {
-					auto parentNodes = nodes; parentNodes.pop_back();
-					tstring parentAddress = timplode(parentNodes, _T('.'));
-					auto& parentSchemaNode = schemaNode(parentAddress);
-
-					if(parentSchemaNode[_T("type")] == _T("array")) {
-						auto& parrentArrayNode = messageNode(parentAddress).array_items();
-						parentNodes.push_back(to_tstring(parrentArrayNode.size()));
-						_currentAddress = timplode(parentNodes, _T('.'));
-						return;
-					}
-				}
-			}
-
-			// Out of the node
-			if(currentNodeType == _T("object")) {
-				bool next = false;
-				for(auto& field : currentNode[_T("fields")].object_items()) {
-					// Search for the current key
-					if(field.first == lastKey) {
-						next = true;
-						continue;
-					}
-
-					// If found use it
-					if(next) {
-						nodes.push_back(field.first);
+					if(lastKey.empty()) {
+						auto& arrayNode = messageNode(currentNodeAddress).array_items();
+						nodes.push_back(to_tstring(arrayNode.size()));
 						_currentAddress = timplode(nodes, _T('.'));
 						return;
 					}
+					else {
+						_currentAddress = currentNodeAddress;
+						return;
+					}
 				}
-			}
-			else if(currentNodeType == _T("array")) {
-				_currentAddress = timplode(nodes, _T('.'));
-				return;
+
+				// First object field
+				else if(currentNodeType == _T("object") && currentNode->operator[](_T("fields")).object_items().size() > 0) {
+					bool next = false;
+					for(auto& field : currentNode->operator[](_T("fields")).object_items()) {
+						// Search for the current key
+						if(field.first == lastKey) {
+							next = true;
+							continue;
+						}
+
+						// If found use it
+						if(next || lastKey.empty()) {
+							nodes.push_back(field.first);
+							_currentAddress = timplode(nodes, _T('.'));
+							return;
+						}
+					}
+				}
 			}
 
 			// Prepare next level
 			lastKey = nodes.back();
 			nodes.pop_back();
-			currentNode = schemaNode(timplode(nodes, _T('.')));
-			currentNodeType = currentNode[_T("type")].string_value();
+			currentNodeAddress = timplode(nodes, _T('.'));
+			currentNode = &schemaNode(currentNodeAddress);
+			currentNodeType = currentNode->operator[](_T("type")).string_value();
 			jumpOut = false; // Only the first level can be declined
 		}
 
