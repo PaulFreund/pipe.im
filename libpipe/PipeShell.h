@@ -147,7 +147,7 @@ public:
 		_nodeLevel = texplode(_currentAddress, _T('.')).size();
 
 		if(_messageComplete)
-			return _T("");
+			return _T("Command completed\n");
 
 		return queryValue();
 	}
