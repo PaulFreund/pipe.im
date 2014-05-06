@@ -92,11 +92,11 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 
 	auto& schemaCmdTest3Data = schemaAddObject(*schemaCmdTest3, msgKeyData, _T("BASE"));
 
-	schemaAddValueArray(schemaCmdTest3Data, _T("key3"), _T("Array of strings"), SchemaString, _T("description 2 text"));
+	//schemaAddValueArray(schemaCmdTest3Data, _T("key3"), _T("Array of strings"), SchemaString, _T("description 2 text"));
 
 
-//	auto& objarra = schemaAddObjectArray(schemaCmdTest3Data, _T("OBJARR"), _T("OBJARRDESC"));
-//	schemaAddValue(objarra, _T("OBJFIELD"), SchemaString, _T("OBJFIELDDESC"), false);
+	auto& objarra = schemaAddObjectArray(schemaCmdTest3Data, _T("OBJARR"), _T("OBJARRDESC"), _T("OBJITEMDESC"));
+	schemaAddValue(objarra, _T("OBJFIELD"), SchemaString, _T("OBJFIELDDESC"), false);
 
 
 	//schemaAddValue(schemaCmdTest3Data, _T("key1"), SchemaString, _T("description 1 text"), true);

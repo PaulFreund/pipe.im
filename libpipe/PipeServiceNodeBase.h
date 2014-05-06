@@ -335,7 +335,7 @@ private:
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaCommands = newObject();
-		auto&& schemaCommandsItems = schemaAddObjectArray(*schemaCommands, msgKeyData, _T("List of commands this node accepts")); {
+		auto&& schemaCommandsItems = schemaAddObjectArray(*schemaCommands, msgKeyData, _T("List of commands this node accepts"), _T("Command")); {
 			schemaAddValue(schemaCommandsItems, _T("command"), SchemaString, _T("Name of the command"));
 			schemaAddValue(schemaCommandsItems, _T("description"), SchemaString, _T("Description of the command"));
 			schemaAddObject(schemaCommandsItems, _T("schema"), _T("Schema of the command"));
@@ -345,7 +345,7 @@ private:
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaMessages = newObject();
-		auto&& schemaMessagesItems = schemaAddObjectArray(*schemaMessages, msgKeyData, _T("List of messages this node can emmit")); {
+		auto&& schemaMessagesItems = schemaAddObjectArray(*schemaMessages, msgKeyData, _T("List of messages this node can emmit"), _T("Message type")); {
 			schemaAddValue(schemaMessagesItems, _T("message"), SchemaString, _T("Name of the message type"));
 			schemaAddValue(schemaMessagesItems, _T("description"), SchemaString, _T("Description of the message type"));
 			schemaAddObject(schemaMessagesItems, _T("schema"), _T("Schema of the message type"));
@@ -359,7 +359,7 @@ private:
 			schemaAddValue(schemaInfoFields, _T("address"), SchemaString, _T("Address of the node"));
 			schemaAddValue(schemaInfoFields, _T("type"), SchemaString, _T("Unique type of this node"));
 			schemaAddValue(schemaInfoFields, _T("description"), SchemaString, _T("Description of the node"));
-			auto&& schemaInfoPropertiesItems = schemaAddObjectArray(schemaInfoFields, _T("properties"), _T("Runtime properties of the node")); {
+			auto&& schemaInfoPropertiesItems = schemaAddObjectArray(schemaInfoFields, _T("properties"), _T("Runtime properties of the node"), _T("Runtime property")); {
 				schemaAddValue(schemaInfoPropertiesItems, _T("key"), SchemaString, _T("Name of the property"));
 				schemaAddValue(schemaInfoPropertiesItems, _T("value"), SchemaString, _T("Value of the property"));
 			}

@@ -180,7 +180,8 @@ public:
 		}
 		else {
 			_clientState = QueriedValue;
-			result += currentNode[_T("description")].string_value() + _T(": ");
+			result += _T("Value for ") + currentNode[_T("description")].string_value();
+			result += _T(" [") + currentNode[_T("type")].string_value() + _T("]: ");
 			return indent + result;
 		}
 	}
@@ -238,6 +239,12 @@ private:
 			}
 			else if(currentNode[_T("type")] == _T("array") && ((idx + 1) < cnt)) {
 				resultNode = &currentNode[_T("items")];
+				
+				//// Detect objects in arrays
+				PipeObject& nestedNode = resultNode->object_items();
+				if(nestedNode[_T("type")] == _T("object") && ((idx + 2) < cnt))
+					resultNode = &nestedNode[_T("fields")];
+
 				idx++; // Ignore the index
 			}
 			else {
@@ -272,7 +279,14 @@ private:
 
 				// Add item if index is not yet created
 				if(currentNode.array_items().size() <= arrIdx) {
-					currentNode.array_items().push_back(PipeJson());
+					PipeObject& nestedSchema = currentSchema[_T("items")].object_items();
+
+					if(nestedSchema[_T("type")] == _T("object"))
+						currentNode.array_items().push_back(PipeJson(PipeObject()));
+					else if(nestedSchema[_T("type")] == _T("array"))
+						currentNode.array_items().push_back(PipeJson(PipeArray()));
+					else
+						currentNode.array_items().push_back(PipeJson());
 				}
 
 				resultNode = &currentNode.array_items()[arrIdx];
