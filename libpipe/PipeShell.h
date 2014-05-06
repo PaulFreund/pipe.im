@@ -144,8 +144,6 @@ public:
 		nextNode(_clientState == DeclinedOptional);
 		_objectLevel = texplode(_currentAddress, _T('.')).size();
 
-		auto& currentNode = schemaNode(_currentAddress);
-
 		if(_messageComplete)
 			return _T("");
 
@@ -309,29 +307,47 @@ private:
 		}
 		
 		auto nodes = texplode(_currentAddress, _T('.'));
-		auto& currentSchemaNode = schemaNode(_currentAddress);
-
-		// Go to next array index if neccessary
-		if(!jumpOut && currentSchemaNode[_T("type")] == _T("array")) {
-			auto& arrayNode = messageNode(_currentAddress).array_items();
-			nodes.push_back(to_tstring(arrayNode.size()));
-			_currentAddress = timplode(nodes, _T('.'));
-			return;
-		}
-
-		// Current item has children, go to first
-		if(!jumpOut && currentSchemaNode[_T("type")] == _T("object") && currentSchemaNode[_T("fields")].object_items().size() > 0) {
-			_currentAddress += _T(".") + currentSchemaNode[_T("fields")].object_items().begin()->first;
-			return;
-		}
-
-		// Current item has no chidlren
 		tstring lastKey = nodes.back();
-		nodes.pop_back();
-		for(auto& levelSchemaNode = schemaNode(timplode(nodes, _T('.'))); !nodes.empty(); nodes.pop_back()) {
-			if(levelSchemaNode[_T("type")] == _T("object")) {
+
+		auto& currentNode = schemaNode(timplode(nodes, _T('.')));
+		tstring currentNodeType = currentNode[_T("type")].string_value();
+
+		// Iterate over the levels
+		while(!nodes.empty()) {
+
+			// Go into node if not declined
+			if(!jumpOut) {
+				// First array element
+				if(currentNodeType == _T("array")) {
+					auto& arrayNode = messageNode(_currentAddress).array_items();
+					nodes.push_back(to_tstring(arrayNode.size()));
+					_currentAddress = timplode(nodes, _T('.'));
+					return;
+				}
+
+				// First object field
+				else if(currentNodeType == _T("object") && currentNode[_T("fields")].object_items().size() > 0) {
+					_currentAddress += _T(".") + currentNode[_T("fields")].object_items().begin()->first;
+					return;
+				}
+				else {
+					auto parentNodes = nodes; parentNodes.pop_back();
+					tstring parentAddress = timplode(parentNodes, _T('.'));
+					auto& parentSchemaNode = schemaNode(parentAddress);
+
+					if(parentSchemaNode[_T("type")] == _T("array")) {
+						auto& parrentArrayNode = messageNode(parentAddress).array_items();
+						parentNodes.push_back(to_tstring(parrentArrayNode.size()));
+						_currentAddress = timplode(parentNodes, _T('.'));
+						return;
+					}
+				}
+			}
+
+			// Out of the node
+			if(currentNodeType == _T("object")) {
 				bool next = false;
-				for(auto& field : levelSchemaNode[_T("fields")].object_items()) {
+				for(auto& field : currentNode[_T("fields")].object_items()) {
 					// Search for the current key
 					if(field.first == lastKey) {
 						next = true;
@@ -346,12 +362,17 @@ private:
 					}
 				}
 			}
-			else if(levelSchemaNode[_T("type")] == _T("array")) {
+			else if(currentNodeType == _T("array")) {
 				_currentAddress = timplode(nodes, _T('.'));
 				return;
 			}
 
+			// Prepare next level
 			lastKey = nodes.back();
+			nodes.pop_back();
+			currentNode = schemaNode(timplode(nodes, _T('.')));
+			currentNodeType = currentNode[_T("type")].string_value();
+			jumpOut = false; // Only the first level can be declined
 		}
 
 		if(nodes.empty()) {
