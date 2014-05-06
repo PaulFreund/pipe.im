@@ -69,39 +69,48 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 
 	//------------------------------------------------------------------------------------------------------------------
 	PipeObjectPtr schemaCmdTest3 = newObject();
-	auto& schemaCmdTest3Data = schemaAddObject(*schemaCmdTest3, msgKeyData, _T("Message data to changed"));
-	schemaAddValue(schemaCmdTest3Data, _T("key1"), SchemaString, _T("description 1 text"));
-	schemaAddValueArray(schemaCmdTest3Data, _T("key2"), _T("Array of strings"), SchemaString, _T("description 2 text"), true);
+	/*
+		Tested:
+		optional object with optional value
+
+
+		Untested:
+
+			array
+				object
+					array
+			object
+				array
+					object
+			array
+				array
+					object
+			array
+				optional
+					object
+	*/
+
+	auto& schemaCmdTest3Data = schemaAddObject(*schemaCmdTest3, msgKeyData, _T("BASE"));
+
+	schemaAddValueArray(schemaCmdTest3Data, _T("key3"), _T("Array of strings"), SchemaString, _T("description 2 text"));
+
+
+//	auto& objarra = schemaAddObjectArray(schemaCmdTest3Data, _T("OBJARR"), _T("OBJARRDESC"));
+//	schemaAddValue(objarra, _T("OBJFIELD"), SchemaString, _T("OBJFIELDDESC"), false);
+
+
+	//schemaAddValue(schemaCmdTest3Data, _T("key1"), SchemaString, _T("description 1 text"), true);
+	//schemaAddValue(schemaCmdTest3Data, _T("key2"), SchemaString, _T("description 2 text"), true);
+	//schemaAddValue(objarra, _T("keyarr1"), SchemaString, _T("description 2 text"), true);
+	//schemaAddValueArray(objarra, _T("key3"), _T("Array of strings"), SchemaNumber, _T("description 2 text"), true);
 
 	addCommand(_T("test3"), _T("A test command"), schemaCmdTest3, [&](PipeObject& message) {
-		if(message.count(msgKeyData) && message[msgKeyData].is_object()) {
-			auto msg1 = message[msgKeyData][_T("key1")].string_value();
-			TCHAR tmp1 = msg1[0];
-			msg1[0] = msg1[msg1.length() - 1];
-			msg1[msg1.length() - 1] = tmp1;
-
-			if(message[msgKeyData].object_items().count(_T("key2"))) {
-				tstring msg2 = _T("");
-				auto& stringArr = message[msgKeyData].object_items()[_T("key2")].array_items();
-				for(auto& str : stringArr) {
-					msg2 += str.string_value() + _T(" ");
-				}
-
-				pushOutgoing(message[msgKeyRef].string_value(), _T("test3"), PipeObject { { _T("key1"), msg1 }, { _T("key2"), msg2 } });
-			}
-			else {
-				pushOutgoing(message[msgKeyRef].string_value(), _T("test3"), PipeObject { { _T("key1"), msg1 } });
-			}
-		}
-		else {
-			pushOutgoing(message[msgKeyRef].string_value(), _T("error"), _T("Invalid test3 request"));
-		}
+		pushOutgoing(message[msgKeyRef].string_value(), _T("test3"), PipeObject { { _T("keydata"), message[msgKeyData].dump() } });
 	});
 
 	PipeObjectPtr schemaMsgTest3 = newObject();
-	auto& schemaMsgTest3Data = schemaAddObject(*schemaMsgTest3, msgKeyData, _T("Message data to changed"));
-	schemaAddValue(schemaMsgTest3Data, _T("key1data"), SchemaString, _T("description data 1 text"));
-	schemaAddValue(schemaMsgTest3Data, _T("key2data"), SchemaString, _T("description data 2 text"), true);
+	auto& schemaMsgTest3Data = schemaAddObject(*schemaMsgTest3, msgKeyData, _T("Message data to output"));
+	schemaAddValue(schemaMsgTest3Data, _T("keydata"), SchemaString, _T("OUTPUT"));
 
 	addMessageType(_T("test3"), _T("Test command response data"), schemaMsgTest3);
 

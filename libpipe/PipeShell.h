@@ -8,6 +8,10 @@
 
 //======================================================================================================================
 
+const tstring IndentSymbol = _T("    ");
+
+//======================================================================================================================
+
 class PipeShellSendMessage {
 	enum PipeShellSendMessageState {
 		None,
@@ -23,8 +27,10 @@ private:
 
 	PipeShellSendMessageState _clientState;
 
-
 	tstring _currentAddress;
+	int _objectLevel;
+	int _oldObjectLevel;
+
 	PipeJson _message;
 	PipeJson _schema;
 
@@ -33,6 +39,8 @@ public:
 		: _messageEmpty(true)
 		, _messageComplete(true)
 		, _clientState(None)
+		, _objectLevel(0)
+		, _oldObjectLevel(0)
 		, _currentAddress(_T(""))
 		, _message(PipeObject {})
 		, _schema(PipeObject {}) {}
@@ -46,13 +54,14 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 	PipeArrayPtr getMessages() {
-		auto sendMessages = newArray({ _message });
-		clear();
-		return sendMessages;
+		return newArray({ _message });
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	tstring start(const tstring& identifier, const tstring& command, const tstring& parameter, const tstring& address, PipeJson& schema) {
+		// Off to a fresh start
+		clear();
+
 		PipeObject* schemaData = &schema[_T("data")].object_items();
 
 		bool hasParameters = (schemaData != nullptr && schemaData->size() > 0);
@@ -126,29 +135,19 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 	tstring nextValue() {
-		tstring response;
+		_oldObjectLevel = _objectLevel;
 
 		if(_clientState == AcceptedOptional)
 			return queryValue();
 
 		// Go to next message node
 		nextNode(_clientState == DeclinedOptional);
+		_objectLevel = texplode(_currentAddress, _T('.')).size();
 
 		auto& currentNode = schemaNode(_currentAddress);
 
 		if(_messageComplete)
 			return _T("");
-
-		// Handle optional/array items
-		if(currentNode[_T("optional")].bool_value() || currentNode[_T("type")] == _T("array")) {
-			tstring description = currentNode[_T("description")].string_value();
-			if(currentNode[_T("type")] == _T("array"))
-				description = _T("a ") + currentNode[_T("items")][_T("description")].string_value() + _T(" value");
-
-			response = _T("Do you want to add ") + description + _T("? y/n: ");
-			_clientState = QueriedOptional;
-			return response;
-		}
 
 		return queryValue();
 	}
@@ -156,20 +155,33 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 	tstring queryValue() {
 		auto& currentNode = schemaNode(_currentAddress);
+		tstring nodeType = currentNode[_T("type")].string_value();
 
-		if(currentNode[_T("type")] == _T("object")) {
-			_clientState = None;
-			return  _T("[") + currentNode[_T("description")].string_value() + _T("]\n") + nextValue();
+		tstring indent; for(auto idx = 0; idx < _objectLevel; idx++) { indent += IndentSymbol; }
+
+		tstring result;
+		if(_objectLevel > _oldObjectLevel && (nodeType == _T("object") || nodeType == _T("array"))) {
+			result += indent + _T("[") + currentNode[_T("description")].string_value() + _T("]\n");
 		}
 
-		else if(currentNode[_T("type")] == _T("array")) {
-			_clientState = None;
-			return  _T("[") + currentNode[_T("description")].string_value() + _T("]\n") + nextValue();
-		}
+		// Handle optional/array items
+		if(_clientState != AcceptedOptional && (currentNode[_T("optional")].bool_value() || nodeType == _T("array"))) {
+			tstring description = currentNode[_T("description")].string_value();
+			if(currentNode[_T("type")] == _T("array"))
+				description = _T("a ") + description + _T(" value");
 
+			_clientState = QueriedOptional;
+			result += indent + _T("Do you want to add ") + description + _T("? y/n: ");
+			return result;
+		}
+		else if(nodeType == _T("object") || nodeType == _T("array")) {
+			_clientState = None;
+			return result += nextValue();
+		}
 		else {
 			_clientState = QueriedValue;
-			return currentNode[_T("description")].string_value() + _T(": ");
+			result += currentNode[_T("description")].string_value() + _T(": ");
+			return indent + result;
 		}
 	}
 
@@ -181,6 +193,9 @@ public:
 		_clientState = None;
 
 		_currentAddress = _T("");
+		_objectLevel = 0;
+		_oldObjectLevel = 0;
+
 		_message = PipeJson(PipeObject());
 		_schema = PipeJson(PipeObject());
 	}
@@ -191,16 +206,21 @@ private:
 		auto& valueSchemaNode = schemaNode(address);
 		auto& valueMessageNode = messageNode(address);
 
-		if(valueSchemaNode[_T("type")] == _T("string")) {
-			valueMessageNode = PipeJson(data);
+		try {
+			if(valueSchemaNode[_T("type")] == _T("string")) {
+				valueMessageNode = PipeJson(data);
+			}
+			else if(valueSchemaNode[_T("type")] == _T("number")) {
+				valueMessageNode = PipeJson(std::stof(data));
+			}
+			else if(valueSchemaNode[_T("type")] == _T("bool")) {
+				valueMessageNode = PipeJson((data == _T("true") ? true : false));
+			}
+			else {
+				valueMessageNode = PipeJson(nullptr);
+			}
 		}
-		else if(valueSchemaNode[_T("type")] == _T("number")) {
-			valueMessageNode = PipeJson(std::stof(data));
-		}
-		else if(valueSchemaNode[_T("type")] == _T("bool")) {
-			valueMessageNode = PipeJson((data == _T("true") ? true : false));
-		}
-		else {
+		catch(...) {
 			valueMessageNode = PipeJson(nullptr);
 		}
 	}
@@ -267,7 +287,7 @@ private:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void nextNode(bool endArray = false) {
+	void nextNode(bool jumpOut = false) {
 		// First run, set to data
 		if(_currentAddress.empty()) {
 			_currentAddress = _T("data");
@@ -278,7 +298,7 @@ private:
 		auto& currentSchemaNode = schemaNode(_currentAddress);
 
 		// Go to next array index if neccessary
-		if(currentSchemaNode[_T("type")] == _T("array") && !endArray) {
+		if(!jumpOut && currentSchemaNode[_T("type")] == _T("array")) {
 			auto& arrayNode = messageNode(_currentAddress).array_items();
 			nodes.push_back(to_tstring(arrayNode.size()));
 			_currentAddress = timplode(nodes, _T('.'));
@@ -286,13 +306,12 @@ private:
 		}
 
 		// Current item has children, go to first
-		if(currentSchemaNode[_T("type")] == _T("object") && currentSchemaNode[_T("fields")].object_items().size() > 0) {
+		if(!jumpOut && currentSchemaNode[_T("type")] == _T("object") && currentSchemaNode[_T("fields")].object_items().size() > 0) {
 			_currentAddress += _T(".") + currentSchemaNode[_T("fields")].object_items().begin()->first;
 			return;
 		}
 
 		// Current item has no chidlren
-		
 		tstring lastKey = nodes.back();
 		nodes.pop_back();
 		for(auto& levelSchemaNode = schemaNode(timplode(nodes, _T('.'))); !nodes.empty(); nodes.pop_back()) {
@@ -334,7 +353,6 @@ class PipeShell {
 private:
 	//------------------------------------------------------------------------------------------------------------------
 	const tstring _greetingText = _T("Welcome to the pipe shell, type help for further assistance\n");
-	const tstring indentSymbol = _T("    ");
 
 private:
 	//------------------------------------------------------------------------------------------------------------------
@@ -444,16 +462,20 @@ public:
 				}
 
 				_receiveBuffer << _sendBuffer.start(_identifier, command, parameter, address, *schema);
-				if(!_sendBuffer.isEmpty() && _sendBuffer.isComplete())
+				if(!_sendBuffer.isEmpty() && _sendBuffer.isComplete()) {
 					_instance->send(_sendBuffer.getMessages());
+					_sendBuffer.clear();
+				}
 
 			}
 		}
 		// This message has already been started
 		else {
 			_receiveBuffer << _sendBuffer.add(input);
-			if(!_sendBuffer.isEmpty() && _sendBuffer.isComplete())
+			if(!_sendBuffer.isEmpty() && _sendBuffer.isComplete()) {
 				_instance->send(_sendBuffer.getMessages());
+				_sendBuffer.clear();
+			}
 		}
 	}
 
@@ -535,26 +557,26 @@ private:
 
 			_receiveBuffer << std::setfill(_T(' ')) ;
 			_receiveBuffer << _T("Shell commands:") << std::endl;
-			_receiveBuffer << indentSymbol << std::setw(cmdWidth) << _T("help") << _T(" - ") << _T("Print a list of available commands") << std::endl;
-			_receiveBuffer << indentSymbol << std::setw(cmdWidth) << _T("usage") << _T(" - ") << _T("Print additional usage information") << std::endl;
-			_receiveBuffer << indentSymbol << std::setw(cmdWidth) << _T("ls") << _T(" - ") << _T("Get a list of child nodes") << std::endl;
-			_receiveBuffer << indentSymbol << std::setw(cmdWidth) << _T("cd") << _T(" - ") << _T("Set current node address") << std::endl;
-			_receiveBuffer << indentSymbol << std::setw(cmdWidth) << _T("pwd") << _T(" - ") << _T("Get current node address") << std::endl;
+			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("help") << _T(" - ") << _T("Print a list of available commands") << std::endl;
+			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("usage") << _T(" - ") << _T("Print additional usage information") << std::endl;
+			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("ls") << _T(" - ") << _T("Get a list of child nodes") << std::endl;
+			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("cd") << _T(" - ") << _T("Set current node address") << std::endl;
+			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("pwd") << _T(" - ") << _T("Get current node address") << std::endl;
 			_receiveBuffer << std::endl;
 			_receiveBuffer << _T("Node commands:") << std::endl;
 			for(auto&& command : *_addressCommands) {
 				auto&& cmd = command.object_items();
-				_receiveBuffer << indentSymbol << std::setw(cmdWidth) << cmd[_T("command")].string_value() << _T(" - ") << cmd[_T("description")].string_value() << std::endl;
+				_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << cmd[_T("command")].string_value() << _T(" - ") << cmd[_T("description")].string_value() << std::endl;
 			}
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		if(cmd == _T("usage")) {
 			_receiveBuffer << _T("Syntax to supply parameters on demand:") << std::endl;
-			_receiveBuffer << indentSymbol << _T("[<address>] <command>") << std::endl;
+			_receiveBuffer << IndentSymbol << _T("[<address>] <command>") << std::endl;
 			_receiveBuffer << std::endl;
 			_receiveBuffer << _T("Syntax if there is only on parameter for the command:") << std::endl;
-			_receiveBuffer << indentSymbol << _T("[<address>] <command> <parameter>") << std::endl;
+			_receiveBuffer << IndentSymbol << _T("[<address>] <command> <parameter>") << std::endl;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -633,7 +655,7 @@ private:
 
 			bool first = arrayItem;
 			for(auto&& field : data.object_items()) {
-				generateOutput(output, field.first, field.second, (first ? _T("") : (indent + indentSymbol)), first);
+				generateOutput(output, field.first, field.second, (first ? _T("") : (indent + IndentSymbol)), first);
 				first = false;
 			}
 		}
@@ -642,7 +664,7 @@ private:
 
 			auto& items = data.array_items();
 			for(auto item = begin(items); item != end(items); item++) {
-				generateOutput(output, _T("  - "), *item, (indent + indentSymbol), true);
+				generateOutput(output, _T("  - "), *item, (indent + IndentSymbol), true);
 				if((item + 1) != end(items)) { output << std::endl; }
 			}
 		}

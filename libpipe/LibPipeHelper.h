@@ -39,7 +39,7 @@ inline PipeObject& schemaAddObject(PipeObject& schema, const tstring& key, const
 	auto& schemaData = schema[key].object_items();
 	schemaData[_T("type")] = _T("object");
 	schemaData[_T("description")] = description;
-	schemaData[_T("optional")].bool_value() = optional;
+	schemaData[_T("optional")] = optional;
 	schemaData[_T("fields")] = PipeObject();
 	return schemaData[_T("fields")].object_items();
 }
@@ -59,22 +59,22 @@ inline void schemaAddValue(PipeObject& schema, const tstring& key, const SchemaV
 	};
 }
 
-inline PipeObject& schemaAddObjectArray(PipeObject& schema, const tstring& key, const tstring& description, bool optional = false) {
+inline PipeObject& schemaAddObjectArray(PipeObject& schema, const tstring& key, const tstring& description) {
 	schema[key] = PipeObject();
 	auto& schemaData = schema[key].object_items();
 	schemaData[_T("type")] = _T("array");
 	schemaData[_T("description")] = description;
-	schemaData[_T("optional")] = optional;
+	schemaData[_T("optional")] = false; // Arrays may not be optional
 	schemaData[_T("items")] = PipeObject();
 	return schemaData[_T("items")].object_items();
 }
 
-inline void schemaAddValueArray(PipeObject& schema, const tstring& key, const tstring& description, const SchemaValueType itemType, const tstring& itemDescription, bool optional = false) {
+inline void schemaAddValueArray(PipeObject& schema, const tstring& key, const tstring& description, const SchemaValueType itemType, const tstring& itemDescription) {
 	schema[key] = PipeObject();
 	auto& schemaData = schema[key].object_items();
 	schemaData[_T("type")] = _T("array");
 	schemaData[_T("description")] = description;
-	schemaData[_T("optional")].bool_value() = optional;
+	schemaData[_T("optional")] = false; // Arrays may not be optional
 	schemaData[_T("items")] = PipeObject();
 
 	tstring typeString = _T("");
