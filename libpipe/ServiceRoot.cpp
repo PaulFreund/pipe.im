@@ -8,6 +8,34 @@ using namespace std;
 
 ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObjectPtr settings) : PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), address, path, settings) {
 	//------------------------------------------------------------------------------------------------------------------
+	PipeObjectPtr schemaCmdTestAdd = newObject();
+	schemaAddValue(*schemaCmdTestAdd, msgKeyData, SchemaString, _T("Child to be added"));
+
+	addCommand(_T("test_add"), _T("Add a test child"), schemaCmdTestAdd, [&](PipeObject& message) {
+		if(message.count(msgKeyData) && message[msgKeyData].is_string()) {
+			tstring name = message[msgKeyData].string_value();
+			addChild(make_shared<PipeServiceNodeBase>(name + _T("type"), _T("A ") + name + _T(" child"), _address + addressSeparator + name, _path, newObject()));
+		}
+		else {
+			pushOutgoing(message[msgKeyRef].string_value(), _T("error"), _T("Invalid test_add request"));
+		}
+	});
+
+	//------------------------------------------------------------------------------------------------------------------
+	PipeObjectPtr schemaCmdTestRemove = newObject();
+	schemaAddValue(*schemaCmdTestRemove, msgKeyData, SchemaString, _T("Child to be removed"));
+
+	addCommand(_T("test_remove"), _T("Remove a test child"), schemaCmdTestRemove, [&](PipeObject& message) {
+		if(message.count(msgKeyData) && message[msgKeyData].is_string()) {
+			tstring name = message[msgKeyData].string_value();
+			removeChild(_address + addressSeparator + name);
+		}
+		else {
+			pushOutgoing(message[msgKeyRef].string_value(), _T("error"), _T("Invalid test_remove request"));
+		}
+	});
+
+	//------------------------------------------------------------------------------------------------------------------
 	PipeObjectPtr schemaCmdTest = newObject();
 	schemaAddValue(*schemaCmdTest, msgKeyData, SchemaString, _T("Message to be changed"));
 	

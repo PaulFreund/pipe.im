@@ -113,13 +113,14 @@ public:
 
 		_children[name] = child;
 
-		// TODO: Emit notification
+		pushOutgoing(_T(""), _T("node_added"), name);
+
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
 	void removeChild(const tstring& name) {
-		// TODO: Emit notification
+		pushOutgoing(_T(""), _T("node_removed"), name);
 
 		if(_children.count(name))
 			_children.erase(name);
@@ -322,10 +323,23 @@ private:
 	//------------------------------------------------------------------------------------------------------------------
 
 	void addBaseMessageTypes() {
+		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaError = newObject();
 		schemaAddValue(*schemaError, msgKeyData, SchemaString, _T("Error message text"));
 
 		addMessageType(_T("error"), _T("Error message"), schemaError);
+
+		////--------------------------------------------------------------------------------------------------------------
+		PipeObjectPtr schemaNodeAdded = newObject();
+		schemaAddValue(*schemaNodeAdded, msgKeyData, SchemaString, _T("Name of the added node"));
+
+		addMessageType(_T("node_added"), _T("Added node"), schemaNodeAdded);
+
+		////--------------------------------------------------------------------------------------------------------------
+		PipeObjectPtr schemaNodeRemoved = newObject();
+		schemaAddValue(*schemaNodeRemoved, msgKeyData, SchemaString, _T("Name of the removed node"));
+
+		addMessageType(_T("node_removed"), _T("Removed node"), schemaNodeRemoved);
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaChildren = newObject();
