@@ -88,6 +88,7 @@
     <ClCompile Include="LibPipe.cpp" />
     <ClCompile Include="LibPipeAPI.cpp" />
     <ClCompile Include="ServiceRoot.cpp" />
+    <ClCompile Include="ServiceScripts.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonHeader.h" />
@@ -104,6 +105,7 @@
     <ClInclude Include="PipeServiceNodeBase.h" />
     <ClInclude Include="PipeShell.h" />
     <ClInclude Include="ServiceRoot.h" />
+    <ClInclude Include="ServiceScripts.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

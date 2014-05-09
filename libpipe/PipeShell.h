@@ -530,6 +530,9 @@ public:
 			for(auto& msg : *messages) {
 				if(!msg.is_object()) { continue; }
 
+				if(!output.str().empty())
+					output << std::endl;
+
 				auto&& obj = msg.object_items();
 				if(!obj.count(TokenMessageRef) || !obj.count(TokenMessageAddress) || !obj.count(TokenMessageMessage) || !obj.count(TokenMessageData)) { continue; }
 

@@ -8,14 +8,14 @@
 
 //======================================================================================================================
 
-class ServiceRoot : public PipeServiceNodeBase {
+class ServiceScripts : public PipeServiceNodeBase {
 public:
-	ServiceRoot(const tstring& address, const tstring& path, PipeObjectPtr settings);
-	virtual ~ServiceRoot();
+	ServiceScripts(const tstring& address, const tstring& path, PipeObjectPtr settings);
+	virtual ~ServiceScripts();
 
-private:
-	void initScripts();
-	void initServices();
+public:
+	void processPreSend(PipeArrayPtr messages);
+	void processPostReceive(PipeArrayPtr messages);
 };
 
 //======================================================================================================================

@@ -1,6 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="PipeExtension">
+      <UniqueIdentifier>{c632df16-22f6-4f2c-b522-85c8bdd0293e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PipeExtension\API">
+      <UniqueIdentifier>{78025661-6c39-4cd8-aebc-b31683af5441}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PipeExtension\Wrapper">
+      <UniqueIdentifier>{b2d754e3-3289-4aff-8ca0-5b5b5647cc60}</UniqueIdentifier>
+    </Filter>
     <Filter Include="LibPipe">
       <UniqueIdentifier>{a934a684-018a-424d-b1bd-f1c95eae12bb}</UniqueIdentifier>
     </Filter>
@@ -10,25 +19,22 @@
     <Filter Include="LibPipe\Wrapper">
       <UniqueIdentifier>{636d9112-8279-411b-8d54-5442c952616f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="PipeExtension">
-      <UniqueIdentifier>{c632df16-22f6-4f2c-b522-85c8bdd0293e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="LibPipe\Base">
       <UniqueIdentifier>{e533bd95-50e0-4154-9cfd-1c7d5d792db4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="PipeExtension\API">
-      <UniqueIdentifier>{78025661-6c39-4cd8-aebc-b31683af5441}</UniqueIdentifier>
+    <Filter Include="LibPipe\Service">
+      <UniqueIdentifier>{110e7ca6-47ba-4890-a6e0-9f3dff4f8f5b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="PipeExtension\Wrapper">
-      <UniqueIdentifier>{b2d754e3-3289-4aff-8ca0-5b5b5647cc60}</UniqueIdentifier>
+    <Filter Include="LibPipe\Service\Root">
+      <UniqueIdentifier>{4d1049ee-fa72-4f68-8a71-a44fb611dd05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LibPipe\Service\Scripts">
+      <UniqueIdentifier>{c477a685-83da-4294-aa16-38099874bdab}</UniqueIdentifier>
     </Filter>
     <Filter Include="Common">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>
       </Extensions>
-    </Filter>
-    <Filter Include="LibPipe\ServiceRoot">
-      <UniqueIdentifier>{110e7ca6-47ba-4890-a6e0-9f3dff4f8f5b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -56,9 +62,6 @@
     <ClInclude Include="PipeExtensionInterface.h">
       <Filter>PipeExtension\Wrapper</Filter>
     </ClInclude>
-    <ClInclude Include="ServiceRoot.h">
-      <Filter>LibPipe\ServiceRoot</Filter>
-    </ClInclude>
     <ClInclude Include="LibPipeDataTypes.h">
       <Filter>LibPipe\Wrapper</Filter>
     </ClInclude>
@@ -74,6 +77,12 @@
     <ClInclude Include="json11.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="ServiceRoot.h">
+      <Filter>LibPipe\Service\Root</Filter>
+    </ClInclude>
+    <ClInclude Include="ServiceScripts.h">
+      <Filter>LibPipe\Service\Scripts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LibPipeAPI.cpp">
@@ -82,11 +91,14 @@
     <ClCompile Include="LibPipe.cpp">
       <Filter>LibPipe\Base</Filter>
     </ClCompile>
-    <ClCompile Include="ServiceRoot.cpp">
-      <Filter>LibPipe\ServiceRoot</Filter>
-    </ClCompile>
     <ClCompile Include="CommonHeader.cpp">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="ServiceRoot.cpp">
+      <Filter>LibPipe\Service\Root</Filter>
+    </ClCompile>
+    <ClCompile Include="ServiceScripts.cpp">
+      <Filter>LibPipe\Service\Scripts</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
