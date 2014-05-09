@@ -575,6 +575,7 @@ private:
 		else if(cmd == _T("ls")) { return true; }
 		else if(cmd == _T("cd")) { return true; }
 		else if(cmd == _T("pwd")) { return true; }
+		else if(cmd == _T("tree")) { return true; }
 		
 		return false;
 	}
@@ -602,6 +603,7 @@ private:
 			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("ls") << _T(" - ") << _T("Get a list of child nodes") << std::endl;
 			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("cd") << _T(" - ") << _T("Set current node address") << std::endl;
 			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("pwd") << _T(" - ") << _T("Get current node address") << std::endl;
+			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("tree") << _T(" - ") << _T("Print a tree of subnodes") << std::endl;
 			_receiveBuffer << std::endl;
 			_receiveBuffer << _T("Node commands:") << std::endl;
 			for(auto&& command : *_addressCommands) {
@@ -621,8 +623,6 @@ private:
 
 		//--------------------------------------------------------------------------------------------------------------
 		else if(cmd == _T("ls")) {
-			// Handle .. and .
-
 			tstring lsAddress = (parameter.length() > 0 ? getAbsoluteAddress(parameter) : getAbsoluteAddress(address));
 			if(lsAddress.length() == 0) {
 				_receiveBuffer << _T("Invalid address") << std::endl;
@@ -668,6 +668,32 @@ private:
 			}
 
 			_receiveBuffer << _address << std::endl;
+		}
+
+		//--------------------------------------------------------------------------------------------------------------
+		else if(cmd == _T("tree")) {
+			tstring treeAddress = (parameter.length() > 0 ? getAbsoluteAddress(parameter) : getAbsoluteAddress(address));
+			if(treeAddress.length() == 0) {
+				_receiveBuffer << _T("Invalid address") << std::endl;
+				return;
+			}
+
+			auto info = _instance->nodeInfo(treeAddress);
+			if(info->size() == 0) {
+				_receiveBuffer << _T("Invalid address") << std::endl;
+				return;
+			}
+
+			std::function<void(tstring, tstring)> printChildren = [&](tstring address, tstring indent) {
+				auto& addressParts = texplode(address, TokenAddressSeparator);
+				_receiveBuffer << indent << addressParts.back() << std::endl;
+
+				auto children = _instance->nodeChildren(address);
+				for(auto&& child : *children)
+					printChildren(child.string_value(), indent + IndentSymbol);
+			};
+
+			printChildren(treeAddress, _T(""));
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
