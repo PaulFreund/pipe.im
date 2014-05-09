@@ -61,7 +61,7 @@ public:
 
 public:
 	virtual void send(PipeArrayPtr messages) {
-		_functions.fktPipeExtensionServiceSend(_service, PipeJson(*messages).dump().c_str());
+		_functions.fktPipeExtensionServiceSend(_service, dumpArray(messages).c_str());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

@@ -93,7 +93,7 @@ public:
 		message[TokenMessageMessage] = type;
 		message[TokenMessageData] = data;
 
-		// Optional: validate messages with message type when debugging
+		// TODO: Optionally validate messages with message type when debugging
 
 		_outgoing->push_back(std::move(message));
 	}
@@ -108,16 +108,15 @@ public:
 		_children[name] = child;
 
 		pushOutgoing(_T(""), _T("node_added"), name);
-
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
 	void removeChild(const tstring& name) {
-		pushOutgoing(_T(""), _T("node_removed"), name);
-
-		if(_children.count(name))
+		if(_children.count(name)) {
 			_children.erase(name);
+			pushOutgoing(_T(""), _T("node_removed"), name);
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -126,7 +125,7 @@ public:
 		if(_commands.count(name))
 		   throw tstring(_T("Command already defined"));
 		
-		// Optinal: Assert that the definition has the right format!
+		// TODO: Optinally assert that the definition has the right format
 
 		for(auto&& commandType : *_commandTypes) {
 			if(commandType[TokenMessageCommand].string_value() == name)
@@ -146,7 +145,7 @@ public:
 
 	void addMessageType(const tstring& name, const tstring& description, PipeObjectPtr messageTypeDefinition) {
 
-		// Optinal: Assert that the definition has the right format!
+		// TODO: Optinally assert that the definition has the right format
 
 		for(auto&& messageType : *_messageTypes) {
 			if(messageType[TokenMessageMessage].string_value() == name)
@@ -170,7 +169,6 @@ public:
 		for(auto&& messagesMember : *messages) {
 			auto& message = messagesMember.object_items();
 
-			// Without a reference, everything is meaningless
 			if(message.empty() || (!message.count(TokenMessageRef) || !message[TokenMessageRef].is_string()))
 				continue;
 
@@ -375,7 +373,6 @@ private:
 
 		addMessageType(_T("info"), _T("Information about this node"), schemaInfo);
 	}
-
 };
 //======================================================================================================================
 
