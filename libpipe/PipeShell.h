@@ -688,7 +688,7 @@ private:
 			}
 
 			std::function<void(tstring, tstring)> printChildren = [&](tstring address, tstring indent) {
-				auto& addressParts = texplode(address, TokenAddressSeparator);
+				auto addressParts = texplode(address, TokenAddressSeparator);
 				_receiveBuffer << indent << addressParts.back() << std::endl;
 
 				auto children = _instance->nodeChildren(address);
