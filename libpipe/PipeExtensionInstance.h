@@ -8,41 +8,41 @@
 
 //======================================================================================================================
 
-const tstring NamePipeExtensionGetServiceTypes = _T("PipeExtensionGetServiceTypes");
-const tstring NamePipeExtensionGetServiceTypeSettings = _T("PipeExtensionGetServiceTypeSettings");
-const tstring NamePipeExtensionServiceCreate = _T("PipeExtensionServiceCreate");
-const tstring NamePipeExtensionServiceDestroy = _T("PipeExtensionServiceDestroy");
-const tstring NamePipeExtensionServiceSend = _T("PipeExtensionServiceSend");
-const tstring NamePipeExtensionServiceReceive = _T("PipeExtensionServiceReceive");
-const tstring NamePipeExtensionServiceGetNodeChildren = _T("PipeExtensionServiceGetNodeChildren");
-const tstring NamePipeExtensionServiceGetNodeCommandTypes = _T("PipeExtensionServiceGetNodeCommandTypes");
-const tstring NamePipeExtensionServiceGetNodeMessageTypes = _T("PipeExtensionServiceGetNodeMessageTypes");
-const tstring NamePipeExtensionServiceGetNodeInfo = _T("PipeExtensionServiceGetNodeInfo");
+const tstring NamePipeExtensionGetServiceTypes              = _T("PipeExtensionGetServiceTypes");
+const tstring NamePipeExtensionGetServiceTypeSettings       = _T("PipeExtensionGetServiceTypeSettings");
+const tstring NamePipeExtensionServiceCreate                = _T("PipeExtensionServiceCreate");
+const tstring NamePipeExtensionServiceDestroy               = _T("PipeExtensionServiceDestroy");
+const tstring NamePipeExtensionServiceSend                  = _T("PipeExtensionServiceSend");
+const tstring NamePipeExtensionServiceReceive               = _T("PipeExtensionServiceReceive");
+const tstring NamePipeExtensionServiceGetNodeChildren       = _T("PipeExtensionServiceGetNodeChildren");
+const tstring NamePipeExtensionServiceGetNodeCommandTypes   = _T("PipeExtensionServiceGetNodeCommandTypes");
+const tstring NamePipeExtensionServiceGetNodeMessageTypes   = _T("PipeExtensionServiceGetNodeMessageTypes");
+const tstring NamePipeExtensionServiceGetNodeInfo           = _T("PipeExtensionServiceGetNodeInfo");
 
-typedef void(*FktPipeExtensionGetServiceTypes)(PipeExtensionCbContext, PipeExtensionCbStr);
-typedef void(*FktPipeExtensionGetServiceTypeSettings)(PipeExtensionCbContext, PipeExtensionStr, PipeExtensionCbStr);
-typedef void(*FktPipeExtensionServiceCreate)(PipeExtensionStr, PipeExtensionStr, PipeExtensionStr, PipeExtensionStr, HPipeExtensionService*);
-typedef void(*FktPipeExtensionServiceDestroy)(HPipeExtensionService);
-typedef void(*FktPipeExtensionServiceSend)(HPipeExtensionService, PipeExtensionStr);
-typedef void(*FktPipeExtensionServiceReceive)(HPipeExtensionService, PipeExtensionCbContext, PipeExtensionCbStr);
-typedef void(*FktPipeExtensionServiceGetNodeChildren)(HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
-typedef void(*FktPipeExtensionServiceGetNodeCommandTypes)(HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
-typedef void(*FktPipeExtensionServiceGetNodeMessageTypes)(HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
-typedef void(*FktPipeExtensionServiceGetNodeInfo)(HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
+typedef void(*FktPipeExtensionGetServiceTypes)              (PipeExtensionCbContext, PipeExtensionCbStr);
+typedef void(*FktPipeExtensionGetServiceTypeSettings)       (PipeExtensionCbContext, PipeExtensionStr, PipeExtensionCbStr);
+typedef void(*FktPipeExtensionServiceCreate)                (PipeExtensionStr, PipeExtensionStr, PipeExtensionStr, PipeExtensionStr, HPipeExtensionService*);
+typedef void(*FktPipeExtensionServiceDestroy)               (HPipeExtensionService);
+typedef void(*FktPipeExtensionServiceSend)                  (HPipeExtensionService, PipeExtensionStr);
+typedef void(*FktPipeExtensionServiceReceive)               (HPipeExtensionService, PipeExtensionCbContext, PipeExtensionCbStr);
+typedef void(*FktPipeExtensionServiceGetNodeChildren)       (HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
+typedef void(*FktPipeExtensionServiceGetNodeCommandTypes)   (HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
+typedef void(*FktPipeExtensionServiceGetNodeMessageTypes)   (HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
+typedef void(*FktPipeExtensionServiceGetNodeInfo)           (HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
 
 //======================================================================================================================
 
 struct PipeExtensionFunctions {
-	FktPipeExtensionGetServiceTypes							fktPipeExtensionGetServiceTypes				= nullptr;
-	FktPipeExtensionGetServiceTypeSettings					fktPipeExtensionGetServiceTypeSettings		= nullptr;
-	FktPipeExtensionServiceCreate							fktPipeExtensionServiceCreate				= nullptr;
-	FktPipeExtensionServiceDestroy							fktPipeExtensionServiceDestroy				= nullptr;
-	FktPipeExtensionServiceSend								fktPipeExtensionServiceSend					= nullptr;
-	FktPipeExtensionServiceReceive							fktPipeExtensionServiceReceive				= nullptr;
-	FktPipeExtensionServiceGetNodeChildren					fktPipeExtensionServiceGetNodeChildren		= nullptr;
-	FktPipeExtensionServiceGetNodeCommandTypes				fktPipeExtensionServiceGetNodeCommandTypes	= nullptr;
-	FktPipeExtensionServiceGetNodeMessageTypes				fktPipeExtensionServiceGetNodeMessageTypes	= nullptr;
-	FktPipeExtensionServiceGetNodeInfo						fktPipeExtensionServiceGetNodeInfo			= nullptr;
+	FktPipeExtensionGetServiceTypes             fktPipeExtensionGetServiceTypes             = nullptr;
+	FktPipeExtensionGetServiceTypeSettings      fktPipeExtensionGetServiceTypeSettings      = nullptr;
+	FktPipeExtensionServiceCreate               fktPipeExtensionServiceCreate               = nullptr;
+	FktPipeExtensionServiceDestroy              fktPipeExtensionServiceDestroy              = nullptr;
+	FktPipeExtensionServiceSend                 fktPipeExtensionServiceSend                 = nullptr;
+	FktPipeExtensionServiceReceive              fktPipeExtensionServiceReceive              = nullptr;
+	FktPipeExtensionServiceGetNodeChildren      fktPipeExtensionServiceGetNodeChildren      = nullptr;
+	FktPipeExtensionServiceGetNodeCommandTypes  fktPipeExtensionServiceGetNodeCommandTypes  = nullptr;
+	FktPipeExtensionServiceGetNodeMessageTypes  fktPipeExtensionServiceGetNodeMessageTypes  = nullptr;
+	FktPipeExtensionServiceGetNodeInfo          fktPipeExtensionServiceGetNodeInfo          = nullptr;
 };
 
 //======================================================================================================================

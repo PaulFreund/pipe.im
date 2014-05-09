@@ -16,32 +16,32 @@
 
 //======================================================================================================================
 
-typedef const char*		LibPipeStr;
-typedef void*			HLibPipe;
+typedef const char*     LibPipeStr;
+typedef void*           HLibPipe;
 
-typedef void* LibPipeCbContext;
-typedef void(*LibPipeCbStr)(LibPipeCbContext, LibPipeStr);
+typedef void*           LibPipeCbContext;
+typedef void            (*LibPipeCbStr)(LibPipeCbContext, LibPipeStr);
 
 //======================================================================================================================
 
-LIBPIPE_ITF void LibPipeLoadExtensions          (LibPipeStr path);
-LIBPIPE_ITF void LibPipeGetServiceTypes         (LibPipeCbContext context, LibPipeCbStr cbServiceTypes);
+LIBPIPE_ITF void LibPipeLoadExtensions      (LibPipeStr path);
+LIBPIPE_ITF void LibPipeGetServiceTypes     (LibPipeCbContext context, LibPipeCbStr cbServiceTypes);
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeCreate                  (LibPipeStr path, LibPipeStr serviceTypes, HLibPipe* instance);
-LIBPIPE_ITF void LibPipeDestroy                 (HLibPipe instance);
+LIBPIPE_ITF void LibPipeCreate              (LibPipeStr path, LibPipeStr serviceTypes, HLibPipe* instance);
+LIBPIPE_ITF void LibPipeDestroy             (HLibPipe instance);
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeSend                    (HLibPipe instance, LibPipeStr messages);
-LIBPIPE_ITF void LibPipeReceive                 (HLibPipe instance, LibPipeCbContext context, LibPipeCbStr cbMessages);
+LIBPIPE_ITF void LibPipeSend                (HLibPipe instance, LibPipeStr messages);
+LIBPIPE_ITF void LibPipeReceive             (HLibPipe instance, LibPipeCbContext context, LibPipeCbStr cbMessages);
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeGetNodeChildren         (HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbChildNodes);
-LIBPIPE_ITF void LibPipeGetNodeCommandTypes     (HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeCommandTypes);
-LIBPIPE_ITF void LibPipeGetNodeMessageTypes     (HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeMessageTypes);
-LIBPIPE_ITF void LibPipeGetNodeInfo             (HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeInfo);
+LIBPIPE_ITF void LibPipeGetNodeChildren     (HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbChildNodes);
+LIBPIPE_ITF void LibPipeGetNodeCommandTypes (HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeCommandTypes);
+LIBPIPE_ITF void LibPipeGetNodeMessageTypes (HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeMessageTypes);
+LIBPIPE_ITF void LibPipeGetNodeInfo         (HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeInfo);
 
 //======================================================================================================================

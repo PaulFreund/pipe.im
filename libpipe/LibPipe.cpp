@@ -3,14 +3,12 @@
 #include "CommonHeader.h"
 #include "LibPipe.h"
 
-#include "ServiceRoot.h"
-
 using namespace std;
 
 //======================================================================================================================
 
-vector<shared_ptr<LibPipe>> LibPipe::Instances;
-vector<shared_ptr<PipeExtensionInstance>> LibPipe::Extensions;
+vector<shared_ptr<LibPipe>>                 LibPipe::Instances;
+vector<shared_ptr<PipeExtensionInstance>>   LibPipe::Extensions;
 
 //======================================================================================================================
 
@@ -23,7 +21,6 @@ LibPipe::LibPipe(const tstring& path, PipeArrayPtr serviceTypes) {
 //----------------------------------------------------------------------------------------------------------------------
 
 LibPipe::~LibPipe() {
-
 }
 
 //----------------------------------------------------------------------------------------------------------------------

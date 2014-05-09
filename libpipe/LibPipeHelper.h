@@ -34,66 +34,66 @@ inline tstring dumpObject(PipeObjectPtr object) { return std::move(dumpObject(*o
 
 //----------------------------------------------------------------------------------------------------------------------
 
+inline tstring schemaTypeString(SchemaValueType type) {
+	switch(type) {
+		case SchemaValueTypeString   : { return TokenSchemaTypeString    ; }
+		case SchemaValueTypeBool     : { return TokenSchemaTypeBool      ; }
+		case SchemaValueTypeInteger  : { return TokenSchemaTypeInteger   ; }
+		case SchemaValueTypeFloat    : { return TokenSchemaTypeFloat     ; }
+		case SchemaValueTypeBinary   : { return TokenSchemaTypeBinary    ; }
+	}
+
+	return TokenSchemaTypeString;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 inline PipeObject& schemaAddObject(PipeObject& schema, const tstring& key, const tstring& description, bool optional = false) {
 	schema[key] = PipeObject();
 	auto& schemaData = schema[key].object_items();
-	schemaData[_T("type")] = _T("object");
-	schemaData[_T("description")] = description;
-	schemaData[_T("optional")] = optional;
-	schemaData[_T("fields")] = PipeObject();
-	return schemaData[_T("fields")].object_items();
+	schemaData[TokenSchemaType] = TokenSchemaTypeObject;
+	schemaData[TokenSchemaDescription] = description;
+	schemaData[TokenSchemaOptional] = optional;
+	schemaData[TokenSchemaFields] = PipeObject();
+	return schemaData[TokenSchemaFields].object_items();
 }
 
 inline void schemaAddValue(PipeObject& schema, const tstring& key, const SchemaValueType type, const tstring& description, bool optional = false) {
-	tstring typeString = _T("");
-	switch(type) {
-		case SchemaString:     { typeString = _T("string");    break; }
-		case SchemaBool:       { typeString = _T("bool");      break; }
-		case SchemaNumber:     { typeString = _T("number");    break; }
-	}
-
 	schema[key] = PipeObject {
-		{ _T("type"), typeString },
-		{ _T("description"), description },
-		{ _T("optional"), optional },
+		{ TokenSchemaType, schemaTypeString(type) },
+		{ TokenSchemaDescription, description },
+		{ TokenSchemaOptional, optional },
 	};
 }
 
 inline PipeObject& schemaAddObjectArray(PipeObject& schema, const tstring& key, const tstring& arrayDescription, const tstring& objectDescription) {
 	schema[key] = PipeObject();
 	auto& schemaData = schema[key].object_items();
-	schemaData[_T("type")] = _T("array");
-	schemaData[_T("description")] = arrayDescription;
-	schemaData[_T("optional")] = false;
-	schemaData[_T("items")] = PipeObject();
+	schemaData[TokenSchemaType] = TokenSchemaTypeArray;
+	schemaData[TokenSchemaDescription] = arrayDescription;
+	schemaData[TokenSchemaOptional] = false;
+	schemaData[TokenSchemaItems] = PipeObject();
 
-	auto& schemaItemData = schemaData[_T("items")].object_items();
-	schemaItemData[_T("type")] = _T("object");
-	schemaItemData[_T("description")] = objectDescription;
-	schemaItemData[_T("optional")] = false;
-	schemaItemData[_T("fields")] = PipeObject();
+	auto& schemaItemData = schemaData[TokenSchemaItems].object_items();
+	schemaItemData[TokenSchemaType] = TokenSchemaTypeObject;
+	schemaItemData[TokenSchemaDescription] = objectDescription;
+	schemaItemData[TokenSchemaOptional] = false;
+	schemaItemData[TokenSchemaFields] = PipeObject();
 
-	return schemaItemData[_T("fields")].object_items();
+	return schemaItemData[TokenSchemaFields].object_items();
 }
 
 inline void schemaAddValueArray(PipeObject& schema, const tstring& key, const tstring& description, const SchemaValueType itemType, const tstring& itemDescription) {
 	schema[key] = PipeObject();
 	auto& schemaData = schema[key].object_items();
-	schemaData[_T("type")] = _T("array");
-	schemaData[_T("description")] = description;
-	schemaData[_T("optional")] = false;
-	schemaData[_T("items")] = PipeObject();
+	schemaData[TokenSchemaType] = TokenSchemaTypeArray;
+	schemaData[TokenSchemaDescription] = description;
+	schemaData[TokenSchemaOptional] = false;
+	schemaData[TokenSchemaItems] = PipeObject();
 
-	tstring typeString = _T("");
-	switch(itemType) {
-		case SchemaString:     { typeString = _T("string");    break; }
-		case SchemaBool:       { typeString = _T("bool");      break; }
-		case SchemaNumber:     { typeString = _T("number");    break; }
-	}
-
-	auto& schemaItemData = schemaData[_T("items")].object_items();
-	schemaItemData[_T("type")] = typeString;
-	schemaItemData[_T("description")] = itemDescription;
+	auto& schemaItemData = schemaData[TokenSchemaItems].object_items();
+	schemaItemData[TokenSchemaType] = schemaTypeString(itemType);
+	schemaItemData[TokenSchemaDescription] = itemDescription;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

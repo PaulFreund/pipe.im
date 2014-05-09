@@ -97,11 +97,15 @@ PipeExtensionPurple::PipeExtensionPurple() : _libpurple_init_done(false) {
 	};
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 PipeExtensionPurple::~PipeExtensionPurple() {
 	for(auto it = begin(_services); it != end(_services); it++) {
 		delete it->second;
 	}
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 PipeArrayPtr PipeExtensionPurple::serviceTypes() {
 	if(!_libpurple_init_done) {
@@ -139,10 +143,13 @@ PipeArrayPtr PipeExtensionPurple::serviceTypes() {
 	return serviceTypes;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 PipeObjectPtr PipeExtensionPurple::serviceTypeSettings(const tstring& serviceType) {
 	return newObject();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 
 IPipeExtensionService* PipeExtensionPurple::create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings) {
 	if(serviceType == _T("irc")) {
@@ -151,6 +158,8 @@ IPipeExtensionService* PipeExtensionPurple::create(const tstring& serviceType, c
 
 	return nullptr;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void PipeExtensionPurple::destroy(IPipeExtensionService* service) {
 	for(auto it = begin(_services); it != end(_services); it++) {
@@ -162,3 +171,4 @@ void PipeExtensionPurple::destroy(IPipeExtensionService* service) {
 	}
 }
 
+//======================================================================================================================

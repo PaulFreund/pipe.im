@@ -5,18 +5,12 @@
 //======================================================================================================================
 
 #include "PipeExtensionInterface.h"
+#include "LibPipeHelper.h"
 
 //======================================================================================================================
 
 class PipeServiceNodeBase : public IPipeExtensionService {
 public:
-	const TCHAR addressSeparator        = _T('.');
-
-	const tstring msgKeyRef             = _T("ref");
-	const tstring msgKeyAddress         = _T("address");
-	const tstring msgKeyCommand         = _T("command");
-	const tstring msgKeyMessage         = _T("message");
-	const tstring msgKeyData            = _T("data");
 
 	typedef std::function<void(PipeObject&)> PipeCommandFunction;
 	typedef std::function<void(PipeArrayPtr)> PipeHookFunction;
@@ -94,10 +88,10 @@ public:
 
 	void pushOutgoing(const tstring& reference, const tstring& type, PipeJson data) {
 		PipeObject message;
-		message[msgKeyAddress] = _address;
-		message[msgKeyRef] = reference;
-		message[msgKeyMessage] = type;
-		message[msgKeyData] = data;
+		message[TokenMessageAddress] = _address;
+		message[TokenMessageRef] = reference;
+		message[TokenMessageMessage] = type;
+		message[TokenMessageData] = data;
 
 		// Optional: validate messages with message type when debugging
 
@@ -135,14 +129,14 @@ public:
 		// Optinal: Assert that the definition has the right format!
 
 		for(auto&& commandType : *_commandTypes) {
-			if(commandType[msgKeyCommand].string_value() == name)
+			if(commandType[TokenMessageCommand].string_value() == name)
 				throw tstring(_T("Message type already defined"));
 		}
 
 		_commandTypes->push_back(PipeObject {
-			{ msgKeyCommand, name },
-			{ _T("description"), description },
-			{ _T("schema"), *commandTypeDefinition }
+			{ TokenMessageCommand, name },
+			{ TokenSchemaDescription, description },
+			{ TokenSchema, *commandTypeDefinition }
 		});
 
 		_commands[name] = handler;
@@ -155,14 +149,14 @@ public:
 		// Optinal: Assert that the definition has the right format!
 
 		for(auto&& messageType : *_messageTypes) {
-			if(messageType[msgKeyMessage].string_value() == name)
+			if(messageType[TokenMessageMessage].string_value() == name)
 				throw tstring(_T("Message type already defined"));
 		}
 
 		_messageTypes->push_back(PipeObject {
-			{ msgKeyMessage, name },
-			{ _T("description"), description },
-			{ _T("schema"), *messageTypeDefinition }
+			{ TokenMessageMessage, name },
+			{ TokenSchemaDescription, description },
+			{ TokenSchema, *messageTypeDefinition }
 		});
 	}
 
@@ -177,20 +171,20 @@ public:
 			auto& message = messagesMember.object_items();
 
 			// Without a reference, everything is meaningless
-			if(message.empty() || (!message.count(msgKeyRef) || !message[msgKeyRef].is_string()))
+			if(message.empty() || (!message.count(TokenMessageRef) || !message[TokenMessageRef].is_string()))
 				continue;
 
 			try {
-				if(!message.count(msgKeyAddress) || !message[msgKeyAddress].is_string())
+				if(!message.count(TokenMessageAddress) || !message[TokenMessageAddress].is_string())
 					throw tstring(_T("Missing or invalid address field"));
 
-				if(!message.count(msgKeyCommand) || !message[msgKeyCommand].is_string())
+				if(!message.count(TokenMessageCommand) || !message[TokenMessageCommand].is_string())
 					throw tstring(_T("Missing or invalid command field"));
 
-				auto& messageAddress = message[msgKeyAddress].string_value();
+				auto& messageAddress = message[TokenMessageAddress].string_value();
 
 				if(messageAddress == _address) {
-					auto messageCommand = message[msgKeyCommand].string_value();
+					auto messageCommand = message[TokenMessageCommand].string_value();
 					if(!_commands.count(messageCommand))
 						throw tstring(_T("Command not found"));
 
@@ -201,7 +195,7 @@ public:
 						throw tstring(_T("There was an error executing the command"));
 					}
 				}
-				else if(messageAddress.length() >= (_address.length() + 2) && messageAddress[_address.length()] == addressSeparator && _children.count(messageAddress)) {
+				else if(messageAddress.length() >= (_address.length() + 2) && messageAddress[_address.length()] == TokenAddressSeparator && _children.count(messageAddress)) {
 					_children[messageAddress]->send(newArray({ message }));
 				}
 				else {
@@ -209,10 +203,10 @@ public:
 				}
 			}
 			catch(tstring errorDescription) {
-				pushOutgoing(message[msgKeyRef].string_value(), _T("error"), errorDescription);
+				pushOutgoing(message[TokenMessageRef].string_value(), _T("error"), errorDescription);
 			}
 			catch(...) {
-				pushOutgoing(message[msgKeyRef].string_value(), _T("error"), _T("Unknown error"));
+				pushOutgoing(message[TokenMessageRef].string_value(), _T("error"), _T("Unknown error"));
 			}
 		}
 	}
@@ -243,7 +237,7 @@ public:
 				children->push_back(child.first);
 			}
 		}
-		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == addressSeparator && _children.count(address)) {
+		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == TokenAddressSeparator && _children.count(address)) {
 			children = _children[address]->nodeChildren(address);
 		}
 
@@ -257,7 +251,7 @@ public:
 		if(address == _address) {
 			commandTypes = _commandTypes;
 		}
-		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == addressSeparator && _children.count(address)) {
+		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == TokenAddressSeparator && _children.count(address)) {
 			commandTypes = _children[address]->nodeCommandTypes(address);
 		}
 
@@ -271,7 +265,7 @@ public:
 		if(address == _address) {
 			messageTypes = _messageTypes;
 		}
-		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == addressSeparator && _children.count(address)) {
+		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == TokenAddressSeparator && _children.count(address)) {
 			messageTypes = _children[address]->nodeMessageTypes(address);
 		}
 
@@ -283,12 +277,12 @@ public:
 	virtual PipeObjectPtr nodeInfo(const tstring& address) {
 		PipeObjectPtr info = newObject();
 		if(address == _address) {
-			(*info)[msgKeyAddress] = _address;
+			(*info)[TokenMessageAddress] = _address;
 			(*info)[_T("type")] = _type;
 			(*info)[_T("description")] = _description;
 			(*info)[_T("properties")] = *_properties;
 		}
-		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == addressSeparator && _children.count(address)) {
+		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == TokenAddressSeparator && _children.count(address)) {
 			info = _children[address]->nodeInfo(address);
 		}
 
@@ -301,22 +295,22 @@ private:
 	void addBaseCommandTypes() {
 		//--------------------------------------------------------------------------------------------------------------
 		addCommand(_T("children"), _T("Get a list of all child nodes"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), _T("children"), *nodeChildren(message[msgKeyAddress].string_value()));
+			pushOutgoing(message[TokenMessageRef].string_value(), _T("children"), *nodeChildren(message[TokenMessageAddress].string_value()));
 		});
 
 		//--------------------------------------------------------------------------------------------------------------
 		addCommand(_T("commands"), _T("Get a list of all available commands"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), _T("commands"), *nodeCommandTypes(message[msgKeyAddress].string_value()));
+			pushOutgoing(message[TokenMessageRef].string_value(), _T("commands"), *nodeCommandTypes(message[TokenMessageAddress].string_value()));
 		});
 
 		//--------------------------------------------------------------------------------------------------------------
 		addCommand(_T("messages"), _T("Get a list of all message types this node can emmit"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), _T("messages"), *nodeMessageTypes(message[msgKeyAddress].string_value()));
+			pushOutgoing(message[TokenMessageRef].string_value(), _T("messages"), *nodeMessageTypes(message[TokenMessageAddress].string_value()));
 		});
 
 		//--------------------------------------------------------------------------------------------------------------
 		addCommand(_T("info"), _T("Get a list of all child nodes"), newObject(), [&](PipeObject& message) {
-			pushOutgoing(message[msgKeyRef].string_value(), _T("info"),*nodeInfo(message[msgKeyAddress].string_value()));
+			pushOutgoing(message[TokenMessageRef].string_value(), _T("info"),*nodeInfo(message[TokenMessageAddress].string_value()));
 		});
 	}
 
@@ -325,57 +319,57 @@ private:
 	void addBaseMessageTypes() {
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaError = newObject();
-		schemaAddValue(*schemaError, msgKeyData, SchemaString, _T("Error message text"));
+		schemaAddValue(*schemaError, TokenMessageData, SchemaValueTypeString, _T("Error message text"));
 
 		addMessageType(_T("error"), _T("Error message"), schemaError);
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaNodeAdded = newObject();
-		schemaAddValue(*schemaNodeAdded, msgKeyData, SchemaString, _T("Name of the added node"));
+		schemaAddValue(*schemaNodeAdded, TokenMessageData, SchemaValueTypeString, _T("Name of the added node"));
 
 		addMessageType(_T("node_added"), _T("Added node"), schemaNodeAdded);
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaNodeRemoved = newObject();
-		schemaAddValue(*schemaNodeRemoved, msgKeyData, SchemaString, _T("Name of the removed node"));
+		schemaAddValue(*schemaNodeRemoved, TokenMessageData, SchemaValueTypeString, _T("Name of the removed node"));
 
 		addMessageType(_T("node_removed"), _T("Removed node"), schemaNodeRemoved);
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaChildren = newObject();
-		schemaAddValueArray(*schemaChildren, msgKeyData, _T("List of child nodes"), SchemaString, _T("Name of a child node"));
+		schemaAddValueArray(*schemaChildren, TokenMessageData, _T("List of child nodes"), SchemaValueTypeString, _T("Name of a child node"));
 
 		addMessageType(_T("children"), _T("List of all child nodes"), schemaChildren);
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaCommands = newObject();
-		auto&& schemaCommandsItems = schemaAddObjectArray(*schemaCommands, msgKeyData, _T("List of commands this node accepts"), _T("Command")); {
-			schemaAddValue(schemaCommandsItems, _T("command"), SchemaString, _T("Name of the command"));
-			schemaAddValue(schemaCommandsItems, _T("description"), SchemaString, _T("Description of the command"));
-			schemaAddObject(schemaCommandsItems, _T("schema"), _T("Schema of the command"));
+		auto&& schemaCommandsItems = schemaAddObjectArray(*schemaCommands, TokenMessageData, _T("List of commands this node accepts"), _T("Command")); {
+			schemaAddValue(schemaCommandsItems, TokenMessageCommand, SchemaValueTypeString, _T("Name of the command"));
+			schemaAddValue(schemaCommandsItems, TokenSchemaDescription, SchemaValueTypeString, _T("Description of the command"));
+			schemaAddObject(schemaCommandsItems, TokenSchema, _T("Schema of the command"));
 		}
 
 		addMessageType(_T("commands"), _T("List of all available commands"), schemaCommands);
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaMessages = newObject();
-		auto&& schemaMessagesItems = schemaAddObjectArray(*schemaMessages, msgKeyData, _T("List of messages this node can emmit"), _T("Message type")); {
-			schemaAddValue(schemaMessagesItems, _T("message"), SchemaString, _T("Name of the message type"));
-			schemaAddValue(schemaMessagesItems, _T("description"), SchemaString, _T("Description of the message type"));
-			schemaAddObject(schemaMessagesItems, _T("schema"), _T("Schema of the message type"));
+		auto&& schemaMessagesItems = schemaAddObjectArray(*schemaMessages, TokenMessageData, _T("List of messages this node can emmit"), _T("Message type")); {
+			schemaAddValue(schemaMessagesItems, TokenMessageMessage, SchemaValueTypeString, _T("Name of the message type"));
+			schemaAddValue(schemaMessagesItems, TokenSchemaDescription, SchemaValueTypeString, _T("Description of the message type"));
+			schemaAddObject(schemaMessagesItems, TokenSchema, _T("Schema of the message type"));
 		}
 
 		addMessageType(_T("messages"), _T("List of all message types this node can emmit"), schemaMessages);
 
 		//--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaInfo = newObject();
-		auto&& schemaInfoFields = schemaAddObject(*schemaInfo, msgKeyData, _T("Information about the node")); {
-			schemaAddValue(schemaInfoFields, _T("address"), SchemaString, _T("Address of the node"));
-			schemaAddValue(schemaInfoFields, _T("type"), SchemaString, _T("Unique type of this node"));
-			schemaAddValue(schemaInfoFields, _T("description"), SchemaString, _T("Description of the node"));
+		auto&& schemaInfoFields = schemaAddObject(*schemaInfo, TokenMessageData, _T("Information about the node")); {
+			schemaAddValue(schemaInfoFields, TokenMessageAddress, SchemaValueTypeString, _T("Address of the node"));
+			schemaAddValue(schemaInfoFields, TokenSchemaType, SchemaValueTypeString, _T("Unique type of this node"));
+			schemaAddValue(schemaInfoFields, TokenSchemaDescription, SchemaValueTypeString, _T("Description of the node"));
 			auto&& schemaInfoPropertiesItems = schemaAddObjectArray(schemaInfoFields, _T("properties"), _T("Runtime properties of the node"), _T("Runtime property")); {
-				schemaAddValue(schemaInfoPropertiesItems, _T("key"), SchemaString, _T("Name of the property"));
-				schemaAddValue(schemaInfoPropertiesItems, _T("value"), SchemaString, _T("Value of the property"));
+				schemaAddValue(schemaInfoPropertiesItems, _T("key"), SchemaValueTypeString, _T("Name of the property"));
+				schemaAddValue(schemaInfoPropertiesItems, _T("value"), SchemaValueTypeString, _T("Value of the property"));
 			}
 		}
 

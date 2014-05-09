@@ -11,9 +11,6 @@
 
 class IPipeExtensionService {
 public:
-	virtual ~IPipeExtensionService() {}
-
-public:
 	virtual void send(PipeArrayPtr messages) = 0;
 	virtual PipeArrayPtr receive() = 0;
 
@@ -26,9 +23,6 @@ public:
 //======================================================================================================================
 
 class IPipeExtension {
-public:
-	virtual ~IPipeExtension() {}
-
 public:
 	virtual PipeArrayPtr serviceTypes() = 0;
 	virtual PipeObjectPtr serviceTypeSettings(const tstring& serviceType) = 0;
