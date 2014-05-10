@@ -107,23 +107,22 @@ void ServiceRoot::loadConfig() {
 	if(!readConfig())
 		return;
 
-	if(_config->empty())
-		return;
+	if(!_config->count(_T("services")))
+	   return;
 
-	// Config format
-	/*
-	
-		{
-			"instances": [
-				{
-					"type": "...",
-					"settings": {
-						...
-					}
-			]
+	auto& services = _config->operator[](_T("services")).array_items();
+	for(auto& service : services) {
+		auto& serviceObject = service.object_items();
+		tstring name = serviceObject[_T("name")].string_value();
+		tstring type = serviceObject[_T("type")].string_value();
+		auto& settings = serviceObject[_T("settings")].object_items();
+
+		if(find(begin(_providerTypes), end(_providerTypes), type) == end(_providerTypes)) {
+			pushOutgoing(_T(""), _T("error"), _T("Could not load service \"") + name + _T("\", unsupported type \"") + type + _T("\""));
 		}
 
-	*/
+		// TODO: Create service
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
