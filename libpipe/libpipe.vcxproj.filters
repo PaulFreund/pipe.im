@@ -22,19 +22,13 @@
     <Filter Include="LibPipe\Base">
       <UniqueIdentifier>{e533bd95-50e0-4154-9cfd-1c7d5d792db4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="LibPipe\Service">
-      <UniqueIdentifier>{110e7ca6-47ba-4890-a6e0-9f3dff4f8f5b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="LibPipe\Service\Root">
-      <UniqueIdentifier>{4d1049ee-fa72-4f68-8a71-a44fb611dd05}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="LibPipe\Service\Scripts">
-      <UniqueIdentifier>{c477a685-83da-4294-aa16-38099874bdab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Common">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>
       </Extensions>
+    </Filter>
+    <Filter Include="LibPipe\Services">
+      <UniqueIdentifier>{110e7ca6-47ba-4890-a6e0-9f3dff4f8f5b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -78,10 +72,7 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="ServiceRoot.h">
-      <Filter>LibPipe\Service\Root</Filter>
-    </ClInclude>
-    <ClInclude Include="ServiceScripts.h">
-      <Filter>LibPipe\Service\Scripts</Filter>
+      <Filter>LibPipe\Services</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -95,10 +86,7 @@
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="ServiceRoot.cpp">
-      <Filter>LibPipe\Service\Root</Filter>
-    </ClCompile>
-    <ClCompile Include="ServiceScripts.cpp">
-      <Filter>LibPipe\Service\Scripts</Filter>
+      <Filter>LibPipe\Services</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
