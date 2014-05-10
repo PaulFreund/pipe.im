@@ -14,7 +14,7 @@ vector<shared_ptr<PipeExtensionInstance>>   LibPipe::Extensions;
 
 LibPipe::LibPipe(const tstring& path, PipeArrayPtr serviceTypes) {
 	auto settings = newObject();
-	(*settings)[_T("serviceTypes")] = *serviceTypes;
+	(*settings)[_T("service_types")] = *serviceTypes;
 	_serviceRoot = make_shared<ServiceRoot>(_T("pipe"), path, settings);
 }
 

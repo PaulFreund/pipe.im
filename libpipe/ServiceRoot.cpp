@@ -9,6 +9,8 @@ using namespace std;
 //======================================================================================================================
 
 ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObjectPtr settings) : PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), address, path, settings) {
+	// TODO: Load configuration from config in path
+	
 	initScripts();
 	initServices();
 }
