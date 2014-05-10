@@ -25,9 +25,6 @@ typedef void            (*PipeExtensionCbStr)(PipeExtensionCbContext, PipeExtens
 //======================================================================================================================
 
 PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypes            (PipeExtensionCbContext context, PipeExtensionCbStr cbServiceTypes);
-PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypeSettings     (PipeExtensionCbContext context, PipeExtensionStr serviceType, PipeExtensionCbStr cbServiceTypeSettings);
-
-//----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceCreate              (PipeExtensionStr serviceType, PipeExtensionStr address, PipeExtensionStr path, PipeExtensionStr settings, HPipeExtensionService* service);
 PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy             (HPipeExtensionService service);

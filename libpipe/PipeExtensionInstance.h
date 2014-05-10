@@ -9,7 +9,6 @@
 //======================================================================================================================
 
 const tstring NamePipeExtensionGetServiceTypes              = _T("PipeExtensionGetServiceTypes");
-const tstring NamePipeExtensionGetServiceTypeSettings       = _T("PipeExtensionGetServiceTypeSettings");
 const tstring NamePipeExtensionServiceCreate                = _T("PipeExtensionServiceCreate");
 const tstring NamePipeExtensionServiceDestroy               = _T("PipeExtensionServiceDestroy");
 const tstring NamePipeExtensionServiceSend                  = _T("PipeExtensionServiceSend");
@@ -20,7 +19,6 @@ const tstring NamePipeExtensionServiceGetNodeMessageTypes   = _T("PipeExtensionS
 const tstring NamePipeExtensionServiceGetNodeInfo           = _T("PipeExtensionServiceGetNodeInfo");
 
 typedef void(*FktPipeExtensionGetServiceTypes)              (PipeExtensionCbContext, PipeExtensionCbStr);
-typedef void(*FktPipeExtensionGetServiceTypeSettings)       (PipeExtensionCbContext, PipeExtensionStr, PipeExtensionCbStr);
 typedef void(*FktPipeExtensionServiceCreate)                (PipeExtensionStr, PipeExtensionStr, PipeExtensionStr, PipeExtensionStr, HPipeExtensionService*);
 typedef void(*FktPipeExtensionServiceDestroy)               (HPipeExtensionService);
 typedef void(*FktPipeExtensionServiceSend)                  (HPipeExtensionService, PipeExtensionStr);
@@ -34,7 +32,6 @@ typedef void(*FktPipeExtensionServiceGetNodeInfo)           (HPipeExtensionServi
 
 struct PipeExtensionFunctions {
 	FktPipeExtensionGetServiceTypes             fktPipeExtensionGetServiceTypes             = nullptr;
-	FktPipeExtensionGetServiceTypeSettings      fktPipeExtensionGetServiceTypeSettings      = nullptr;
 	FktPipeExtensionServiceCreate               fktPipeExtensionServiceCreate               = nullptr;
 	FktPipeExtensionServiceDestroy              fktPipeExtensionServiceDestroy              = nullptr;
 	FktPipeExtensionServiceSend                 fktPipeExtensionServiceSend                 = nullptr;
@@ -144,18 +141,6 @@ public:
 		});
 
 		return types;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-
-	virtual PipeObjectPtr serviceTypeSettings(const tstring& serviceType) {
-		PipeObjectPtr typeSettings;
-
-		_functions.fktPipeExtensionGetServiceTypeSettings(&typeSettings, serviceType.c_str(), [](PipeExtensionCbContext context, PipeExtensionStr typeSettingsData) {
-			(*static_cast<PipeObjectPtr*>(context)) = parseObject(typeSettingsData);
-		});
-
-		return typeSettings;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

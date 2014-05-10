@@ -25,7 +25,6 @@ public:
 class IPipeExtension {
 public:
 	virtual PipeArrayPtr serviceTypes() = 0;
-	virtual PipeObjectPtr serviceTypeSettings(const tstring& serviceType) = 0;
 	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings) = 0;
 	virtual void destroy(IPipeExtensionService* service) = 0;
 };

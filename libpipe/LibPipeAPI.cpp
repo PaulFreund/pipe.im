@@ -39,13 +39,17 @@ void loadExtension(const tstring& path) {
 
 	PipeExtensionFunctions extensionFunctions;
 	try {
-		extensionFunctions.fktPipeExtensionGetServiceTypes          = reinterpret_cast<FktPipeExtensionGetServiceTypes>         (loadExtensionSymbol(library, NamePipeExtensionGetServiceTypes          ));
-		extensionFunctions.fktPipeExtensionServiceCreate            = reinterpret_cast<FktPipeExtensionServiceCreate>           (loadExtensionSymbol(library,NamePipeExtensionServiceCreate             ));
-		extensionFunctions.fktPipeExtensionServiceDestroy           = reinterpret_cast<FktPipeExtensionServiceDestroy>          (loadExtensionSymbol(library,NamePipeExtensionServiceDestroy            ));
-		extensionFunctions.fktPipeExtensionServiceSend              = reinterpret_cast<FktPipeExtensionServiceSend>             (loadExtensionSymbol(library,NamePipeExtensionServiceSend               ));
-		extensionFunctions.fktPipeExtensionServiceReceive           = reinterpret_cast<FktPipeExtensionServiceReceive>          (loadExtensionSymbol(library,NamePipeExtensionServiceReceive            ));
-		extensionFunctions.fktPipeExtensionServiceGetNodeChildren   = reinterpret_cast<FktPipeExtensionServiceGetNodeChildren>  (loadExtensionSymbol(library, NamePipeExtensionServiceGetNodeChildren   ));
-		extensionFunctions.fktPipeExtensionServiceGetNodeInfo       = reinterpret_cast<FktPipeExtensionServiceGetNodeInfo>      (loadExtensionSymbol(library, NamePipeExtensionServiceGetNodeInfo       ));
+		extensionFunctions.fktPipeExtensionGetServiceTypes              = reinterpret_cast<FktPipeExtensionGetServiceTypes>             (loadExtensionSymbol(library, NamePipeExtensionGetServiceTypes              ));
+		extensionFunctions.fktPipeExtensionServiceCreate                = reinterpret_cast<FktPipeExtensionServiceCreate>               (loadExtensionSymbol(library, NamePipeExtensionServiceCreate                ));
+		extensionFunctions.fktPipeExtensionServiceDestroy               = reinterpret_cast<FktPipeExtensionServiceDestroy>              (loadExtensionSymbol(library, NamePipeExtensionServiceDestroy               ));
+
+		extensionFunctions.fktPipeExtensionServiceSend                  = reinterpret_cast<FktPipeExtensionServiceSend>                 (loadExtensionSymbol(library, NamePipeExtensionServiceSend                  ));
+		extensionFunctions.fktPipeExtensionServiceReceive               = reinterpret_cast<FktPipeExtensionServiceReceive>              (loadExtensionSymbol(library, NamePipeExtensionServiceReceive               ));
+
+		extensionFunctions.fktPipeExtensionServiceGetNodeChildren       = reinterpret_cast<FktPipeExtensionServiceGetNodeChildren>      (loadExtensionSymbol(library, NamePipeExtensionServiceGetNodeChildren       ));
+		extensionFunctions.fktPipeExtensionServiceGetNodeCommandTypes   = reinterpret_cast<FktPipeExtensionServiceGetNodeCommandTypes>  (loadExtensionSymbol(library, NamePipeExtensionServiceGetNodeCommandTypes   ));
+		extensionFunctions.fktPipeExtensionServiceGetNodeMessageTypes   = reinterpret_cast<FktPipeExtensionServiceGetNodeMessageTypes>  (loadExtensionSymbol(library, NamePipeExtensionServiceGetNodeMessageTypes   ));
+		extensionFunctions.fktPipeExtensionServiceGetNodeInfo           = reinterpret_cast<FktPipeExtensionServiceGetNodeInfo>          (loadExtensionSymbol(library, NamePipeExtensionServiceGetNodeInfo           ));
 	}
 	catch(...) { return; }
 

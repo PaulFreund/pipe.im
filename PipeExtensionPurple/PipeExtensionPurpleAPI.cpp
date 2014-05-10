@@ -12,13 +12,6 @@ PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypes(PipeExtensionCbContext cont
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypeSettings(PipeExtensionCbContext context, PipeExtensionStr serviceType, PipeExtensionCbStr cbServiceTypeSettings) {
-	cbServiceTypeSettings(context, dumpObject(PipeExtensionPurple::ExtensionInstance.serviceTypeSettings(serviceType)).c_str());
-}
-
-
-//----------------------------------------------------------------------------------------------------------------------
-
 PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceType, PipeExtensionStr address, PipeExtensionStr path, PipeExtensionStr settings, HPipeExtensionService* service) {
 	(*service) = reinterpret_cast<HPipeExtensionService>(PipeExtensionPurple::ExtensionInstance.create(serviceType, address, path, parseObject(settings)));
 }

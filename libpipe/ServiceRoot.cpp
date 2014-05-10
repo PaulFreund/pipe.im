@@ -2,8 +2,7 @@
 
 #include "CommonHeader.h"
 #include "ServiceRoot.h"
-#include <fstream>
-#include <streambuf>
+#include "LibPipe.h"
 
 using namespace std;
 using namespace Poco;
@@ -14,6 +13,17 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 	: PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), address, path, settings) 
 	, _config(newObject())
 {
+	if(settings->count(_T("service_types"))) {
+		auto& serviceTypes = settings->operator[](_T("service_types")).array_items();
+		for(auto& type : serviceTypes) {
+			auto& typeDefinition = type.object_items();
+			_providerTypes.push_back(typeDefinition[_T("type")].string_value());
+		}
+	}
+	else {
+		pushOutgoing(_T(""), _T("error"), _T("Missing configuration of available service types"));
+	}
+
 	// Init baseic child serices
 	initScripts();
 	initServices();
@@ -58,9 +68,29 @@ void ServiceRoot::initServices() {
 	_serviceServices = make_shared<PipeServiceNodeBase>(_T("services"), _T("Management of services"), addressServices, _path, _settings);
 	addChild(_serviceServices);
 
-	tstring addressServicesProvider = addressServices + TokenAddressSeparator + _T("provider");
-	_serviceServicesProvider = make_shared<PipeServiceNodeBase>(_T("service_provider"), _T("Service provider types"), addressServicesProvider, _path, _settings);
+	tstring addressServicesProvider = addressServices + TokenAddressSeparator + _T("providers");
+	_serviceServicesProvider = make_shared<PipeServiceNodeBase>(_T("service_providers"), _T("Service provider types"), addressServicesProvider, _path, _settings);
 	_serviceServices->addChild(_serviceServicesProvider);
+
+	// Add providers
+	for(auto& extension : LibPipe::Extensions) {
+		auto& extensionProviders = extension->serviceTypes();
+		for(auto& type : *extensionProviders) {
+			auto& providerType = type.object_items();
+			tstring typeName = providerType[_T("type")].string_value();
+			tstring typeDescription = providerType[_T("description")].string_value();
+			// TODO: Extract and use settings schema
+
+			if(find(begin(_providerTypes), end(_providerTypes), providerType[_T("type")].string_value()) == end(_providerTypes))
+				continue;
+
+			tstring addressProvider = addressServicesProvider + TokenAddressSeparator + typeName;
+			auto provider = make_shared<PipeServiceNodeBase>(typeName, typeDescription, addressProvider, _path, _settings);
+			_serviceServicesProvider->addChild(provider);
+
+			// TODO: Add commands and messages
+		}
+	}
 
 	// TODO: Add commands and messages
 
@@ -79,6 +109,21 @@ void ServiceRoot::loadConfig() {
 
 	if(_config->empty())
 		return;
+
+	// Config format
+	/*
+	
+		{
+			"instances": [
+				{
+					"type": "...",
+					"settings": {
+						...
+					}
+			]
+		}
+
+	*/
 }
 
 //----------------------------------------------------------------------------------------------------------------------

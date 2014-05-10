@@ -17,6 +17,9 @@
     <ClCompile Include="PipeExtensionPurple.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="CommonHeader.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PipeExtensionPurple.h">

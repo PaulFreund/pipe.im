@@ -1,10 +1,10 @@
 //======================================================================================================================
 
+#include "CommonHeader.h"
 #include "PipeExtensionPurple.h"
 
 #include "ServiceIRC.h"
 
-#include <iostream>
 #include <glib.h>
 #include <purple.h>
 
@@ -137,16 +137,17 @@ PipeArrayPtr PipeExtensionPurple::serviceTypes() {
 	for(; protocols; protocols = protocols->next) {
 		PurplePlugin* plugin = reinterpret_cast<PurplePlugin*>(protocols->data);
 		PurplePluginInfo *info = plugin->info;
-		serviceTypes->push_back(info->name);
+
+		PipeObject def;
+		tstring defTypeName = timplode(texplode(info->name, _T(' ')), _T('_'));
+		def[_T("type")] = tstring(defTypeName);
+		def[_T("description")] = tstring(info->description);
+		def[_T("settings")] = PipeObject();
+
+		serviceTypes->push_back(def);
 	}
 
 	return serviceTypes;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-PipeObjectPtr PipeExtensionPurple::serviceTypeSettings(const tstring& serviceType) {
-	return newObject();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

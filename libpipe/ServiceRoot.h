@@ -11,6 +11,7 @@
 class ServiceRoot : public PipeServiceNodeBase {
 private:
 	PipeObjectPtr _config;
+	std::vector<tstring> _providerTypes;
 
 	std::shared_ptr<PipeServiceNodeBase> _serviceScripts;
 	std::shared_ptr<PipeServiceNodeBase> _serviceServices;
