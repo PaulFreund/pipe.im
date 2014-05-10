@@ -193,11 +193,12 @@ public:
 						throw tstring(_T("There was an error executing the command"));
 					}
 				}
-				else if(messageAddress.length() >= (_address.length() + 2) && messageAddress[_address.length()] == TokenAddressSeparator && _children.count(messageAddress)) {
-					_children[messageAddress]->send(newArray({ message }));
-				}
 				else {
-					throw tstring(_T("Address not found"));
+					tstring nextAddress = relativeChildAddress(messageAddress);
+					if(_children.count(nextAddress))
+						_children[nextAddress]->send(newArray({ message }));
+					else 
+						throw tstring(_T("Address not found"));
 				}
 			}
 			catch(tstring errorDescription) {
@@ -235,8 +236,10 @@ public:
 				children->push_back(child.first);
 			}
 		}
-		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == TokenAddressSeparator && _children.count(address)) {
-			children = _children[address]->nodeChildren(address);
+		else {
+			tstring nextAddress = relativeChildAddress(address);
+			if(_children.count(nextAddress))
+				children = _children[nextAddress]->nodeChildren(address);
 		}
 
 		return children;
@@ -249,8 +252,10 @@ public:
 		if(address == _address) {
 			commandTypes = _commandTypes;
 		}
-		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == TokenAddressSeparator && _children.count(address)) {
-			commandTypes = _children[address]->nodeCommandTypes(address);
+		else {
+			tstring nextAddress = relativeChildAddress(address);
+			if(_children.count(nextAddress))
+				commandTypes = _children[nextAddress]->nodeCommandTypes(address);
 		}
 
 		return commandTypes;
@@ -263,8 +268,10 @@ public:
 		if(address == _address) {
 			messageTypes = _messageTypes;
 		}
-		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == TokenAddressSeparator && _children.count(address)) {
-			messageTypes = _children[address]->nodeMessageTypes(address);
+		else {
+			tstring nextAddress = relativeChildAddress(address);
+			if(_children.count(nextAddress))
+				messageTypes = _children[nextAddress]->nodeMessageTypes(address);
 		}
 
 		return messageTypes;
@@ -280,8 +287,10 @@ public:
 			(*info)[_T("description")] = _description;
 			(*info)[_T("properties")] = *_properties;
 		}
-		else if(address.length() >= (_address.length() + 2) && address[_address.length()] == TokenAddressSeparator && _children.count(address)) {
-			info = _children[address]->nodeInfo(address);
+		else {
+			tstring nextAddress = relativeChildAddress(address);
+			if(_children.count(nextAddress))
+				info = _children[nextAddress]->nodeInfo(address);
 		}
 
 		return info;
@@ -290,6 +299,18 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 
 private:
+	tstring relativeChildAddress(tstring address) {
+		auto searchAddressLength = address.length();
+		auto selfAddressLength = _address.length();
+		if(searchAddressLength >= (selfAddressLength + 2) && address[selfAddressLength] == TokenAddressSeparator) {
+			auto secondSeparator = address.find(TokenAddressSeparator, selfAddressLength + 1);
+			if(secondSeparator != tstring::npos)
+				return address.substr(0, secondSeparator);
+		}
+
+		return address;
+	}
+
 	void addBaseCommandTypes() {
 		//--------------------------------------------------------------------------------------------------------------
 		addCommand(_T("children"), _T("Get a list of all child nodes"), newObject(), [&](PipeObject& message) {

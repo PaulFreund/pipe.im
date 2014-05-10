@@ -432,7 +432,7 @@ public:
 
 		PipeArrayPtr newAddressCommands;
 		newAddressCommands = _instance->nodeCommandTypes(newAddressAbsolute);
-		if(newAddressCommands->empty())
+		if(_instance->nodeInfo(newAddressAbsolute)->empty())
 			return false;
 
 		_address = newAddressAbsolute;

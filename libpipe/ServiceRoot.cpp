@@ -68,13 +68,13 @@ void ServiceRoot::initServices() {
 	_serviceServices = make_shared<PipeServiceNodeBase>(_T("services"), _T("Management of services"), addressServices, _path, _settings);
 	addChild(_serviceServices);
 
-	tstring addressServicesProvider = addressServices + TokenAddressSeparator + _T("providers");
-	_serviceServicesProvider = make_shared<PipeServiceNodeBase>(_T("service_providers"), _T("Service provider types"), addressServicesProvider, _path, _settings);
-	_serviceServices->addChild(_serviceServicesProvider);
+	tstring addressServicesProviders = addressServices + TokenAddressSeparator + _T("providers");
+	_serviceServicesProviders = make_shared<PipeServiceNodeBase>(_T("services_providers"), _T("Service provider types"), addressServicesProviders, _path, _settings);
+	_serviceServices->addChild(_serviceServicesProviders);
 
 	// Add providers
 	for(auto& extension : LibPipe::Extensions) {
-		auto& extensionProviders = extension->serviceTypes();
+		auto extensionProviders = extension->serviceTypes();
 		for(auto& type : *extensionProviders) {
 			auto& providerType = type.object_items();
 			tstring typeName = providerType[_T("type")].string_value();
@@ -84,9 +84,9 @@ void ServiceRoot::initServices() {
 			if(find(begin(_providerTypes), end(_providerTypes), providerType[_T("type")].string_value()) == end(_providerTypes))
 				continue;
 
-			tstring addressProvider = addressServicesProvider + TokenAddressSeparator + typeName;
-			auto provider = make_shared<PipeServiceNodeBase>(typeName, typeDescription, addressProvider, _path, _settings);
-			_serviceServicesProvider->addChild(provider);
+			tstring addressProvider = addressServicesProviders + TokenAddressSeparator + typeName;
+			auto provider = make_shared<PipeServiceNodeBase>(_T("provider_") + typeName, typeDescription, addressProvider, _path, _settings);
+			_serviceServicesProviders->addChild(provider);
 
 			// TODO: Add commands and messages
 		}
@@ -95,7 +95,7 @@ void ServiceRoot::initServices() {
 	// TODO: Add commands and messages
 
 	tstring addressServicesInstances = addressServices + TokenAddressSeparator + _T("instances");
-	_serviceServicesInstances = make_shared<PipeServiceNodeBase>(_T("service_instances"), _T("Service instances"), addressServicesInstances, _path, _settings);
+	_serviceServicesInstances = make_shared<PipeServiceNodeBase>(_T("services_instances"), _T("Service instances"), addressServicesInstances, _path, _settings);
 	_serviceServices->addChild(_serviceServicesInstances);
 
 	// TODO: Add commands and messages

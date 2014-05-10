@@ -15,7 +15,7 @@ private:
 
 	std::shared_ptr<PipeServiceNodeBase> _serviceScripts;
 	std::shared_ptr<PipeServiceNodeBase> _serviceServices;
-	std::shared_ptr<PipeServiceNodeBase> _serviceServicesProvider;
+	std::shared_ptr<PipeServiceNodeBase> _serviceServicesProviders;
 	std::shared_ptr<PipeServiceNodeBase> _serviceServicesInstances;
 
 public:
