@@ -23,6 +23,8 @@ public:
 	virtual ~ServiceRoot();
 
 private:
+	tstring createService(const tstring& type, const tstring& name, PipeObject& settings);
+
 	void initScripts();
 	void initServices();
 

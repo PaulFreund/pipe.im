@@ -48,6 +48,12 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+tstring ServiceRoot::createService(const tstring& type, const tstring& name, PipeObject& settings) {
+	// TODO
+	return _T("");
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 void ServiceRoot::initScripts() {
 	_serviceScripts = make_shared<PipeServiceNodeBase>(_T("scripts"), _T("Management of scripts"), _address + TokenAddressSeparator + _T("scripts"), _path, _settings);
 	addChild(_serviceScripts);
@@ -86,7 +92,10 @@ void ServiceRoot::initServices() {
 			auto& typeSettingsSchema = providerType[_T("settings_schema")].object_items();
 
 			tstring addressProvider = addressServicesProviders + TokenAddressSeparator + typeName;
-			auto provider = make_shared<PipeServiceNodeBase>(_T("provider_") + typeName, typeDescription, addressProvider, _path, newObject());
+
+			auto providerSettings = newObject();
+			providerSettings->operator[](_T("type")).string_value() = typeName;
+			auto provider = make_shared<PipeServiceNodeBase>(_T("provider_") + typeName, typeDescription, addressProvider, _path, providerSettings);
 			_serviceServicesProviders->addChild(provider);
 
 			// Create command
@@ -96,8 +105,22 @@ void ServiceRoot::initServices() {
 				schemaAddValue(cmdCreateData, _T("name"), SchemaValueTypeString, _T("Name of the new service"));
 				schemaAddObject(cmdCreateData, _T("settings"), _T("Settings for the new service"), false) = typeSettingsSchema;
 				
-				provider->addCommand(_T("create"), _T("Create a service instance"), cmdCreate, [&](PipeObject& message) {
-					// TODO: Handle crating the new service
+				provider->addCommand(_T("create"), _T("Create a service instance"), cmdCreate, [&, typeName](PipeObject& message) {
+					auto ref = message[_T("ref")].string_value();
+					if(!message.count(_T("data")) || !message[_T("data")].is_object()) {
+						pushOutgoing(ref, _T("error"), _T("Missing command data"));
+						return;
+					}
+
+					auto& msgData = message[_T("data")].object_items();
+					if(!msgData.count(_T("name")) || !msgData[_T("name")].is_string() || !msgData.count(_T("settings")) || !msgData[_T("settings")].is_object()) {
+						pushOutgoing(ref, _T("error"), _T("Invalid create request"));
+						return;
+					}
+					
+					tstring errorMsg = createService(typeName, msgData[_T("name")].string_value(), msgData[_T("settings")].object_items());
+					if(!errorMsg.empty())
+						pushOutgoing(ref, _T("error"), _T("Error creating service: ") + errorMsg);
 				});
 			}
 			// Response
@@ -134,7 +157,9 @@ void ServiceRoot::loadConfig() {
 			pushOutgoing(_T(""), _T("error"), _T("Could not load service \"") + name + _T("\", unsupported type \"") + type + _T("\""));
 		}
 
-		// TODO: Create service and intance handle
+		tstring errorMsg = createService(type, name, settings);
+		if(!errorMsg.empty())
+			pushOutgoing(_T(""), _T("error"), _T("Error creating service: ") + errorMsg);
 	}
 }
 
