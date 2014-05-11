@@ -150,7 +150,10 @@ public:
 
 		_functions.fktPipeExtensionServiceCreate(serviceType.c_str(), address.c_str(), path.c_str(), dumpObject(settings).c_str(), &service);
 
-		return new PipeExtensionServiceInstance(_functions, service);
+		if(service != 0)
+			return new PipeExtensionServiceInstance(_functions, service);
+
+		return nullptr;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

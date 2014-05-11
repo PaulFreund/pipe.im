@@ -140,6 +140,7 @@ PipeArrayPtr PipeExtensionPurple::serviceTypes() {
 		
 		PipeObject def;
 		tstring defTypeName = timplode(texplode(info->name, _T(' ')), _T('_'));
+		transform(begin(defTypeName), end(defTypeName), begin(defTypeName), ::tolower);
 		def[_T("type")] = tstring(defTypeName);
 		def[_T("description")] = tstring(info->description);
 		def[_T("settings_schema")] = PipeObject();

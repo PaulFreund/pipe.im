@@ -12,7 +12,7 @@ using namespace Poco;
 ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObjectPtr settings) 
 	: PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), address, path, settings) 
 	, _config(newObject())
-{
+{	
 	if(settings->count(_T("service_types"))) {
 		auto& serviceTypes = settings->operator[](_T("service_types")).array_items();
 		for(auto& type : serviceTypes) {
@@ -49,10 +49,17 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 
 //----------------------------------------------------------------------------------------------------------------------
 tstring ServiceRoot::createService(const tstring& type, const tstring& name, PipeObject& settings) {
-	//for(auto& service : *_config) {
-	//	auto& serviceObj = service.
-	//}
-	// TODO: Make sure name is unique
+	if(!_config->count(_T("services")))
+		_config->operator[](_T("services")) = PipeJson(PipeArray());
+	
+	auto& services = _config->operator[](_T("services")).array_items();
+	for(auto& service : services) {
+		auto& serviceObj = service.object_items();
+		if(serviceObj.count(_T("name")) && serviceObj[_T("name")].is_string()) {
+			if(serviceObj[_T("name")].string_value() == name)
+				return _T("Name is already taken");
+		}
+	}
 
 	for(auto& extension : LibPipe::Extensions) {
 		bool found = false;
@@ -80,14 +87,33 @@ tstring ServiceRoot::createService(const tstring& type, const tstring& name, Pip
 
 		addChild(shared_ptr<PipeServiceNodeBase>(service));
 
-		// TODO: Add instance
+		tstring addressInstance = _serviceServicesProviders->_address + TokenAddressSeparator + name;
+		auto instance = make_shared<PipeServiceNodeBase>(_T("instance_") + type, _T("Instance of a ") + type + _T(" service"), addressInstance, _path, newObject());
+		_serviceServicesInstances->addChild(instance);
 
-		// Add service config to _config
-		// Save config
+		// Create command
+		{
+			instance->addCommand(_T("create"), _T("Create a service instance"), newObject(), [&, name](PipeObject& message) {
+				deleteService(name);
+			});
+		}
 
+		PipeObject serviceConfig;
+		serviceConfig[_T("name")] = name;
+		serviceConfig[_T("type")] = type;
+		serviceConfig[_T("settings")] = settings;
+		services.push_back(serviceConfig);
+
+		writeConfig();
 	}
 
 	return _T("");
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void ServiceRoot::deleteService(const tstring& name) {
+	// Todo: delete config, destroy instance, remove child
 }
 
 //----------------------------------------------------------------------------------------------------------------------

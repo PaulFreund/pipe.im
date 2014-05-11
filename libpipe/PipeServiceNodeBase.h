@@ -25,7 +25,7 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 
 private:
-	std::map<tstring, std::shared_ptr<PipeServiceNodeBase>> _children;
+	std::map<tstring, std::shared_ptr<IPipeExtensionService>> _children;
 	PipeArrayPtr _outgoing;
 	std::map<tstring, PipeCommandFunction> _commands;
 	PipeArrayPtr _commandTypes;

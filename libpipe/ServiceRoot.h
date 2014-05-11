@@ -24,6 +24,7 @@ public:
 
 private:
 	tstring createService(const tstring& type, const tstring& name, PipeObject& settings);
+	void deleteService(const tstring& name);
 
 	void initScripts();
 	void initServices();
