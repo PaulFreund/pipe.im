@@ -33,7 +33,7 @@ private:
 	bool _newItem;
 
 	PipeJson _message;
-	PipeJson* _schema;
+	PipeJson _schema;
 
 public:
 	PipeShellSendMessage()
@@ -80,7 +80,7 @@ public:
 		_messageEmpty = false;
 		_messageComplete = false;
 
-		_schema = &schema;
+		_schema = schema;
 		_message = PipeJson(PipeObject());
 		auto& messageData = _message.object_items();
 
@@ -243,7 +243,7 @@ private:
 
 	//------------------------------------------------------------------------------------------------------------------
 	PipeObject& schemaNode(const tstring& address) {
-		PipeJson* resultNode = _schema;
+		PipeJson* resultNode = &_schema;
 
 		auto nodes = texplode(address, TokenAddressSeparator);
 		for(size_t idx = 0, cnt = nodes.size(); idx < cnt; idx++) {
