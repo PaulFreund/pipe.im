@@ -137,12 +137,14 @@ PipeArrayPtr PipeExtensionPurple::serviceTypes() {
 	for(; protocols; protocols = protocols->next) {
 		PurplePlugin* plugin = reinterpret_cast<PurplePlugin*>(protocols->data);
 		PurplePluginInfo *info = plugin->info;
-
+		
 		PipeObject def;
 		tstring defTypeName = timplode(texplode(info->name, _T(' ')), _T('_'));
 		def[_T("type")] = tstring(defTypeName);
 		def[_T("description")] = tstring(info->description);
-		def[_T("settings")] = PipeObject();
+		def[_T("settings_schema")] = PipeObject();
+		auto& settingsSchema = def[_T("settings_schema")].object_items();
+		schemaAddValue(settingsSchema, _T("testvalue"), SchemaValueTypeString, _T("test setting"), false);
 
 		serviceTypes->push_back(def);
 	}

@@ -65,11 +65,11 @@ void ServiceRoot::initScripts() {
 
 void ServiceRoot::initServices() {
 	tstring addressServices = _address + TokenAddressSeparator + _T("services");
-	_serviceServices = make_shared<PipeServiceNodeBase>(_T("services"), _T("Management of services"), addressServices, _path, _settings);
+	_serviceServices = make_shared<PipeServiceNodeBase>(_T("services"), _T("Management of services"), addressServices, _path, newObject());
 	addChild(_serviceServices);
 
 	tstring addressServicesProviders = addressServices + TokenAddressSeparator + _T("providers");
-	_serviceServicesProviders = make_shared<PipeServiceNodeBase>(_T("services_providers"), _T("Service provider types"), addressServicesProviders, _path, _settings);
+	_serviceServicesProviders = make_shared<PipeServiceNodeBase>(_T("services_providers"), _T("Service provider types"), addressServicesProviders, _path, newObject());
 	_serviceServices->addChild(_serviceServicesProviders);
 
 	// Add providers
@@ -78,27 +78,40 @@ void ServiceRoot::initServices() {
 		for(auto& type : *extensionProviders) {
 			auto& providerType = type.object_items();
 			tstring typeName = providerType[_T("type")].string_value();
-			tstring typeDescription = providerType[_T("description")].string_value();
-			// TODO: Extract and use settings schema
 
 			if(find(begin(_providerTypes), end(_providerTypes), providerType[_T("type")].string_value()) == end(_providerTypes))
 				continue;
 
+			tstring typeDescription = providerType[_T("description")].string_value();
+			auto& typeSettingsSchema = providerType[_T("settings_schema")].object_items();
+
 			tstring addressProvider = addressServicesProviders + TokenAddressSeparator + typeName;
-			auto provider = make_shared<PipeServiceNodeBase>(_T("provider_") + typeName, typeDescription, addressProvider, _path, _settings);
+			auto provider = make_shared<PipeServiceNodeBase>(_T("provider_") + typeName, typeDescription, addressProvider, _path, newObject());
 			_serviceServicesProviders->addChild(provider);
 
-			// TODO: Add commands and messages
+			// Create command
+			{
+				auto cmdCreate = newObject();
+				auto& cmdCreateData = schemaAddObject(*cmdCreate, TokenMessageData, _T("Data to create a new service"), false);
+				schemaAddValue(cmdCreateData, _T("name"), SchemaValueTypeString, _T("Name of the new service"));
+				schemaAddObject(cmdCreateData, _T("settings"), _T("Settings for the new service"), false) = typeSettingsSchema;
+				
+				provider->addCommand(_T("create"), _T("Create a service instance"), cmdCreate, [&](PipeObject& message) {
+					// TODO: Handle crating the new service
+				});
+			}
+			// Response
+			{
+				PipeObjectPtr schemaMessageCreate = newObject();
+				schemaAddValue(*schemaMessageCreate, TokenMessageData, SchemaValueTypeString, _T("Name of the created service"));
+				provider->addMessageType(_T("created"), _T("Service creation notification"), schemaMessageCreate);
+			}
 		}
 	}
 
-	// TODO: Add commands and messages
-
 	tstring addressServicesInstances = addressServices + TokenAddressSeparator + _T("instances");
-	_serviceServicesInstances = make_shared<PipeServiceNodeBase>(_T("services_instances"), _T("Service instances"), addressServicesInstances, _path, _settings);
+	_serviceServicesInstances = make_shared<PipeServiceNodeBase>(_T("services_instances"), _T("Service instances"), addressServicesInstances, _path, newObject());
 	_serviceServices->addChild(_serviceServicesInstances);
-
-	// TODO: Add commands and messages
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -121,7 +134,7 @@ void ServiceRoot::loadConfig() {
 			pushOutgoing(_T(""), _T("error"), _T("Could not load service \"") + name + _T("\", unsupported type \"") + type + _T("\""));
 		}
 
-		// TODO: Create service
+		// TODO: Create service and intance handle
 	}
 }
 
