@@ -49,7 +49,44 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 
 //----------------------------------------------------------------------------------------------------------------------
 tstring ServiceRoot::createService(const tstring& type, const tstring& name, PipeObject& settings) {
-	// TODO
+	//for(auto& service : *_config) {
+	//	auto& serviceObj = service.
+	//}
+	// TODO: Make sure name is unique
+
+	for(auto& extension : LibPipe::Extensions) {
+		bool found = false;
+
+		auto extensionProviders = extension->serviceTypes();
+		for(auto& extensionProvider : *extensionProviders) {
+			auto& providerType = extensionProvider.object_items();
+			if(type == providerType[_T("type")].string_value()) {
+				found = true;
+				break;
+			}
+		}
+
+		if(!found)
+			return _T("Service type could not be found");
+
+		Path servicePath;
+		servicePath.parseDirectory(_path);
+		servicePath.pushDirectory(name);
+
+		PipeObjectPtr ptrSettings(&settings, [](void*) { return; });
+		PipeServiceNodeBase* service = static_cast<PipeServiceNodeBase*>(extension->create(type, _address + TokenAddressSeparator + name, servicePath.toString(), ptrSettings));
+		if(service == nullptr)
+			return _T("Creating service failed");
+
+		addChild(shared_ptr<PipeServiceNodeBase>(service));
+
+		// TODO: Add instance
+
+		// Add service config to _config
+		// Save config
+
+	}
+
 	return _T("");
 }
 
@@ -118,9 +155,12 @@ void ServiceRoot::initServices() {
 						return;
 					}
 					
-					tstring errorMsg = createService(typeName, msgData[_T("name")].string_value(), msgData[_T("settings")].object_items());
+					tstring serviceName = msgData[_T("name")].string_value();
+					tstring errorMsg = createService(typeName, serviceName, msgData[_T("settings")].object_items());
 					if(!errorMsg.empty())
 						pushOutgoing(ref, _T("error"), _T("Error creating service: ") + errorMsg);
+					else
+						pushOutgoing(ref, _T("created"), serviceName);
 				});
 			}
 			// Response
