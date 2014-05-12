@@ -10,8 +10,18 @@
 
 class ServiceRoot : public PipeServiceNodeBase {
 private:
+	struct PipeScript {
+		tstring name;
+		int priority;
+		tstring data;
+	};
+
 	PipeObjectPtr _config;
+
 	std::vector<tstring> _providerTypes;
+
+	std::vector<PipeScript> _scriptsPreSend;
+	std::vector<PipeScript> _scriptsPostReceive;
 
 	std::shared_ptr<PipeServiceNodeBase> _serviceScripts;
 	std::shared_ptr<PipeServiceNodeBase> _serviceServices;
@@ -23,16 +33,20 @@ public:
 	virtual ~ServiceRoot();
 
 private:
-	tstring createService(const tstring& type, const tstring& name, PipeObject& settings);
-	void deleteService(const tstring& name);
-
-	void initScripts();
-	void initServices();
-
 	void loadConfig();
 	bool readConfig();
 	void writeConfig();
 	tstring configPath();
+
+private:
+	void initServices();
+	tstring createService(const tstring& type, const tstring& name, PipeObject& settings);
+	void deleteService(const tstring& name);
+
+private:
+	void initScripts();
+	tstring createScript(const tstring& name, bool preSend, bool postReceive, int priority, const tstring& data);
+	void deleteScript(const tstring& name);
 };
 
 //======================================================================================================================
