@@ -49,16 +49,11 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 
 //----------------------------------------------------------------------------------------------------------------------
 tstring ServiceRoot::createService(const tstring& type, const tstring& name, PipeObject& settings) {
-	if(!_config->count(_T("services")))
-		_config->operator[](_T("services")) = PipeJson(PipeArray());
-	
-	auto& services = _config->operator[](_T("services")).array_items();
-	for(auto& service : services) {
-		auto& serviceObj = service.object_items();
-		if(serviceObj.count(_T("name")) && serviceObj[_T("name")].is_string()) {
-			if(serviceObj[_T("name")].string_value() == name)
-				return _T("Name is already taken");
-		}
+	auto children = nodeChildren(_T("pipe"));
+	for(auto& child : *children) {
+		auto childParts = texplode(child.string_value(), TokenAddressSeparator);
+		if(childParts[1] == name)
+			return _T("Name \"") + name + _T("\" is already taken");
 	}
 
 	for(auto& extension : LibPipe::Extensions) {
@@ -81,30 +76,24 @@ tstring ServiceRoot::createService(const tstring& type, const tstring& name, Pip
 		servicePath.pushDirectory(name);
 
 		PipeObjectPtr ptrSettings(&settings, [](void*) { return; });
-		PipeServiceNodeBase* service = static_cast<PipeServiceNodeBase*>(extension->create(type, _address + TokenAddressSeparator + name, servicePath.toString(), ptrSettings));
+		tstring addressService = _address + TokenAddressSeparator + name;
+		PipeServiceNodeBase* service = static_cast<PipeServiceNodeBase*>(extension->create(type, addressService, servicePath.toString(), ptrSettings));
 		if(service == nullptr)
 			return _T("Creating service failed");
 
-		addChild(shared_ptr<PipeServiceNodeBase>(service));
+		addChild(addressService, shared_ptr<PipeServiceNodeBase>(service));
 
-		tstring addressInstance = _serviceServicesProviders->_address + TokenAddressSeparator + name;
+		tstring addressInstance = _serviceServicesInstances->_address + TokenAddressSeparator + name;
 		auto instance = make_shared<PipeServiceNodeBase>(_T("instance_") + type, _T("Instance of a ") + type + _T(" service"), addressInstance, _path, newObject());
-		_serviceServicesInstances->addChild(instance);
+		_serviceServicesInstances->addChild(addressInstance, instance);
 
 		// Create command
 		{
-			instance->addCommand(_T("create"), _T("Create a service instance"), newObject(), [&, name](PipeObject& message) {
-				deleteService(name);
+			instance->addCommand(_T("delete"), _T("Delete this service instance"), newObject(), [&, name](PipeObject& message) {
+				tstring serviceName = name;
+				deleteService(serviceName);
 			});
 		}
-
-		PipeObject serviceConfig;
-		serviceConfig[_T("name")] = name;
-		serviceConfig[_T("type")] = type;
-		serviceConfig[_T("settings")] = settings;
-		services.push_back(serviceConfig);
-
-		writeConfig();
 	}
 
 	return _T("");
@@ -113,13 +102,29 @@ tstring ServiceRoot::createService(const tstring& type, const tstring& name, Pip
 //----------------------------------------------------------------------------------------------------------------------
 
 void ServiceRoot::deleteService(const tstring& name) {
-	// Todo: delete config, destroy instance, remove child
+	tstring addressService = _address + TokenAddressSeparator + name;
+	tstring addressInstance = _serviceServicesInstances->_address + TokenAddressSeparator + name;
+
+	removeChild(addressService);
+	_serviceServicesInstances->removeChild(addressInstance);
+
+	auto& services = _config->operator[](_T("services")).array_items();
+	for(size_t idx = 0, cnt = services.size(); idx < cnt; idx++) {
+		auto& service = services[idx].object_items();
+		if(service.count(_T("name")) && service[_T("name")].is_string() && service[_T("name")].string_value() == name) {
+			services.erase(begin(services) + idx);
+			break;
+		}
+	}
+
+	writeConfig();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 void ServiceRoot::initScripts() {
-	_serviceScripts = make_shared<PipeServiceNodeBase>(_T("scripts"), _T("Management of scripts"), _address + TokenAddressSeparator + _T("scripts"), _path, _settings);
-	addChild(_serviceScripts);
+	tstring addressScripts = _address + TokenAddressSeparator + _T("scripts");
+	_serviceScripts = make_shared<PipeServiceNodeBase>(_T("scripts"), _T("Management of scripts"), addressScripts, _path, _settings);
+	addChild(addressScripts, _serviceScripts);
 
 	enablePreSendHook([&](PipeArrayPtr messages) { 
 		// TODO
@@ -135,11 +140,11 @@ void ServiceRoot::initScripts() {
 void ServiceRoot::initServices() {
 	tstring addressServices = _address + TokenAddressSeparator + _T("services");
 	_serviceServices = make_shared<PipeServiceNodeBase>(_T("services"), _T("Management of services"), addressServices, _path, newObject());
-	addChild(_serviceServices);
+	addChild(addressServices, _serviceServices);
 
 	tstring addressServicesProviders = addressServices + TokenAddressSeparator + _T("providers");
 	_serviceServicesProviders = make_shared<PipeServiceNodeBase>(_T("services_providers"), _T("Service provider types"), addressServicesProviders, _path, newObject());
-	_serviceServices->addChild(_serviceServicesProviders);
+	_serviceServices->addChild(addressServicesProviders, _serviceServicesProviders);
 
 	// Add providers
 	for(auto& extension : LibPipe::Extensions) {
@@ -159,7 +164,7 @@ void ServiceRoot::initServices() {
 			auto providerSettings = newObject();
 			providerSettings->operator[](_T("type")).string_value() = typeName;
 			auto provider = make_shared<PipeServiceNodeBase>(_T("provider_") + typeName, typeDescription, addressProvider, _path, providerSettings);
-			_serviceServicesProviders->addChild(provider);
+			_serviceServicesProviders->addChild(addressProvider, provider);
 
 			// Create command
 			{
@@ -182,11 +187,33 @@ void ServiceRoot::initServices() {
 					}
 					
 					tstring serviceName = msgData[_T("name")].string_value();
-					tstring errorMsg = createService(typeName, serviceName, msgData[_T("settings")].object_items());
+					auto& settingsData = msgData[_T("settings")].object_items();
+
+					if(!_config->count(_T("services")))
+						_config->operator[](_T("services")) = PipeJson(PipeArray());
+
+					auto& services = _config->operator[](_T("services")).array_items();
+					for(auto& service : services) {
+						auto& serviceObj = service.object_items();
+						if(serviceObj.count(_T("name")) && serviceObj[_T("name")].is_string()) {
+							if(serviceObj[_T("name")].string_value() == serviceName)
+								pushOutgoing(ref, _T("error"), _T("Name ") + serviceName + _T("is already taken"));
+						}
+					}
+
+					tstring errorMsg = createService(typeName, serviceName, settingsData);
 					if(!errorMsg.empty())
 						pushOutgoing(ref, _T("error"), _T("Error creating service: ") + errorMsg);
-					else
-						pushOutgoing(ref, _T("created"), serviceName);
+
+					pushOutgoing(ref, _T("created"), serviceName);
+
+					PipeObject serviceConfig;
+					serviceConfig[_T("name")] = serviceName;
+					serviceConfig[_T("type")] = typeName;
+					serviceConfig[_T("settings")] = settingsData;
+					services.push_back(serviceConfig);
+
+					writeConfig();
 				});
 			}
 			// Response
@@ -200,7 +227,7 @@ void ServiceRoot::initServices() {
 
 	tstring addressServicesInstances = addressServices + TokenAddressSeparator + _T("instances");
 	_serviceServicesInstances = make_shared<PipeServiceNodeBase>(_T("services_instances"), _T("Service instances"), addressServicesInstances, _path, newObject());
-	_serviceServices->addChild(_serviceServicesInstances);
+	_serviceServices->addChild(addressServicesInstances, _serviceServicesInstances);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

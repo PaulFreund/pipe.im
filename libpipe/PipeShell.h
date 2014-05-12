@@ -591,8 +591,20 @@ private:
 
 		//--------------------------------------------------------------------------------------------------------------
 		if(cmd == _T("help")) {
+			tstring helpAddress = (parameter.length() > 0 ? getAbsoluteAddress(parameter) : getAbsoluteAddress(address));
+			if(helpAddress.length() == 0) {
+				_receiveBuffer << _T("Invalid address") << std::endl;
+				return;
+			}
+
+			auto addressCommands = _instance->nodeCommandTypes(helpAddress);
+			if(_instance->nodeInfo(helpAddress)->empty()) {
+				_receiveBuffer << _T("Invalid node") << std::endl;
+				return;
+			}
+
 			size_t cmdWidth = 0;
-			for(auto&& command : *_addressCommands) {
+			for(auto&& command : *addressCommands) {
 				auto&& cmd = command.object_items();
 				auto objWidth = cmd[TokenMessageCommand].string_value().length();
 				if(objWidth > cmdWidth)
@@ -609,7 +621,7 @@ private:
 			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("tree") << _T(" - ") << _T("Print a tree of subnodes") << std::endl;
 			_receiveBuffer << std::endl;
 			_receiveBuffer << _T("Node commands:") << std::endl;
-			for(auto&& command : *_addressCommands) {
+			for(auto&& command : *addressCommands) {
 				auto&& cmd = command.object_items();
 				_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << cmd[TokenMessageCommand].string_value() << _T(" - ") << cmd[TokenSchemaDescription].string_value() << std::endl;
 			}

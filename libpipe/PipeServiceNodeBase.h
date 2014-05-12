@@ -100,14 +100,13 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	void addChild(const std::shared_ptr<PipeServiceNodeBase>& child) {
-		auto& name = child->_address;
-		if(_children.count(name))
-			throw tstring(_T("There already is a child with the name \"") + name + _T("\""));
+	void addChild(const tstring& address, const std::shared_ptr<IPipeExtensionService>& child) {
+		if(_children.count(address))
+			throw tstring(_T("There already is a child with the name \"") + address + _T("\""));
 
-		_children[name] = child;
+		_children[address] = child;
 
-		pushOutgoing(_T(""), _T("node_added"), name);
+		pushOutgoing(_T(""), _T("node_added"), address);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
