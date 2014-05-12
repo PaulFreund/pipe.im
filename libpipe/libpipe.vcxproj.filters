@@ -74,6 +74,9 @@
     <ClInclude Include="ServiceRoot.h">
       <Filter>LibPipe\Services</Filter>
     </ClInclude>
+    <ClInclude Include="duktape.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LibPipeAPI.cpp">
@@ -87,6 +90,9 @@
     </ClCompile>
     <ClCompile Include="ServiceRoot.cpp">
       <Filter>LibPipe\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="duktape.c">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

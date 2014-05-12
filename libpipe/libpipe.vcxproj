@@ -86,12 +86,17 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="duktape.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="LibPipe.cpp" />
     <ClCompile Include="LibPipeAPI.cpp" />
     <ClCompile Include="ServiceRoot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonHeader.h" />
+    <ClInclude Include="duktape.h" />
     <ClInclude Include="json11.h" />
     <ClInclude Include="LibPipeDataTypes.h" />
     <ClInclude Include="LibPipeHelper.h" />
