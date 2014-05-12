@@ -348,7 +348,7 @@ void ServiceRoot::initScripts() {
 	schemaAddValue(cmdCreateData, _T("data"), SchemaValueTypeString, _T("The script body"));
 
 	{
-		_serviceScripts->addCommand(_T("create"), _T("Create a service instance"), cmdCreate, [&](PipeObject& message) {
+		_serviceScripts->addCommand(_T("create"), _T("Create a automation script"), cmdCreate, [&](PipeObject& message) {
 			auto ref = message[_T("ref")].string_value();
 			if(!message.count(_T("data")) || !message[_T("data")].is_object()) {
 				pushOutgoing(ref, _T("error"), _T("Missing command data"));
@@ -441,12 +441,107 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 
 	// Read command and response
 	{
-		// TODO
+		scriptNode->addCommand(_T("read"), _T("Get the data of this script"), newObject(), [&, name](PipeObject& message) {
+			tstring scriptName = name;
+			auto ref = message[_T("ref")].string_value();
+			auto& scripts = _config->operator[](_T("scripts")).array_items();
+			for(auto& script : scripts) {
+				auto& scriptObj = script.object_items();
+				if(scriptObj.count(_T("name")) && scriptObj[_T("name")].is_string()) {
+					if(scriptObj[_T("name")].string_value() == scriptName)
+						pushOutgoing(ref, _T("script_data"), scriptObj);
+				}
+			}
+		});
+
+		auto msgScriptData = newObject();
+		auto& msgScriptDataData = schemaAddObject(*msgScriptData, TokenMessageData, _T("Data of the script"), false);
+		schemaAddValue(msgScriptDataData, _T("name"), SchemaValueTypeString, _T("Name of the script"));
+		schemaAddValue(msgScriptDataData, _T("preSend"), SchemaValueTypeBool, _T("Script will be executed before a incoming message is processed"));
+		schemaAddValue(msgScriptDataData, _T("postReceive"), SchemaValueTypeBool, _T("Script will be executed after a outgoing message was processed"));
+		schemaAddValue(msgScriptDataData, _T("priority"), SchemaValueTypeInteger, _T("Execution priority"));
+		schemaAddValue(msgScriptDataData, _T("data"), SchemaValueTypeString, _T("The script body"));
+		scriptNode->addMessageType(_T("script_data"), _T("Data that is stored for this script"), msgScriptData);
 	}
 
 	// Update command and response
 	{
-		// TODO
+		auto cmdUpdate = newObject();
+		auto& cmdUpdateData = schemaAddObject(*cmdUpdate, TokenMessageData, _T("Data to update an existing script"), false);
+		schemaAddValue(cmdUpdateData, _T("name"), SchemaValueTypeString, _T("Name of the script to be updated"));
+		schemaAddValue(cmdUpdateData, _T("preSend"), SchemaValueTypeBool, _T("Script will be executed before a incoming message is processed"));
+		schemaAddValue(cmdUpdateData, _T("postReceive"), SchemaValueTypeBool, _T("Script will be executed after a outgoing message was processed"));
+		schemaAddValue(cmdUpdateData, _T("priority"), SchemaValueTypeInteger, _T("Execution priority"));
+		schemaAddValue(cmdUpdateData, _T("data"), SchemaValueTypeString, _T("The script body"));
+
+		_serviceScripts->addCommand(_T("update"), _T("Update a script"), cmdUpdate, [&](PipeObject& message) {
+			auto ref = message[_T("ref")].string_value();
+			if(!message.count(_T("data")) || !message[_T("data")].is_object()) {
+				pushOutgoing(ref, _T("error"), _T("Missing command data"));
+				return;
+			}
+
+			auto& msgData = message[_T("data")].object_items();
+			if(!msgData.count(_T("name")) || !msgData[_T("name")].is_string()
+			   || !msgData.count(_T("preSend")) || !msgData[_T("preSend")].is_object()
+			   || !msgData.count(_T("postReceive")) || !msgData[_T("postReceive")].is_object()
+			   || !msgData.count(_T("priority")) || !msgData[_T("priority")].is_object()
+			   || !msgData.count(_T("data")) || !msgData[_T("data")].is_object()) {
+				pushOutgoing(ref, _T("error"), _T("Invalid create request"));
+				return;
+			}
+
+			tstring scriptName = msgData[_T("name")].string_value();
+			bool scriptPreSend = msgData[_T("preSend")].bool_value();
+			bool scriptPostReceive = msgData[_T("postReceive")].bool_value();
+			int scriptPriority = msgData[_T("priority")].int_value();
+			tstring scriptData = msgData[_T("data")].string_value();
+
+			if(_config->count(_T("scripts"))) {
+				auto& scripts = _config->operator[](_T("scripts")).array_items();
+				for(auto& script : scripts) {
+					auto& scriptObj = script.object_items();
+					if(scriptObj.count(_T("name")) && scriptObj[_T("name")].is_string()) {
+						if(scriptObj[_T("name")].string_value() == scriptName) {
+							// Remove from pre-send
+							for(size_t idx = 0, cnt = _scriptsPreSend.size(); idx < cnt; idx++) {
+								if(_scriptsPreSend[idx].name == scriptName) {
+									_scriptsPreSend.erase(begin(_scriptsPreSend) + idx);
+									break;
+								}
+							}
+
+							// Remove from post-receive
+							for(size_t idx = 0, cnt = _scriptsPostReceive.size(); idx < cnt; idx++) {
+								if(_scriptsPostReceive[idx].name == scriptName) {
+									_scriptsPostReceive.erase(begin(_scriptsPostReceive) + idx);
+									break;
+								}
+							}
+
+							// Readd
+							if(scriptPreSend) { _scriptsPreSend.push_back({ scriptName, scriptPriority, scriptData }); }
+							if(scriptPostReceive) { _scriptsPostReceive.push_back({ scriptName, scriptPriority, scriptData }); }
+
+							// Update config data
+							scriptObj[_T("preSend")] = scriptPreSend;
+							scriptObj[_T("postReceive")] = scriptPostReceive;
+							scriptObj[_T("priority")] = scriptPriority;
+							scriptObj[_T("data")] = scriptData;
+
+							pushOutgoing(ref, _T("updated"), scriptName);
+							writeConfig();
+						}
+					}
+				}
+			}
+
+			pushOutgoing(ref, _T("error"), _T("Name ") + scriptName + _T(" could not be found"));
+		});
+
+		PipeObjectPtr schemaMessageUpdate = newObject();
+		schemaAddValue(*schemaMessageUpdate, TokenMessageData, SchemaValueTypeString, _T("Name of the updated script"));
+		_serviceScripts->addMessageType(_T("updated"), _T("Script update notification"), schemaMessageUpdate);
 	}
 
 	auto scriptSort = [](PipeScript a, PipeScript b) {
