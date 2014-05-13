@@ -412,7 +412,7 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 		scriptInstance = PipeScript::Create(name, preSend, postReceive, priority, data);
 	}
 	catch(tstring error) {
-		// TODO: return
+		return error;
 	}
 
 	if(preSend) { _scriptsPreSend.push_back(scriptInstance); }
@@ -501,7 +501,8 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 								updatedScriptInstance = PipeScript::Create(name, preSend, postReceive, priority, data);
 							}
 							catch(tstring error) {
-								// TODO: return
+								scriptNode->pushOutgoing(ref, _T("error"), _T("Invalid script data: ") + error);
+								return;
 							}
 							
 							// Remove from pre-send
@@ -619,7 +620,7 @@ void ServiceRoot::executeScripts(PipeArrayPtr messages, bool preSend, bool postR
 				script->execute(targetFunction, message.object_items());
 			}
 			catch(tstring error) {
-				// TODO: output error
+				pushOutgoing(_T(""), _T("error"), _T("Execution of script \"") + script->_name + _T("\" failed: ") + error);
 			}
 		}
 	}

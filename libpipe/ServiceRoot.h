@@ -38,35 +38,27 @@ private:
 			try {
 				duk_get_prop_string(_context, -1, function.c_str());
 			}
-			catch(...) {
-				// TODO: Throw error
-			}
+			catch(...) { throw tstring(_T("Instantiating function \"") + function + _T("\" failed")); }
 
 			// Add the message to the context
 			try {
 				duk_push_string(_context, PipeJson(message).dump().c_str());
 				duk_json_decode(_context, -1);
 			}
-			catch(...) {
-				// TODO: Throw error
-			}
+			catch(...) { throw tstring(_T("Adding message to script context failed")); }
+
 
 			// Call the function
-			try {
-				duk_call(_context, 1);
-			}
-			catch(...) {
-				// TODO: Throw error
-			}
+			if(duk_pcall(_context, 1) != DUK_EXEC_SUCCESS)
+				throw tstring(_T("Evaluating script failed"));
+		
 
 			// Get the result			
 			try {
 				message = *parseObject(duk_json_encode(_context, -1));
 				duk_pop(_context);
 			}
-			catch(...) {
-				// TODO: Throw error
-			}
+			catch(...) { throw tstring(_T("Receiving message from script context failed")); }
 		}
 
 		static std::shared_ptr<PipeScript> Create(const tstring& name, bool preSend, bool postReceive, int priority, const tstring& data) {
@@ -75,19 +67,20 @@ private:
 				throw tstring(_T("Could not create script context"));
 			}
 
-			// TODO: DEBUG
-			tstring scriptData = _T("function preSend(message) { message.ref += 'rofl'; return message; } function postReceive(message) { message.ref += 'peter'; return message; }");
-
 			// Add the functions to the context
-			try {
-				duk_eval_string(newContext, scriptData.c_str());
-				duk_pop(newContext); // Ignore the evaluation result 
-			}
-			catch(...) {
+			if(duk_peval_string_noresult(newContext, data.c_str()) != 0)
 				throw tstring(_T("The script could not be evaluated"));
-			}
 
-			// TODO: Check if the required functions are there
+			// In the future use DUK_COMPILE_FUNCTION 
+
+			// TODO: Fix checks
+			//if(preSend && !duk_has_prop_string(newContext, -1, _T("preSend"))) {
+			//	throw tstring(_T("Script has no preSend function"));
+			//}
+
+			//if(postReceive && !duk_has_prop_string(newContext, -1, _T("postReceive"))) {
+			//	throw tstring(_T("Script has no postReceive function"));
+			//}
 
 			// TODO: Add helper functions to js context
 
