@@ -400,15 +400,8 @@ void ServiceRoot::initScripts() {
 		});
 	}
 
-	enablePreSendHook([&](PipeArrayPtr messages) {
-		// Scripts may not be executed for pipe.scripts*
-		// TODO: Execute scripts in _scriptsPreSend
-	});
-
-	enablePostReceiveHook([&](PipeArrayPtr messages) {
-		// Scripts may not be executed for pipe.scripts*
-		// TODO: Execute scripts in _scriptsPostReceive
-	});
+	enablePreSendHook([&](PipeArrayPtr messages) { executeScripts(messages, true, false); });
+	enablePostReceiveHook([&](PipeArrayPtr messages) { executeScripts(messages, false, true); });
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -580,6 +573,37 @@ void ServiceRoot::deleteScript(const tstring& name) {
 	}
 
 	writeConfig();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void ServiceRoot::executeScripts(PipeArrayPtr messages, bool preSend, bool postReceive) {
+	// Get the right list of scripts
+	vector<PipeScript>* scriptList = nullptr;
+	if(preSend) { scriptList = &_scriptsPreSend; }
+	else if(postReceive) { scriptList = &_scriptsPostReceive; }
+	if(scriptList == nullptr) { return; }
+
+	auto& messageData = *messages;
+	vector<int> deleteList;
+
+	const tstring tokenScriptNode = _address + TokenAddressSeparator + _T("scripts");
+	for(size_t idx = 0, cnt = messageData.size(); idx < cnt; idx++) {
+		auto& message = messageData[idx];
+		tstring address = message[TokenMessageAddress].string_value();
+
+		// Do not execute scripts on the script node
+		if(address.substr(0, tokenScriptNode.length()) == tokenScriptNode)
+			continue;
+
+		for(auto& script : *scriptList) {
+			// TODO: Execute script with duktape
+		}
+	}
+
+	for(auto& deleteIndex : deleteList) {
+		messageData.erase(begin(messageData) + deleteIndex);
+	}
 }
 
 //======================================================================================================================

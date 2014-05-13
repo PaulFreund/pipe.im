@@ -47,6 +47,7 @@ private:
 	void initScripts();
 	tstring createScript(const tstring& name, bool preSend, bool postReceive, int priority, const tstring& data);
 	void deleteScript(const tstring& name);
+	void executeScripts(PipeArrayPtr messages, bool preSend, bool postReceive);
 };
 
 //======================================================================================================================
