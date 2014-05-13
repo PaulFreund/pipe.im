@@ -407,8 +407,16 @@ void ServiceRoot::initScripts() {
 //----------------------------------------------------------------------------------------------------------------------
 
 tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postReceive, int priority, const tstring& data) {
-	if(preSend) { _scriptsPreSend.push_back({ name, priority, data }); }
-	if(postReceive) { _scriptsPostReceive.push_back({ name, priority, data }); }
+	shared_ptr<PipeScript> scriptInstance;
+	try {
+		scriptInstance = PipeScript::Create(name, preSend, postReceive, priority, data);
+	}
+	catch(tstring error) {
+		// TODO: return
+	}
+
+	if(preSend) { _scriptsPreSend.push_back(scriptInstance); }
+	if(postReceive) { _scriptsPostReceive.push_back(scriptInstance); }
 
 	tstring addressScriptNode = _serviceScripts->_address + TokenAddressSeparator + name;
 	auto scriptNode = make_shared<PipeServiceNodeBase>(_T("script"), _T("A automation script"), addressScriptNode, _path, newObject());
@@ -487,9 +495,18 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 					auto& scriptObj = script.object_items();
 					if(scriptObj.count(_T("name")) && scriptObj[_T("name")].is_string()) {
 						if(scriptObj[_T("name")].string_value() == scriptName) {
+							// Create new instance
+							shared_ptr<PipeScript> updatedScriptInstance;
+							try {
+								updatedScriptInstance = PipeScript::Create(name, preSend, postReceive, priority, data);
+							}
+							catch(tstring error) {
+								// TODO: return
+							}
+							
 							// Remove from pre-send
 							for(size_t idx = 0, cnt = _scriptsPreSend.size(); idx < cnt; idx++) {
-								if(_scriptsPreSend[idx].name == scriptName) {
+								if(_scriptsPreSend[idx]->_name == scriptName) {
 									_scriptsPreSend.erase(begin(_scriptsPreSend) + idx);
 									break;
 								}
@@ -497,15 +514,15 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 
 							// Remove from post-receive
 							for(size_t idx = 0, cnt = _scriptsPostReceive.size(); idx < cnt; idx++) {
-								if(_scriptsPostReceive[idx].name == scriptName) {
+								if(_scriptsPostReceive[idx]->_name == scriptName) {
 									_scriptsPostReceive.erase(begin(_scriptsPostReceive) + idx);
 									break;
 								}
 							}
 
 							// Readd
-							if(scriptPreSend) { _scriptsPreSend.push_back({ scriptName, scriptPriority, scriptData }); }
-							if(scriptPostReceive) { _scriptsPostReceive.push_back({ scriptName, scriptPriority, scriptData }); }
+							if(preSend) { _scriptsPreSend.push_back(updatedScriptInstance); }
+							if(postReceive) { _scriptsPostReceive.push_back(updatedScriptInstance); }
 
 							// Update config data
 							scriptObj[_T("preSend")] = scriptPreSend;
@@ -530,8 +547,8 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 		scriptNode->addMessageType(_T("updated"), _T("Script update notification"), schemaMessageUpdate);
 	}
 
-	auto scriptSort = [](PipeScript a, PipeScript b) {
-		return a.priority < b.priority; // TODO: Check direction
+	auto scriptSort = [](shared_ptr<PipeScript> a, shared_ptr<PipeScript> b) {
+		return a->_priority > b->_priority;
 	};
 
 	sort(begin(_scriptsPreSend), end(_scriptsPreSend), scriptSort);
@@ -548,7 +565,7 @@ void ServiceRoot::deleteScript(const tstring& name) {
 
 	// Remove from pre-send
 	for(size_t idx = 0, cnt = _scriptsPreSend.size(); idx < cnt; idx++) {
-		if(_scriptsPreSend[idx].name == name) {
+		if(_scriptsPreSend[idx]->_name == name) {
 			_scriptsPreSend.erase(begin(_scriptsPreSend) + idx);
 			break;
 		}
@@ -556,7 +573,7 @@ void ServiceRoot::deleteScript(const tstring& name) {
 
 	// Remove from post-receive
 	for(size_t idx = 0, cnt = _scriptsPostReceive.size(); idx < cnt; idx++) {
-		if(_scriptsPostReceive[idx].name == name) {
+		if(_scriptsPostReceive[idx]->_name == name) {
 			_scriptsPostReceive.erase(begin(_scriptsPostReceive) + idx);
 			break;
 		}
@@ -579,10 +596,11 @@ void ServiceRoot::deleteScript(const tstring& name) {
 
 void ServiceRoot::executeScripts(PipeArrayPtr messages, bool preSend, bool postReceive) {
 	// Get the right list of scripts
-	vector<PipeScript>* scriptList = nullptr;
-	if(preSend) { scriptList = &_scriptsPreSend; }
-	else if(postReceive) { scriptList = &_scriptsPostReceive; }
-	if(scriptList == nullptr) { return; }
+	vector<shared_ptr<PipeScript>>* targetList = nullptr;
+	tstring targetFunction = _T("");
+	if(preSend) { targetList = &_scriptsPreSend; targetFunction = _T("preSend"); }
+	else if(postReceive) { targetList = &_scriptsPostReceive; targetFunction = _T("postReceive"); }
+	if(targetList == nullptr || targetFunction.empty()) { return; }
 
 	auto& messageData = *messages;
 	vector<int> deleteList;
@@ -596,8 +614,13 @@ void ServiceRoot::executeScripts(PipeArrayPtr messages, bool preSend, bool postR
 		if(address.substr(0, tokenScriptNode.length()) == tokenScriptNode)
 			continue;
 
-		for(auto& script : *scriptList) {
-			// TODO: Execute script with duktape
+		for(auto& script : *targetList) {
+			try {
+				script->execute(targetFunction, message.object_items());
+			}
+			catch(tstring error) {
+				// TODO: output error
+			}
 		}
 	}
 
