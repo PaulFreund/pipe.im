@@ -9,7 +9,8 @@ project(libpipe)
 
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
-file(GLOB LIB_PIPE_SRC "*.cpp")
+file(GLOB LIB_PIPE_SRC "*.cpp" "*.c")
+
 add_library(pipe SHARED ${LIB_PIPE_SRC})
 
 #-------------------------------------------------------------------------------

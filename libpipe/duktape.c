@@ -682,7 +682,7 @@ typedef duk_uint32_t duk_uintptr_t;
 typedef long long duk_intptr_t;
 typedef unsigned long long duk_uintptr_t;
 #else
-#error cannot determine intptr type
+typedef intptr_t duk_intptr_t;
 #endif
 
 /* Pretend that maximum int is 32 bits. */
