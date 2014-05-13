@@ -40,10 +40,6 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 	}
 	else {
 		loadConfig();
-
-		tstring test = dumpObject(_config);
-		(*_config)[_T("blarg")] = test;
-		cout << dumpObject(_config);
 	}
 }
 
@@ -67,11 +63,14 @@ void ServiceRoot::loadConfig() {
 
 			if(find(begin(_providerTypes), end(_providerTypes), type) == end(_providerTypes)) {
 				pushOutgoing(_T(""), _T("error"), _T("Could not load service \"") + name + _T("\", unsupported type \"") + type + _T("\""));
+				continue;
 			}
 
 			tstring errorMsg = createService(type, name, settings);
-			if(!errorMsg.empty())
+			if(!errorMsg.empty()) {
 				pushOutgoing(_T(""), _T("error"), _T("Error creating service ") + name + _T(": ") + errorMsg);
+				continue;
+			}
 		}
 	}
 
@@ -86,8 +85,10 @@ void ServiceRoot::loadConfig() {
 			tstring data = serviceObject[_T("data")].string_value();
 
 			tstring errorMsg = createScript(name, preSend, postReceive, priority, data);
-			if(!errorMsg.empty())
+			if(!errorMsg.empty()) {
 				pushOutgoing(_T(""), _T("error"), _T("Error creating script ") + name + _T(": ") + errorMsg);
+				continue;
+			}
 		}
 	}
 }
@@ -131,6 +132,7 @@ void ServiceRoot::writeConfig() {
 		}
 		catch(...) {
 			pushOutgoing(_T(""), _T("error"), _T("Can not create pipe config file"));
+			return;
 		}
 	}
 
@@ -200,16 +202,16 @@ void ServiceRoot::initServices() {
 				schemaAddValue(cmdCreateData, _T("name"), SchemaValueTypeString, _T("Name of the new service"));
 				schemaAddObject(cmdCreateData, _T("settings"), _T("Settings for the new service"), false) = typeSettingsSchema;
 				
-				provider->addCommand(_T("create"), _T("Create a service instance"), cmdCreate, [&, typeName](PipeObject& message) {
+				provider->addCommand(_T("create"), _T("Create a service instance"), cmdCreate, [&, typeName, provider](PipeObject& message) {
 					auto ref = message[_T("ref")].string_value();
 					if(!message.count(_T("data")) || !message[_T("data")].is_object()) {
-						pushOutgoing(ref, _T("error"), _T("Missing command data"));
+						provider->pushOutgoing(ref, _T("error"), _T("Missing command data"));
 						return;
 					}
 
 					auto& msgData = message[_T("data")].object_items();
 					if(!msgData.count(_T("name")) || !msgData[_T("name")].is_string() || !msgData.count(_T("settings")) || !msgData[_T("settings")].is_object()) {
-						pushOutgoing(ref, _T("error"), _T("Invalid create request"));
+						provider->pushOutgoing(ref, _T("error"), _T("Invalid create request"));
 						return;
 					}
 					
@@ -223,18 +225,18 @@ void ServiceRoot::initServices() {
 					for(auto& service : services) {
 						auto& serviceObj = service.object_items();
 						if(serviceObj.count(_T("name")) && serviceObj[_T("name")].is_string()) {
-							if(serviceObj[_T("name")].string_value() == serviceName)
-								pushOutgoing(ref, _T("error"), _T("Name ") + serviceName + _T(" is already taken"));
+							if(serviceObj[_T("name")].string_value() == serviceName) {
+								provider->pushOutgoing(ref, _T("error"), _T("Name ") + serviceName + _T(" is already taken"));
+								return;
+							}
 						}
 					}
 
 					tstring errorMsg = createService(typeName, serviceName, settingsData);
 					if(!errorMsg.empty()) {
-						pushOutgoing(ref, _T("error"), _T("Error creating service: ") + errorMsg);
+						provider->pushOutgoing(ref, _T("error"), _T("Error creating service: ") + errorMsg);
 						return;
 					}
-
-					pushOutgoing(ref, _T("created"), serviceName);
 
 					PipeObject serviceConfig;
 					serviceConfig[_T("name")] = serviceName;
@@ -244,12 +246,6 @@ void ServiceRoot::initServices() {
 
 					writeConfig();
 				});
-			}
-			// Response
-			{
-				PipeObjectPtr schemaMessageCreate = newObject();
-				schemaAddValue(*schemaMessageCreate, TokenMessageData, SchemaValueTypeString, _T("Name of the created service"));
-				provider->addMessageType(_T("created"), _T("Service creation notification"), schemaMessageCreate);
 			}
 		}
 	}
@@ -351,18 +347,18 @@ void ServiceRoot::initScripts() {
 		_serviceScripts->addCommand(_T("create"), _T("Create a automation script"), cmdCreate, [&](PipeObject& message) {
 			auto ref = message[_T("ref")].string_value();
 			if(!message.count(_T("data")) || !message[_T("data")].is_object()) {
-				pushOutgoing(ref, _T("error"), _T("Missing command data"));
+				_serviceScripts->pushOutgoing(ref, _T("error"), _T("Missing command data"));
 				return;
 			}
 
 			auto& msgData = message[_T("data")].object_items();
 			if(    !msgData.count(_T("name"))           || !msgData[_T("name")].is_string() 
-				|| !msgData.count(_T("preSend"))        || !msgData[_T("preSend")].is_object()
-				|| !msgData.count(_T("postReceive"))    || !msgData[_T("postReceive")].is_object()
-				|| !msgData.count(_T("priority"))       || !msgData[_T("priority")].is_object()
-				|| !msgData.count(_T("data"))           || !msgData[_T("data")].is_object()) 
+				|| !msgData.count(_T("preSend"))        || !msgData[_T("preSend")].is_bool()
+				|| !msgData.count(_T("postReceive"))    || !msgData[_T("postReceive")].is_bool()
+				|| !msgData.count(_T("priority"))       || !msgData[_T("priority")].is_number()
+				|| !msgData.count(_T("data"))           || !msgData[_T("data")].is_string()) 
 			{
-				pushOutgoing(ref, _T("error"), _T("Invalid create request"));
+				_serviceScripts->pushOutgoing(ref, _T("error"), _T("Invalid create request"));
 				return;
 			}
 
@@ -379,18 +375,18 @@ void ServiceRoot::initScripts() {
 			for(auto& script : scripts) {
 				auto& scriptObj = script.object_items();
 				if(scriptObj.count(_T("name")) && scriptObj[_T("name")].is_string()) {
-					if(scriptObj[_T("name")].string_value() == scriptName)
-						pushOutgoing(ref, _T("error"), _T("Name ") + scriptName + _T(" is already taken"));
+					if(scriptObj[_T("name")].string_value() == scriptName) {
+						_serviceScripts->pushOutgoing(ref, _T("error"), _T("Name ") + scriptName + _T(" is already taken"));
+						return;
+					}
 				}
 			}
 
 			tstring errorMsg = createScript(scriptName, scriptPreSend, scriptPostReceive, scriptPriority, scriptData);
 			if(!errorMsg.empty()) {
-				pushOutgoing(ref, _T("error"), _T("Error creating script: ") + errorMsg);
+				_serviceScripts->pushOutgoing(ref, _T("error"), _T("Error creating script: ") + errorMsg);
 				return;
 			}
-
-			pushOutgoing(ref, _T("created"), scriptName);
 
 			PipeObject scriptConfig;
 			scriptConfig[_T("name")] = scriptName;
@@ -402,12 +398,6 @@ void ServiceRoot::initScripts() {
 
 			writeConfig();
 		});
-	}
-	// Response
-	{
-		PipeObjectPtr schemaMessageCreate = newObject();
-		schemaAddValue(*schemaMessageCreate, TokenMessageData, SchemaValueTypeString, _T("Name of the created script"));
-		_serviceScripts->addMessageType(_T("created"), _T("Script creation notification"), schemaMessageCreate);
 	}
 
 	enablePreSendHook([&](PipeArrayPtr messages) {
@@ -441,15 +431,17 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 
 	// Read command and response
 	{
-		scriptNode->addCommand(_T("read"), _T("Get the data of this script"), newObject(), [&, name](PipeObject& message) {
+		scriptNode->addCommand(_T("read"), _T("Get the data of this script"), newObject(), [&, name, scriptNode](PipeObject& message) {
 			tstring scriptName = name;
 			auto ref = message[_T("ref")].string_value();
 			auto& scripts = _config->operator[](_T("scripts")).array_items();
 			for(auto& script : scripts) {
 				auto& scriptObj = script.object_items();
 				if(scriptObj.count(_T("name")) && scriptObj[_T("name")].is_string()) {
-					if(scriptObj[_T("name")].string_value() == scriptName)
-						pushOutgoing(ref, _T("script_data"), scriptObj);
+					if(scriptObj[_T("name")].string_value() == scriptName) {
+						scriptNode->pushOutgoing(ref, _T("script_data"), scriptObj);
+						return;
+					}
 				}
 			}
 		});
@@ -468,30 +460,29 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 	{
 		auto cmdUpdate = newObject();
 		auto& cmdUpdateData = schemaAddObject(*cmdUpdate, TokenMessageData, _T("Data to update an existing script"), false);
-		schemaAddValue(cmdUpdateData, _T("name"), SchemaValueTypeString, _T("Name of the script to be updated"));
 		schemaAddValue(cmdUpdateData, _T("preSend"), SchemaValueTypeBool, _T("Script will be executed before a incoming message is processed"));
 		schemaAddValue(cmdUpdateData, _T("postReceive"), SchemaValueTypeBool, _T("Script will be executed after a outgoing message was processed"));
 		schemaAddValue(cmdUpdateData, _T("priority"), SchemaValueTypeInteger, _T("Execution priority"));
 		schemaAddValue(cmdUpdateData, _T("data"), SchemaValueTypeString, _T("The script body"));
 
-		_serviceScripts->addCommand(_T("update"), _T("Update a script"), cmdUpdate, [&](PipeObject& message) {
+		scriptNode->addCommand(_T("update"), _T("Update a script"), cmdUpdate, [&, name, scriptNode](PipeObject& message) {
+			tstring scriptName = name;
+
 			auto ref = message[_T("ref")].string_value();
 			if(!message.count(_T("data")) || !message[_T("data")].is_object()) {
-				pushOutgoing(ref, _T("error"), _T("Missing command data"));
+				scriptNode->pushOutgoing(ref, _T("error"), _T("Missing command data"));
 				return;
 			}
 
 			auto& msgData = message[_T("data")].object_items();
-			if(!msgData.count(_T("name")) || !msgData[_T("name")].is_string()
-			   || !msgData.count(_T("preSend")) || !msgData[_T("preSend")].is_object()
-			   || !msgData.count(_T("postReceive")) || !msgData[_T("postReceive")].is_object()
-			   || !msgData.count(_T("priority")) || !msgData[_T("priority")].is_object()
-			   || !msgData.count(_T("data")) || !msgData[_T("data")].is_object()) {
-				pushOutgoing(ref, _T("error"), _T("Invalid create request"));
+			if(!msgData.count(_T("preSend")) || !msgData[_T("preSend")].is_bool()
+			   || !msgData.count(_T("postReceive")) || !msgData[_T("postReceive")].is_bool()
+			   || !msgData.count(_T("priority")) || !msgData[_T("priority")].is_number()
+			   || !msgData.count(_T("data")) || !msgData[_T("data")].is_string()) {
+				scriptNode->pushOutgoing(ref, _T("error"), _T("Invalid create request"));
 				return;
 			}
 
-			tstring scriptName = msgData[_T("name")].string_value();
 			bool scriptPreSend = msgData[_T("preSend")].bool_value();
 			bool scriptPostReceive = msgData[_T("postReceive")].bool_value();
 			int scriptPriority = msgData[_T("priority")].int_value();
@@ -529,24 +520,27 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 							scriptObj[_T("priority")] = scriptPriority;
 							scriptObj[_T("data")] = scriptData;
 
-							pushOutgoing(ref, _T("updated"), scriptName);
+							scriptNode->pushOutgoing(ref, _T("updated"), scriptName);
 							writeConfig();
+							return;
 						}
 					}
 				}
 			}
 
-			pushOutgoing(ref, _T("error"), _T("Name ") + scriptName + _T(" could not be found"));
+			scriptNode->pushOutgoing(ref, _T("error"), _T("Name ") + scriptName + _T(" could not be found"));
+			return;
 		});
 
 		PipeObjectPtr schemaMessageUpdate = newObject();
 		schemaAddValue(*schemaMessageUpdate, TokenMessageData, SchemaValueTypeString, _T("Name of the updated script"));
-		_serviceScripts->addMessageType(_T("updated"), _T("Script update notification"), schemaMessageUpdate);
+		scriptNode->addMessageType(_T("updated"), _T("Script update notification"), schemaMessageUpdate);
 	}
 
 	auto scriptSort = [](PipeScript a, PipeScript b) {
 		return a.priority < b.priority; // TODO: Check direction
 	};
+
 	sort(begin(_scriptsPreSend), end(_scriptsPreSend), scriptSort);
 	sort(begin(_scriptsPostReceive), end(_scriptsPostReceive), scriptSort);
 	return _T("");

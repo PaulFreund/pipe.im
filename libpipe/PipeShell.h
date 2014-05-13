@@ -553,12 +553,19 @@ public:
 				}
 				else {
 					output << source << _T(" ");
-					if(data.is_string())
-						output << data.string_value();
-					else if(data.is_bool())
-						output << data.bool_value() ? TokenBoolTrue : TokenBoolFalse;
-					else if(data.is_number())
-						output << to_tstring(data.number_value()); // TODO: Check
+
+					if(data.is_bool()) {
+						output << (data.bool_value() ? TokenBoolTrue : TokenBoolFalse);
+					}
+					else if(data.is_number()) {
+						if(data.is_integer())
+							output << to_tstring(data.int_value());
+						else
+							output << to_tstring(data.number_value());
+					}
+					else {
+						output << data.string_value(); // Assume string
+					}
 				}
 			}
 		}
@@ -752,12 +759,19 @@ private:
 		else {
 			if(key != _T("  - ")) { output << _T(": "); }
 
-			if(data.is_string())
-				output << data.string_value();
-			else if(data.is_bool())
+			if(data.is_bool()) {
 				output << (data.bool_value() ? TokenBoolTrue : TokenBoolFalse);
-			else if(data.is_number())
-				output << to_tstring(data.number_value());
+			}
+			else if(data.is_number()) {
+				if(data.is_integer())
+					output << to_tstring(data.int_value());
+				else
+					output << to_tstring(data.number_value());
+			}
+			else {
+				output << data.string_value(); // Assume string
+			}
+
 
 			output << std::endl;
 		}

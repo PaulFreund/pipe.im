@@ -474,6 +474,7 @@ public:
 		virtual bool less(JsonValue * other) const = 0;
 		virtual void dump(std::string &out) const = 0;
 
+		virtual bool is_integer() { return false; }
 		virtual double& number_value() { return _emptyDouble; }
 		virtual int& int_value() { return _emptyInt; }
 		virtual bool& bool_value() { return _emptyBool; }
@@ -611,6 +612,7 @@ public:
 		int& int_value() { return m_value; }
 		bool equals(JsonValue * other) const { return m_value == other->number_value(); }
 		bool less(JsonValue * other)   const { return m_value <  other->number_value(); }
+		bool is_integer() { return true; }
 	public:
 		JsonInt(int value) : Value(value) {}
 	};
@@ -704,6 +706,7 @@ public:
 	bool is_array()  const { return type() == ARRAY; }
 	bool is_object() const { return type() == OBJECT; }
 
+	bool is_integer() { return m_ptr->is_integer(); }
 
 	double& number_value() {  return m_ptr->number_value();  }
 	int& int_value() { return m_ptr->int_value();  }
