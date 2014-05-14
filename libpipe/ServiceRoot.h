@@ -31,34 +31,31 @@ private:
 		}
 
 		void execute(tstring function, PipeObject& message) {
-			// Create a new execution context
-			duk_push_global_object(_context);
-
 			// Add the function to the context
-			try {
-				duk_get_prop_string(_context, -1, function.c_str());
-			}
-			catch(...) { throw tstring(_T("Instantiating function \"") + function + _T("\" failed")); }
+			if(function.empty() || duk_get_prop_string(_context, -1, function.c_str()) == 0)
+				throw tstring(_T("Instantiating function \"") + function + _T("\" failed"));
 
 			// Add the message to the context
-			try {
-				duk_push_string(_context, PipeJson(message).dump().c_str());
-				duk_json_decode(_context, -1);
-			}
-			catch(...) { throw tstring(_T("Adding message to script context failed")); }
+			tstring messageText = PipeJson(message).dump();
+			if(messageText.empty() || duk_push_string(_context, messageText.c_str()) == NULL)
+				throw tstring(_T("Adding message to script context failed"));
 
+			duk_json_decode(_context, -1);
 
 			// Call the function
 			if(duk_pcall(_context, 1) != DUK_EXEC_SUCCESS)
 				throw tstring(_T("Evaluating script failed"));
-		
 
-			// Get the result			
-			try {
-				message = *parseObject(duk_json_encode(_context, -1));
-				duk_pop(_context);
-			}
-			catch(...) { throw tstring(_T("Receiving message from script context failed")); }
+
+			// Get the result
+			auto resultText = duk_json_encode(_context, -1);
+			if(resultText == NULL)
+				throw tstring(_T("Receiving message from script context failed"));
+
+			message = *parseObject(resultText);
+
+			// Remove the result from the stack
+			duk_pop(_context);
 		}
 
 		static std::shared_ptr<PipeScript> Create(const tstring& name, bool preSend, bool postReceive, int priority, const tstring& data) {
@@ -71,16 +68,21 @@ private:
 			if(duk_peval_string_noresult(newContext, data.c_str()) != 0)
 				throw tstring(_T("The script could not be evaluated"));
 
+			// Create a new execution context
+			duk_push_global_object(newContext);
+
 			// In the future use DUK_COMPILE_FUNCTION 
 
-			// TODO: Fix checks
-			//if(preSend && !duk_has_prop_string(newContext, -1, _T("preSend"))) {
-			//	throw tstring(_T("Script has no preSend function"));
-			//}
+			// Check if the required functions exist
+			if(preSend) {
+				if(duk_is_valid_index(newContext, -1) != 1 || duk_has_prop_string(newContext, -1, _T("preSend")) == 0)
+					throw tstring(_T("Script has no preSend function"));
+			}
 
-			//if(postReceive && !duk_has_prop_string(newContext, -1, _T("postReceive"))) {
-			//	throw tstring(_T("Script has no postReceive function"));
-			//}
+			if(postReceive) {
+				if(duk_is_valid_index(newContext, -1) != 1 || duk_has_prop_string(newContext, -1, _T("postReceive")) == 0)
+					throw tstring(_T("Script has no postReceive function"));
+			}
 
 			// TODO: Add helper functions to js context
 

@@ -168,8 +168,10 @@ public:
 		for(auto&& messagesMember : *messages) {
 			auto& message = messagesMember.object_items();
 
-			if(message.empty() || (!message.count(TokenMessageRef) || !message[TokenMessageRef].is_string()))
+			if(message.empty() || (!message.count(TokenMessageRef) || !message[TokenMessageRef].is_string())) {
+				pushOutgoing(_T(""), _T("error"), _T("Missing ref field"));
 				continue;
+			}
 
 			try {
 				if(!message.count(TokenMessageAddress) || !message[TokenMessageAddress].is_string())
