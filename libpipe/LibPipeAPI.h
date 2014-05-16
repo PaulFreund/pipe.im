@@ -20,9 +20,14 @@ typedef const char*     LibPipeStr;
 typedef void*           HLibPipe;
 
 typedef void*           LibPipeCbContext;
+typedef void            (*LibPipeCbErr)(LibPipeStr);
 typedef void            (*LibPipeCbStr)(LibPipeCbContext, LibPipeStr);
 
 //======================================================================================================================
+
+LIBPIPE_ITF void LibPipeSetErrorCallback    (LibPipeCbErr cbError);
+
+//----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeLoadExtensions      (LibPipeStr path);
 LIBPIPE_ITF void LibPipeGetServiceTypes     (LibPipeCbContext context, LibPipeCbStr cbServiceTypes);

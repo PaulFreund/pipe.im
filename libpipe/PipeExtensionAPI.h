@@ -20,9 +20,14 @@ typedef void*           HPipeExtensionService;
 typedef const char*     PipeExtensionStr;
 
 typedef void*           PipeExtensionCbContext;
+typedef void            (*PipeExtensionCbErr)(PipeExtensionStr);
 typedef void            (*PipeExtensionCbStr)(PipeExtensionCbContext, PipeExtensionStr);
 
 //======================================================================================================================
+
+PIPE_EXTENSION_ITF void PipeExtensionSetErrorCallback           (PipeExtensionCbErr cbError);
+
+//----------------------------------------------------------------------------------------------------------------------
 
 PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypes            (PipeExtensionCbContext context, PipeExtensionCbStr cbServiceTypes);
 

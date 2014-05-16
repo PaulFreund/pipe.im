@@ -13,6 +13,7 @@ class LibPipe : public ILibPipe {
 public:
 	static std::vector<std::shared_ptr<LibPipe>> Instances;
 	static std::vector<std::shared_ptr<PipeExtensionInstance>> Extensions;
+	static LibPipeCbErr ErrorCallback;
 
 private:
 	std::shared_ptr<ServiceRoot> _serviceRoot;

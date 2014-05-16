@@ -8,6 +8,13 @@ using namespace Poco;
 
 //======================================================================================================================
 
+void publishError(tstring error) {
+	if(LibPipe::ErrorCallback != nullptr)
+		LibPipe::ErrorCallback(error.c_str());
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void* loadExtensionSymbol(SharedLibrary& library, const tstring& name) {
 	if(!library.hasSymbol(name))
 		throw;
@@ -39,6 +46,8 @@ void loadExtension(const tstring& path) {
 
 	PipeExtensionFunctions extensionFunctions;
 	try {
+		extensionFunctions.fktPipeExtensionSetErrorCallback             = reinterpret_cast<FktPipeExtensionSetErrorCallback>            (loadExtensionSymbol(library, NamePipeExtensionSetErrorCallback             ));
+
 		extensionFunctions.fktPipeExtensionGetServiceTypes              = reinterpret_cast<FktPipeExtensionGetServiceTypes>             (loadExtensionSymbol(library, NamePipeExtensionGetServiceTypes              ));
 		extensionFunctions.fktPipeExtensionServiceCreate                = reinterpret_cast<FktPipeExtensionServiceCreate>               (loadExtensionSymbol(library, NamePipeExtensionServiceCreate                ));
 		extensionFunctions.fktPipeExtensionServiceDestroy               = reinterpret_cast<FktPipeExtensionServiceDestroy>              (loadExtensionSymbol(library, NamePipeExtensionServiceDestroy               ));
@@ -58,83 +67,129 @@ void loadExtension(const tstring& path) {
 
 //======================================================================================================================
 
+LIBPIPE_ITF void LibPipeSetErrorCallback(LibPipeCbErr cbError) {
+	LibPipe::ErrorCallback = cbError;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
-	File extensionPath(path);
+	try {
+		File extensionPath(path);
 
-	if(!extensionPath.exists() || !extensionPath.canRead())
-		return;
+		if(!extensionPath.exists() || !extensionPath.canRead())
+			return;
 
-	if(extensionPath.isDirectory()) {
-		for(DirectoryIterator it(extensionPath), itEnd; it != itEnd; ++it) {
-			loadExtension(it->path());
+		if(extensionPath.isDirectory()) {
+			for(DirectoryIterator it(extensionPath), itEnd; it != itEnd; ++it) {
+				loadExtension(it->path());
+			}
+		}
+		else {
+			loadExtension(extensionPath.path());
 		}
 	}
-	else {
-		loadExtension(extensionPath.path());
-	}
+	catch(tstring error) { publishError(_T("LibPipeLoadExtensions: ") + error); }
+	catch(...) { publishError(_T("LibPipeLoadExtensions: Unknown error")); }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr cbServiceTypes) {
-	PipeArray serviceTypes;
+	try {
+		PipeArray serviceTypes;
 
-	for(auto&& extension : LibPipe::Extensions) {
-		auto extensionServiceTypes = extension->serviceTypes();
-		for(auto&& extensionServiceType : *extensionServiceTypes) {
-			serviceTypes.push_back(extensionServiceType);
+		for(auto&& extension : LibPipe::Extensions) {
+			auto extensionServiceTypes = extension->serviceTypes();
+			for(auto&& extensionServiceType : *extensionServiceTypes) {
+				serviceTypes.push_back(extensionServiceType);
+			}
 		}
-	}
 
-	cbServiceTypes(context, dumpArray(serviceTypes).c_str());
+		cbServiceTypes(context, dumpArray(serviceTypes).c_str());
+	}
+	catch(tstring error) { publishError(_T("LibPipeGetServiceTypes: ") + error); }
+	catch(...) { publishError(_T("LibPipeGetServiceTypes: Unknown error")); }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr serviceTypes, HLibPipe* instance) {
-	LibPipe::Instances.push_back(make_shared<LibPipe>(tstring(path), parseArray(serviceTypes)));
-	(*instance) = reinterpret_cast<HLibPipe>(LibPipe::Instances.back().get());
+	try {
+		LibPipe::Instances.push_back(make_shared<LibPipe>(tstring(path), parseArray(serviceTypes)));
+		(*instance) = reinterpret_cast<HLibPipe>(LibPipe::Instances.back().get());
+	}
+	catch(tstring error) { publishError(_T("LibPipeCreate: ") + error); }
+	catch(...) { publishError(_T("LibPipeCreate: Unknown error")); }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
-	LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
-	for(auto it = begin(LibPipe::Instances); it != end(LibPipe::Instances); it++) {
-		if((*it).get() == pInstance) {
-			LibPipe::Instances.erase(it);
-			return;
+	// TODO: Improve
+	try {
+		LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
+		for(auto it = begin(LibPipe::Instances); it != end(LibPipe::Instances); it++) {
+			if((*it).get() == pInstance) {
+				LibPipe::Instances.erase(it);
+				return;
+			}
 		}
 	}
+	catch(tstring error) { publishError(_T("LibPipeDestroy: ") + error); }
+	catch(...) { publishError(_T("LibPipeDestroy: Unknown error")); }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeStr messages) {
-	reinterpret_cast<LibPipe*>(instance)->send(parseArray(messages));
+	try {
+		reinterpret_cast<LibPipe*>(instance)->send(parseArray(messages));
+	}
+	catch(tstring error) { publishError(_T("LibPipeSend: ") + error); }
+	catch(...) { publishError(_T("LibPipeSend: Unknown error")); }
 }
 
 LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, LibPipeCbStr cbMessages) {
-	cbMessages(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->receive()).c_str());
+	try {
+		cbMessages(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->receive()).c_str());
+	}
+	catch(tstring error) { publishError(_T("LibPipeReceive: ") + error); }
+	catch(...) { publishError(_T("LibPipeReceive: Unknown error")); }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeGetNodeChildren(HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbChildNodes) {
-	cbChildNodes(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->nodeChildren(tstring(address))).c_str());
+	try {
+		cbChildNodes(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->nodeChildren(tstring(address))).c_str());
+	}
+	catch(tstring error) { publishError(_T("LibPipeGetNodeChildren: ") + error); }
+	catch(...) { publishError(_T("LibPipeGetNodeChildren: Unknown error")); }
 }
 
 LIBPIPE_ITF void LibPipeGetNodeCommandTypes(HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeCommandTypes) {
-	cbNodeCommandTypes(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->nodeCommandTypes(tstring(address))).c_str());
+	try {
+		cbNodeCommandTypes(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->nodeCommandTypes(tstring(address))).c_str());
+	}
+	catch(tstring error) { publishError(_T("LibPipeGetNodeCommandTypes: ") + error); }
+	catch(...) { publishError(_T("LibPipeGetNodeCommandTypes: Unknown error")); }
 }
 
 LIBPIPE_ITF void LibPipeGetNodeMessageTypes(HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeMessageTypes) {
-	cbNodeMessageTypes(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->nodeMessageTypes(tstring(address))).c_str());
+	try {
+		cbNodeMessageTypes(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->nodeMessageTypes(tstring(address))).c_str());
+	}
+	catch(tstring error) { publishError(_T("LibPipeGetNodeMessageTypes: ") + error); }
+	catch(...) { publishError(_T("LibPipeGetNodeMessageTypes: Unknown error")); }
 }
 
 LIBPIPE_ITF void LibPipeGetNodeInfo(HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeInfo) {
-	cbNodeInfo(context, dumpObject(reinterpret_cast<LibPipe*>(instance)->nodeInfo(tstring(address))).c_str());
+	try {
+		cbNodeInfo(context, dumpObject(reinterpret_cast<LibPipe*>(instance)->nodeInfo(tstring(address))).c_str());
+	}
+	catch(tstring error) { publishError(_T("LibPipeGetNodeInfo: ") + error); }
+	catch(...) { publishError(_T("LibPipeGetNodeInfo: Unknown error")); }
 }
-
 
 //======================================================================================================================

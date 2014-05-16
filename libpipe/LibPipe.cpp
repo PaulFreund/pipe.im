@@ -9,6 +9,7 @@ using namespace std;
 
 vector<shared_ptr<LibPipe>>                 LibPipe::Instances;
 vector<shared_ptr<PipeExtensionInstance>>   LibPipe::Extensions;
+LibPipeCbErr                                LibPipe::ErrorCallback = nullptr;
 
 //======================================================================================================================
 

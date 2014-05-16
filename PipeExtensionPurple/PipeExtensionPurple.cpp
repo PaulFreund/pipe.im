@@ -22,6 +22,7 @@ using namespace std;
 //======================================================================================================================
 
 PipeExtensionPurple PipeExtensionPurple::ExtensionInstance;
+PipeExtensionCbErr  PipeExtensionPurple::ErrorCallback = nullptr;
 
 //======================================================================================================================
 

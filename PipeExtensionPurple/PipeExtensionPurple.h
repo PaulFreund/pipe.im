@@ -11,7 +11,7 @@
 class PipeExtensionPurple : public IPipeExtension {
 public:
 	static PipeExtensionPurple ExtensionInstance;
-
+	static PipeExtensionCbErr ErrorCallback;
 private:
 	std::map<tstring, IPipeExtensionService*> _services;
 	bool _libpurple_init_done;
