@@ -33,31 +33,32 @@ public:
 		if(messageText.empty()) { throw tstring(_T("Invalid or empty mesage")); }
 
 		// Add function to the value stack
-		if(function.empty() || duk_get_prop_string(_context, -1, function.c_str()) == 0) {
-			duk_pop(_context); // duk_get_prop_string pushs undefined to the value stack if it fails
+		if(function.empty() || duk_get_prop_string(_context, -1, function.c_str()) == 0) { // Value stack: [global][function]
+			duk_pop(_context); // remove function
 			throw tstring(_T("Instantiating function \"") + function + _T("\" failed"));
 		}
 
 		// Add the message as first argument to the value stack
-		if(duk_push_string(_context, messageText.c_str()) == NULL) {
-			duk_pop(_context); // duk_push_string pushs null to the value stack if it fails
+		if(duk_push_string(_context, messageText.c_str()) == NULL) { // Value stack: [global][function][string]
+			duk_pop(_context); // remove function
+			duk_pop(_context); // remove string result
 			throw tstring(_T("Adding message to script context failed"));
 		}
 
 		// Convert message to json
-		duk_json_decode(_context, -1);
+		duk_json_decode(_context, -1); // Value stack: [global][function][json]
 
 		// Call the function
-		if(duk_pcall(_context, 1) != DUK_EXEC_SUCCESS) 
+		if(duk_pcall(_context, 1) != DUK_EXEC_SUCCESS)  // Value stack: [global][json]
 			throw tstring(_T("Evaluating script failed"));
 
 
 		// Get the result from the value stack and decode it
-		auto resultText = duk_json_encode(_context, -1);
+		auto resultText = duk_json_encode(_context, -1); // Value stack: [global][string]
 
 		// Check if the result is valid
 		if(resultText == NULL) {
-			duk_pop(_context); // Remove the result from the value stack
+			duk_pop(_context); // string
 			throw tstring(_T("Receiving message from script context failed"));
 		}
 
@@ -65,9 +66,7 @@ public:
 		message = *parseObject(resultText);
 
 		// Remove the result from the value stack (should be empty now)
-		duk_pop(_context); 
-
-		std::cout << _T("\n[DEBUG]\n") << PipeJson(message).dump() << _T("\n[/DEBUG]\n"); // TODO: DEBUG CODE
+		duk_pop(_context);  // Value stack: [global]
 	}
 };
 

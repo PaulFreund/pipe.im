@@ -634,16 +634,13 @@ void ServiceRoot::executeScripts(PipeArrayPtr messages, bool preSend, bool postR
 
 shared_ptr<PipeScript> ServiceRoot::buildScriptContext(const tstring& name, bool preSend, bool postReceive, int priority, const tstring& data) {
 	duk_context* ctx = duk_create_heap_default();
-	if(!ctx) {
-		throw tstring(_T("Could not create script context"));
-	}
+	if(!ctx) { throw tstring(_T("Could not create script context")); }
 
 	// Add the functions to the context
-	if(duk_peval_string_noresult(ctx, data.c_str()) != 0)
-		throw tstring(_T("The script could not be evaluated"));
-
+	if(duk_peval_string_noresult(ctx, data.c_str()) != 0) { throw tstring(_T("The script could not be evaluated")); }
+	
 	// Create a new execution context
-	duk_push_global_object(ctx);
+	duk_push_global_object(ctx); // Value stack: [global]
 
 	// Check if the required functions exist
 	if(preSend) {
@@ -656,24 +653,156 @@ shared_ptr<PipeScript> ServiceRoot::buildScriptContext(const tstring& name, bool
 			throw tstring(_T("Script has no postReceive function"));
 	}
 
-	// TODO
-	/*
-	duk_push_heap_stash(ctx);
+	// Add context pointer to the heap stash
+	duk_push_heap_stash(ctx); // Value stack: [global][heap]
+	duk_push_pointer(ctx, static_cast<void*>(this)); // Value stack: [global][heap][pointer]
+	if(duk_put_prop_string(ctx, -2, _T("context")) == 0) { // Value stack: [global][heap]
+		duk_pop(ctx); // Value stack: [global]
+		throw tstring(_T("Could not add context pointer to scripting context"));
+	}
 
-	// Add functions to the value stack
-	duk_push_c_function(ctx, [] (duk_context* fctx) -> int {
-		auto addressPtr = duk_require_string(fctx, 0);
-		if(addressPtr == NULL)
-			return 0;
+	// Remove heap from value stack
+	duk_pop(ctx); // Value stack: [global]
 
-		//tstring children = PipeJson(*LibPipe::Instances nodeChildren(addressPtr)).dump();
-		//duk_push_string(fctx, children.c_str());
-		duk_json_decode(fctx, -1);
-		return 1;
-	}, 1); // One argument
+	// Add nodeChildren function to the stack
+	{
+		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
+			// Get parameter
+			auto addressPtr = duk_get_string(fctx, -1); // Value stack: [string?]
+			if(addressPtr == NULL) { return 0; }
 
-	duk_put_prop_string(ctx, -2, _T("nodeChildren")); // TODO: CHECK
-	*/
+			tstring address = tstring(addressPtr);
+			duk_pop(fctx); // Value stack: 
+
+			// Get context
+			duk_push_heap_stash(fctx); // Value stack: [heap]
+			if(duk_get_prop_string(fctx, -1, _T("context")) == 0) { // Value stack: [heap][prop]
+				duk_pop(fctx); // Remove undefined prop, Value stack: [heap]
+				duk_pop(fctx); // Remove heap stash, Value stack: 
+				return 0;
+			}
+
+			ServiceRoot* pContext = static_cast<ServiceRoot*>(duk_get_pointer(fctx, -1)); // Value stack: [heap][prop]
+			duk_pop(fctx); // Remove pointer from stash, Value stack: [heap]
+			duk_pop(fctx); // Remove heap stash, Value stack:
+
+			tstring result = PipeJson(*pContext->nodeChildren(address)).dump();
+
+			duk_push_string(fctx, result.c_str()); // Value stack: [string]
+			duk_json_decode(fctx, -1); // Value stack: [json]
+
+			return 1;
+		}, 1); // One argument, Value stack: [global][function]
+
+		if(duk_put_prop_string(ctx, -2, _T("nodeChildren")) == 0) {
+			throw tstring(_T("Could not add nodeChildren function to scripting context"));
+		}
+	}
+
+	// Add nodeCommandTypes function to the stack
+	{
+		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
+			// Get parameter
+			auto addressPtr = duk_get_string(fctx, -1); // Value stack: [string?]
+			if(addressPtr == NULL) { return 0; }
+
+			tstring address = tstring(addressPtr);
+			duk_pop(fctx); // Value stack: 
+
+			// Get context
+			duk_push_heap_stash(fctx); // Value stack: [heap]
+			if(duk_get_prop_string(fctx, -1, _T("context")) == 0) { // Value stack: [heap][prop]
+				duk_pop(fctx); // Remove undefined prop, Value stack: [heap]
+				duk_pop(fctx); // Remove heap stash, Value stack: 
+				return 0;
+			}
+
+			ServiceRoot* pContext = static_cast<ServiceRoot*>(duk_get_pointer(fctx, -1)); // Value stack: [heap][prop]
+			duk_pop(fctx); // Remove pointer from stash, Value stack: [heap]
+			duk_pop(fctx); // Remove heap stash, Value stack:
+
+			tstring result = PipeJson(*pContext->nodeCommandTypes(address)).dump();
+
+			duk_push_string(fctx, result.c_str()); // Value stack: [string]
+			duk_json_decode(fctx, -1); // Value stack: [json]
+
+			return 1;
+		}, 1); // One argument, Value stack: [global][function]
+
+		if(duk_put_prop_string(ctx, -2, _T("nodeCommandTypes")) == 0) {
+			throw tstring(_T("Could not add nodeCommandTypes function to scripting context"));
+		}
+	}
+
+	// Add nodeMessageTypes function to the stack
+	{
+		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
+			// Get parameter
+			auto addressPtr = duk_get_string(fctx, -1); // Value stack: [string?]
+			if(addressPtr == NULL) { return 0; }
+
+			tstring address = tstring(addressPtr);
+			duk_pop(fctx); // Value stack: 
+
+			// Get context
+			duk_push_heap_stash(fctx); // Value stack: [heap]
+			if(duk_get_prop_string(fctx, -1, _T("context")) == 0) { // Value stack: [heap][prop]
+				duk_pop(fctx); // Remove undefined prop, Value stack: [heap]
+				duk_pop(fctx); // Remove heap stash, Value stack: 
+				return 0;
+			}
+
+			ServiceRoot* pContext = static_cast<ServiceRoot*>(duk_get_pointer(fctx, -1)); // Value stack: [heap][prop]
+			duk_pop(fctx); // Remove pointer from stash, Value stack: [heap]
+			duk_pop(fctx); // Remove heap stash, Value stack:
+
+			tstring result = PipeJson(*pContext->nodeMessageTypes(address)).dump();
+
+			duk_push_string(fctx, result.c_str()); // Value stack: [string]
+			duk_json_decode(fctx, -1); // Value stack: [json]
+
+			return 1;
+		}, 1); // One argument, Value stack: [global][function]
+
+		if(duk_put_prop_string(ctx, -2, _T("nodeMessageTypes")) == 0) {
+			throw tstring(_T("Could not add nodeMessageTypes function to scripting context"));
+		}
+	}
+
+	// Add nodeInfo function to the stack
+	{
+		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
+			// Get parameter
+			auto addressPtr = duk_get_string(fctx, -1); // Value stack: [string?]
+			if(addressPtr == NULL) { return 0; }
+
+			tstring address = tstring(addressPtr);
+			duk_pop(fctx); // Value stack: 
+
+			// Get context
+			duk_push_heap_stash(fctx); // Value stack: [heap]
+			if(duk_get_prop_string(fctx, -1, _T("context")) == 0) { // Value stack: [heap][prop]
+				duk_pop(fctx); // Remove undefined prop, Value stack: [heap]
+				duk_pop(fctx); // Remove heap stash, Value stack: 
+				return 0;
+			}
+
+			ServiceRoot* pContext = static_cast<ServiceRoot*>(duk_get_pointer(fctx, -1)); // Value stack: [heap][prop]
+			duk_pop(fctx); // Remove pointer from stash, Value stack: [heap]
+			duk_pop(fctx); // Remove heap stash, Value stack:
+
+			tstring result = PipeJson(*pContext->nodeInfo(address)).dump();
+
+			duk_push_string(fctx, result.c_str()); // Value stack: [string]
+			duk_json_decode(fctx, -1); // Value stack: [json]
+
+			return 1;
+		}, 1); // One argument, Value stack: [global][function]
+
+		if(duk_put_prop_string(ctx, -2, _T("nodeInfo")) == 0) {
+			throw tstring(_T("Could not add nodeInfo function to scripting context"));
+		}
+	}
 
 	return std::make_shared<PipeScript>(name, priority, data, ctx);
 }
