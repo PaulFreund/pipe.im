@@ -17,11 +17,11 @@ void publishError(tstring error) {
 
 void* loadExtensionSymbol(SharedLibrary& library, const tstring& name) {
 	if(!library.hasSymbol(name))
-		throw;
+		throw tstring(_T("LibPipeLoadExtensions: library ") + library.getPath() + _T(" is missing symbol ") + name);
 
 	void* symbol = library.getSymbol(name);
 	if(symbol == nullptr)
-		throw;
+		throw tstring(_T("LibPipeLoadExtensions: library ") + library.getPath() + _T(" returned invalid symbol ") + name);
 
 	return symbol;
 }
@@ -60,6 +60,7 @@ void loadExtension(const tstring& path) {
 		extensionFunctions.fktPipeExtensionServiceGetNodeMessageTypes   = reinterpret_cast<FktPipeExtensionServiceGetNodeMessageTypes>  (loadExtensionSymbol(library, NamePipeExtensionServiceGetNodeMessageTypes   ));
 		extensionFunctions.fktPipeExtensionServiceGetNodeInfo           = reinterpret_cast<FktPipeExtensionServiceGetNodeInfo>          (loadExtensionSymbol(library, NamePipeExtensionServiceGetNodeInfo           ));
 	}
+	catch(tstring error) { publishError(error); }
 	catch(...) { return; }
 
 	LibPipe::Extensions.push_back(make_shared<PipeExtensionInstance>(extensionFunctions));
@@ -119,14 +120,13 @@ LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr serviceTypes, HLibPip
 		LibPipe::Instances.push_back(make_shared<LibPipe>(tstring(path), parseArray(serviceTypes)));
 		(*instance) = reinterpret_cast<HLibPipe>(LibPipe::Instances.back().get());
 	}
-	catch(tstring error) { publishError(_T("LibPipeCreate: ") + error); }
-	catch(...) { publishError(_T("LibPipeCreate: Unknown error")); }
+	catch(tstring error) { instance = nullptr;  publishError(_T("LibPipeCreate: ") + error); }
+	catch(...) { instance = nullptr; publishError(_T("LibPipeCreate: Unknown error")); }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
-	// TODO: Improve
 	try {
 		LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
 		for(auto it = begin(LibPipe::Instances); it != end(LibPipe::Instances); it++) {
@@ -135,6 +135,8 @@ LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
 				return;
 			}
 		}
+
+		throw tstring(_T("LibPipeDestroy: Instance not found"));
 	}
 	catch(tstring error) { publishError(_T("LibPipeDestroy: ") + error); }
 	catch(...) { publishError(_T("LibPipeDestroy: Unknown error")); }

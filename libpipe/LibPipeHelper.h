@@ -13,15 +13,13 @@ inline std::shared_ptr<PipeArray> newArray(PipeArray&& data = PipeArray {}) {
 }
 
 inline PipeArrayPtr parseArray(const tstring& data) {
-	// TODO: error handling
-	return std::make_shared<PipeArray>(PipeJson::parse(data).array_items());
+	tstring err;
+	PipeArrayPtr result = std::make_shared<PipeArray>(PipeJson::parse(data, err).array_items());
+	if(!err.empty()) { throw err; }
+	return result;
 }
 
-inline tstring dumpArray(const PipeArray& array) { 
-	// TODO: error handling
-	return std::move(PipeJson(array).dump()); 
-}
-
+inline tstring dumpArray(const PipeArray& array) { return std::move(PipeJson(array).dump()); }
 inline tstring dumpArray(PipeArrayPtr array) { return std::move(dumpArray(*array)); }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -31,15 +29,13 @@ inline std::shared_ptr<PipeObject> newObject(PipeObject&& data = PipeObject {}) 
 }
 
 inline PipeObjectPtr parseObject(const tstring& data) {
-	// TODO: error handling
-	return std::make_shared<PipeObject>(PipeJson::parse(data).object_items());
+	tstring err;
+	PipeObjectPtr result = std::make_shared<PipeObject>(PipeJson::parse(data).object_items());
+	if(!err.empty()) { throw err; }
+	return result;
 }
 
-inline tstring dumpObject(const PipeObject& object) { 
-	// TODO: error handling
-	return std::move(PipeJson(object).dump()); 
-}
-
+inline tstring dumpObject(const PipeObject& object) { return std::move(PipeJson(object).dump()); }
 inline tstring dumpObject(PipeObjectPtr object) { return std::move(dumpObject(*object)); }
 
 //----------------------------------------------------------------------------------------------------------------------

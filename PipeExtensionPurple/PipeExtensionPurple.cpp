@@ -161,7 +161,7 @@ IPipeExtensionService* PipeExtensionPurple::create(const tstring& serviceType, c
 		return (_services[address] = new ServiceIRC(address, path, settings));
 	}
 
-	return nullptr;
+	throw tstring(_T("PipeExtensionPurple::create: Could not create service ") + serviceType + _T(" with address ") + address);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -174,6 +174,8 @@ void PipeExtensionPurple::destroy(IPipeExtensionService* service) {
 			return;
 		}
 	}
+
+	throw tstring(_T("PipeExtensionPurple::destroy: Could not find service"));
 }
 
 //======================================================================================================================

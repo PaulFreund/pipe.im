@@ -33,8 +33,8 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceType,
 	try {
 		(*service) = reinterpret_cast<HPipeExtensionService>(PipeExtensionPurple::ExtensionInstance.create(serviceType, address, path, parseObject(settings)));
 	}
-	catch(tstring error) { publishError(_T("PipeExtensionServiceCreate: ") + error); }
-	catch(...) { publishError(_T("PipeExtensionServiceCreate: Unknown error")); }
+	catch(tstring error) { service = nullptr; publishError(_T("PipeExtensionServiceCreate: ") + error); }
+	catch(...) { service = nullptr; publishError(_T("PipeExtensionServiceCreate: Unknown error")); }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
