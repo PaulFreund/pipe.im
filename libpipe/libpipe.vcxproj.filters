@@ -71,11 +71,14 @@
     <ClInclude Include="json11.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="ServiceRoot.h">
-      <Filter>LibPipe\Services</Filter>
-    </ClInclude>
     <ClInclude Include="duktape.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="ServiceRoot.h">
+      <Filter>LibPipe\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeScript.h">
+      <Filter>LibPipe\Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -88,11 +91,14 @@
     <ClCompile Include="CommonHeader.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="ServiceRoot.cpp">
-      <Filter>LibPipe\Services</Filter>
-    </ClCompile>
     <ClCompile Include="duktape.c">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="ServiceRoot.cpp">
+      <Filter>LibPipe\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="PipeScript.cpp">
+      <Filter>LibPipe\Base</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
