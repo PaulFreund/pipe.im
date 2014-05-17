@@ -2,9 +2,28 @@
 
 #include "CommonHeader.h"
 #include "PipeScript.h"
+#include "ServiceRoot.h"
 
 using namespace std;
 using namespace Poco;
+
+//======================================================================================================================
+
+ServiceRoot* getContext(duk_context* ctx) {
+	// Get context
+	duk_push_heap_stash(ctx); // Value stack: [heap]
+	if(duk_get_prop_string(ctx, -1, _T("context")) == 0) { // Value stack: [heap][prop]
+		duk_pop(ctx); // Remove undefined prop, Value stack: [heap]
+		duk_pop(ctx); // Remove heap stash, Value stack: 
+		return nullptr;
+	}
+
+	ServiceRoot* pContext = static_cast<ServiceRoot*>(duk_get_pointer(ctx, -1)); // Value stack: [heap][prop]
+	duk_pop(ctx); // Remove pointer from stash, Value stack: [heap]
+	duk_pop(ctx); // Remove heap stash, Value stack:
+
+	return pContext;
+}
 
 //======================================================================================================================
 
@@ -24,7 +43,7 @@ PipeScript::~PipeScript() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-shared_ptr<PipeScript> PipeScript::create(PipeServiceNodeBase* serviceRoot, const tstring& name, bool preSend, bool postReceive, int priority, const tstring& data) {
+shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstring& name, bool preSend, bool postReceive, int priority, const tstring& data) {
 	duk_context* ctx = duk_create_heap_default();
 	if(!ctx) { throw tstring(_T("Could not create script context")); }
 
@@ -66,17 +85,9 @@ shared_ptr<PipeScript> PipeScript::create(PipeServiceNodeBase* serviceRoot, cons
 			tstring address = tstring(addressPtr);
 			duk_pop(fctx); // Value stack: 
 
-			// Get context
-			duk_push_heap_stash(fctx); // Value stack: [heap]
-			if(duk_get_prop_string(fctx, -1, _T("context")) == 0) { // Value stack: [heap][prop]
-				duk_pop(fctx); // Remove undefined prop, Value stack: [heap]
-				duk_pop(fctx); // Remove heap stash, Value stack: 
-				return 0;
-			}
-
-			PipeServiceNodeBase* pContext = static_cast<PipeServiceNodeBase*>(duk_get_pointer(fctx, -1)); // Value stack: [heap][prop]
-			duk_pop(fctx); // Remove pointer from stash, Value stack: [heap]
-			duk_pop(fctx); // Remove heap stash, Value stack:
+			// Get Context
+			auto pContext = getContext(fctx);
+			if(pContext == nullptr) { return 0; }
 
 			tstring result = PipeJson(*pContext->nodeChildren(address)).dump();
 
@@ -101,17 +112,9 @@ shared_ptr<PipeScript> PipeScript::create(PipeServiceNodeBase* serviceRoot, cons
 			tstring address = tstring(addressPtr);
 			duk_pop(fctx); // Value stack: 
 
-			// Get context
-			duk_push_heap_stash(fctx); // Value stack: [heap]
-			if(duk_get_prop_string(fctx, -1, _T("context")) == 0) { // Value stack: [heap][prop]
-				duk_pop(fctx); // Remove undefined prop, Value stack: [heap]
-				duk_pop(fctx); // Remove heap stash, Value stack: 
-				return 0;
-			}
-
-			PipeServiceNodeBase* pContext = static_cast<PipeServiceNodeBase*>(duk_get_pointer(fctx, -1)); // Value stack: [heap][prop]
-			duk_pop(fctx); // Remove pointer from stash, Value stack: [heap]
-			duk_pop(fctx); // Remove heap stash, Value stack:
+			// Get Context
+			auto pContext = getContext(fctx);
+			if(pContext == nullptr) { return 0; }
 
 			tstring result = PipeJson(*pContext->nodeCommandTypes(address)).dump();
 
@@ -136,17 +139,9 @@ shared_ptr<PipeScript> PipeScript::create(PipeServiceNodeBase* serviceRoot, cons
 			tstring address = tstring(addressPtr);
 			duk_pop(fctx); // Value stack: 
 
-			// Get context
-			duk_push_heap_stash(fctx); // Value stack: [heap]
-			if(duk_get_prop_string(fctx, -1, _T("context")) == 0) { // Value stack: [heap][prop]
-				duk_pop(fctx); // Remove undefined prop, Value stack: [heap]
-				duk_pop(fctx); // Remove heap stash, Value stack: 
-				return 0;
-			}
-
-			PipeServiceNodeBase* pContext = static_cast<PipeServiceNodeBase*>(duk_get_pointer(fctx, -1)); // Value stack: [heap][prop]
-			duk_pop(fctx); // Remove pointer from stash, Value stack: [heap]
-			duk_pop(fctx); // Remove heap stash, Value stack:
+			// Get Context
+			auto pContext = getContext(fctx);
+			if(pContext == nullptr) { return 0; }
 
 			tstring result = PipeJson(*pContext->nodeMessageTypes(address)).dump();
 
@@ -171,17 +166,9 @@ shared_ptr<PipeScript> PipeScript::create(PipeServiceNodeBase* serviceRoot, cons
 			tstring address = tstring(addressPtr);
 			duk_pop(fctx); // Value stack: 
 
-			// Get context
-			duk_push_heap_stash(fctx); // Value stack: [heap]
-			if(duk_get_prop_string(fctx, -1, _T("context")) == 0) { // Value stack: [heap][prop]
-				duk_pop(fctx); // Remove undefined prop, Value stack: [heap]
-				duk_pop(fctx); // Remove heap stash, Value stack: 
-				return 0;
-			}
-
-			PipeServiceNodeBase* pContext = static_cast<PipeServiceNodeBase*>(duk_get_pointer(fctx, -1)); // Value stack: [heap][prop]
-			duk_pop(fctx); // Remove pointer from stash, Value stack: [heap]
-			duk_pop(fctx); // Remove heap stash, Value stack:
+			// Get Context
+			auto pContext = getContext(fctx);
+			if(pContext == nullptr) { return 0; }
 
 			tstring result = PipeJson(*pContext->nodeInfo(address)).dump();
 
@@ -193,6 +180,33 @@ shared_ptr<PipeScript> PipeScript::create(PipeServiceNodeBase* serviceRoot, cons
 
 		if(duk_put_prop_string(ctx, -2, _T("nodeInfo")) == 0) {
 			throw tstring(_T("Could not add nodeInfo function to scripting context"));
+		}
+	}
+
+	// Add send function to the stack
+	{
+		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
+			// Get parameter
+			duk_json_encode(fctx, -1);
+			auto messagePtr = duk_get_string(fctx, -1); // Value stack: [string?]
+			if(messagePtr == NULL) { return 0; }
+
+			tstring message = tstring(messagePtr);
+			duk_pop(fctx); // Value stack: 
+
+			// Get Context
+			auto pContext = getContext(fctx);
+			if(pContext == nullptr) { return 0; }
+
+			auto messages = newArray();
+			messages->push_back(*parseObject(message));
+			pContext->scriptSend(messages);
+
+			return 0;
+		}, 1); // One argument, Value stack: [global][function]
+
+		if(duk_put_prop_string(ctx, -2, _T("send")) == 0) {
+			throw tstring(_T("Could not add send function to scripting context"));
 		}
 	}
 
@@ -223,21 +237,19 @@ void PipeScript::execute(tstring function, PipeObject& message) {
 	duk_json_decode(_context, -1); // Value stack: [global][function][json]
 
 	// Call the function
-	if(duk_pcall(_context, 1) != DUK_EXEC_SUCCESS)  // Value stack: [global][json]
+	if(duk_pcall(_context, 1) != DUK_EXEC_SUCCESS) { // Value stack: [global][json]
+		duk_pop(_context); // remove json value
 		throw tstring(_T("Evaluating script failed"));
-
+	}
 
 	// Get the result from the value stack and decode it
 	auto resultText = duk_json_encode(_context, -1); // Value stack: [global][string]
 
-	// Check if the result is valid
-	if(resultText == NULL) {
-		duk_pop(_context); // string
-		throw tstring(_T("Receiving message from script context failed"));
-	}
-
-	// Parse the result
-	message = *parseObject(resultText);
+	// Parse back message or empty object
+	if(resultText == nullptr)
+		message = *newObject();
+	else
+		message = *parseObject(resultText);
 
 	// Remove the result from the value stack (should be empty now)
 	duk_pop(_context);  // Value stack: [global]

@@ -4,7 +4,7 @@
 
 //======================================================================================================================
 
-#include "PipeServiceNodeBase.h"
+class ServiceRoot;
 
 //======================================================================================================================
 
@@ -22,7 +22,7 @@ public:
 	~PipeScript();
 
 public:
-	static std::shared_ptr<PipeScript> create(PipeServiceNodeBase* serviceRoot, const tstring& name, bool preSend, bool postReceive, int priority, const tstring& data);
+	static std::shared_ptr<PipeScript> create(ServiceRoot* serviceRoot, const tstring& name, bool preSend, bool postReceive, int priority, const tstring& data);
 
 public:
 	void execute(tstring function, PipeObject& message);
