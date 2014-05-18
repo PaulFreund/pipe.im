@@ -9,6 +9,9 @@ class ServiceRoot;
 //======================================================================================================================
 
 class PipeScript {
+private:
+	static const int MaxRecursionCount = 100;
+
 public:
 	int _priority;
 	tstring _name;

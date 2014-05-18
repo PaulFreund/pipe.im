@@ -198,9 +198,25 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 			auto pContext = getContext(fctx);
 			if(pContext == nullptr) { return 0; }
 
-			auto messages = newArray();
-			messages->push_back(*parseObject(message));
-			pContext->scriptSend(messages);
+			auto messageObject = parseObject(message);
+
+			int currentRecursionCount = 1;
+			if(messageObject->count(_T("recursionCount"))) {
+				currentRecursionCount = messageObject->operator[](_T("recursionCount")).int_value();
+				// If the recursion count is too high, cancel
+				if(currentRecursionCount > PipeScript::MaxRecursionCount) {
+					pContext->pushOutgoing(_T(""), _T("error"), _T("Maximum recursion count of ") + to_string(PipeScript::MaxRecursionCount) + _T(" exceeded, terminating script"));
+					return 0;
+				}
+
+				currentRecursionCount++;
+				messageObject->operator[](_T("recursionCount")).int_value() = currentRecursionCount;
+			}
+			else {
+				messageObject->operator[](_T("recursionCount")) = currentRecursionCount;
+			}
+
+			pContext->scriptSend(messageObject);
 
 			return 0;
 		}, 1); // One argument, Value stack: [global][function]
@@ -237,7 +253,7 @@ void PipeScript::execute(tstring function, PipeObject& message) {
 	duk_json_decode(_context, -1); // Value stack: [global][function][json]
 
 	// Call the function
-	if(duk_pcall(_context, 1) != DUK_EXEC_SUCCESS) { // Value stack: [global][json]
+	if(duk_pcall(_context, 1 /*nargs*/) != DUK_EXEC_SUCCESS) { // Value stack: [global][json]
 		duk_pop(_context); // remove json value
 		throw tstring(_T("Evaluating script failed"));
 	}

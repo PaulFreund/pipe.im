@@ -13,7 +13,6 @@ ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObject
 	: PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), address, path, settings) 
 	, _config(newObject())
 	, _scriptsSending(newArray())
-	, _scriptsSendingCount(0)
 {	
 	if(settings->count(_T("service_types"))) {
 		auto& serviceTypes = settings->operator[](_T("service_types")).array_items();
@@ -51,8 +50,8 @@ ServiceRoot::~ServiceRoot() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void ServiceRoot::scriptSend(PipeArrayPtr messages) {
-	_scriptsSending->insert(begin(*_scriptsSending), begin(*messages), end(*messages));
+void ServiceRoot::scriptSend(PipeObjectPtr message) {
+	_scriptsSending->push_back(*message);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -641,19 +640,12 @@ void ServiceRoot::executeScripts(PipeArrayPtr messages, bool preSend, bool postR
 		messageData.erase(begin(messageData) + deleteIndex);
 	}
 
-	// TODO
-	//if(!_scriptsSending->empty()) {
-	//	// If more than 1000 recursions occured, stop it
-	//	if(_scriptsSendingCount > 1000) {
-	//		_scriptsSendingCount = 0;
-	//		_scriptsSending->clear();
-	//		return;
-	//	}
-	//	_scriptsSendingCount++;
-	//	send(_scriptsSending);
-	//	_scriptsSending->clear();
-	//	_scriptsSendingCount--;
-	//}
+	// Process messages from sent scripts
+	if(!_scriptsSending->empty()) {
+		PipeArrayPtr sending = move(_scriptsSending);
+		_scriptsSending = newArray();
+		send(sending);
+	}
 }
 
 
