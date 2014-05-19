@@ -9,21 +9,40 @@ using namespace Poco;
 
 //======================================================================================================================
 
-ServiceRoot* getContext(duk_context* ctx) {
+ServiceRoot* getContextPtr(duk_context* ctx) {
 	// Get context
 	duk_push_heap_stash(ctx); // Value stack: [heap]
-	if(duk_get_prop_string(ctx, -1, _T("context")) == 0) { // Value stack: [heap][prop]
+	if(duk_get_prop_string(ctx, -1, _T("contextPtr")) == 0) { // Value stack: [heap][prop]
 		duk_pop(ctx); // Remove undefined prop, Value stack: [heap]
 		duk_pop(ctx); // Remove heap stash, Value stack: 
 		return nullptr;
 	}
 
-	ServiceRoot* pContext = static_cast<ServiceRoot*>(duk_get_pointer(ctx, -1)); // Value stack: [heap][prop]
+	ServiceRoot* pContextPtr = static_cast<ServiceRoot*>(duk_get_pointer(ctx, -1)); // Value stack: [heap][prop]
 	duk_pop(ctx); // Remove pointer from stash, Value stack: [heap]
 	duk_pop(ctx); // Remove heap stash, Value stack:
 
-	return pContext;
+	return pContextPtr;
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+PipeScript* getScriptPtr(duk_context* ctx) {
+	// Get context
+	duk_push_heap_stash(ctx); // Value stack: [heap]
+	if(duk_get_prop_string(ctx, -1, _T("scriptPtr")) == 0) { // Value stack: [heap][prop]
+		duk_pop(ctx); // Remove undefined prop, Value stack: [heap]
+		duk_pop(ctx); // Remove heap stash, Value stack: 
+		return nullptr;
+	}
+
+	PipeScript* pScriptPtr = static_cast<PipeScript*>(duk_get_pointer(ctx, -1)); // Value stack: [heap][prop]
+	duk_pop(ctx); // Remove pointer from stash, Value stack: [heap]
+	duk_pop(ctx); // Remove heap stash, Value stack:
+
+	return pScriptPtr;
+}
+
 
 //======================================================================================================================
 
@@ -47,6 +66,8 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 	duk_context* ctx = duk_create_heap_default();
 	if(!ctx) { throw tstring(_T("Could not create script context")); }
 
+	auto newScript = std::make_shared<PipeScript>(name, priority, data, ctx);
+
 	// Add the functions to the context
 	if(duk_peval_string_noresult(ctx, data.c_str()) != 0) { throw tstring(_T("The script could not be evaluated")); }
 
@@ -64,18 +85,28 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 			throw tstring(_T("Script has no postReceive function"));
 	}
 
-	// Add context pointer to the heap stash
+	// Add script pointer to the heap stash
 	duk_push_heap_stash(ctx); // Value stack: [global][heap]
-	duk_push_pointer(ctx, static_cast<void*>(serviceRoot)); // Value stack: [global][heap][pointer]
-	if(duk_put_prop_string(ctx, -2, _T("context")) == 0) { // Value stack: [global][heap]
+	duk_push_pointer(ctx, static_cast<void*>(newScript.get())); // Value stack: [global][heap][pointer]
+	if(duk_put_prop_string(ctx, -2, _T("scriptPtr")) == 0) { // Value stack: [global][heap]
 		duk_pop(ctx); // Value stack: [global]
-		throw tstring(_T("Could not add context pointer to scripting context"));
+		throw tstring(_T("Could not add scriptPtr to scripting context"));
+	}
+
+	// Add context pointer to the heap stash
+	duk_push_pointer(ctx, static_cast<void*>(serviceRoot)); // Value stack: [global][heap][pointer]
+	if(duk_put_prop_string(ctx, -2, _T("contextPtr")) == 0) { // Value stack: [global][heap]
+		duk_pop(ctx); // Value stack: [global]
+		throw tstring(_T("Could not add contextPtr to scripting context"));
 	}
 
 	// Remove heap from value stack
 	duk_pop(ctx); // Value stack: [global]
 
-	// Add nodeChildren function to the stack
+	// Add the "pipe" object to the stack
+	duk_push_object(ctx);
+
+	// Add children function to the stack
 	{
 		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
 			// Get parameter
@@ -86,7 +117,7 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 			duk_pop(fctx); // Value stack: 
 
 			// Get Context
-			auto pContext = getContext(fctx);
+			auto pContext = getContextPtr(fctx);
 			if(pContext == nullptr) { return 0; }
 
 			tstring result = PipeJson(*pContext->nodeChildren(address)).dump();
@@ -95,14 +126,14 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 			duk_json_decode(fctx, -1); // Value stack: [json]
 
 			return 1;
-		}, 1); // One argument, Value stack: [global][function]
+		}, 1); // One argument, Value stack: [global][object][function]
 
-		if(duk_put_prop_string(ctx, -2, _T("nodeChildren")) == 0) {
-			throw tstring(_T("Could not add nodeChildren function to scripting context"));
+		if(duk_put_prop_string(ctx, -2, _T("children")) == 0) { // Value stack: [global][object]
+			throw tstring(_T("Could not add children function to scripting context"));
 		}
 	}
 
-	// Add nodeCommandTypes function to the stack
+	// Add commands function to the stack
 	{
 		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
 			// Get parameter
@@ -113,7 +144,7 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 			duk_pop(fctx); // Value stack: 
 
 			// Get Context
-			auto pContext = getContext(fctx);
+			auto pContext = getContextPtr(fctx);
 			if(pContext == nullptr) { return 0; }
 
 			tstring result = PipeJson(*pContext->nodeCommandTypes(address)).dump();
@@ -122,14 +153,14 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 			duk_json_decode(fctx, -1); // Value stack: [json]
 
 			return 1;
-		}, 1); // One argument, Value stack: [global][function]
+		}, 1); // One argument, Value stack: [global][object][function]
 
-		if(duk_put_prop_string(ctx, -2, _T("nodeCommandTypes")) == 0) {
-			throw tstring(_T("Could not add nodeCommandTypes function to scripting context"));
+		if(duk_put_prop_string(ctx, -2, _T("commands")) == 0) { // Value stack: [global][object]
+			throw tstring(_T("Could not add commands function to scripting context"));
 		}
 	}
 
-	// Add nodeMessageTypes function to the stack
+	// Add messages function to the stack
 	{
 		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
 			// Get parameter
@@ -140,7 +171,7 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 			duk_pop(fctx); // Value stack: 
 
 			// Get Context
-			auto pContext = getContext(fctx);
+			auto pContext = getContextPtr(fctx);
 			if(pContext == nullptr) { return 0; }
 
 			tstring result = PipeJson(*pContext->nodeMessageTypes(address)).dump();
@@ -149,14 +180,14 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 			duk_json_decode(fctx, -1); // Value stack: [json]
 
 			return 1;
-		}, 1); // One argument, Value stack: [global][function]
+		}, 1); // One argument, Value stack: [global][object][function]
 
-		if(duk_put_prop_string(ctx, -2, _T("nodeMessageTypes")) == 0) {
-			throw tstring(_T("Could not add nodeMessageTypes function to scripting context"));
+		if(duk_put_prop_string(ctx, -2, _T("messages")) == 0) { // Value stack: [global][object]
+			throw tstring(_T("Could not add messages function to scripting context"));
 		}
 	}
 
-	// Add nodeInfo function to the stack
+	// Add info function to the stack
 	{
 		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
 			// Get parameter
@@ -167,7 +198,7 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 			duk_pop(fctx); // Value stack: 
 
 			// Get Context
-			auto pContext = getContext(fctx);
+			auto pContext = getContextPtr(fctx);
 			if(pContext == nullptr) { return 0; }
 
 			tstring result = PipeJson(*pContext->nodeInfo(address)).dump();
@@ -176,14 +207,75 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 			duk_json_decode(fctx, -1); // Value stack: [json]
 
 			return 1;
-		}, 1); // One argument, Value stack: [global][function]
+		}, 1); // One argument, Value stack: [global][object][function]
 
-		if(duk_put_prop_string(ctx, -2, _T("nodeInfo")) == 0) {
-			throw tstring(_T("Could not add nodeInfo function to scripting context"));
+		if(duk_put_prop_string(ctx, -2, _T("info")) == 0) { // Value stack: [global][object]
+			throw tstring(_T("Could not add info function to scripting context"));
 		}
 	}
 
-	// Add send function to the stack
+	// Add set function to the stack
+	{
+		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
+			// Get parameters
+			duk_json_encode(fctx, -1); 
+			auto dataPtr = duk_get_string(fctx, -1);
+			if(dataPtr == NULL) { return 0; }
+
+			tstring data = tstring(dataPtr);
+			duk_pop(fctx); 
+
+			auto keyPtr = duk_get_string(fctx, -1); 
+			if(keyPtr == NULL) { return 0; }
+
+			tstring key = tstring(keyPtr);
+			duk_pop(fctx);
+
+			// Get Context
+			auto pScript = getScriptPtr(fctx);
+			if(pScript == nullptr) { return 0; }
+
+			pScript->_dataStore[key] = data;
+
+			return 0;
+		}, 2); // Two arguments, Value stack: [global][object][function]
+
+		if(duk_put_prop_string(ctx, -2, _T("set")) == 0) { // Value stack: [global][object]
+			throw tstring(_T("Could not add set function to scripting context"));
+		}
+	}
+
+	// Add get function to the stack
+	{
+		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
+			// Get parameter
+			auto keyPtr = duk_get_string(fctx, -1); // Value stack: [string?]
+			if(keyPtr == NULL) { return 0; }
+
+			tstring key = tstring(keyPtr);
+			duk_pop(fctx); // Value stack: 
+
+			// Get Context
+			auto pScript = getScriptPtr(fctx);
+			if(pScript == nullptr) { return 0; }
+
+			if(!pScript->_dataStore.count(key))
+				return 0;
+
+			tstring data = pScript->_dataStore[key];
+
+			duk_push_string(fctx, data.c_str()); // Value stack: [string]
+			duk_json_decode(fctx, -1); // Value stack: [json]
+
+			return 1;
+		}, 1); // Two arguments, Value stack: [global][object][function]
+
+		if(duk_put_prop_string(ctx, -2, _T("get")) == 0) { // Value stack: [global][object]
+			throw tstring(_T("Could not add get function to scripting context"));
+		}
+	}
+
+	// Add pushIncoming function to the stack
 	{
 		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
 			// Get parameter
@@ -195,7 +287,7 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 			duk_pop(fctx); // Value stack: 
 
 			// Get Context
-			auto pContext = getContext(fctx);
+			auto pContext = getContextPtr(fctx);
 			if(pContext == nullptr) { return 0; }
 
 			auto messageObject = parseObject(message);
@@ -216,17 +308,46 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 				messageObject->operator[](_T("recursionCount")) = currentRecursionCount;
 			}
 
-			pContext->scriptSend(messageObject);
+			pContext->scriptPushIncoming(messageObject);
 
 			return 0;
-		}, 1); // One argument, Value stack: [global][function]
+		}, 1); // One argument, Value stack: [global][object][function]
 
-		if(duk_put_prop_string(ctx, -2, _T("send")) == 0) {
-			throw tstring(_T("Could not add send function to scripting context"));
+		if(duk_put_prop_string(ctx, -2, _T("pushIncoming")) == 0) { // Value stack: [global][object]
+			throw tstring(_T("Could not add pushIncoming function to scripting context"));
 		}
 	}
 
-	return std::make_shared<PipeScript>(name, priority, data, ctx);
+
+	// Add pushOutgoing function to the stack
+	{
+		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
+			// Get parameter
+			duk_json_encode(fctx, -1);
+			auto messagePtr = duk_get_string(fctx, -1); // Value stack: [string?]
+			if(messagePtr == NULL) { return 0; }
+
+			tstring message = tstring(messagePtr);
+			duk_pop(fctx); // Value stack: 
+
+			// Get Context
+			auto pContext = getContextPtr(fctx);
+			if(pContext == nullptr) { return 0; }
+
+			pContext->scriptPushOutgoing(parseObject(message));
+
+			return 0;
+		}, 1); // One argument, Value stack: [global][object][function]
+
+		if(duk_put_prop_string(ctx, -2, _T("pushOutgoing")) == 0) { // Value stack: [global][object]
+			throw tstring(_T("Could not add pushOutgoing function to scripting context"));
+		}
+	}
+
+	// Push the current object as "pipe" to the stash
+	duk_put_prop_string(ctx, -2, "pipe"); // Value stack: [global]
+
+	return newScript;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -254,8 +375,9 @@ void PipeScript::execute(tstring function, PipeObject& message) {
 
 	// Call the function
 	if(duk_pcall(_context, 1 /*nargs*/) != DUK_EXEC_SUCCESS) { // Value stack: [global][json]
+		tstring error(duk_to_string(_context, -1));
 		duk_pop(_context); // remove json value
-		throw tstring(_T("Evaluating script failed"));
+		throw tstring(_T("Error in script (") + error + _T(")"));
 	}
 
 	// Get the result from the value stack and decode it

@@ -15,6 +15,7 @@ private:
 public:
 	int _priority;
 	tstring _name;
+	std::map<tstring, tstring> _dataStore;
 
 private:
 	tstring _data;

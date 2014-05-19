@@ -12,7 +12,8 @@ using namespace Poco;
 ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObjectPtr settings) 
 	: PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), address, path, settings) 
 	, _config(newObject())
-	, _scriptsSending(newArray())
+	, _scriptIncomingQueue(newArray())
+	, _scriptOutgoingQueue(newArray())
 {	
 	if(settings->count(_T("service_types"))) {
 		auto& serviceTypes = settings->operator[](_T("service_types")).array_items();
@@ -50,8 +51,14 @@ ServiceRoot::~ServiceRoot() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void ServiceRoot::scriptSend(PipeObjectPtr message) {
-	_scriptsSending->push_back(*message);
+void ServiceRoot::scriptPushIncoming(PipeObjectPtr message) {
+	_scriptIncomingQueue->push_back(*message);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void ServiceRoot::scriptPushOutgoing(PipeObjectPtr message) {
+	_scriptOutgoingQueue->push_back(*message);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -610,6 +617,12 @@ void ServiceRoot::executeScripts(PipeArrayPtr messages, bool preSend, bool postR
 	else if(postReceive) { targetList = &_scriptsPostReceive; targetFunction = _T("postReceive"); }
 	if(targetList == nullptr || targetFunction.empty()) { return; }
 
+	// Process messages for outbound script messages
+	if(postReceive && !_scriptOutgoingQueue->empty()) {
+		messages->insert(begin(*messages), begin(*_scriptOutgoingQueue), end(*_scriptOutgoingQueue));
+		_scriptOutgoingQueue->clear();
+	}
+
 	auto& messageData = *messages;
 	vector<int> deleteList;
 
@@ -640,11 +653,11 @@ void ServiceRoot::executeScripts(PipeArrayPtr messages, bool preSend, bool postR
 		messageData.erase(begin(messageData) + deleteIndex);
 	}
 
-	// Process messages from sent scripts
-	if(!_scriptsSending->empty()) {
-		PipeArrayPtr sending = move(_scriptsSending);
-		_scriptsSending = newArray();
-		send(sending);
+	// Process messages for inbound script messages
+	if(preSend && !_scriptIncomingQueue->empty()) {
+		PipeArrayPtr incoming = move(_scriptIncomingQueue);
+		_scriptIncomingQueue = newArray();
+		send(incoming);
 	}
 }
 

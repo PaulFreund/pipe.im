@@ -15,7 +15,8 @@ private:
 
 	std::vector<tstring> _providerTypes;
 
-	PipeArrayPtr _scriptsSending;
+	PipeArrayPtr _scriptIncomingQueue;
+	PipeArrayPtr _scriptOutgoingQueue;
 	std::vector<std::shared_ptr<PipeScript>> _scriptsPreSend;
 	std::vector<std::shared_ptr<PipeScript>> _scriptsPostReceive;
 
@@ -28,7 +29,8 @@ public:
 	ServiceRoot(const tstring& address, const tstring& path, PipeObjectPtr settings);
 	virtual ~ServiceRoot();
 
-	void scriptSend(PipeObjectPtr message);
+	void scriptPushIncoming(PipeObjectPtr message);
+	void scriptPushOutgoing(PipeObjectPtr message);
 
 private:
 	void loadConfig();
