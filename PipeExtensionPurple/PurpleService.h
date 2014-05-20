@@ -8,21 +8,11 @@
 
 //======================================================================================================================
 
-class PipeExtensionPurple : public IPipeExtension {
+class PurpleService : public PipeServiceNodeBase {
 public:
-	static PipeExtensionPurple ExtensionInstance;
-	static PipeExtensionCbErr ErrorCallback;
-private:
-	std::map<tstring, IPipeExtensionService*> _services;
+	PurpleService(const tstring& type, const tstring& description, const tstring& address, const tstring& path, PipeObjectPtr settings);
+	~PurpleService();
 
-public:
-	PipeExtensionPurple();
-	virtual ~PipeExtensionPurple();
-
-public:
-	virtual PipeArrayPtr serviceTypes();
-	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings);
-	virtual void destroy(IPipeExtensionService* service);
 };
 
 //======================================================================================================================

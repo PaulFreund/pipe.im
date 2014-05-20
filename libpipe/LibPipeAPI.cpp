@@ -1,16 +1,27 @@
 //======================================================================================================================
 
 #include "CommonHeader.h"
-#include "LibPipe.h"
+#include "ServiceRoot.h"
+#include "PipeExtensionInstance.h"
 
 using namespace std;
 using namespace Poco;
 
 //======================================================================================================================
 
+static bool InitDone;
+static tstring InstancePath;
+
+static LibPipeCbContext ErrorCallbackContext;
+static LibPipeCbErr ErrorCallback;
+
+static shared_ptr<ServiceRoot> ServiceRootInstance;
+
+//======================================================================================================================
+
 void publishError(tstring error) {
-	if(LibPipe::ErrorCallback != nullptr)
-		LibPipe::ErrorCallback(error.c_str());
+	if(ErrorCallback != nullptr && ErrorCallbackContext != nullptr)
+		ErrorCallback(ErrorCallbackContext, error.c_str());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -63,13 +74,25 @@ void loadExtension(const tstring& path) {
 	catch(tstring error) { publishError(error); }
 	catch(...) { return; }
 
-	LibPipe::Extensions.push_back(make_shared<PipeExtensionInstance>(extensionFunctions));
+	ServiceRoot::Extensions.push_back(make_shared<PipeExtensionInstance>(extensionFunctions));
 }
 
 //======================================================================================================================
 
-LIBPIPE_ITF void LibPipeSetErrorCallback(LibPipeCbErr cbError) {
-	LibPipe::ErrorCallback = cbError;
+LIBPIPE_ITF void LibPipeSetErrorCallback(LibPipeCbContext context, LibPipeCbErr cbError) {
+	ErrorCallbackContext = context;
+	ErrorCallback = cbError;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+LIBPIPE_ITF void LibPipeSetPath(LibPipeStr path) {
+	try {
+		InstancePath = tstring(path);
+		if(InstancePath.empty()) { throw tstring(_T("Empty path supplied")); }
+	}
+	catch(tstring error) { publishError(_T("LibPipeSetPath: ") + error); }
+	catch(...) { publishError(_T("LibPipeSetPath: Unknown error")); }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -98,9 +121,10 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 
 LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr cbServiceTypes) {
 	try {
+		if(InstancePath.empty()) { throw tstring(_T("Empty or invalid path supplied")); }
 		PipeArray serviceTypes;
 
-		for(auto&& extension : LibPipe::Extensions) {
+		for(auto&& extension : ServiceRoot::Extensions) {
 			auto extensionServiceTypes = extension->serviceTypes();
 			for(auto&& extensionServiceType : *extensionServiceTypes) {
 				serviceTypes.push_back(extensionServiceType);
@@ -115,46 +139,35 @@ LIBPIPE_ITF void LibPipeGetServiceTypes(LibPipeCbContext context, LibPipeCbStr c
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeCreate(LibPipeStr path, LibPipeStr serviceTypes, HLibPipe* instance) {
+LIBPIPE_ITF void LibPipeInit(LibPipeStr serviceTypes) {
 	try {
-		LibPipe::Instances.push_back(make_shared<LibPipe>(tstring(path), parseArray(serviceTypes)));
-		(*instance) = reinterpret_cast<HLibPipe>(LibPipe::Instances.back().get());
+		if(InstancePath.empty()) { throw tstring(_T("Empty or invalid path supplied")); }
+
+		PipeObjectPtr settings = newObject();
+		(*settings)[_T("service_types")] = *serviceTypes;
+		ServiceRootInstance = make_shared<ServiceRoot>(InstancePath, settings);
+
+		InitDone = true;
 	}
-	catch(tstring error) { instance = nullptr;  publishError(_T("LibPipeCreate: ") + error); }
-	catch(...) { instance = nullptr; publishError(_T("LibPipeCreate: Unknown error")); }
+	catch(tstring error) { publishError(_T("LibPipeCreate: ") + error); }
+	catch(...) { publishError(_T("LibPipeCreate: Unknown error")); }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeDestroy(HLibPipe instance) {
+LIBPIPE_ITF void LibPipeSend(LibPipeStr messages) {
 	try {
-		LibPipe* pInstance = reinterpret_cast<LibPipe*>(instance);
-		for(auto it = begin(LibPipe::Instances); it != end(LibPipe::Instances); it++) {
-			if((*it).get() == pInstance) {
-				LibPipe::Instances.erase(it);
-				return;
-			}
-		}
-
-		throw tstring(_T("LibPipeDestroy: Instance not found"));
-	}
-	catch(tstring error) { publishError(_T("LibPipeDestroy: ") + error); }
-	catch(...) { publishError(_T("LibPipeDestroy: Unknown error")); }
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-LIBPIPE_ITF void LibPipeSend(HLibPipe instance, LibPipeStr messages) {
-	try {
-		reinterpret_cast<LibPipe*>(instance)->send(parseArray(messages));
+		if(!InitDone) { throw tstring(_T("LibPipe not initialized")); }
+		ServiceRootInstance->send(parseArray(messages));
 	}
 	catch(tstring error) { publishError(_T("LibPipeSend: ") + error); }
 	catch(...) { publishError(_T("LibPipeSend: Unknown error")); }
 }
 
-LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, LibPipeCbStr cbMessages) {
+LIBPIPE_ITF void LibPipeReceive(LibPipeCbContext context, LibPipeCbStr cbMessages) {
 	try {
-		cbMessages(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->receive()).c_str());
+		if(!InitDone) { throw tstring(_T("LibPipe not initialized")); }
+		cbMessages(context, dumpArray(ServiceRootInstance->receive()).c_str());
 	}
 	catch(tstring error) { publishError(_T("LibPipeReceive: ") + error); }
 	catch(...) { publishError(_T("LibPipeReceive: Unknown error")); }
@@ -162,33 +175,37 @@ LIBPIPE_ITF void LibPipeReceive(HLibPipe instance, LibPipeCbContext context, Lib
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeGetNodeChildren(HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbChildNodes) {
+LIBPIPE_ITF void LibPipeGetNodeChildren(LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbChildNodes) {
 	try {
-		cbChildNodes(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->nodeChildren(tstring(address))).c_str());
+		if(!InitDone) { throw tstring(_T("LibPipe not initialized")); }
+		cbChildNodes(context, dumpArray(ServiceRootInstance->nodeChildren(tstring(address))).c_str());
 	}
 	catch(tstring error) { publishError(_T("LibPipeGetNodeChildren: ") + error); }
 	catch(...) { publishError(_T("LibPipeGetNodeChildren: Unknown error")); }
 }
 
-LIBPIPE_ITF void LibPipeGetNodeCommandTypes(HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeCommandTypes) {
+LIBPIPE_ITF void LibPipeGetNodeCommandTypes(LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeCommandTypes) {
 	try {
-		cbNodeCommandTypes(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->nodeCommandTypes(tstring(address))).c_str());
+		if(!InitDone) { throw tstring(_T("LibPipe not initialized")); }
+		cbNodeCommandTypes(context, dumpArray(ServiceRootInstance->nodeCommandTypes(tstring(address))).c_str());
 	}
 	catch(tstring error) { publishError(_T("LibPipeGetNodeCommandTypes: ") + error); }
 	catch(...) { publishError(_T("LibPipeGetNodeCommandTypes: Unknown error")); }
 }
 
-LIBPIPE_ITF void LibPipeGetNodeMessageTypes(HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeMessageTypes) {
+LIBPIPE_ITF void LibPipeGetNodeMessageTypes(LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeMessageTypes) {
 	try {
-		cbNodeMessageTypes(context, dumpArray(reinterpret_cast<LibPipe*>(instance)->nodeMessageTypes(tstring(address))).c_str());
+		if(!InitDone) { throw tstring(_T("LibPipe not initialized")); }
+		cbNodeMessageTypes(context, dumpArray(ServiceRootInstance->nodeMessageTypes(tstring(address))).c_str());
 	}
 	catch(tstring error) { publishError(_T("LibPipeGetNodeMessageTypes: ") + error); }
 	catch(...) { publishError(_T("LibPipeGetNodeMessageTypes: Unknown error")); }
 }
 
-LIBPIPE_ITF void LibPipeGetNodeInfo(HLibPipe instance, LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeInfo) {
+LIBPIPE_ITF void LibPipeGetNodeInfo(LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeInfo) {
 	try {
-		cbNodeInfo(context, dumpObject(reinterpret_cast<LibPipe*>(instance)->nodeInfo(tstring(address))).c_str());
+		if(!InitDone) { throw tstring(_T("LibPipe not initialized")); }
+		cbNodeInfo(context, dumpObject(ServiceRootInstance->nodeInfo(tstring(address))).c_str());
 	}
 	catch(tstring error) { publishError(_T("LibPipeGetNodeInfo: ") + error); }
 	catch(...) { publishError(_T("LibPipeGetNodeInfo: Unknown error")); }

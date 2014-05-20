@@ -53,12 +53,15 @@ int main(int argc, char* argv[]) {
 
 		auto appPath = commandPath.parent().toString();
 		auto userPath = appPath + _T("PipeTerminalData");
+		LibPipe::setErrorCallback([](tstring error) {
+			cout << _T("[LIBPIPE ERROR]") << error << endl;
+		});
+		LibPipe::setPath(userPath);
+		LibPipe::loadExtensions(appPath);
+		auto serviceTypes = LibPipe::serviceTypes();
+		LibPipe::init(serviceTypes);
 
-		LibPipeInstance::loadExtensions(appPath);
-		auto serviceTypes = LibPipeInstance::serviceTypes();
-
-		auto instance = make_shared<LibPipeInstance>(userPath, serviceTypes);
-		PipeShell shell(instance, _T("terminal"), true);
+		PipeShell shell(_T("terminal"), true);
 
 		bool exit = false;
 

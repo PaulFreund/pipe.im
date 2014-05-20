@@ -20,6 +20,9 @@
     <ClCompile Include="CommonHeader.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="PurpleService.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PipeExtensionPurple.h">
@@ -29,6 +32,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="ServiceIRC.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="PurpleService.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

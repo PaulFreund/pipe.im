@@ -88,10 +88,12 @@
     </ClCompile>
     <ClCompile Include="PipeExtensionPurple.cpp" />
     <ClCompile Include="PipeExtensionPurpleAPI.cpp" />
+    <ClCompile Include="PurpleService.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonHeader.h" />
     <ClInclude Include="PipeExtensionPurple.h" />
+    <ClInclude Include="PurpleService.h" />
     <ClInclude Include="ServiceIRC.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

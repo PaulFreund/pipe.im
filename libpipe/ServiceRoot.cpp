@@ -7,10 +7,12 @@
 using namespace std;
 using namespace Poco;
 
+std::vector<std::shared_ptr<PipeExtensionInstance>> ServiceRoot::Extensions;
+
 //======================================================================================================================
 
-ServiceRoot::ServiceRoot(const tstring& address, const tstring& path, PipeObjectPtr settings) 
-	: PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), address, path, settings) 
+ServiceRoot::ServiceRoot(const tstring& path, PipeObjectPtr settings) 
+	: PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), _T("pipe"), path, settings)
 	, _config(newObject())
 	, _scriptIncomingQueue(newArray())
 	, _scriptOutgoingQueue(newArray())
@@ -190,7 +192,7 @@ void ServiceRoot::initServices() {
 	_serviceServices->addChild(addressServicesProviders, _serviceServicesProviders);
 
 	// Add providers
-	for(auto& extension : LibPipe::Extensions) {
+	for(auto& extension : Extensions) {
 		auto extensionProviders = extension->serviceTypes();
 		for(auto& type : *extensionProviders) {
 			auto& providerType = type.object_items();
@@ -279,7 +281,7 @@ tstring ServiceRoot::createService(const tstring& type, const tstring& name, Pip
 			return _T("Name \"") + name + _T("\" is already taken");
 	}
 
-	for(auto& extension : LibPipe::Extensions) {
+	for(auto& extension : Extensions) {
 		bool found = false;
 
 		auto extensionProviders = extension->serviceTypes();

@@ -4,7 +4,7 @@
 
 //======================================================================================================================
 
-#include "LibPipeInstance.h"
+#include "LibPipe.h"
 #include "LibPipeHelper.h"
 
 //======================================================================================================================
@@ -397,7 +397,6 @@ private:
 private:
 	//------------------------------------------------------------------------------------------------------------------
 	const tstring _identifier;
-	std::shared_ptr<LibPipeInstance> _instance;
 	bool _greeting;
 
 	tstring _address;
@@ -409,12 +408,11 @@ private:
 public:
 	//------------------------------------------------------------------------------------------------------------------
 
-	PipeShell(std::shared_ptr<LibPipeInstance> instance, const tstring& identifier, bool greeting = false)
-		: _instance(instance)
-		, _identifier(identifier)
+	PipeShell(const tstring& identifier, bool greeting = false)
+		: _identifier(identifier)
 		, _greeting(greeting)
 		, _address(_T("pipe"))
-		, _addressCommands(_instance->nodeCommandTypes(_address))
+		, _addressCommands(LibPipe::nodeCommandTypes(_address))
 
 	{
 		if(_greeting)
@@ -431,8 +429,8 @@ public:
 			return false;
 
 		PipeArrayPtr newAddressCommands;
-		newAddressCommands = _instance->nodeCommandTypes(newAddressAbsolute);
-		if(_instance->nodeInfo(newAddressAbsolute)->empty())
+		newAddressCommands = LibPipe::nodeCommandTypes(newAddressAbsolute);
+		if(LibPipe::nodeInfo(newAddressAbsolute)->empty())
 			return false;
 
 		_address = newAddressAbsolute;
@@ -458,7 +456,7 @@ public:
 			if(fragments.size() >= 2) {
 				if(fragments[0] == _T("pipe") || fragments[0].find_first_of(TokenAddressSeparator) != tstring::npos) {
 					address = fragments[0];
-					addressCommands = _instance->nodeCommandTypes(address);
+					addressCommands = LibPipe::nodeCommandTypes(address);
 					fragments.erase(begin(fragments));
 				}
 			}
@@ -503,7 +501,7 @@ public:
 
 				_receiveBuffer << _sendBuffer.start(_identifier, command, parameter, address, *schema);
 				if(!_sendBuffer.isEmpty() && _sendBuffer.isComplete()) {
-					_instance->send(_sendBuffer.getMessages());
+					LibPipe::send(_sendBuffer.getMessages());
 					_sendBuffer.clear();
 				}
 
@@ -513,7 +511,7 @@ public:
 		else {
 			_receiveBuffer << _sendBuffer.add(input);
 			if(!_sendBuffer.isEmpty() && _sendBuffer.isComplete()) {
-				_instance->send(_sendBuffer.getMessages());
+				LibPipe::send(_sendBuffer.getMessages());
 				_sendBuffer.clear();
 			}
 		}
@@ -526,7 +524,7 @@ public:
 		_receiveBuffer.str(tstring());
 
 		if(_sendBuffer.isEmpty()) {
-			auto messages = _instance->receive();
+			auto messages = LibPipe::receive();
 			for(auto& msg : *messages) {
 				if(!msg.is_object()) { continue; }
 
@@ -604,8 +602,8 @@ private:
 				return;
 			}
 
-			auto addressCommands = _instance->nodeCommandTypes(helpAddress);
-			if(_instance->nodeInfo(helpAddress)->empty()) {
+			auto addressCommands = LibPipe::nodeCommandTypes(helpAddress);
+			if(LibPipe::nodeInfo(helpAddress)->empty()) {
 				_receiveBuffer << _T("Invalid node") << std::endl;
 				return;
 			}
@@ -651,13 +649,13 @@ private:
 				return;
 			}
 
-			auto info = _instance->nodeInfo(lsAddress);
+			auto info = LibPipe::nodeInfo(lsAddress);
 			if(info->size() == 0) {
 				_receiveBuffer << _T("Invalid address") << std::endl;
 				return;
 			}
 
-			auto children = _instance->nodeChildren(lsAddress);
+			auto children = LibPipe::nodeChildren(lsAddress);
 			if(children->size() == 0) {
 				_receiveBuffer << _T("No children") << std::endl;
 				return;
@@ -700,7 +698,7 @@ private:
 				return;
 			}
 
-			auto info = _instance->nodeInfo(treeAddress);
+			auto info = LibPipe::nodeInfo(treeAddress);
 			if(info->size() == 0) {
 				_receiveBuffer << _T("Invalid address") << std::endl;
 				return;
@@ -710,7 +708,7 @@ private:
 				auto addressParts = texplode(address, TokenAddressSeparator);
 				_receiveBuffer << indent << addressParts.back() << std::endl;
 
-				auto children = _instance->nodeChildren(address);
+				auto children = LibPipe::nodeChildren(address);
 				for(auto&& child : *children)
 					printChildren(child.string_value(), indent + IndentSymbol);
 			};

@@ -6,10 +6,14 @@
 
 #include "PipeScript.h"
 #include "PipeServiceNodeBase.h"
+#include "PipeExtensionInstance.h"
 
 //======================================================================================================================
 
 class ServiceRoot : public PipeServiceNodeBase {
+public:
+	static std::vector<std::shared_ptr<PipeExtensionInstance>> Extensions;
+
 private:
 	PipeObjectPtr _config;
 
@@ -26,7 +30,7 @@ private:
 	std::shared_ptr<PipeServiceNodeBase> _serviceServicesInstances;
 
 public:
-	ServiceRoot(const tstring& address, const tstring& path, PipeObjectPtr settings);
+	ServiceRoot(const tstring& path, PipeObjectPtr settings);
 	virtual ~ServiceRoot();
 
 	void scriptPushIncoming(PipeObjectPtr message);

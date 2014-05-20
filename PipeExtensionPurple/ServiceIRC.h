@@ -5,12 +5,13 @@
 //======================================================================================================================
 
 #include "CommonHeader.h"
+#include "PurpleService.h"
 
 //======================================================================================================================
 
-class ServiceIRC : public PipeServiceNodeBase {
+class ServiceIRC : public PurpleService {
 public:
-	ServiceIRC(const tstring& address, const tstring& path, PipeObjectPtr settings) : PipeServiceNodeBase(_T("irc"), _T("Internet relay Chat"), address, path, settings) {
+	ServiceIRC(const tstring& address, const tstring& path, PipeObjectPtr settings) : PurpleService(_T("irc"), _T("Internet relay Chat"), address, path, settings) {
 		
 	}
 	

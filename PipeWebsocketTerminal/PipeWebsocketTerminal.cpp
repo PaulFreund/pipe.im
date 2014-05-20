@@ -119,10 +119,7 @@ public:
 			const int bufferSize = 2048;
 			ws.setReceiveBufferSize(bufferSize);
 
-			auto&& serviceTypes = LibPipeInstance::serviceTypes();
-
-			auto instance = make_shared<LibPipeInstance>(pApp->_datadir, serviceTypes);
-			PipeShell shell(instance, _T("terminal"), true);
+			PipeShell shell(_T("terminal"), true);
 
 			vector<tstring> incoming;
 			vector<tstring> outgoing;
@@ -283,7 +280,14 @@ int PipeWebsocketTerminalApplication::main(const vector<tstring>& args) {
 		if(_uripath[0] != _T('/'))
 			_uripath = _T("/") + _uripath;
 
-		LibPipeInstance::loadExtensions(_extdir);
+		LibPipe::setErrorCallback([](tstring error) {
+			cout << _T("[LIBPIPE ERROR]") << error << endl;
+		});
+
+		LibPipe::setPath(_datadir);
+		LibPipe::loadExtensions(_extdir);
+		auto&& serviceTypes = LibPipe::serviceTypes();
+		LibPipe::init(serviceTypes);
 
 		// Set up Websocket server
 		ServerSocket socket(SocketAddress(_address, _port));
