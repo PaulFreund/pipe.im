@@ -7,15 +7,18 @@
 #include "LibPipeInterface.h"
 #include "LibPipeHelper.h"
 
+
 //======================================================================================================================
 
 namespace LibPipe {
+	typedef void(*ErrorCallback)(tstring);
+
 	//------------------------------------------------------------------------------------------------------------------
 
-	inline void setErrorCallback(void(*cbError)(tstring)) {
+	inline void setErrorCallback(ErrorCallback cb) {
 		
-		LibPipeSetErrorCallback(cbError, [](LibPipeCbContext context, LibPipeStr error) {
-			(*static_cast<void(*)(tstring)>(context))(tstring(error));
+		LibPipeSetErrorCallback(reinterpret_cast<void*>(cb), [](LibPipeCbContext context, LibPipeStr error) {
+			(*reinterpret_cast<ErrorCallback>(context))(tstring(error));
 		});
 	}
 
