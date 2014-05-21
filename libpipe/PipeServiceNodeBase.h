@@ -219,7 +219,8 @@ public:
 
 		for(auto&& child : _children) {
 			auto&& serviceOutgoing = child.second->receive();
-			messages->insert(messages->end(), serviceOutgoing->begin(), serviceOutgoing->end());
+			if(serviceOutgoing->size() > 0)
+				messages->insert(messages->end(), serviceOutgoing->begin(), serviceOutgoing->end());
 		}
 
 		if(_postReceiveHookEnabled)
