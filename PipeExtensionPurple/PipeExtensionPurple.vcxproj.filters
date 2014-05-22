@@ -20,7 +20,7 @@
     <ClCompile Include="CommonHeader.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="PurpleService.cpp">
+    <ClCompile Include="PurpleInterface.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
@@ -34,7 +34,7 @@
     <ClInclude Include="ServiceIRC.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="PurpleService.h">
+    <ClInclude Include="PurpleInterface.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

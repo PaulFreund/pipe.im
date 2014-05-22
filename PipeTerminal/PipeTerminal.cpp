@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 				if(!received.empty())
 					cout << received << endl;
 
-				Thread::sleep(100);
+				Thread::sleep(1000);
 			}
 		});
 
@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
 		});
 
 		while(!exit) {
-			Thread::sleep(1000);
+			Thread::sleep(100);
 		}
 
 		receive.join();

@@ -8,11 +8,13 @@
 
 //======================================================================================================================
 
-class PurpleService : public PipeServiceNodeBase {
+class PurpleInterface {
 public:
-	PurpleService(const tstring& type, const tstring& description, const tstring& address, const tstring& path, PipeObjectPtr settings);
-	~PurpleService();
+	PurpleInterface(const tstring& path);
+	~PurpleInterface();
 
+public:
+	PipeArrayPtr getProtocols();
 };
 
 //======================================================================================================================

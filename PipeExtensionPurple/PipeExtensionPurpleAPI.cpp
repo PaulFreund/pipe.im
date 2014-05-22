@@ -2,7 +2,9 @@
 
 #include "CommonHeader.h"
 #include "PipeExtensionPurple.h"
+#include "PurpleInterface.h"
 using namespace std;
+using namespace Poco;
 
 //======================================================================================================================
 
@@ -19,8 +21,27 @@ PIPE_EXTENSION_ITF void PipeExtensionSetErrorCallback(PipeExtensionCbErr cbError
 
 //----------------------------------------------------------------------------------------------------------------------
 
+PIPE_EXTENSION_ITF void PipeExtensionSetPath(PipeExtensionStr path) {
+	try {
+		if(tstring(path).empty()) { throw tstring(_T("Empty path supplied")); }
+
+		Path extensionDataPath;
+		extensionDataPath.parseDirectory(path);
+		extensionDataPath.append(_T("purple"));
+
+		PipeExtensionPurple::ExtensionInstancePath = extensionDataPath.toString();
+
+		PipeExtensionPurple::Purple = make_shared<PurpleInterface>(PipeExtensionPurple::ExtensionInstancePath);
+	}
+	catch(tstring error) { publishError(_T("PipeExtensionSetPath: ") + error); }
+	catch(...) { publishError(_T("PipeExtensionSetPath: Unknown error")); }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypes(PipeExtensionCbContext context, PipeExtensionCbStr cbServiceTypes) {
 	try {
+		if(PipeExtensionPurple::ExtensionInstancePath.empty()) { throw tstring(_T("Empty or invalid path supplied")); }
 		cbServiceTypes(context, dumpArray(PipeExtensionPurple::ExtensionInstance.serviceTypes()).c_str());
 	}
 	catch(tstring error) { publishError(_T("PipeExtensionGetServiceTypes: ") + error); }
@@ -29,9 +50,10 @@ PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypes(PipeExtensionCbContext cont
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceType, PipeExtensionStr address, PipeExtensionStr path, PipeExtensionStr settings, HPipeExtensionService* service) {
+PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceType, PipeExtensionStr address, PipeExtensionStr settings, HPipeExtensionService* service) {
 	try {
-		(*service) = reinterpret_cast<HPipeExtensionService>(PipeExtensionPurple::ExtensionInstance.create(serviceType, address, path, parseObject(settings)));
+		if(PipeExtensionPurple::ExtensionInstancePath.empty()) { throw tstring(_T("Empty or invalid path supplied")); }
+		(*service) = reinterpret_cast<HPipeExtensionService>(PipeExtensionPurple::ExtensionInstance.create(serviceType, address, PipeExtensionPurple::ExtensionInstancePath, parseObject(settings)));
 	}
 	catch(tstring error) { service = nullptr; publishError(_T("PipeExtensionServiceCreate: ") + error); }
 	catch(...) { service = nullptr; publishError(_T("PipeExtensionServiceCreate: Unknown error")); }
@@ -41,6 +63,7 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceType,
 
 PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy(HPipeExtensionService service) {
 	try {
+		if(PipeExtensionPurple::ExtensionInstancePath.empty()) { throw tstring(_T("Empty or invalid path supplied")); }
 		PipeExtensionPurple::ExtensionInstance.destroy(reinterpret_cast<IPipeExtensionService*>(service));
 	}
 	catch(tstring error) { publishError(_T("PipeExtensionServiceDestroy: ") + error); }

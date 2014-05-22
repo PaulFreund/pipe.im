@@ -58,6 +58,7 @@ void loadExtension(const tstring& path) {
 	PipeExtensionFunctions extensionFunctions;
 	try {
 		extensionFunctions.fktPipeExtensionSetErrorCallback             = reinterpret_cast<FktPipeExtensionSetErrorCallback>            (loadExtensionSymbol(library, NamePipeExtensionSetErrorCallback             ));
+		extensionFunctions.fktPipeExtensionSetPath                      = reinterpret_cast<FktPipeExtensionSetPath>                     (loadExtensionSymbol(library, NamePipeExtensionSetPath                      ));
 
 		extensionFunctions.fktPipeExtensionGetServiceTypes              = reinterpret_cast<FktPipeExtensionGetServiceTypes>             (loadExtensionSymbol(library, NamePipeExtensionGetServiceTypes              ));
 		extensionFunctions.fktPipeExtensionServiceCreate                = reinterpret_cast<FktPipeExtensionServiceCreate>               (loadExtensionSymbol(library, NamePipeExtensionServiceCreate                ));
@@ -74,7 +75,8 @@ void loadExtension(const tstring& path) {
 	catch(tstring error) { publishError(error); }
 	catch(...) { return; }
 
-	ServiceRoot::Extensions.push_back(make_shared<PipeExtensionInstance>(extensionFunctions));
+
+	ServiceRoot::Extensions.push_back(make_shared<PipeExtensionInstance>(extensionFunctions, InstancePath));
 }
 
 //======================================================================================================================
@@ -99,6 +101,7 @@ LIBPIPE_ITF void LibPipeSetPath(LibPipeStr path) {
 
 LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 	try {
+		if(InstancePath.empty()) { throw tstring(_T("Empty or invalid path supplied")); }
 		File extensionPath(path);
 
 		if(!extensionPath.exists() || !extensionPath.canRead())
@@ -144,7 +147,7 @@ LIBPIPE_ITF void LibPipeInit(LibPipeStr serviceTypes) {
 		if(InstancePath.empty()) { throw tstring(_T("Empty or invalid path supplied")); }
 
 		PipeObjectPtr settings = newObject();
-		(*settings)[_T("service_types")] = *serviceTypes;
+		(*settings)[_T("service_types")] = *parseArray(serviceTypes);
 		ServiceRootInstance = make_shared<ServiceRoot>(InstancePath, settings);
 
 		InitDone = true;

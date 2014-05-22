@@ -9,6 +9,7 @@
 //======================================================================================================================
 
 const tstring NamePipeExtensionSetErrorCallback             = _T("PipeExtensionSetErrorCallback");
+const tstring NamePipeExtensionSetPath                      = _T("PipeExtensionSetPath");
 const tstring NamePipeExtensionGetServiceTypes              = _T("PipeExtensionGetServiceTypes");
 const tstring NamePipeExtensionServiceCreate                = _T("PipeExtensionServiceCreate");
 const tstring NamePipeExtensionServiceDestroy               = _T("PipeExtensionServiceDestroy");
@@ -20,8 +21,9 @@ const tstring NamePipeExtensionServiceGetNodeMessageTypes   = _T("PipeExtensionS
 const tstring NamePipeExtensionServiceGetNodeInfo           = _T("PipeExtensionServiceGetNodeInfo");
 
 typedef void(*FktPipeExtensionSetErrorCallback)             (PipeExtensionCbStr);
+typedef void(*FktPipeExtensionSetPath)                      (PipeExtensionStr);
 typedef void(*FktPipeExtensionGetServiceTypes)              (PipeExtensionCbContext, PipeExtensionCbStr);
-typedef void(*FktPipeExtensionServiceCreate)                (PipeExtensionStr, PipeExtensionStr, PipeExtensionStr, PipeExtensionStr, HPipeExtensionService*);
+typedef void(*FktPipeExtensionServiceCreate)                (PipeExtensionStr, PipeExtensionStr, PipeExtensionStr, HPipeExtensionService*);
 typedef void(*FktPipeExtensionServiceDestroy)               (HPipeExtensionService);
 typedef void(*FktPipeExtensionServiceSend)                  (HPipeExtensionService, PipeExtensionStr);
 typedef void(*FktPipeExtensionServiceReceive)               (HPipeExtensionService, PipeExtensionCbContext, PipeExtensionCbStr);
@@ -34,6 +36,7 @@ typedef void(*FktPipeExtensionServiceGetNodeInfo)           (HPipeExtensionServi
 
 struct PipeExtensionFunctions {
 	FktPipeExtensionSetErrorCallback            fktPipeExtensionSetErrorCallback            = nullptr;
+	FktPipeExtensionSetPath                     fktPipeExtensionSetPath                     = nullptr;
 	FktPipeExtensionGetServiceTypes             fktPipeExtensionGetServiceTypes             = nullptr;
 	FktPipeExtensionServiceCreate               fktPipeExtensionServiceCreate               = nullptr;
 	FktPipeExtensionServiceDestroy              fktPipeExtensionServiceDestroy              = nullptr;
@@ -132,7 +135,9 @@ private:
 	PipeExtensionFunctions _functions;
 
 public:
-	PipeExtensionInstance(const PipeExtensionFunctions& functions) : _functions(functions) {}
+	PipeExtensionInstance(const PipeExtensionFunctions& functions, const tstring& path) : _functions(functions) {
+		_functions.fktPipeExtensionSetPath(path.c_str());
+	}
 	virtual ~PipeExtensionInstance() {}
 
 public:
@@ -151,7 +156,7 @@ public:
 	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings) {
 		HPipeExtensionService service = 0;
 
-		_functions.fktPipeExtensionServiceCreate(serviceType.c_str(), address.c_str(), path.c_str(), dumpObject(settings).c_str(), &service);
+		_functions.fktPipeExtensionServiceCreate(serviceType.c_str(), address.c_str(), dumpObject(settings).c_str(), &service);
 
 		if(service != 0)
 			return new PipeExtensionServiceInstance(_functions, service);
