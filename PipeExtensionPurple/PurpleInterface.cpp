@@ -88,6 +88,8 @@ PurpleInterface::PurpleInterface(const tstring& path) {
 		if(!purple_core_init(_T("pipe.im"))) {
 			throw tstring(_T("libpurple initialization failed. Dumping core.\n" "Please report this!"));
 		}
+
+		purple_set_blist(purple_blist_new());
 	}
 	
 	catch(tstring error) { if(PipeExtensionPurple::ErrorCallback != nullptr) { PipeExtensionPurple::ErrorCallback(error.c_str()); } }

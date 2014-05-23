@@ -20,7 +20,7 @@ static shared_ptr<ServiceRoot> ServiceRootInstance;
 //======================================================================================================================
 
 void publishError(tstring error) {
-	if(ErrorCallback != nullptr && ErrorCallbackContext != nullptr)
+	if(ErrorCallback != nullptr)
 		ErrorCallback(ErrorCallbackContext, error.c_str());
 }
 
