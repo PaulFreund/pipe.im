@@ -30,56 +30,34 @@ class PurpleInterfaceBuddyList {
 };
 
 class PurpleInterfaceConversation {
-	// writing-im-msg
-	// wrote-im-msg
 	// sent-attention
 	// got-attention
-	// sending-im-msg
-	// sent-im-msg
-	// receiving-im-msg
 	// received-im-msg
 	// blocked-im-msg
-	// writing-chat-msg
-	// wrote-chat-msg
-	// sending-chat-msg
-	// sent-chat-msg
-	// receiving-chat-msg
 	// received-chat-msg
 	// conversation-updated
 	// buddy-typing
 	// buddy-typed
 	// buddy-typing-stopped
-	// chat-buddy-joining
 	// chat-buddy-joined
 	// chat-buddy-flags
-	// chat-buddy-leaving
 	// chat-buddy-left
 	// deleting-chat-buddy
-	// chat-inviting-user
-	// chat-invited-user
 	// chat-invited
 	// chat-invite-blocked
 	// chat-joined
 	// chat-join-failed
 	// chat-left
 	// chat-topic-changed
-	// cleared-message-history
 	// conversation-extended-menu
 };
 
 class PurpleInterfaceAccount {
-	// signing-on
-	// signed-on
-	// signing-off
-	// signed-off
-	// connection-error
 	// autojoin
 
 	// connecting
 	// disabled
 	// enabled
-	// created
-	// destroying
 	// status-changed
 	// actions-changed
 	// alias-changed

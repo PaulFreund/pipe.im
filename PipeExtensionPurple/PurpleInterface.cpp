@@ -188,32 +188,6 @@ PipeArrayPtr PurpleInterface::getProtocols() {
 
 //======================================================================================================================
 
-
-void purple_cb_signing_on(PurpleConnection* connection, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
-void purple_cb_signed_on(PurpleConnection* connection, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
-void purple_cb_signing_off(PurpleConnection* connection, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
-void purple_cb_signed_off(PurpleConnection* connection, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
-void purple_cb_connection_error(PurpleConnection* connection, PurpleConnectionError reason, const TCHAR* description, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
 gboolean purple_cb_autojoin(PurpleConnection* connection, PurpleConnectionError reason, const TCHAR* description, gpointer data) {
 	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
 	// TODO: Call ITF
@@ -231,16 +205,6 @@ void purple_cb_account_disabled(PurpleAccount* account, gpointer data) {
 }
 
 void purple_cb_account_enabled(PurpleAccount* account, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
-void purple_cb_account_created(PurpleAccount* account, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
-void purple_cb_account_destroying(PurpleAccount* account, gpointer data) {
 	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
 	// TODO: Call ITF
 }
@@ -383,17 +347,6 @@ void purple_cb_buddy_caps_changed(PurpleBuddy* buddy, PurpleMediaCaps oldCaps, P
 	// TODO: Call ITF
 }
 
-gboolean purple_cb_writing_im_msg(PurpleAccount* account, const TCHAR* sender, char** message, PurpleConversation* conversation, PurpleMessageFlags flags, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-	return false;
-}
-
-void purple_cb_wrote_im_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, PurpleConversation* conversation, PurpleMessageFlags flags, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
 void purple_cb_sent_attention(PurpleAccount* account, const TCHAR* sender, PurpleConversation* conversation, guint type, gpointer data) {
 	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
 	// TODO: Call ITF
@@ -402,22 +355,6 @@ void purple_cb_sent_attention(PurpleAccount* account, const TCHAR* sender, Purpl
 void purple_cb_got_attention(PurpleAccount* account, const TCHAR* sender, PurpleConversation* conversation, guint type, gpointer data) {
 	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
 	// TODO: Call ITF
-}
-
-void purple_cb_sending_im_msg(PurpleAccount* account, const TCHAR* sender, char** message, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
-void purple_cb_sent_im_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
-gboolean purple_cb_receiving_im_msg(PurpleAccount* account, char** sender, char** message, PurpleConversation *conv, PurpleMessageFlags flags, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-	return false;
 }
 
 void purple_cb_received_im_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, PurpleConversation *conv, PurpleMessageFlags flags, gpointer data) {
@@ -436,33 +373,6 @@ void purple_cb_received_im_msg(PurpleAccount* account, const TCHAR* sender, cons
 void purple_cb_blocked_im_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, PurpleMessageFlags flags, guint mtime, gpointer data) {
 	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
 	// TODO: Call ITF
-}
-
-gboolean purple_cb_writing_chat_msg(PurpleAccount* account, const TCHAR* sender, char** message, PurpleConversation* conversation, PurpleMessageFlags flags, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-	return false;
-}
-
-void purple_cb_wrote_chat_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, PurpleConversation* conversation, PurpleMessageFlags flags, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
-void purple_cb_sending_chat_msg(PurpleAccount* account, char** message, guint convID, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
-void purple_cb_sent_chat_msg(PurpleAccount* account, const TCHAR* message, guint convID, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
-gboolean purple_cb_receiving_chat_msg(PurpleAccount* account, char** sender, char** message, PurpleConversation *conv, PurpleMessageFlags* flags, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-	return false;
 }
 
 void purple_cb_received_chat_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, PurpleConversation *conv, PurpleMessageFlags flags, gpointer data) {
@@ -500,12 +410,6 @@ void purple_cb_buddy_typing_stopped(PurpleAccount* account, const TCHAR* name, g
 	// TODO: Call ITF
 }
 
-gboolean purple_cb_chat_buddy_joining(PurpleConversation *conv, const TCHAR* name, PurpleConvChatBuddyFlags flags, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-	return false;
-}
-
 void purple_cb_chat_buddy_joined(PurpleConversation *conv, const TCHAR* name, PurpleConvChatBuddyFlags flags, gboolean newArrivals, gpointer data) {
 	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
 	// TODO: Call ITF
@@ -516,28 +420,12 @@ void purple_cb_chat_buddy_flags(PurpleConversation *conv, const TCHAR* name, Pur
 	// TODO: Call ITF
 }
 
-gboolean purple_cb_chat_buddy_leaving(PurpleConversation *conv, const TCHAR* name, const TCHAR* reason, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-	return false;
-}
-
 void purple_cb_chat_buddy_left(PurpleConversation *conv, const TCHAR* name, const TCHAR* reason, gpointer data) {
 	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_deleting_chat_buddy(PurpleConvChatBuddy* buddy, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
-void purple_cb_chat_inviting_user(PurpleConversation *conv, const TCHAR* name, char** message, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
-void purple_cb_chat_invited_user(PurpleConversation *conv, const TCHAR* name, const TCHAR* message, gpointer data) {
 	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
 	// TODO: Call ITF
 }
@@ -573,11 +461,6 @@ void purple_cb_chat_topic_changed(PurpleConversation *conv, const TCHAR* user, c
 	// TODO: Call ITF
 }
 
-void purple_cb_cleared_message_history(PurpleConversation *conv, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
-	// TODO: Call ITF
-}
-
 void purple_cb_conversation_extended_menu(PurpleConversation *conv, GList** menuData, gpointer data) {
 	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
 	// TODO: Call ITF
@@ -596,11 +479,6 @@ void PurpleInterface::initSignalCallbacks() {
 
 	// Connection
 	auto hConnections = purple_connections_get_handle();
-	purple_signal_connect(hConnections, "signing-on", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_signing_on), cbData);
-	purple_signal_connect(hConnections, "signed-on", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_signed_on), cbData);
-	purple_signal_connect(hConnections, "signing-off", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_signing_off), cbData);
-	purple_signal_connect(hConnections, "signed-off", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_signed_off), cbData);
-	purple_signal_connect(hConnections, "connection-error", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_connection_error), cbData);
 	purple_signal_connect(hConnections, "autojoin", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_autojoin), cbData);
 
 	// Accounts
@@ -608,8 +486,6 @@ void PurpleInterface::initSignalCallbacks() {
 	purple_signal_connect(hAccounts, "account-connecting", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_connecting), cbData);
 	purple_signal_connect(hAccounts, "account-disabled", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_disabled), cbData);
 	purple_signal_connect(hAccounts, "account-enabled", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_enabled), cbData);
-	purple_signal_connect(hAccounts, "account-created", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_created), cbData);
-	purple_signal_connect(hAccounts, "account-destroying", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_destroying), cbData);
 	purple_signal_connect(hAccounts, "account-added", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_added), cbData);
 	purple_signal_connect(hAccounts, "account-removed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_removed), cbData);
 	purple_signal_connect(hAccounts, "account-status-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_status_changed), cbData);
@@ -643,20 +519,10 @@ void PurpleInterface::initSignalCallbacks() {
 
 	// Conversation
 	auto hConversations = purple_conversations_get_handle();
-	purple_signal_connect(hConversations, "writing-im-msg", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_writing_im_msg), cbData);
-	purple_signal_connect(hConversations, "wrote-im-msg", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_wrote_im_msg), cbData);
 	purple_signal_connect(hConversations, "sent-attention", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_sent_attention), cbData);
 	purple_signal_connect(hConversations, "got-attention", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_got_attention), cbData);
-	purple_signal_connect(hConversations, "sending-im-msg", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_sending_im_msg), cbData);
-	purple_signal_connect(hConversations, "sent-im-msg", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_sent_im_msg), cbData);
-	purple_signal_connect(hConversations, "receiving-im-msg", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_receiving_im_msg), cbData);
 	purple_signal_connect(hConversations, "received-im-msg", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_received_im_msg), cbData);
 	purple_signal_connect(hConversations, "blocked-im-msg", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_blocked_im_msg), cbData);
-	purple_signal_connect(hConversations, "writing-chat-msg", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_writing_chat_msg), cbData);
-	purple_signal_connect(hConversations, "wrote-chat-msg", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_wrote_chat_msg), cbData);
-	purple_signal_connect(hConversations, "sending-chat-msg", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_sending_chat_msg), cbData);
-	purple_signal_connect(hConversations, "sent-chat-msg", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_sent_chat_msg), cbData);
-	purple_signal_connect(hConversations, "receiving-chat-msg", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_receiving_chat_msg), cbData);
 	purple_signal_connect(hConversations, "received-chat-msg", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_received_chat_msg), cbData);
 	purple_signal_connect(hConversations, "conversation-created", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_conversation_created), cbData);
 	purple_signal_connect(hConversations, "conversation-updated", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_conversation_updated), cbData);
@@ -664,21 +530,16 @@ void PurpleInterface::initSignalCallbacks() {
 	purple_signal_connect(hConversations, "buddy-typing", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_typing), cbData);
 	purple_signal_connect(hConversations, "buddy-typed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_typed), cbData);
 	purple_signal_connect(hConversations, "buddy-typing-stopped", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_typing_stopped), cbData);
-	purple_signal_connect(hConversations, "chat-buddy-joining", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_buddy_joining), cbData);
 	purple_signal_connect(hConversations, "chat-buddy-joined", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_buddy_joined), cbData);
 	purple_signal_connect(hConversations, "chat-buddy-flags", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_buddy_flags), cbData);
-	purple_signal_connect(hConversations, "chat-buddy-leaving", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_buddy_leaving), cbData);
 	purple_signal_connect(hConversations, "chat-buddy-left", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_buddy_left), cbData);
 	purple_signal_connect(hConversations, "deleting-chat-buddy", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_deleting_chat_buddy), cbData);
-	purple_signal_connect(hConversations, "chat-inviting-user", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_inviting_user), cbData);
-	purple_signal_connect(hConversations, "chat-invited-user", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_invited_user), cbData);
 	purple_signal_connect(hConversations, "chat-invited", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_invited), cbData);
 	purple_signal_connect(hConversations, "chat-invite-blocked", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_invite_blocked), cbData);
 	purple_signal_connect(hConversations, "chat-joined", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_joined), cbData);
 	purple_signal_connect(hConversations, "chat-join-failed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_join_failed), cbData);
 	purple_signal_connect(hConversations, "chat-left", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_left), cbData);
 	purple_signal_connect(hConversations, "chat-topic-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_topic_changed), cbData);
-	purple_signal_connect(hConversations, "cleared-message-history", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_cleared_message_history), cbData);
 	purple_signal_connect(hConversations, "conversation-extended-menu", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_conversation_extended_menu), cbData);
 
 	// Notify
