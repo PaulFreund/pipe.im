@@ -167,18 +167,50 @@ PurpleInterface::~PurpleInterface() {
 PipeArrayPtr PurpleInterface::getProtocols() {
 	PipeArrayPtr protocolsList = newArray();
 
-	GList * protocols = purple_plugins_get_protocols();
-	for(; protocols; protocols = protocols->next) {
+	for(GList* protocols = purple_plugins_get_protocols() ; protocols; protocols = protocols->next) {
 		PurplePlugin* plugin = reinterpret_cast<PurplePlugin*>(protocols->data);
-		PurplePluginInfo *info = plugin->info;
+		PurplePluginInfo* infoPlugin = plugin->info;
+		PurplePluginProtocolInfo* infoProtocol = PURPLE_PLUGIN_PROTOCOL_INFO(plugin);
+
 
 		PipeObject def;
-		tstring defTypeName = timplode(texplode(info->name, _T(' ')), _T('_'));
+		tstring defTypeName = timplode(texplode(infoPlugin->name, _T(' ')), _T('_'));
 		transform(begin(defTypeName), end(defTypeName), begin(defTypeName), ::tolower);
 		def[_T("type")] = tstring(defTypeName);
-		def[_T("description")] = tstring(info->description);
+		def[_T("description")] = tstring(infoPlugin->description);
 		def[_T("settings_schema")] = PipeObject();
+
 		auto& settingsSchema = def[_T("settings_schema")].object_items();
+		/*
+		for(GList* protocolOption = infoProtocol->protocol_options; protocolOption; protocolOption = protocolOption->next) {
+			PurpleAccountOption* option = (PurpleAccountOption *)protocolOption->data;
+			PurplePrefType type = purple_account_option_get_type(option);
+			tstring key(purple_account_option_get_setting(option));
+
+			if(strippedKey != key) {
+				continue;
+			}
+
+			found = true;
+			switch(type) {
+				case PURPLE_PREF_BOOLEAN:
+					purple_account_set_bool_wrapped(account, strippedKey.c_str(), fromString<bool>(keyItem.second.as<std::string>()));
+					break;
+
+				case PURPLE_PREF_INT:
+					purple_account_set_int_wrapped(account, strippedKey.c_str(), fromString<int>(keyItem.second.as<std::string>()));
+					break;
+
+				case PURPLE_PREF_STRING:
+				case PURPLE_PREF_STRING_LIST:
+					purple_account_set_string_wrapped(account, strippedKey.c_str(), keyItem.second.as<std::string>().c_str());
+					break;
+				default:
+					continue;
+			}
+			break;
+		}
+		*/
 		schemaAddValue(settingsSchema, _T("testvalue"), SchemaValueTypeString, _T("test setting"), false);
 		protocolsList->push_back(def);
 	}
