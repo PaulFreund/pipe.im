@@ -106,6 +106,7 @@
     <ClInclude Include="LibPipeAPI.h" />
     <ClInclude Include="LibPipe.h" />
     <ClInclude Include="PipeExtensionInstance.h" />
+    <ClInclude Include="PipeSchema.h" />
     <ClInclude Include="PipeScript.h" />
     <ClInclude Include="PipeServiceNodeBase.h" />
     <ClInclude Include="PipeShell.h" />

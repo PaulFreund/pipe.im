@@ -181,37 +181,45 @@ PipeArrayPtr PurpleInterface::getProtocols() {
 		def[_T("settings_schema")] = PipeObject();
 
 		auto& settingsSchema = def[_T("settings_schema")].object_items();
-		/*
+		
 		for(GList* protocolOption = infoProtocol->protocol_options; protocolOption; protocolOption = protocolOption->next) {
 			PurpleAccountOption* option = (PurpleAccountOption *)protocolOption->data;
+
 			PurplePrefType type = purple_account_option_get_type(option);
 			tstring key(purple_account_option_get_setting(option));
+			tstring description(purple_account_option_get_text(option));
 
-			if(strippedKey != key) {
-				continue;
-			}
-
-			found = true;
 			switch(type) {
-				case PURPLE_PREF_BOOLEAN:
-					purple_account_set_bool_wrapped(account, strippedKey.c_str(), fromString<bool>(keyItem.second.as<std::string>()));
+				case PURPLE_PREF_BOOLEAN: {
+					schemaAddValue(settingsSchema, key, SchemaValueTypeBool, description);
 					break;
+				}
+				case PURPLE_PREF_INT: {
+					schemaAddValue(settingsSchema, key, SchemaValueTypeInteger, description);
+					break;
+				}
+				case PURPLE_PREF_STRING: {
+					schemaAddValue(settingsSchema, key, SchemaValueTypeString, description);
+					break;
+				}
 
-				case PURPLE_PREF_INT:
-					purple_account_set_int_wrapped(account, strippedKey.c_str(), fromString<int>(keyItem.second.as<std::string>()));
-					break;
+				case PURPLE_PREF_STRING_LIST: {
+					for(GList* default = purple_account_option_get_list(option); default; default = default->next) {
+						PurpleKeyValuePair* defaultData = (PurpleKeyValuePair*)default->data;
+						
+						tstring defaultText(defaultData->key);
+						//tstring defaultDescription(defaultData->value);
+						//cout << defaultText;// << _T(": ") << defaultDescription << endl;
+					}
 
-				case PURPLE_PREF_STRING:
-				case PURPLE_PREF_STRING_LIST:
-					purple_account_set_string_wrapped(account, strippedKey.c_str(), keyItem.second.as<std::string>().c_str());
+					schemaAddValue(settingsSchema, key, SchemaValueTypeString, description);
 					break;
-				default:
-					continue;
+				}
+				default: { continue; }
 			}
-			break;
 		}
-		*/
-		schemaAddValue(settingsSchema, _T("testvalue"), SchemaValueTypeString, _T("test setting"), false);
+		
+		schemaAddValue(settingsSchema, _T("testvalue"), SchemaValueTypeString, _T("test setting"));
 		protocolsList->push_back(def);
 	}
 
