@@ -169,16 +169,16 @@ public:
 			auto& message = messagesMember.object_items();
 
 			if(message.empty() || (!message.count(TokenMessageRef) || !message[TokenMessageRef].is_string())) {
-				pushOutgoing(_T(""), _T("error"), _T("Missing ref field"));
+				pushOutgoing(_T(""), _T("error"), _T("Missing ref property"));
 				continue;
 			}
 
 			try {
 				if(!message.count(TokenMessageAddress) || !message[TokenMessageAddress].is_string())
-					throw tstring(_T("Missing or invalid address field"));
+					throw tstring(_T("Missing or invalid address property"));
 
 				if(!message.count(TokenMessageCommand) || !message[TokenMessageCommand].is_string())
-					throw tstring(_T("Missing or invalid command field"));
+					throw tstring(_T("Missing or invalid command property"));
 
 				auto& messageAddress = message[TokenMessageAddress].string_value();
 
@@ -384,11 +384,11 @@ private:
 
 		//--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaInfo = newObject();
-		auto&& schemaInfoFields = schemaAddObject(*schemaInfo, TokenMessageData, _T("Information about the node")); {
-			schemaAddValue(schemaInfoFields, TokenMessageAddress, SchemaValueTypeString, _T("Address of the node"));
-			schemaAddValue(schemaInfoFields, TokenSchemaType, SchemaValueTypeString, _T("Unique type of this node"));
-			schemaAddValue(schemaInfoFields, TokenSchemaDescription, SchemaValueTypeString, _T("Description of the node"));
-			auto&& schemaInfoPropertiesItems = schemaAddObjectArray(schemaInfoFields, _T("properties"), _T("Runtime properties of the node"), _T("Runtime property")); {
+		auto&& schemaInfoProperties = schemaAddObject(*schemaInfo, TokenMessageData, _T("Information about the node")); {
+			schemaAddValue(schemaInfoProperties, TokenMessageAddress, SchemaValueTypeString, _T("Address of the node"));
+			schemaAddValue(schemaInfoProperties, TokenSchemaType, SchemaValueTypeString, _T("Unique type of this node"));
+			schemaAddValue(schemaInfoProperties, TokenSchemaDescription, SchemaValueTypeString, _T("Description of the node"));
+			auto&& schemaInfoPropertiesItems = schemaAddObjectArray(schemaInfoProperties, _T("properties"), _T("Runtime properties of the node"), _T("Runtime property")); {
 				schemaAddValue(schemaInfoPropertiesItems, _T("key"), SchemaValueTypeString, _T("Name of the property"));
 				schemaAddValue(schemaInfoPropertiesItems, _T("value"), SchemaValueTypeString, _T("Value of the property"));
 			}

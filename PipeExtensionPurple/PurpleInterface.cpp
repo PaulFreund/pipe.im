@@ -204,12 +204,13 @@ PipeArrayPtr PurpleInterface::getProtocols() {
 				}
 
 				case PURPLE_PREF_STRING_LIST: {
-					for(GList* default = purple_account_option_get_list(option); default; default = default->next) {
-						PurpleKeyValuePair* defaultData = (PurpleKeyValuePair*)default->data;
+					cout << key << endl;
+					for(GList* def = purple_account_option_get_list(option); def; def = def->next) {
+						PurpleKeyValuePair* defaultData = (PurpleKeyValuePair*)def->data;
 						
 						tstring defaultText(defaultData->key);
-						//tstring defaultDescription(defaultData->value);
-						//cout << defaultText;// << _T(": ") << defaultDescription << endl;
+						tstring defaultDescription((TCHAR*)defaultData->value);
+						cout << _T("    ") << defaultText << _T(": ") << defaultDescription << endl;
 					}
 
 					schemaAddValue(settingsSchema, key, SchemaValueTypeString, description);

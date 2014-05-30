@@ -6,6 +6,7 @@
 
 #include "LibPipe.h"
 #include "LibPipeHelper.h"
+#include "PipeSchema.h"
 
 //======================================================================================================================
 
@@ -67,7 +68,7 @@ public:
 		PipeObject* schemaData = &schema[TokenMessageData].object_items();
 
 		bool hasParameters = (schemaData != nullptr && schemaData->size() > 0);
-		bool multipleParameters = (schemaData != nullptr && (schemaData->count(TokenSchemaFields) || schemaData->count(TokenSchemaItems)));
+		bool multipleParameters = (schemaData != nullptr && (schemaData->count(TokenSchemaProperties) || schemaData->count(TokenSchemaItems)));
 
 		// Parametes have been supplied but are not accepted
 		if(!hasParameters && !parameter.empty())
@@ -250,7 +251,7 @@ private:
 			PipeJson& currentNode = resultNode->operator[](nodes[idx]);
 
 			if(currentNode[TokenSchemaType] == TokenSchemaTypeObject && ((idx + 1) < cnt)) {
-				resultNode = &currentNode[TokenSchemaFields];
+				resultNode = &currentNode[TokenSchemaProperties];
 			}
 			else if(currentNode[TokenSchemaType] == TokenSchemaTypeArray && ((idx + 1) < cnt)) {
 				resultNode = &currentNode[TokenSchemaItems];
@@ -258,7 +259,7 @@ private:
 				//// Detect objects in arrays
 				PipeObject& nestedNode = resultNode->object_items();
 				if(nestedNode[TokenSchemaType] == TokenSchemaTypeObject && ((idx + 2) < cnt))
-					resultNode = &nestedNode[TokenSchemaFields];
+					resultNode = &nestedNode[TokenSchemaProperties];
 
 				idx++; // Ignore the index
 			}
@@ -283,7 +284,7 @@ private:
 			currentPath += (idx == 0 ? _T("") : _T(".")) + nodes[idx];
 			PipeObject& currentSchema = schemaNode(currentPath);
 
-			// Initialize missing fields
+			// Initialize missing properties
 			if(currentSchema[TokenSchemaType] == TokenSchemaTypeObject && !currentNode.is_object())
 				currentNode = PipeJson(PipeObject());
 			else if(currentSchema[TokenSchemaType] == TokenSchemaTypeArray && !currentNode.is_array())
@@ -350,12 +351,12 @@ private:
 					}
 				}
 
-				// First object field
-				else if(currentNodeType == TokenSchemaTypeObject && currentNode->operator[](TokenSchemaFields).object_items().size() > 0) {
+				// First object property
+				else if(currentNodeType == TokenSchemaTypeObject && currentNode->operator[](TokenSchemaProperties).object_items().size() > 0) {
 					bool next = false;
-					for(auto& field : currentNode->operator[](TokenSchemaFields).object_items()) {
+					for(auto& property : currentNode->operator[](TokenSchemaProperties).object_items()) {
 						// Search for the current key
-						if(field.first == lastKey) {
+						if(property.first == lastKey) {
 							next = true;
 							continue;
 						}
@@ -363,7 +364,7 @@ private:
 						// If found use it
 						if(next || lastKey.empty()) {
 							_newItem = true;
-							nodes.push_back(field.first);
+							nodes.push_back(property.first);
 							_currentAddress = timplode(nodes, TokenAddressSeparator);
 							return;
 						}
@@ -740,8 +741,8 @@ private:
 			if(!arrayItem) { output << _T(": ") << std::endl; }
 
 			bool first = arrayItem;
-			for(auto&& field : data.object_items()) {
-				generateOutput(output, field.first, field.second, (first ? _T("") : (indent + IndentSymbol)), first);
+			for(auto&& property : data.object_items()) {
+				generateOutput(output, property.first, property.second, (first ? _T("") : (indent + IndentSymbol)), first);
 				first = false;
 			}
 		}
