@@ -340,33 +340,33 @@ private:
 	void addBaseMessageTypes() {
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaError = newObject();
-		schemaAddValue(*schemaError, TokenMessageData, SchemaValueTypeString, _T("Error message text"));
+		schemaAddValue(*schemaError, TokenMessageData, PipeSchemaNodeTypeString, _T("Error message text"));
 
 		addMessageType(_T("error"), _T("Error message"), schemaError);
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaNodeAdded = newObject();
-		schemaAddValue(*schemaNodeAdded, TokenMessageData, SchemaValueTypeString, _T("Name of the added node"));
+		schemaAddValue(*schemaNodeAdded, TokenMessageData, PipeSchemaNodeTypeString, _T("Name of the added node"));
 
 		addMessageType(_T("node_added"), _T("Added node"), schemaNodeAdded);
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaNodeRemoved = newObject();
-		schemaAddValue(*schemaNodeRemoved, TokenMessageData, SchemaValueTypeString, _T("Name of the removed node"));
+		schemaAddValue(*schemaNodeRemoved, TokenMessageData, PipeSchemaNodeTypeString, _T("Name of the removed node"));
 
 		addMessageType(_T("node_removed"), _T("Removed node"), schemaNodeRemoved);
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaChildren = newObject();
-		schemaAddValueArray(*schemaChildren, TokenMessageData, _T("List of child nodes"), SchemaValueTypeString, _T("Name of a child node"));
+		schemaAddValueArray(*schemaChildren, TokenMessageData, _T("List of child nodes"), PipeSchemaNodeTypeString, _T("Name of a child node"));
 
 		addMessageType(_T("children"), _T("List of all child nodes"), schemaChildren);
 
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaCommands = newObject();
 		auto&& schemaCommandsItems = schemaAddObjectArray(*schemaCommands, TokenMessageData, _T("List of commands this node accepts"), _T("Command")); {
-			schemaAddValue(schemaCommandsItems, TokenMessageCommand, SchemaValueTypeString, _T("Name of the command"));
-			schemaAddValue(schemaCommandsItems, TokenSchemaDescription, SchemaValueTypeString, _T("Description of the command"));
+			schemaAddValue(schemaCommandsItems, TokenMessageCommand, PipeSchemaNodeTypeString, _T("Name of the command"));
+			schemaAddValue(schemaCommandsItems, TokenSchemaDescription, PipeSchemaNodeTypeString, _T("Description of the command"));
 			schemaAddObject(schemaCommandsItems, TokenSchema, _T("Schema of the command"));
 		}
 
@@ -375,8 +375,8 @@ private:
 		////--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaMessages = newObject();
 		auto&& schemaMessagesItems = schemaAddObjectArray(*schemaMessages, TokenMessageData, _T("List of messages this node can emmit"), _T("Message type")); {
-			schemaAddValue(schemaMessagesItems, TokenMessageMessage, SchemaValueTypeString, _T("Name of the message type"));
-			schemaAddValue(schemaMessagesItems, TokenSchemaDescription, SchemaValueTypeString, _T("Description of the message type"));
+			schemaAddValue(schemaMessagesItems, TokenMessageMessage, PipeSchemaNodeTypeString, _T("Name of the message type"));
+			schemaAddValue(schemaMessagesItems, TokenSchemaDescription, PipeSchemaNodeTypeString, _T("Description of the message type"));
 			schemaAddObject(schemaMessagesItems, TokenSchema, _T("Schema of the message type"));
 		}
 
@@ -385,12 +385,12 @@ private:
 		//--------------------------------------------------------------------------------------------------------------
 		PipeObjectPtr schemaInfo = newObject();
 		auto&& schemaInfoProperties = schemaAddObject(*schemaInfo, TokenMessageData, _T("Information about the node")); {
-			schemaAddValue(schemaInfoProperties, TokenMessageAddress, SchemaValueTypeString, _T("Address of the node"));
-			schemaAddValue(schemaInfoProperties, TokenSchemaType, SchemaValueTypeString, _T("Unique type of this node"));
-			schemaAddValue(schemaInfoProperties, TokenSchemaDescription, SchemaValueTypeString, _T("Description of the node"));
+			schemaAddValue(schemaInfoProperties, TokenMessageAddress, PipeSchemaNodeTypeString, _T("Address of the node"));
+			schemaAddValue(schemaInfoProperties, TokenSchemaType, PipeSchemaNodeTypeString, _T("Unique type of this node"));
+			schemaAddValue(schemaInfoProperties, TokenSchemaDescription, PipeSchemaNodeTypeString, _T("Description of the node"));
 			auto&& schemaInfoPropertiesItems = schemaAddObjectArray(schemaInfoProperties, _T("properties"), _T("Runtime properties of the node"), _T("Runtime property")); {
-				schemaAddValue(schemaInfoPropertiesItems, _T("key"), SchemaValueTypeString, _T("Name of the property"));
-				schemaAddValue(schemaInfoPropertiesItems, _T("value"), SchemaValueTypeString, _T("Value of the property"));
+				schemaAddValue(schemaInfoPropertiesItems, _T("key"), PipeSchemaNodeTypeString, _T("Name of the property"));
+				schemaAddValue(schemaInfoPropertiesItems, _T("value"), PipeSchemaNodeTypeString, _T("Value of the property"));
 			}
 		}
 

@@ -13,7 +13,7 @@ TODO: Rewrite in this style:
 
 Schema sInfo;
 	auto&& sInfoProperties = sInfo.obj(TokenMessageData, _T("Information about the node"));
-	sInfoProperties.val(SchemaValueTypeString, TokenMessageAddress, _T("Address of the node"));
+	sInfoProperties.val(PipeSchemaNodeTypeString, TokenMessageAddress, _T("Address of the node"));
 
 	// Choice
 
@@ -28,60 +28,125 @@ Schema sInfo;
 
 	Keywords:
 
-	number, integer
-		* multipleOf (>0, value%of=0)
-		* maximum, exclusiveMaximum
-		* minimum, exclusiveMinimum
-	string
-		* maxLength
-		* minLength
-		* pattern
-	array
-		* items
-		* additionalItems
-		* maxItems
-		* minItems
-		* uniqueItems
-	object
-		* maxProperties
-		* minProperties
-		* required
-		* properties
-		* additionalProperties
-		* patternProperties
-	
-	all
-		* enum
-		* type
-		* allOf
-		* anyOf
-		* oneOf
-		* not
-		* title
-		* description
-		* default
-		* format
-	
-	Format types:
 
-	* date-time
-	* email
-	* hostname
-	* ipv4
-	* ipv6
-	* uri
+
+	
 
 
 */
 
-
-enum SchemaValueType {
-	SchemaValueTypeString,
-	SchemaValueTypeBool,
-	SchemaValueTypeInteger,
-	SchemaValueTypeFloat,
-	SchemaValueTypeBinary
+enum PipeSchemaNodeType {
+	PipeSchemaNodeTypeString,
+	PipeSchemaNodeTypeBool,
+	PipeSchemaNodeTypeInteger,
+	PipeSchemaNodeTypeFloat,
+	PipeSchemaNodeTypeBinary
 };
+
+// Not implemented: patternProperties, additionalProperties, additionalItems, dependencies, definitions, ref, id, not
+
+class PipeSchemaNode;
+class PipeSchemaNode : PipeObjectPtr {
+private:
+	std::shared_ptr<PipeSchemaNode> _parent;
+
+public:
+	PipeSchemaNode() {}
+	PipeSchemaNode(PipeObjectPtr source) {}
+
+public:
+	PipeSchemaNode add(PipeSchemaNodeType type);
+	void remove(PipeSchemaNode child);
+
+public:
+	PipeSchemaNode next();
+	bool isValid(PipeJson instance);
+
+public: // Keywords for all nodes
+	PipeSchemaNodeType type();
+
+	tstring schemaBase();
+	PipeSchemaNode schemaBase(tstring uri);
+
+	tstring title();
+	PipeSchemaNode title(tstring newTitle);
+
+	tstring description();
+	PipeSchemaNode description(tstring newDescription);
+
+	tstring format();
+	PipeSchemaNode format(tstring newFormat);
+
+	PipeArrayPtr enumTypes();
+	PipeSchemaNode enumTypes(PipeArrayPtr newEnumTypes);
+
+	PipeJson defaultValue();
+	PipeSchemaNode defaultValue(PipeJson defaultValue);
+
+	std::vector<PipeSchemaNode> allOf();
+	PipeSchemaNode allOf(std::vector<PipeSchemaNode> newAllOf);
+
+	std::vector<PipeSchemaNode> anyOf();
+	PipeSchemaNode anyOf(std::vector<PipeSchemaNode> newAnyOf);
+
+	std::vector<PipeSchemaNode> oneOf();
+	PipeSchemaNode oneOf(std::vector<PipeSchemaNode> newOneOf);
+
+public: // Keywords for objects
+	int maxProperties();
+	PipeSchemaNode maxProperties(int newMaxProperties);
+
+	int minProperties();
+	PipeSchemaNode minProperties(int newMinProperties);
+
+	PipeArrayPtr requried();
+	PipeSchemaNode requried(PipeArrayPtr newRequired);
+
+	std::vector<PipeSchemaNode> properties();
+	PipeSchemaNode properties(std::vector<PipeSchemaNode> newProperties);
+
+public: // Keywords for arrays
+	PipeSchemaNode items();
+	PipeSchemaNode items(PipeSchemaNode newItems);
+
+	int maxItems();
+	PipeSchemaNode maxItems(int newMaxItems);
+
+	int minItems();
+	PipeSchemaNode minItems(int newMinItems);
+
+	bool uniqueItems();
+	PipeSchemaNode uniqueItems(bool newUniqueItems);
+
+public: // Keywords for strings
+	int maxLength();
+	PipeSchemaNode maxLength(int newMaxLength);
+	
+	int minLength();
+	PipeSchemaNode minLength(int newMinLength);
+
+	tstring pattern();
+	PipeSchemaNode pattern(tstring newPattern);
+
+public: // Keywords for number, integer
+	int multipleOf();
+	PipeSchemaNode multipleOf(int newMultipleOf);
+
+	int maximum();
+	PipeSchemaNode maximum(int newMaximum);
+
+	bool exclusiveMaximum();
+	PipeSchemaNode exclusiveMaximum(bool newExclusiveMaximum);
+
+	int minimum();
+	PipeSchemaNode minimum(int newMinimum);
+
+	bool exclusiveMinimum();
+	PipeSchemaNode exclusiveMinimum(bool newExclusiveMinimum);
+};
+
+
+
 
 const tstring TokenSchema = _T("schema");
 
@@ -101,13 +166,13 @@ const tstring TokenSchemaTypeBinary = _T("binary");
 
 //======================================================================================================================
 
-inline tstring schemaTypeString(SchemaValueType type) {
+inline tstring schemaTypeString(PipeSchemaNodeType type) {
 	switch(type) {
-		case SchemaValueTypeString: { return TokenSchemaTypeString; }
-		case SchemaValueTypeBool: { return TokenSchemaTypeBool; }
-		case SchemaValueTypeInteger: { return TokenSchemaTypeInteger; }
-		case SchemaValueTypeFloat: { return TokenSchemaTypeFloat; }
-		case SchemaValueTypeBinary: { return TokenSchemaTypeBinary; }
+		case PipeSchemaNodeTypeString: { return TokenSchemaTypeString; }
+		case PipeSchemaNodeTypeBool: { return TokenSchemaTypeBool; }
+		case PipeSchemaNodeTypeInteger: { return TokenSchemaTypeInteger; }
+		case PipeSchemaNodeTypeFloat: { return TokenSchemaTypeFloat; }
+		case PipeSchemaNodeTypeBinary: { return TokenSchemaTypeBinary; }
 	}
 
 	return TokenSchemaTypeString;
@@ -125,7 +190,7 @@ inline PipeObject& schemaAddObject(PipeObject& schema, const tstring& key, const
 	return schemaData[TokenSchemaProperties].object_items();
 }
 
-inline void schemaAddValue(PipeObject& schema, const tstring& key, const SchemaValueType type, const tstring& description, bool optional = false) {
+inline void schemaAddValue(PipeObject& schema, const tstring& key, const PipeSchemaNodeType type, const tstring& description, bool optional = false) {
 	schema[key] = PipeObject {
 			{ TokenSchemaType, schemaTypeString(type) },
 			{ TokenSchemaDescription, description },
@@ -150,7 +215,7 @@ inline PipeObject& schemaAddObjectArray(PipeObject& schema, const tstring& key, 
 	return schemaItemData[TokenSchemaProperties].object_items();
 }
 
-inline void schemaAddValueArray(PipeObject& schema, const tstring& key, const tstring& description, const SchemaValueType itemType, const tstring& itemDescription) {
+inline void schemaAddValueArray(PipeObject& schema, const tstring& key, const tstring& description, const PipeSchemaNodeType itemType, const tstring& itemDescription) {
 	schema[key] = PipeObject();
 	auto& schemaData = schema[key].object_items();
 	schemaData[TokenSchemaType] = TokenSchemaTypeArray;

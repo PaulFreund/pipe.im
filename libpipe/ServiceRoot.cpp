@@ -215,7 +215,7 @@ void ServiceRoot::initServices() {
 			{
 				auto cmdCreate = newObject();
 				auto& cmdCreateData = schemaAddObject(*cmdCreate, TokenMessageData, _T("Data to create a new service"), false);
-				schemaAddValue(cmdCreateData, _T("name"), SchemaValueTypeString, _T("Name of the new service"));
+				schemaAddValue(cmdCreateData, _T("name"), PipeSchemaNodeTypeString, _T("Name of the new service"));
 				schemaAddObject(cmdCreateData, _T("settings"), _T("Settings for the new service"), false) = typeSettingsSchema;
 				
 				provider->addCommand(_T("create"), _T("Create a service instance"), cmdCreate, [&, typeName, provider](PipeObject& message) {
@@ -353,11 +353,11 @@ void ServiceRoot::initScripts() {
 
 	auto cmdCreate = newObject();
 	auto& cmdCreateData = schemaAddObject(*cmdCreate, TokenMessageData, _T("Data to create a new script"), false);
-	schemaAddValue(cmdCreateData, _T("name"), SchemaValueTypeString, _T("Name of the new script"));
-	schemaAddValue(cmdCreateData, _T("preSend"), SchemaValueTypeBool, _T("Script will be executed before a incoming message is processed"));
-	schemaAddValue(cmdCreateData, _T("postReceive"), SchemaValueTypeBool, _T("Script will be executed after a outgoing message was processed"));
-	schemaAddValue(cmdCreateData, _T("priority"), SchemaValueTypeInteger, _T("Execution priority"));
-	schemaAddValue(cmdCreateData, _T("data"), SchemaValueTypeString, _T("The script body"));
+	schemaAddValue(cmdCreateData, _T("name"), PipeSchemaNodeTypeString, _T("Name of the new script"));
+	schemaAddValue(cmdCreateData, _T("preSend"), PipeSchemaNodeTypeBool, _T("Script will be executed before a incoming message is processed"));
+	schemaAddValue(cmdCreateData, _T("postReceive"), PipeSchemaNodeTypeBool, _T("Script will be executed after a outgoing message was processed"));
+	schemaAddValue(cmdCreateData, _T("priority"), PipeSchemaNodeTypeInteger, _T("Execution priority"));
+	schemaAddValue(cmdCreateData, _T("data"), PipeSchemaNodeTypeString, _T("The script body"));
 
 	{
 		_serviceScripts->addCommand(_T("create"), _T("Create a automation script"), cmdCreate, [&](PipeObject& message) {
@@ -465,11 +465,11 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 
 		auto msgScriptData = newObject();
 		auto& msgScriptDataData = schemaAddObject(*msgScriptData, TokenMessageData, _T("Data of the script"), false);
-		schemaAddValue(msgScriptDataData, _T("name"), SchemaValueTypeString, _T("Name of the script"));
-		schemaAddValue(msgScriptDataData, _T("preSend"), SchemaValueTypeBool, _T("Script will be executed before a incoming message is processed"));
-		schemaAddValue(msgScriptDataData, _T("postReceive"), SchemaValueTypeBool, _T("Script will be executed after a outgoing message was processed"));
-		schemaAddValue(msgScriptDataData, _T("priority"), SchemaValueTypeInteger, _T("Execution priority"));
-		schemaAddValue(msgScriptDataData, _T("data"), SchemaValueTypeString, _T("The script body"));
+		schemaAddValue(msgScriptDataData, _T("name"), PipeSchemaNodeTypeString, _T("Name of the script"));
+		schemaAddValue(msgScriptDataData, _T("preSend"), PipeSchemaNodeTypeBool, _T("Script will be executed before a incoming message is processed"));
+		schemaAddValue(msgScriptDataData, _T("postReceive"), PipeSchemaNodeTypeBool, _T("Script will be executed after a outgoing message was processed"));
+		schemaAddValue(msgScriptDataData, _T("priority"), PipeSchemaNodeTypeInteger, _T("Execution priority"));
+		schemaAddValue(msgScriptDataData, _T("data"), PipeSchemaNodeTypeString, _T("The script body"));
 		scriptNode->addMessageType(_T("script_data"), _T("Data that is stored for this script"), msgScriptData);
 	}
 
@@ -477,10 +477,10 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 	{
 		auto cmdUpdate = newObject();
 		auto& cmdUpdateData = schemaAddObject(*cmdUpdate, TokenMessageData, _T("Data to update an existing script"), false);
-		schemaAddValue(cmdUpdateData, _T("preSend"), SchemaValueTypeBool, _T("Script will be executed before a incoming message is processed"));
-		schemaAddValue(cmdUpdateData, _T("postReceive"), SchemaValueTypeBool, _T("Script will be executed after a outgoing message was processed"));
-		schemaAddValue(cmdUpdateData, _T("priority"), SchemaValueTypeInteger, _T("Execution priority"));
-		schemaAddValue(cmdUpdateData, _T("data"), SchemaValueTypeString, _T("The script body"));
+		schemaAddValue(cmdUpdateData, _T("preSend"), PipeSchemaNodeTypeBool, _T("Script will be executed before a incoming message is processed"));
+		schemaAddValue(cmdUpdateData, _T("postReceive"), PipeSchemaNodeTypeBool, _T("Script will be executed after a outgoing message was processed"));
+		schemaAddValue(cmdUpdateData, _T("priority"), PipeSchemaNodeTypeInteger, _T("Execution priority"));
+		schemaAddValue(cmdUpdateData, _T("data"), PipeSchemaNodeTypeString, _T("The script body"));
 
 		scriptNode->addCommand(_T("update"), _T("Update a script"), cmdUpdate, [&, name, scriptNode](PipeObject& message) {
 			tstring scriptName = name;
@@ -560,7 +560,7 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 		});
 
 		PipeObjectPtr schemaMessageUpdate = newObject();
-		schemaAddValue(*schemaMessageUpdate, TokenMessageData, SchemaValueTypeString, _T("Name of the updated script"));
+		schemaAddValue(*schemaMessageUpdate, TokenMessageData, PipeSchemaNodeTypeString, _T("Name of the updated script"));
 		scriptNode->addMessageType(_T("updated"), _T("Script update notification"), schemaMessageUpdate);
 	}
 
