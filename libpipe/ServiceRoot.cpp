@@ -18,7 +18,7 @@ ServiceRoot::ServiceRoot(const tstring& path, PipeObjectPtr settings)
 	, _scriptOutgoingQueue(newArray())
 {	
 	if(settings->count(_T("service_types"))) {
-		auto& serviceTypes = settings->operator[](_T("service_types")).array_items();
+		auto& serviceTypes = (*settings)[_T("service_types")].array_items();
 		for(auto& type : serviceTypes) {
 			auto& typeDefinition = type.object_items();
 			_providerTypes.push_back(typeDefinition[_T("type")].string_value());
@@ -70,7 +70,7 @@ void ServiceRoot::loadConfig() {
 		return;
 
 	if(_config->count(_T("services"))) {
-		auto& services = _config->operator[](_T("services")).array_items();
+		auto& services = (*_config)[_T("services")].array_items();
 		for(auto& service : services) {
 			auto& serviceObject = service.object_items();
 			tstring name = serviceObject[_T("name")].string_value();
@@ -91,7 +91,7 @@ void ServiceRoot::loadConfig() {
 	}
 
 	if(_config->count(_T("scripts"))) {
-		auto& services = _config->operator[](_T("scripts")).array_items();
+		auto& services = (*_config)[_T("scripts")].array_items();
 		for(auto& service : services) {
 			auto& serviceObject = service.object_items();
 			tstring name = serviceObject[_T("name")].string_value();
@@ -202,21 +202,20 @@ void ServiceRoot::initServices() {
 				continue;
 
 			tstring typeDescription = providerType[_T("description")].string_value();
-			auto& typeSettingsSchema = providerType[_T("settings_schema")].object_items();
+			PipeSchema& typeSettingsSchema = reinterpret_cast<PipeSchema&>(providerType[_T("settings_schema")].object_items());
 
 			tstring addressProvider = addressServicesProviders + TokenAddressSeparator + typeName;
 
 			auto providerSettings = newObject();
-			providerSettings->operator[](_T("type")).string_value() = typeName;
+			(*providerSettings)[_T("type")].string_value() = typeName;
 			auto provider = make_shared<PipeServiceNodeBase>(_T("provider_") + typeName, typeDescription, addressProvider, _path, providerSettings);
 			_serviceServicesProviders->addChild(addressProvider, provider);
 
 			// Create command
 			{
-				auto cmdCreate = newObject();
-				auto& cmdCreateData = schemaAddObject(*cmdCreate, TokenMessageData, _T("Data to create a new service"), false);
-				schemaAddValue(cmdCreateData, _T("name"), PipeSchemaTypeString, _T("Name of the new service"));
-				schemaAddObject(cmdCreateData, _T("settings"), _T("Settings for the new service"), false) = typeSettingsSchema;
+				auto cmdCreate = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Creation Data")).description(_T("Data to create a new service"));
+				cmdCreate.property(_T("name"), PipeSchemaTypeString).title(_T("Name")).description(_T("Name of the new service"));
+				cmdCreate.property(_T("settings"), typeSettingsSchema).title(_T("Settings")).description(_T("Settings for the new service"));
 				
 				provider->addCommand(_T("create"), _T("Create a service instance"), cmdCreate, [&, typeName, provider](PipeObject& message) {
 					auto ref = message[_T("ref")].string_value();
@@ -235,9 +234,9 @@ void ServiceRoot::initServices() {
 					auto& settingsData = msgData[_T("settings")].object_items();
 
 					if(!_config->count(_T("services")))
-						_config->operator[](_T("services")) = PipeJson(PipeArray());
+						(*_config)[_T("services")] = PipeJson(PipeArray());
 
-					auto& services = _config->operator[](_T("services")).array_items();
+					auto& services = (*_config)[_T("services")].array_items();
 					for(auto& service : services) {
 						auto& serviceObj = service.object_items();
 						if(serviceObj.count(_T("name")) && serviceObj[_T("name")].is_string()) {
@@ -314,7 +313,7 @@ tstring ServiceRoot::createService(const tstring& type, const tstring& name, Pip
 
 		// Delete command
 		{
-			instance->addCommand(_T("delete"), _T("Delete this service instance"), newObject(), [&, name](PipeObject& message) {
+			instance->addCommand(_T("delete"), _T("Delete this service instance"), PipeObject(), [&, name](PipeObject& message) {
 				tstring serviceName = name;
 				deleteService(serviceName);
 			});
@@ -333,7 +332,7 @@ void ServiceRoot::deleteService(const tstring& name) {
 	removeChild(addressService);
 	_serviceServicesInstances->removeChild(addressInstance);
 
-	auto& services = _config->operator[](_T("services")).array_items();
+	auto& services = (*_config)[_T("services")].array_items();
 	for(size_t idx = 0, cnt = services.size(); idx < cnt; idx++) {
 		auto& service = services[idx].object_items();
 		if(service.count(_T("name")) && service[_T("name")].is_string() && service[_T("name")].string_value() == name) {
@@ -351,14 +350,12 @@ void ServiceRoot::initScripts() {
 	_serviceScripts = make_shared<PipeServiceNodeBase>(_T("scripts"), _T("Management of scripts"), addressScripts, _path, _settings);
 	addChild(addressScripts, _serviceScripts);
 
-	auto cmdCreate = newObject();
-	auto& cmdCreateData = schemaAddObject(*cmdCreate, TokenMessageData, _T("Data to create a new script"), false);
-	schemaAddValue(cmdCreateData, _T("name"), PipeSchemaTypeString, _T("Name of the new script"));
-	schemaAddValue(cmdCreateData, _T("preSend"), PipeSchemaTypeBoolean, _T("Script will be executed before a incoming message is processed"));
-	schemaAddValue(cmdCreateData, _T("postReceive"), PipeSchemaTypeBoolean, _T("Script will be executed after a outgoing message was processed"));
-	schemaAddValue(cmdCreateData, _T("priority"), PipeSchemaTypeInteger, _T("Execution priority"));
-	schemaAddValue(cmdCreateData, _T("data"), PipeSchemaTypeString, _T("The script body"));
-
+	auto cmdCreate = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Script data")).description(_T("Data to create a new script"));
+	cmdCreate.property(_T("name"), PipeSchemaTypeString).title(_T("Name")).description(_T("Name of the new script"));
+	cmdCreate.property(_T("preSend"), PipeSchemaTypeBoolean).title(_T("Pre send hook")).description(_T("Script will be executed before a incoming message is processed"));
+	cmdCreate.property(_T("postReceive"), PipeSchemaTypeBoolean).title(_T("Post receive hook")).description(_T("Script will be executed after a outgoing message was processed"));
+	cmdCreate.property(_T("priority"), PipeSchemaTypeInteger).title(_T("Priority")).description(_T("Execution priority"));
+	cmdCreate.property(_T("data"), PipeSchemaTypeString).title(_T("Script")).description(_T("The script body code")).format(_T("js"));
 	{
 		_serviceScripts->addCommand(_T("create"), _T("Create a automation script"), cmdCreate, [&](PipeObject& message) {
 			auto ref = message[_T("ref")].string_value();
@@ -385,9 +382,9 @@ void ServiceRoot::initScripts() {
 			tstring scriptData = msgData[_T("data")].string_value();
 
 			if(!_config->count(_T("scripts")))
-				_config->operator[](_T("scripts")) = PipeJson(PipeArray());
+				(*_config)[_T("scripts")] = PipeJson(PipeArray());
 
-			auto& scripts = _config->operator[](_T("scripts")).array_items();
+			auto& scripts = (*_config)[_T("scripts")].array_items();
 			for(auto& script : scripts) {
 				auto& scriptObj = script.object_items();
 				if(scriptObj.count(_T("name")) && scriptObj[_T("name")].is_string()) {
@@ -440,7 +437,7 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 
 	// Delete command
 	{
-		scriptNode->addCommand(_T("delete"), _T("Delete this script"), newObject(), [&, name](PipeObject& message) {
+		scriptNode->addCommand(_T("delete"), _T("Delete this script"), PipeObject(), [&, name](PipeObject& message) {
 			tstring scriptName = name;
 			deleteScript(scriptName);
 		});
@@ -448,10 +445,10 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 
 	// Read command and response
 	{
-		scriptNode->addCommand(_T("read"), _T("Get the data of this script"), newObject(), [&, name, scriptNode](PipeObject& message) {
+		scriptNode->addCommand(_T("read"), _T("Get the data of this script"), PipeObject(), [&, name, scriptNode](PipeObject& message) {
 			tstring scriptName = name;
 			auto ref = message[_T("ref")].string_value();
-			auto& scripts = _config->operator[](_T("scripts")).array_items();
+			auto& scripts = (*_config)[_T("scripts")].array_items();
 			for(auto& script : scripts) {
 				auto& scriptObj = script.object_items();
 				if(scriptObj.count(_T("name")) && scriptObj[_T("name")].is_string()) {
@@ -463,25 +460,22 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 			}
 		});
 
-		auto msgScriptData = newObject();
-		auto& msgScriptDataData = schemaAddObject(*msgScriptData, TokenMessageData, _T("Data of the script"), false);
-		schemaAddValue(msgScriptDataData, _T("name"), PipeSchemaTypeString, _T("Name of the script"));
-		schemaAddValue(msgScriptDataData, _T("preSend"), PipeSchemaTypeBoolean, _T("Script will be executed before a incoming message is processed"));
-		schemaAddValue(msgScriptDataData, _T("postReceive"), PipeSchemaTypeBoolean, _T("Script will be executed after a outgoing message was processed"));
-		schemaAddValue(msgScriptDataData, _T("priority"), PipeSchemaTypeInteger, _T("Execution priority"));
-		schemaAddValue(msgScriptDataData, _T("data"), PipeSchemaTypeString, _T("The script body"));
+		auto msgScriptData = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Script data")).description(_T("Data of the script"));
+		msgScriptData.property(_T("name"), PipeSchemaTypeString).title(_T("Name")).description(_T("Name of the new script"));
+		msgScriptData.property(_T("preSend"), PipeSchemaTypeBoolean).title(_T("Pre send hook")).description(_T("Script will be executed before a incoming message is processed"));
+		msgScriptData.property(_T("postReceive"), PipeSchemaTypeBoolean).title(_T("Post receive hook")).description(_T("Script will be executed after a outgoing message was processed"));
+		msgScriptData.property(_T("priority"), PipeSchemaTypeInteger).title(_T("Priority")).description(_T("Execution priority"));
+		msgScriptData.property(_T("data"), PipeSchemaTypeString).title(_T("Script")).description(_T("The script body code")).format(_T("js"));
 		scriptNode->addMessageType(_T("script_data"), _T("Data that is stored for this script"), msgScriptData);
 	}
 
 	// Update command and response
 	{
-		auto cmdUpdate = newObject();
-		auto& cmdUpdateData = schemaAddObject(*cmdUpdate, TokenMessageData, _T("Data to update an existing script"), false);
-		schemaAddValue(cmdUpdateData, _T("preSend"), PipeSchemaTypeBoolean, _T("Script will be executed before a incoming message is processed"));
-		schemaAddValue(cmdUpdateData, _T("postReceive"), PipeSchemaTypeBoolean, _T("Script will be executed after a outgoing message was processed"));
-		schemaAddValue(cmdUpdateData, _T("priority"), PipeSchemaTypeInteger, _T("Execution priority"));
-		schemaAddValue(cmdUpdateData, _T("data"), PipeSchemaTypeString, _T("The script body"));
-
+		auto cmdUpdate = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Updated data")).description(_T("Data to update an existing script"));
+		cmdUpdate.property(_T("preSend"), PipeSchemaTypeBoolean).title(_T("Pre send hook")).description(_T("Script will be executed before a incoming message is processed"));
+		cmdUpdate.property(_T("postReceive"), PipeSchemaTypeBoolean).title(_T("Post receive hook")).description(_T("Script will be executed after a outgoing message was processed"));
+		cmdUpdate.property(_T("priority"), PipeSchemaTypeInteger).title(_T("Priority")).description(_T("Execution priority"));
+		cmdUpdate.property(_T("data"), PipeSchemaTypeString).title(_T("Script")).description(_T("The script body code")).format(_T("js"));
 		scriptNode->addCommand(_T("update"), _T("Update a script"), cmdUpdate, [&, name, scriptNode](PipeObject& message) {
 			tstring scriptName = name;
 
@@ -506,7 +500,7 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 			tstring scriptData = msgData[_T("data")].string_value();
 
 			if(_config->count(_T("scripts"))) {
-				auto& scripts = _config->operator[](_T("scripts")).array_items();
+				auto& scripts = (*_config)[_T("scripts")].array_items();
 				for(auto& script : scripts) {
 					auto& scriptObj = script.object_items();
 					if(scriptObj.count(_T("name")) && scriptObj[_T("name")].is_string()) {
@@ -558,10 +552,8 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 			scriptNode->pushOutgoing(ref, _T("error"), _T("Name ") + scriptName + _T(" could not be found"));
 			return;
 		});
-
-		PipeObjectPtr schemaMessageUpdate = newObject();
-		schemaAddValue(*schemaMessageUpdate, TokenMessageData, PipeSchemaTypeString, _T("Name of the updated script"));
-		scriptNode->addMessageType(_T("updated"), _T("Script update notification"), schemaMessageUpdate);
+		
+		scriptNode->addMessageType(_T("updated"), _T("Script update notification"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Name")).description(_T("Name of the updated script")));
 	}
 
 	auto scriptSort = [](shared_ptr<PipeScript> a, shared_ptr<PipeScript> b) {
@@ -597,7 +589,7 @@ void ServiceRoot::deleteScript(const tstring& name) {
 	}
 
 	// Remove from config
-	auto& scripts = _config->operator[](_T("scripts")).array_items();
+	auto& scripts = (*_config)[_T("scripts")].array_items();
 	for(size_t idx = 0, cnt = scripts.size(); idx < cnt; idx++) {
 		auto& script = scripts[idx].object_items();
 		if(script.count(_T("name")) && script[_T("name")].is_string() && script[_T("name")].string_value() == name) {

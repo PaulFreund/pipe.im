@@ -294,7 +294,7 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 
 			int currentRecursionCount = 1;
 			if(messageObject->count(_T("recursionCount"))) {
-				currentRecursionCount = messageObject->operator[](_T("recursionCount")).int_value();
+				currentRecursionCount = (*messageObject)[_T("recursionCount")].int_value();
 				// If the recursion count is too high, cancel
 				if(currentRecursionCount > PipeScript::MaxRecursionCount) {
 					pContext->pushOutgoing(_T(""), _T("error"), _T("Maximum recursion count of ") + to_string(PipeScript::MaxRecursionCount) + _T(" exceeded, terminating script"));
@@ -302,10 +302,10 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 				}
 
 				currentRecursionCount++;
-				messageObject->operator[](_T("recursionCount")).int_value() = currentRecursionCount;
+				(*messageObject)[_T("recursionCount")].int_value() = currentRecursionCount;
 			}
 			else {
-				messageObject->operator[](_T("recursionCount")) = currentRecursionCount;
+				(*messageObject)[_T("recursionCount")] = currentRecursionCount;
 			}
 
 			pContext->scriptPushIncoming(messageObject);

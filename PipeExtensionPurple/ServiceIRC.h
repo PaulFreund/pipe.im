@@ -11,6 +11,7 @@
 class ServiceIRC : public PipeServiceNodeBase {
 public:
 	ServiceIRC(const tstring& address, const tstring& path, PipeObjectPtr settings) : PipeServiceNodeBase(_T("irc"), _T("Internet relay Chat"), address, path, settings) {
+		/*
 		PipeSchemaNode info(PipeSchemaTypeObject);
 		auto& infoData = info.property(TokenMessageData, PipeSchemaTypeObject).title(_T("Info")).description(_T("Information about the node"));
 		infoData.property(TokenMessageAddress, PipeSchemaTypeString).title(_T("Address")).description(_T("Address of the node"));
@@ -20,6 +21,7 @@ public:
 		infoDataState.property(_T("key"), PipeSchemaTypeString).title(_T("Key")).description(_T("Name of the state"));
 		infoDataState.property(_T("value"), PipeSchemaTypeString).title(_T("Value")).description(_T("Value of the state"));
 		
+
 		std::cout << _T("Schema: ") << std::endl << dumpObject(info);
 
 		
@@ -35,7 +37,7 @@ public:
 		}
 		
 		std::cout << std::endl << _T("Schema Old: ") << std::endl << dumpObject(schemaInfo);
-
+		*/
 
 	}
 	

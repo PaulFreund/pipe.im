@@ -178,9 +178,9 @@ PipeArrayPtr PurpleInterface::getProtocols() {
 		transform(begin(defTypeName), end(defTypeName), begin(defTypeName), ::tolower);
 		def[_T("type")] = tstring(defTypeName);
 		def[_T("description")] = tstring(infoPlugin->description);
-		def[_T("settings_schema")] = PipeObject();
+		def[_T("settings_schema")] = PipeSchema(PipeSchemaTypeObject);
 
-		auto& settingsSchema = def[_T("settings_schema")].object_items();
+		auto& settingsSchema = reinterpret_cast<PipeSchema&>(def[_T("settings_schema")].object_items());
 		
 		for(GList* protocolOption = infoProtocol->protocol_options; protocolOption; protocolOption = protocolOption->next) {
 			PurpleAccountOption* option = (PurpleAccountOption *)protocolOption->data;
@@ -191,36 +191,31 @@ PipeArrayPtr PurpleInterface::getProtocols() {
 
 			switch(type) {
 				case PURPLE_PREF_BOOLEAN: {
-					schemaAddValue(settingsSchema, key, PipeSchemaTypeBoolean, description);
+					settingsSchema.property(key, PipeSchemaTypeBoolean).title(key).description(description);
 					break;
 				}
 				case PURPLE_PREF_INT: {
-					schemaAddValue(settingsSchema, key, PipeSchemaTypeInteger, description);
+					settingsSchema.property(key, PipeSchemaTypeInteger).title(key).description(description);
 					break;
 				}
 				case PURPLE_PREF_STRING: {
-					schemaAddValue(settingsSchema, key, PipeSchemaTypeString, description);
+					settingsSchema.property(key, PipeSchemaTypeString).title(key).description(description);
 					break;
 				}
 
 				case PURPLE_PREF_STRING_LIST: {
-					cout << key << endl;
+					PipeArray defaults;
 					for(GList* def = purple_account_option_get_list(option); def; def = def->next) {
 						PurpleKeyValuePair* defaultData = (PurpleKeyValuePair*)def->data;
-						
-						tstring defaultText(defaultData->key);
-						tstring defaultDescription((TCHAR*)defaultData->value);
-						cout << _T("    ") << defaultText << _T(": ") << defaultDescription << endl;
+						defaults.push_back(defaultData->key);
 					}
-
-					schemaAddValue(settingsSchema, key, PipeSchemaTypeString, description);
+					settingsSchema.property(key, PipeSchemaTypeString).title(key).description(description).enumTypes(defaults);
 					break;
 				}
 				default: { continue; }
 			}
 		}
 		
-		schemaAddValue(settingsSchema, _T("testvalue"), PipeSchemaTypeString, _T("test setting"));
 		protocolsList->push_back(def);
 	}
 
