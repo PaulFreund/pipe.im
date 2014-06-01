@@ -214,16 +214,13 @@ private:
 			if(valueSchemaNode[TokenSchemaType] == TokenSchemaTypeString) {
 				valueMessageNode = PipeJson(data);
 			}
-			else if(valueSchemaNode[TokenSchemaType] == TokenSchemaTypeBinary) {
-				valueMessageNode = PipeJson(data);
-			}
 			else if(valueSchemaNode[TokenSchemaType] == TokenSchemaTypeInteger) {
 				valueMessageNode = PipeJson(std::stoi(data));
 			}
-			else if(valueSchemaNode[TokenSchemaType] == TokenSchemaTypeFloat) {
+			else if(valueSchemaNode[TokenSchemaType] == TokenSchemaTypeNumber) {
 				valueMessageNode = PipeJson(std::stof(data));
 			}
-			else if(valueSchemaNode[TokenSchemaType] == TokenSchemaTypeBool) {
+			else if(valueSchemaNode[TokenSchemaType] == TokenSchemaTypeBoolean) {
 				if(data == TokenBoolTrue)
 					valueMessageNode = PipeJson(true);
 				else if(data == TokenBoolFalse)

@@ -191,15 +191,15 @@ PipeArrayPtr PurpleInterface::getProtocols() {
 
 			switch(type) {
 				case PURPLE_PREF_BOOLEAN: {
-					schemaAddValue(settingsSchema, key, PipeSchemaNodeTypeBool, description);
+					schemaAddValue(settingsSchema, key, PipeSchemaTypeBoolean, description);
 					break;
 				}
 				case PURPLE_PREF_INT: {
-					schemaAddValue(settingsSchema, key, PipeSchemaNodeTypeInteger, description);
+					schemaAddValue(settingsSchema, key, PipeSchemaTypeInteger, description);
 					break;
 				}
 				case PURPLE_PREF_STRING: {
-					schemaAddValue(settingsSchema, key, PipeSchemaNodeTypeString, description);
+					schemaAddValue(settingsSchema, key, PipeSchemaTypeString, description);
 					break;
 				}
 
@@ -213,14 +213,14 @@ PipeArrayPtr PurpleInterface::getProtocols() {
 						cout << _T("    ") << defaultText << _T(": ") << defaultDescription << endl;
 					}
 
-					schemaAddValue(settingsSchema, key, PipeSchemaNodeTypeString, description);
+					schemaAddValue(settingsSchema, key, PipeSchemaTypeString, description);
 					break;
 				}
 				default: { continue; }
 			}
 		}
 		
-		schemaAddValue(settingsSchema, _T("testvalue"), PipeSchemaNodeTypeString, _T("test setting"));
+		schemaAddValue(settingsSchema, _T("testvalue"), PipeSchemaTypeString, _T("test setting"));
 		protocolsList->push_back(def);
 	}
 
