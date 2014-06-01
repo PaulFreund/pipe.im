@@ -313,7 +313,7 @@ tstring ServiceRoot::createService(const tstring& type, const tstring& name, Pip
 
 		// Delete command
 		{
-			instance->addCommand(_T("delete"), _T("Delete this service instance"), PipeObject(), [&, name](PipeObject& message) {
+			instance->addCommand(_T("delete"), _T("Delete this service instance"), [&, name](PipeObject& message) {
 				tstring serviceName = name;
 				deleteService(serviceName);
 			});
@@ -437,7 +437,7 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 
 	// Delete command
 	{
-		scriptNode->addCommand(_T("delete"), _T("Delete this script"), PipeObject(), [&, name](PipeObject& message) {
+		scriptNode->addCommand(_T("delete"), _T("Delete this script"), [&, name](PipeObject& message) {
 			tstring scriptName = name;
 			deleteScript(scriptName);
 		});
@@ -445,7 +445,7 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 
 	// Read command and response
 	{
-		scriptNode->addCommand(_T("read"), _T("Get the data of this script"), PipeObject(), [&, name, scriptNode](PipeObject& message) {
+		scriptNode->addCommand(_T("read"), _T("Get the data of this script"), [&, name, scriptNode](PipeObject& message) {
 			tstring scriptName = name;
 			auto ref = message[_T("ref")].string_value();
 			auto& scripts = (*_config)[_T("scripts")].array_items();

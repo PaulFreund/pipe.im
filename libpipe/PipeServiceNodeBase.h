@@ -119,11 +119,11 @@ public:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-
+	void addCommand(const tstring& name, const tstring& description, PipeCommandFunction handler) { auto def = PipeObject(); addCommand(name, description, def, handler); }
 	void addCommand(const tstring& name, const tstring& description, PipeObject& commandTypeDefinition, PipeCommandFunction handler) {
 		if(_commands.count(name))
 		   throw tstring(_T("Command already defined"));
-		
+
 		// Optinally assert that the definition has the right format
 
 		for(auto&& commandType : *_commandTypes) {
@@ -141,7 +141,6 @@ public:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-
 	void addMessageType(const tstring& name, const tstring& description, PipeObject& messageTypeDefinition) {
 
 		// Optinally assert that the definition has the right format
@@ -315,22 +314,22 @@ private:
 
 	void addBaseCommandTypes() {
 		//--------------------------------------------------------------------------------------------------------------
-		addCommand(_T("children"), _T("Get a list of all child nodes"), PipeObject(), [&](PipeObject& message) {
+		addCommand(_T("children"), _T("Get a list of all child nodes"), [&](PipeObject& message) {
 			pushOutgoing(message[TokenMessageRef].string_value(), _T("children"), *nodeChildren(message[TokenMessageAddress].string_value()));
 		});
 
 		//--------------------------------------------------------------------------------------------------------------
-		addCommand(_T("commands"), _T("Get a list of all available commands"), PipeObject(), [&](PipeObject& message) {
+		addCommand(_T("commands"), _T("Get a list of all available commands"), [&](PipeObject& message) {
 			pushOutgoing(message[TokenMessageRef].string_value(), _T("commands"), *nodeCommandTypes(message[TokenMessageAddress].string_value()));
 		});
 
 		//--------------------------------------------------------------------------------------------------------------
-		addCommand(_T("messages"), _T("Get a list of all message types this node can emmit"), PipeObject(), [&](PipeObject& message) {
+		addCommand(_T("messages"), _T("Get a list of all message types this node can emmit"), [&](PipeObject& message) {
 			pushOutgoing(message[TokenMessageRef].string_value(), _T("messages"), *nodeMessageTypes(message[TokenMessageAddress].string_value()));
 		});
 
 		//--------------------------------------------------------------------------------------------------------------
-		addCommand(_T("info"), _T("Get a list of all child nodes"), PipeObject(), [&](PipeObject& message) {
+		addCommand(_T("info"), _T("Get a list of all child nodes"), [&](PipeObject& message) {
 			pushOutgoing(message[TokenMessageRef].string_value(), _T("info"),*nodeInfo(message[TokenMessageAddress].string_value()));
 		});
 	}
@@ -339,7 +338,7 @@ private:
 
 	void addBaseMessageTypes() {
 		////--------------------------------------------------------------------------------------------------------------
-		
+
 		addMessageType(_T("error"), _T("Error message"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Message")).description(_T("Error message text")));
 
 		////--------------------------------------------------------------------------------------------------------------

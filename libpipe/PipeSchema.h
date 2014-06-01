@@ -132,7 +132,7 @@ public: // Keywords for objects
 		return static_cast<PipeSchema&>(PipeSchemaConstants::EmptyObject);
 	}
 
-	PipeSchema& property(tstring name, PipeSchemaType newPropertyType) { return property(name, PipeSchema(newPropertyType)); }
+	PipeSchema& property(tstring name, PipeSchemaType newPropertyType) { auto schema = PipeSchema(newPropertyType); return property(name, schema); }
 	PipeSchema& property(tstring name, PipeSchema& newProperty) {
 		if(type() != PipeSchemaTypeObject) { PipeSchemaConstants::EmptyObject.clear(); return static_cast<PipeSchema&>(PipeSchemaConstants::EmptyObject); }
 		if(!isDefined(_T("properties"))) { (*this)[_T("properties")] = PipeObject(); }
@@ -152,7 +152,7 @@ public: // Keywords for objects
 
 public: // Keywords for arrays
 	PipeSchema& items() { if(type() == PipeSchemaTypeArray && isDefined(_T("items"))) { return static_cast<PipeSchema&>((*this)[_T("items")].object_items()); } PipeSchemaConstants::EmptyObject.clear(); return static_cast<PipeSchema&>(PipeSchemaConstants::EmptyObject); }
-	PipeSchema& items(PipeSchemaType newItemsType) { return items(PipeSchema(newItemsType)); }
+	PipeSchema& items(PipeSchemaType newItemsType) { auto schema = PipeSchema(newItemsType); return items(schema); }
 	PipeSchema& items(PipeSchema& newItems) { if(type() == PipeSchemaTypeArray) { (*this)[_T("items")] = newItems; } return static_cast<PipeSchema&>((*this)[_T("items")].object_items()); }
 
 	int maxItems() { if(type() == PipeSchemaTypeArray && isDefined(_T("maxItems"))) { return (*this)[_T("maxItems")].int_value(); } return 0; }
