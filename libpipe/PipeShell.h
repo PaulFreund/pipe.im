@@ -1,28 +1,4 @@
 //======================================================================================================================
-/*
-
-	Todo:
-		* Implement enums
-		* Implement defaults
-		* Implement required instead of optional
-		* Implement validation
-			* minProperties (object)
-			* maxProperties (object)
-			* maxItems (array)
-			* minItems (array)
-			* uniqueItems? (array)
-			* maxLength (string)
-			* minLength (string)
-			* pattern (string)
-			* multipleOf (integer, number)
-			* minimum (integer, number)
-			* exclusiveMinimum (integer, number)
-			* maximum (integer, number)
-			* exclusiveMaximum (integer, number)
-		* Implement abort?
-
-*/
-//======================================================================================================================
 
 #pragma once
 
@@ -42,9 +18,11 @@ class PipeSchemaGenerator {
 	enum PipeSchemaGeneratorState {
 		None,
 		QueriedValue,
+		QueriedEnum,
+		QueriedDefault,
 		QueriedOptional,
 		AcceptedOptional,
-		DeclinedOptional
+		DeclinedOptional,
 	};
 
 private:
@@ -99,40 +77,44 @@ public:
 			return queryValue();
 		}
 		else {
-			setValue(TokenMessageData, parameter);
 			_instanceEmpty = false;
 			_instanceComplete = true;
+			return setValue(TokenMessageData, parameter);
 		}
-
-		return _T("");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	tstring add(const tstring& input) {
 		switch(_clientState) {
-			case None: {
-				break;
-			}
-
 			case QueriedValue: {
-				if(!setValue(_currentAddress, input))
-					return _T("Error! Please submit a valid value");
+				tstring error = setValue(_currentAddress, input);
+				if(!error.empty()) { return _T("Error! Please submit a valid value"); }
 
 				_clientState = None;
 				break;
 			}
 
 			case QueriedOptional: {
-				if(input == _T("y")) {
+				tstring response = input;
+				std::transform(begin(response), end(response), begin(response), ::tolower);
+				if(response == _T("yes") || response == _T("y"))
 					_clientState = AcceptedOptional;
-				}
-				else if(input == _T("n")) {
+				else if(response == _T("no") || response == _T("n"))
 					_clientState = DeclinedOptional;
-				}
-				else {
-					return _T("Error! only 'y' or 'n' is accepted");
-				}
+				else
+					return _T("Error! Only 'yes' or 'no' are accepted");
 
+				break;
+			}
+			case QueriedDefault: {
+				// TODO!
+				_clientState = None;
+				break;
+			}
+
+			case QueriedEnum: {
+				// TODO!
+				_clientState = None;
 				break;
 			}
 		}
@@ -144,13 +126,10 @@ public:
 	void clear() {
 		_instanceEmpty = true;
 		_instanceComplete = false;
-
 		_clientState = None;
-
 		_currentAddress = _T("");
 		_nodeLevel = 0;
 		_newItem = false;
-
 		_instance = PipeJson(PipeObject());
 		_schema = nullptr;
 	}
@@ -158,22 +137,33 @@ public:
 private:
 	//------------------------------------------------------------------------------------------------------------------
 	tstring nextValue() {
-
-		if(_clientState == AcceptedOptional)
-			return queryValue();
+		// Optional question has been answered with yes
+		if(_clientState == AcceptedOptional) { return queryValue(); }
 
 		// Go to next message node
 		nextNode(_clientState == DeclinedOptional);
 		_nodeLevel = texplode(_currentAddress, TokenAddressSeparator).size();
 
-		if(_instanceComplete)
-			return _T("Command completed\n");
+		// Instance is complete
+		if(_instanceComplete) { return _T("Instance completed\n"); }
 
 		return queryValue();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	tstring queryValue() {
+		/*
+			TODO
+			-----------------------------------------------
+			*Implement enums
+				* Implement defaults
+				* Implement required instead of optional
+				* Implement validation
+				* maxItems(array)
+				* minItems(array)
+			-----------------------------------------------
+		*/
+
 		auto& currentNode = schemaNode(_currentAddress);
 		auto nodeType = currentNode.type();
 
@@ -208,42 +198,77 @@ private:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool setValue(const tstring& address, const tstring& data) {
-		auto& valueSchemaNode = schemaNode(address);
-		auto& valueMessageNode = messageNode(address);
-		auto valueSchemaNodeType = valueSchemaNode.type();
+	tstring setValue(const tstring& address, const tstring& data) {
+		auto& valueMessageNode = valueNode(address);
 		try {
-			if(valueSchemaNodeType == PipeSchemaTypeString) {
-				valueMessageNode = PipeJson(data);
-			}
-			else if(valueSchemaNodeType == PipeSchemaTypeInteger) {
-				valueMessageNode = PipeJson(std::stoi(data));
-			}
-			else if(valueSchemaNodeType == PipeSchemaTypeNumber) {
-				valueMessageNode = PipeJson(std::stof(data));
-			}
-			else if(valueSchemaNodeType == PipeSchemaTypeBoolean) {
-				if(data == TokenBoolTrue)
-					valueMessageNode = PipeJson(true);
-				else if(data == TokenBoolFalse)
-					valueMessageNode = PipeJson(false);
-				else 
-					return false;
-			}
-			else {
-				valueMessageNode = PipeJson(data); // Don't know the type, assume string
-			}
+			switch(schemaNode(address).type()) {
+				case PipeSchemaTypeBoolean: {
+					tstring response = data;
+					std::transform(begin(response), end(response), begin(response), ::tolower);
+					if(response == _T("true") || response == _T("on") || response == _T("yes") || response == _T("y") || response == _T("1"))
+						valueMessageNode = PipeJson(true); 
+					else if(response == _T("false") || response == _T("off") || response == _T("no") || response == _T("n") || response == _T("0"))
+						valueMessageNode = PipeJson(false); 
+					else { return _T("Error! Only 'true' or 'false' are allowed"); }
+					break;
+				}
+				
+				case PipeSchemaTypeInteger: {
+					// TODO: Validation
+					/*
+						* multipleOf
+						* minimum
+						* exclusiveMinimum
+						* maximum
+						* exclusiveMaximum
+					*/
+					valueMessageNode = PipeJson(std::stoi(data));
+					break; 
+				}
+				
+				case PipeSchemaTypeNumber: {
+					// TODO: Validation
+					/*
+						* multipleOf
+						* minimum
+						* exclusiveMinimum
+						* maximum
+						* exclusiveMaximum
+					*/
+					valueMessageNode = PipeJson(std::stof(data));
+					break; 
+				}
+				
+				case PipeSchemaTypeString: {
+					// TODO: Validation
+					/*
+						* maxLength (string)
+						* minLength (string)
+						* pattern (string)
+					*/
+					valueMessageNode = PipeJson(data);
+					break;
+				}
 
-			return true;
+				case PipeSchemaTypeNull: {
+					valueMessageNode = PipeJson(nullptr);
+					break;
+				}
+
+				default: {
+					valueMessageNode = PipeJson(data);
+					break;
+				}
+			}
+			return _T("");
 		}
 		catch(...) {
-			return false;
+			return _T("Error! unexpected value");
 		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	PipeSchema& schemaNode(const tstring& address) {
-		//PipeJson* resultNode = &_schema;
 		auto nodes = texplode(address, TokenAddressSeparator);
 
 		PipeSchema* currentNode = reinterpret_cast<PipeSchema*>(&_schema.object_items());
@@ -259,38 +284,11 @@ private:
 		}
 
 		return *currentNode;
-		/*
-			if(nodes.empty()) { return reinterpret_cast<PipeSchema&>(resultNode->object_items()); }
-			nodes.erase(begin(nodes));
-			resultNode = &(*resultNode)[*begin(nodes)];
-		}
-
-		for(size_t idx = 0, cnt = nodes.size(); idx < cnt; idx++) {
-			PipeJson& currentNode = (*resultNode)[nodes[idx]];
-
-			if(currentNode[_T("type")] == TokenSchemaTypeObject && ((idx + 1) < cnt)) {
-				resultNode = &currentNode[_T("properties")];
-			}
-			else if(currentNode[_T("types")] == TokenSchemaTypeArray && ((idx + 1) < cnt)) {
-				resultNode = &currentNode[_T("items")];
-
-				//// Detect objects in arrays
-				PipeObject& nestedNode = resultNode->object_items();
-				if(nestedNode[_T("types")] == TokenSchemaTypeObject && ((idx + 2) < cnt))
-					resultNode = &nestedNode[_T("properties")];
-
-				idx++; // Ignore the index
-			}
-			else {
-				resultNode = &currentNode;
-			}
-		}
-
-		*/
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	PipeJson& messageNode(const tstring& address) {
+	PipeJson& valueNode(const tstring& address) {
+		// This function should be refactored but works
 		PipeJson* resultNode = &_instance;
 
 		tstring currentPath;
@@ -299,7 +297,8 @@ private:
 			PipeJson& currentNode = resultNode->object_items()[nodes[idx]];
 
 			// Get schema for this node
-			currentPath += (idx == 0 ? _T("") : _T(".")) + nodes[idx];
+			if(idx != 0) { currentPath += TokenAddressSeparator; }
+			currentPath += nodes[idx];
 			auto& currentSchema = schemaNode(currentPath);
 
 			// Initialize missing properties
@@ -324,7 +323,7 @@ private:
 				}
 
 				resultNode = &currentNode.array_items()[arrIdx];
-				currentPath += _T(".") + nodes[idx+1];
+				currentPath += TokenAddressSeparator + nodes[idx+1];
 				idx++;
 			}
 			else {
@@ -337,58 +336,47 @@ private:
 
 	//------------------------------------------------------------------------------------------------------------------
 	void nextNode(bool jumpOut = false) {
+		tstring lastKey = _T("");
 		auto nodes = texplode(_currentAddress, TokenAddressSeparator);
-		tstring lastKey;
-
-		tstring currentNodeAddress = timplode(nodes, TokenAddressSeparator);
+		tstring currentNodeAddress = _currentAddress;
 		auto* currentNode = &schemaNode(currentNodeAddress);
 		auto currentNodeType = currentNode->type();
 
-		// Iterate over the levels
+		// Iterate over the levels 
 		while(true) {
+			if(jumpOut) { jumpOut = false; } // Try to go into node if not declined
 
-			// Go into node if not declined
-			if(!jumpOut) {
-				// First array element
-				if(currentNodeType == PipeSchemaTypeArray) {
-					if(lastKey.empty()) {
-						auto& arrayNode = messageNode(currentNodeAddress).array_items();
-						nodes.push_back(to_tstring(arrayNode.size()));
+			else if(currentNodeType == PipeSchemaTypeArray) {
+				if(lastKey.empty()) {
+					auto& arrayNode = valueNode(currentNodeAddress).array_items();
+					nodes.push_back(to_tstring(arrayNode.size()));
+					_currentAddress = timplode(nodes, TokenAddressSeparator);
+					return;
+				}
+				else {
+					_currentAddress = currentNodeAddress;
+					return;
+				}
+			}
+
+			else if(currentNodeType == PipeSchemaTypeObject && currentNode->properties().size() > 0) {
+				bool next = false;
+				for(auto& property : currentNode->properties()) {
+					// Search for the current key
+					if(property.first == lastKey) { next = true; continue; }
+
+					// If found or this is the first, use it
+					if(next || lastKey.empty()) {
+						_newItem = true;
+						nodes.push_back(property.first);
 						_currentAddress = timplode(nodes, TokenAddressSeparator);
 						return;
 					}
-					else {
-						_currentAddress = currentNodeAddress;
-						return;
-					}
-				}
-
-				// First object property
-				else if(currentNodeType == PipeSchemaTypeObject && currentNode->properties().size() > 0) {
-					bool next = false;
-					for(auto& property : currentNode->properties()) {
-						// Search for the current key
-						if(property.first == lastKey) {
-							next = true;
-							continue;
-						}
-
-						// If found use it
-						if(next || lastKey.empty()) {
-							_newItem = true;
-							nodes.push_back(property.first);
-							_currentAddress = timplode(nodes, TokenAddressSeparator);
-							return;
-						}
-					}
 				}
 			}
 
-			// Stop when no nodes are left
-			if(nodes.empty()) {
-				_instanceComplete = true;
-				return;
-			}
+			// Stop when no nodes are left and we are finished
+			if(nodes.empty()) { _instanceComplete = true; return; }
 
 			// Prepare next level
 			lastKey = nodes.back();
@@ -552,6 +540,8 @@ public:
 		}
 		// This message has already been started
 		else {
+			// TODO: Handle abort!
+
 			_receiveBuffer << _sendBuffer.data.add(input);
 			updateSendBuffer();
 		}
@@ -593,7 +583,7 @@ public:
 					output << source << _T(" ");
 
 					if(data.is_bool()) {
-						output << (data.bool_value() ? TokenBoolTrue : TokenBoolFalse);
+						output << (data.bool_value() ? _T("true") : _T("false"));
 					}
 					else if(data.is_number()) {
 						if(data.is_integer())
@@ -798,7 +788,7 @@ private:
 			if(key != _T("  - ")) { output << _T(": "); }
 
 			if(data.is_bool()) {
-				output << (data.bool_value() ? TokenBoolTrue : TokenBoolFalse);
+				output << (data.bool_value() ? _T("true") : _T("false"));
 			}
 			else if(data.is_number()) {
 				if(data.is_integer())
