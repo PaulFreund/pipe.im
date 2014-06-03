@@ -38,8 +38,8 @@ const tstring IndentSymbol = _T("    ");
 
 //======================================================================================================================
 
-class PipeShellSendMessage {
-	enum PipeShellSendMessageState {
+class PipeSchemaGenerator {
+	enum PipeSchemaGeneratorState {
 		None,
 		QueriedValue,
 		QueriedOptional,
@@ -48,84 +48,63 @@ class PipeShellSendMessage {
 	};
 
 private:
-	bool _messageEmpty;
-	bool _messageComplete;
+	bool _instanceEmpty;
+	bool _instanceComplete;
 
-	PipeShellSendMessageState _clientState;
+	PipeSchemaGeneratorState _clientState;
 
 	tstring _currentAddress;
 	int _nodeLevel;
 	bool _newItem;
 
-	PipeJson _message;
+	PipeJson _instance;
 	PipeJson _schema;
 
 public:
-	PipeShellSendMessage()
-		: _messageEmpty(true)
-		, _messageComplete(true)
+	PipeSchemaGenerator()
+		: _instanceEmpty(true)
+		, _instanceComplete(true)
 		, _clientState(None)
 		, _nodeLevel(0)
 		, _newItem(false)
 		, _currentAddress(_T(""))
-		, _message(PipeJson(PipeObject()))
+		, _instance(PipeJson(PipeObject()))
 		, _schema(nullptr)
 		{}
 
 public:
 	//------------------------------------------------------------------------------------------------------------------
-	bool isEmpty() { return _messageEmpty; }
+	bool empty() { return _instanceEmpty; }
 
 	//------------------------------------------------------------------------------------------------------------------
-	bool isComplete() { return _messageComplete; }
+	bool complete() { return _instanceComplete; }
 
 	//------------------------------------------------------------------------------------------------------------------
-	PipeArrayPtr getMessages() {
-		return newArray({ _message });
-	}
+	PipeJson& instance() { return _instance; }
 
 	//------------------------------------------------------------------------------------------------------------------
-	tstring start(const tstring& identifier, const tstring& command, const tstring& parameter, const tstring& address, PipeJson& schema) {
-		// Off to a fresh start
+	tstring start(PipeJson& schema, const tstring& parameter = _T("")) {
 		clear();
 
-		PipeSchema* schemaData = reinterpret_cast<PipeSchema*>(&schema[TokenMessageData].object_items());
+		PipeSchema* schemaData = reinterpret_cast<PipeSchema*>(&schema.object_items());
+		if(schemaData == nullptr || schemaData->type() == PipeSchemaTypeNone)
+			return _T("Error! Invalid schema supplied");
 
-		bool hasParameters = (schemaData != nullptr && schemaData->type() != PipeSchemaTypeNull);
-		bool multipleParameters = (schemaData != nullptr && (!schemaData->properties().empty() || !schemaData->items().empty()));
+		PipeSchemaType schemaType = schemaData->type();
+		if(schemaType == PipeSchemaTypeObject || schemaType == PipeSchemaTypeArray) {
+			if(!parameter.empty()) { return _T("Error! Schema can not be created by parameter"); }
 
-		// Parametes have been supplied but are not accepted
-		if(!hasParameters && !parameter.empty())
-			return _T("Error! Command does not accept any parameters\n");
-
-		if(multipleParameters && !parameter.empty())
-			return _T("Error! Command can not be invoked with parameters\n");
-
-		_messageEmpty = false;
-		_messageComplete = false;
-
-		_schema = schema;
-		_message = PipeJson(PipeObject());
-		auto& messageData = _message.object_items();
-
-		messageData[TokenMessageRef] = identifier;
-		messageData[TokenMessageAddress] = address;
-		messageData[TokenMessageCommand] = command;
-
-		if(!hasParameters) {
-			_messageComplete = true;
-			return _T("");
-		}
-
-		// command has one paramter
-		else if(!multipleParameters && !parameter.empty()) {
-			setValue(TokenMessageData, parameter);
-			_messageComplete = true;
-			return _T("");
+			_instanceEmpty = false;
+			_schema = schema;
+			return queryValue();
 		}
 		else {
-			return nextValue();
+			setValue(TokenMessageData, parameter);
+			_instanceEmpty = false;
+			_instanceComplete = true;
 		}
+
+		return _T("");
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -162,6 +141,22 @@ public:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+	void clear() {
+		_instanceEmpty = true;
+		_instanceComplete = false;
+
+		_clientState = None;
+
+		_currentAddress = _T("");
+		_nodeLevel = 0;
+		_newItem = false;
+
+		_instance = PipeJson(PipeObject());
+		_schema = nullptr;
+	}
+
+private:
+	//------------------------------------------------------------------------------------------------------------------
 	tstring nextValue() {
 
 		if(_clientState == AcceptedOptional)
@@ -171,7 +166,7 @@ public:
 		nextNode(_clientState == DeclinedOptional);
 		_nodeLevel = texplode(_currentAddress, TokenAddressSeparator).size();
 
-		if(_messageComplete)
+		if(_instanceComplete)
 			return _T("Command completed\n");
 
 		return queryValue();
@@ -213,22 +208,6 @@ public:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void clear() {
-		_messageEmpty = true;
-		_messageComplete = false;
-
-		_clientState = None;
-
-		_currentAddress = _T("");
-		_nodeLevel = 0;
-		_newItem = false;
-
-		_message = PipeJson(PipeObject());
-		_schema = nullptr;
-	}
-
-private:
-	//------------------------------------------------------------------------------------------------------------------
 	bool setValue(const tstring& address, const tstring& data) {
 		auto& valueSchemaNode = schemaNode(address);
 		auto& valueMessageNode = messageNode(address);
@@ -264,9 +243,28 @@ private:
 
 	//------------------------------------------------------------------------------------------------------------------
 	PipeSchema& schemaNode(const tstring& address) {
-		PipeJson* resultNode = &_schema;
-
+		//PipeJson* resultNode = &_schema;
 		auto nodes = texplode(address, TokenAddressSeparator);
+
+		PipeSchema* currentNode = reinterpret_cast<PipeSchema*>(&_schema.object_items());
+		while(!nodes.empty()) {
+			if(currentNode->type() == PipeSchemaTypeObject) {
+				currentNode = &currentNode->property(*begin(nodes));
+			}
+			else if(currentNode->type() == PipeSchemaTypeArray) {
+				currentNode = &currentNode->items();
+			}
+
+			nodes.erase(begin(nodes));
+		}
+
+		return *currentNode;
+		/*
+			if(nodes.empty()) { return reinterpret_cast<PipeSchema&>(resultNode->object_items()); }
+			nodes.erase(begin(nodes));
+			resultNode = &(*resultNode)[*begin(nodes)];
+		}
+
 		for(size_t idx = 0, cnt = nodes.size(); idx < cnt; idx++) {
 			PipeJson& currentNode = (*resultNode)[nodes[idx]];
 
@@ -288,12 +286,12 @@ private:
 			}
 		}
 
-		return reinterpret_cast<PipeSchema&>(resultNode->object_items());
+		*/
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	PipeJson& messageNode(const tstring& address) {
-		PipeJson* resultNode = &_message;
+		PipeJson* resultNode = &_instance;
 
 		tstring currentPath;
 		auto nodes = texplode(address, TokenAddressSeparator);
@@ -339,12 +337,6 @@ private:
 
 	//------------------------------------------------------------------------------------------------------------------
 	void nextNode(bool jumpOut = false) {
-		// First run, set to data
-		if(_currentAddress.empty()) {
-			_currentAddress = TokenMessageData;
-			return;
-		}
-		
 		auto nodes = texplode(_currentAddress, TokenAddressSeparator);
 		tstring lastKey;
 
@@ -353,7 +345,7 @@ private:
 		auto currentNodeType = currentNode->type();
 
 		// Iterate over the levels
-		while(!nodes.empty()) {
+		while(true) {
 
 			// Go into node if not declined
 			if(!jumpOut) {
@@ -392,6 +384,12 @@ private:
 				}
 			}
 
+			// Stop when no nodes are left
+			if(nodes.empty()) {
+				_instanceComplete = true;
+				return;
+			}
+
 			// Prepare next level
 			lastKey = nodes.back();
 			nodes.pop_back();
@@ -400,11 +398,35 @@ private:
 			currentNodeType = currentNode->type();
 			jumpOut = false; // Only the first level can be declined
 		}
+	}
+};
 
-		if(nodes.empty()) {
-			_messageComplete = true;
-			return;
-		}
+//======================================================================================================================
+
+struct PipeCommandBuffer {
+	PipeCommandBuffer() {}
+	PipeCommandBuffer(const tstring& identifier_, const tstring& address_, const tstring& command_)
+		: identifier(identifier_)
+		, address(address_)
+		, command(command_)
+	{}
+
+	tstring identifier;
+	tstring address;
+	tstring command;
+	PipeSchemaGenerator data;
+
+	PipeJson instance() {
+		PipeJson msg = PipeJson(PipeObject());
+		PipeObject& msgObj = msg.object_items();
+		msgObj[TokenMessageRef] = identifier;
+		msgObj[TokenMessageAddress] = address;
+		msgObj[TokenMessageCommand] = command;
+
+		if(!data.empty() && data.complete())
+			msgObj[TokenMessageData] = data.instance();
+
+		return std::move(msg);
 	}
 };
 
@@ -424,7 +446,7 @@ private:
 	PipeArrayPtr _addressCommands;
 
 	tstringstream _receiveBuffer;
-	PipeShellSendMessage _sendBuffer;
+	PipeCommandBuffer _sendBuffer;
 
 public:
 	//------------------------------------------------------------------------------------------------------------------
@@ -467,7 +489,7 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 	void send(const tstring& input) {
 		// New command
-		if(_sendBuffer.isEmpty()) {
+		if(_sendBuffer.data.empty()) {
 			auto&& fragments = texplode(input, _T(' '));
 			if(fragments.size() <= 0) { return; }
 
@@ -510,31 +532,28 @@ public:
 				for(auto&& addressCommand : *addressCommands) {
 					auto&& cmd = addressCommand.object_items();
 					if(cmd[TokenMessageCommand].string_value() == command)
-						schema = &cmd[_T("data_schema")];
+						schema = &addressCommand[_T("data_schema")];
 				}
 
-				// invalid command
+				// Invalid command
 				if(schema == nullptr) {
 					_receiveBuffer << _T("Error! command not found");
-					_sendBuffer.clear();
 					return;
 				}
 
-				_receiveBuffer << _sendBuffer.start(_identifier, command, parameter, address, *schema);
-				if(!_sendBuffer.isEmpty() && _sendBuffer.isComplete()) {
-					LibPipe::send(_sendBuffer.getMessages());
-					_sendBuffer.clear();
-				}
+				_sendBuffer = PipeCommandBuffer(_identifier, address, command);
+				
+				// If data has to be supplied, start 
+				if(!schema->object_items().empty())
+					_receiveBuffer << _sendBuffer.data.start(*schema, parameter);
 
+				updateSendBuffer();
 			}
 		}
 		// This message has already been started
 		else {
-			_receiveBuffer << _sendBuffer.add(input);
-			if(!_sendBuffer.isEmpty() && _sendBuffer.isComplete()) {
-				LibPipe::send(_sendBuffer.getMessages());
-				_sendBuffer.clear();
-			}
+			_receiveBuffer << _sendBuffer.data.add(input);
+			updateSendBuffer();
 		}
 	}
 
@@ -544,7 +563,7 @@ public:
 		output << _receiveBuffer.str();
 		_receiveBuffer.str(tstring());
 
-		if(_sendBuffer.isEmpty()) {
+		if(_sendBuffer.data.empty()) {
 			auto messages = LibPipe::receive();
 			for(auto& msg : *messages) {
 				if(!msg.is_object()) { continue; }
@@ -816,6 +835,15 @@ private:
 		}
 
 		return absolute;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	void updateSendBuffer() {
+		if(_sendBuffer.data.empty() || _sendBuffer.data.complete()) {
+			LibPipe::send(newArray({ _sendBuffer.instance() }));
+			_sendBuffer.data.clear();
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

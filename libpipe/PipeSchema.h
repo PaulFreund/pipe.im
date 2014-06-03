@@ -9,6 +9,7 @@
 //======================================================================================================================
 
 enum PipeSchemaType {
+	PipeSchemaTypeNone,
 	PipeSchemaTypeArray,
 	PipeSchemaTypeBoolean,
 	PipeSchemaTypeInteger,
@@ -39,7 +40,7 @@ inline tstring schemaTypeString(PipeSchemaType type) {
 	else if(type == PipeSchemaTypeObject)   { return TokenSchemaTypeObject;  }
 	else if(type == PipeSchemaTypeString)   { return TokenSchemaTypeString;  }
 	
-	return TokenSchemaTypeNull;
+	return _T("");
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -53,7 +54,7 @@ inline PipeSchemaType schemaTypeIdentifier(tstring type) {
 	else if(type == TokenSchemaTypeObject)   { return PipeSchemaTypeObject;  }
 	else if(type == TokenSchemaTypeString)   { return PipeSchemaTypeString;  }
 	
-	return PipeSchemaTypeNull;
+	return PipeSchemaTypeNone;
 }
 
 //======================================================================================================================
@@ -80,7 +81,7 @@ public:
 	}
 
 public: // Keywords for all nodes
-	PipeSchemaType type() { if(isDefined(_T("type"))) { return schemaTypeIdentifier((*this)[_T("type")].string_value()); } return PipeSchemaTypeNull; }
+	PipeSchemaType type() { if(isDefined(_T("type"))) { return schemaTypeIdentifier((*this)[_T("type")].string_value()); } return PipeSchemaTypeNone; }
 
 	tstring title() { if(isDefined(_T("title"))) { return (*this)[_T("title")].string_value(); } return 0; }
 	PipeSchema& title(tstring newTitle) { (*this)[_T("title")] = newTitle; return *this; }
