@@ -7,7 +7,11 @@ project(PipeWebsocketTerminal)
 #-------------------------------------------------------------------------------
 # Project configuration
 
-set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+if(DARWIN)
+        set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ ${CMAKE_CXX_FLAGS}")
+else()
+        set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+endif()
 
 file(GLOB PIPE_WEBSOCKET_TERMINAL_SRC "*.cpp")
 add_executable(PipeWebsocketTerminal ${PIPE_WEBSOCKET_TERMINAL_SRC})
@@ -21,20 +25,12 @@ target_link_libraries(PipeWebsocketTerminal pipe)
 #-------------------------------------------------------------------------------
 # POCO
 
-find_library(POCO_FOUNDATION NAMES PocoFoundation)
-find_library(POCO_DATA NAMES PocoData)
 find_library(POCO_UTIL NAMES PocoUtil)
 find_library(POCO_NET NAMES PocoNet)
-find_library(POCO_MYSQL NAMES PocoMySQL PocoDataMySQL)
-find_library(POCO_SQLITE NAMES PocoSQLite PocoDataSQLite)
 
 set(POCO_LIBRARIES 
-	${POCO_FOUNDATION}
-	${POCO_DATA} 
 	${POCO_UTIL} 
 	${POCO_NET} 
-	${POCO_SQLITE}
-	${POCO_MYSQL}
 )
 
 target_link_libraries (PipeWebsocketTerminal ${POCO_LIBRARIES})

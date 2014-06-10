@@ -7,7 +7,11 @@ project(PipeExtensionPurple)
 #-------------------------------------------------------------------------------
 # Project configuration
 
-set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+if(DARWIN)
+        set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ ${CMAKE_CXX_FLAGS}")
+else()
+        set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+endif()
 
 file(GLOB PIPE_EXTENSION_PURPLE_SRC "*.cpp")
 add_library(PipeExtensionPurple SHARED ${PIPE_EXTENSION_PURPLE_SRC})
