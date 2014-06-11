@@ -11,6 +11,7 @@
 #include <iostream>
 #include <map>
 #include <array>
+#include <mutex>
 using namespace std;
 
 //======================================================================================================================
@@ -104,13 +105,19 @@ public:
 
 //======================================================================================================================
 
+mutex multiClientMutex;
 class PipeRequestHandlerWebSocket : public HTTPRequestHandler {
+public:
+	~PipeRequestHandlerWebSocket() {
+		try { multiClientMutex.unlock(); } catch(...) {}
+	}
 public:
 	void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
 		PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
 
 		try {
 			WebSocket ws(request, response);
+
 			if(pApp->_debug) { cout << _T("Websocket connection established") << endl; }
 
 			ws.setBlocking(false);
@@ -129,6 +136,8 @@ public:
 			int bytesRead;
 			do {
 				this_thread::sleep_for(chrono::microseconds(100));
+
+				multiClientMutex.lock();
 
 				// Receive from client
 				try {
@@ -166,12 +175,16 @@ public:
 					}
 					outgoing.clear();
 				}
+
+				multiClientMutex.unlock();
 			}
 			while(bytesRead > 0 || (flags & WebSocket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE);
 
 			if(pApp->_debug) { cout << _T("Websocket connection closed") << endl; }
 		}
 		catch(WebSocketException& e) {
+			try { multiClientMutex.unlock(); } catch(...) {}
+
 			switch(e.code()) {
 				case WebSocket::WS_ERR_HANDSHAKE_UNSUPPORTED_VERSION:
 					response.set("Sec-WebSocket-Version", WebSocket::WEBSOCKET_VERSION);
