@@ -15,11 +15,22 @@ Scriptable online communication
 * Install the current master of [Poco](https://github.com/pocoproject/poco) (checkout master, configure with --omit=Data/ODBC)
 * Install glib
 * Install libpurple >= 2.10.9
-* run cmake CMakeLists.txt
-* run make
-* run make install
+* Build Pipe
+    * run cmake CMakeLists.txt
+    * run make
+    * run make install
 
 ### OS X
 * Install CMake >= 2.8 (brew install cmake)
 * Install PkgConfig (brew install pkgconfig)
-* Install the current master of [Poco](https://github.com/pocoproject/poco) (checkout master, configure with --config=Darwin64-clang --omit=Data/MySQL,Data/ODBC --no-samples --no-tests)
+* Install glib (brew install glib)
+* Install libpurple (brew install finch)
+* Install the current master of [Poco](https://github.com/pocoproject/poco)
+    * run git checkout master
+	* run ./configure --config=Darwin-clang-libc++ --omit=XML,JSON,Data,Data/SQLite,MongoDB,Data/MySQL,Data/ODBC,CppParser,PDF,Zip,PageCompiler --no-samples --no-tests
+    * run make
+	* run make install
+* Build Pipe
+    * run cmake CMakeLists.txt
+    * run make
+    * run make install
