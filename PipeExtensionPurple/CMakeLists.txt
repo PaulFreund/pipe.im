@@ -7,10 +7,10 @@ project(PipeExtensionPurple)
 #-------------------------------------------------------------------------------
 # Project configuration
 
-if(DARWIN)
-        set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ ${CMAKE_CXX_FLAGS}")
-else()
-        set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+        set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")
 endif()
 
 file(GLOB PIPE_EXTENSION_PURPLE_SRC "*.cpp")
@@ -36,7 +36,6 @@ set(GLIB2_INCLUDE_DIR ${GLIB2_MAIN_INCLUDE_DIR} ${GLIB2_INTERNAL_INCLUDE_DIR})
 include_directories(${GLIB2_INCLUDE_DIR})
 target_link_libraries(PipeExtensionPurple ${GLIB2_LIBRARIES})
 
-
 #-------------------------------------------------------------------------------
 # Purple
 
@@ -45,6 +44,18 @@ find_path(PURPLE_INCLUDE_DIR NAMES "purple.h" PATH_SUFFIXES libpurple )
 
 include_directories(${PURPLE_INCLUDE_DIR})
 target_link_libraries(PipeExtensionPurple ${PURPLE_LIBRARY})
+
+
+#-------------------------------------------------------------------------------
+# POCO
+
+find_library(POCO_FOUNDATION NAMES PocoFoundation)
+
+set(POCO_LIBRARIES
+        ${POCO_FOUNDATION}
+)
+
+target_link_libraries (PipeExtensionPurple ${POCO_LIBRARIES})
 
 #-------------------------------------------------------------------------------
 # Installation

@@ -26,7 +26,7 @@ PIPE_EXTENSION_ITF void PipeExtensionSetPath(PipeExtensionStr path) {
 		if(tstring(path).empty()) { throw tstring(_T("Empty path supplied")); }
 
 		Path extensionDataPath;
-		extensionDataPath.parseDirectory(path);
+		extensionDataPath.parseDirectory(tstring(path));
 		extensionDataPath.append(_T("purple"));
 
 		PipeExtensionPurple::ExtensionInstancePath = extensionDataPath.toString();

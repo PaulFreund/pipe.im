@@ -7,10 +7,10 @@ project(PipeTerminal)
 #-------------------------------------------------------------------------------
 # Project configuration
 
-if(DARWIN)
-        set(CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ ${CMAKE_CXX_FLAGS}")
-else()
-        set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+        set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")
 endif()
 
 file(GLOB PIPE_TERMINAL_SRC "*.cpp")
