@@ -42,4 +42,4 @@ Scriptable online communication
 After that the instance can be tested at http://localhost:4242/pipe/shell/index.html or http://localhost:4242/pipe/gui/index.html.
 The installation prefix in this example is "/usr/local" and data will be stored in `pwd`/pipedata (can be changed with --datadir).
 
-For quick development of the web ui, delete /usr/local/share/pipe/WebsocketTerminal/static and create a symlink (ln -s ...)
+For quick development of the web ui, set --staticdir= to the $$GITDIR$$/PipeWebsocketTerminal/static
