@@ -20,7 +20,8 @@ Scriptable online communication
     * run make
     * run make install
 
-### OS X
+### OS X Mavericks
+* Install XCode and XCode Command-Line tools 
 * Install CMake >= 2.8 (brew install cmake)
 * Install PkgConfig (brew install pkgconfig)
 * Install libpurple (brew install finch)
