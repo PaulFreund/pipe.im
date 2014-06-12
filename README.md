@@ -23,7 +23,6 @@ Scriptable online communication
 ### OS X
 * Install CMake >= 2.8 (brew install cmake)
 * Install PkgConfig (brew install pkgconfig)
-* Install glib (brew install glib)
 * Install libpurple (brew install finch)
 * Install the current master of [Poco](https://github.com/pocoproject/poco)
     * run git checkout master
@@ -34,3 +33,11 @@ Scriptable online communication
     * run cmake CMakeLists.txt
     * run make
     * run make install
+    
+## Testing with PipeWebsocketTerminal
+
+    PipeWebsocketTerminal --extdir=/usr/local/lib/pipe --staticdir=/usr/local/share/pipe/WebsocketTerminal/static --datadir=pipedata --port=4242 --address="0.0.0.0" --uripath=shell
+
+The installation prefix in this example is "/usr/local" and data will be stored in `pwd`/pipedata (can be changed with --datadir).
+
+For quick development of the web ui, delete /usr/local/share/pipe/WebsocketTerminal/static and create a symlink (ln -s ...)
