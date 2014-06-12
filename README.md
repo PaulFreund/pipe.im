@@ -37,8 +37,9 @@ Scriptable online communication
     
 ## Testing with PipeWebsocketTerminal
 
-    PipeWebsocketTerminal --extdir=/usr/local/lib/pipe --staticdir=/usr/local/share/pipe/WebsocketTerminal/static --datadir=pipedata --port=4242 --address="0.0.0.0" --uripath=shell
+    PipeWebsocketTerminal --extdir=/usr/local/lib/pipe --staticdir=/usr/local/share/pipe/WebsocketTerminal/static --datadir=pipedata --port=4242 --address="0.0.0.0" --uripath=pipe
 
+After that the instance can be tested at http://localhost:4242/pipe/shell/index.html or http://localhost:4242/pipe/gui/index.html.
 The installation prefix in this example is "/usr/local" and data will be stored in `pwd`/pipedata (can be changed with --datadir).
 
 For quick development of the web ui, delete /usr/local/share/pipe/WebsocketTerminal/static and create a symlink (ln -s ...)
