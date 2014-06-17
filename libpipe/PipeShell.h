@@ -546,7 +546,7 @@ class PipeShell {
 private:
 	//------------------------------------------------------------------------------------------------------------------
 	const tstring _greetingText = _T("Welcome to the pipe shell, type help for further assistance\n");
-
+	const tstring _abortText = _T("!abortmessage");
 private:
 	//------------------------------------------------------------------------------------------------------------------
 	const tstring _identifier;
@@ -598,6 +598,13 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 	void send(const tstring& input) {
+		// Abort command
+		if(input == _abortText) {
+			_sendBuffer.data.clear();
+			_receiveBuffer << _T("Aborted command.") << std::endl;
+			return;
+		}
+
 		// New command
 		if(_sendBuffer.data.empty()) {
 			auto&& fragments = texplode(input, _T(' '));
@@ -662,8 +669,6 @@ public:
 		}
 		// This message has already been started
 		else {
-			// TODO: Handle abort!
-
 			_receiveBuffer << _sendBuffer.data.add(input);
 			updateSendBuffer();
 		}
@@ -791,6 +796,8 @@ private:
 			_receiveBuffer << std::endl;
 			_receiveBuffer << _T("Syntax if there is only on parameter for the command:") << std::endl;
 			_receiveBuffer << IndentSymbol << _T("[<address>] <command> <parameter>") << std::endl;
+			_receiveBuffer << std::endl;
+			_receiveBuffer << _T("You can abort a command at any time by sending \"") + _abortText + _T("\".") << std::endl;
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
