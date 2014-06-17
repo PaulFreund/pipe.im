@@ -48,9 +48,9 @@ public:
 int main(int argc, char* argv[]) {
 	// DEBUG
 
-	auto info = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Info")).description(_T("Information about the node"));
-	info.property(TokenMessageAddress, PipeSchemaTypeString).title(_T("Address")).description(_T("Address of the node"));
-	info.property(_T("type"), PipeSchemaTypeString).title(_T("Type")).description(_T("Unique type of this node"));
+	auto info = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Info")).description(_T("Information about the node")).required({});
+	info.property(TokenMessageAddress, PipeSchemaTypeString).title(_T("Address")).description(_T("Address of the node")).enumTypes(PipeArray{_T("addyone"), _T("addytwo"), _T("3")});
+	info.property(_T("type"), PipeSchemaTypeString).title(_T("Type")).description(_T("Unique type of this node")).defaultValue(_T("Rofl"));
 	info.property(_T("description"), PipeSchemaTypeString).title(_T("Description")).description(_T("Description of the node"));
 	auto& infoDataState = info.property(_T("states"), PipeSchemaTypeArray).title(_T("States")).description(_T("Runtime states of the node"));
 	auto& infoDataStateItems = infoDataState.items(PipeSchemaTypeObject).title(_T("State")).description(_T("Runtime state"));

@@ -23,6 +23,8 @@ class PipeSchemaGenerator {
 		QueriedOptional,
 		AcceptedOptional,
 		DeclinedOptional,
+		AcceptedDefault,
+		DeclinedDefault,
 	};
 
 private:
@@ -97,23 +99,48 @@ public:
 			case QueriedOptional: {
 				tstring response = input;
 				std::transform(begin(response), end(response), begin(response), ::tolower);
-				if(response == _T("yes") || response == _T("y"))
+				if(response == _T("yes") || response == _T("y")) {
 					_clientState = AcceptedOptional;
-				else if(response == _T("no") || response == _T("n"))
+					return queryValue();
+				}
+				else if(response == _T("no") || response == _T("n")) {
 					_clientState = DeclinedOptional;
-				else
+				}
+				else {
 					return _T("Error! Only 'yes' or 'no' are accepted");
+				}
 
 				break;
 			}
 			case QueriedDefault: {
-				// TODO!
-				_clientState = None;
+				tstring response = input;
+				std::transform(begin(response), end(response), begin(response), ::tolower);
+				if(response == _T("yes") || response == _T("y")) {
+					valueNode(_currentAddress) = schemaNode(_currentAddress).defaultValue();
+					_clientState = None;
+				}
+				else if(response == _T("no") || response == _T("n")) {
+					_clientState = DeclinedDefault;
+					return queryValue();
+				}
+				else {
+					return _T("Error! Only 'yes' or 'no' are accepted");
+				}
+
 				break;
 			}
 
 			case QueriedEnum: {
-				// TODO!
+				auto& currentNode = schemaNode(_currentAddress);
+				auto& enumOptions = currentNode.enumTypes();
+				int response = -1;
+				try { response = std::stoi(input); } catch(...) {}
+
+				if(response >= 0 && response < enumOptions.size())
+					valueNode(_currentAddress) = enumOptions[response];
+				else
+					return _T("Error! Only 0-") + to_tstring(enumOptions.size() - 1) + _T(" are accepted");
+
 				_clientState = None;
 				break;
 			}
@@ -137,12 +164,10 @@ public:
 private:
 	//------------------------------------------------------------------------------------------------------------------
 	tstring nextValue() {
-		// Optional question has been answered with yes
-		if(_clientState == AcceptedOptional) { return queryValue(); }
-
 		// Go to next message node
 		nextNode(_clientState == DeclinedOptional);
 		_nodeLevel = texplode(_currentAddress, TokenAddressSeparator).size();
+		_clientState = None;
 
 		// Instance is complete
 		if(_instanceComplete) { return _T("Instance completed\n"); }
@@ -152,18 +177,6 @@ private:
 
 	//------------------------------------------------------------------------------------------------------------------
 	tstring queryValue() {
-		/*
-			TODO
-			-----------------------------------------------
-			*Implement enums
-				* Implement defaults
-				* Implement required instead of optional
-				* Implement validation
-				* maxItems(array)
-				* minItems(array)
-			-----------------------------------------------
-		*/
-
 		auto& currentNode = schemaNode(_currentAddress);
 		auto nodeType = currentNode.type();
 
@@ -175,25 +188,81 @@ private:
 		}
 		_newItem = false;
 
-		// Handle optional/array items // TODO: FIX! now required instead of optional
-		if(_clientState != AcceptedOptional && (/*currentNode[TokenSchemaOptional].bool_value() || */ nodeType == PipeSchemaTypeArray)) {
+		// Check if this is an optional value
+		bool optional = false;
+		auto tokenList = texplode(_currentAddress, TokenAddressSeparator);
+		if(!tokenList.empty()) {
+			tstring currentProperty = tokenList.back();
+			tokenList.resize(tokenList.size() - 1);
+			auto parent = schemaNode(timplode(tokenList, TokenAddressSeparator));
+
+			if(parent.isDefined(_T("required"))) {
+				optional = true;
+				auto requiredList = parent.required();
+				if(std::find(begin(requiredList), end(requiredList), currentProperty) != end(requiredList))
+					optional = false;
+			}
+		}
+
+		// Enforce array bounds
+		auto min = currentNode.minItems();
+		auto max = currentNode.maxItems();
+		if(nodeType == PipeSchemaTypeArray && (min != 0 || max != 0)) {
+			auto value = valueNode(_currentAddress);
+			if(value.type() == PipeJson::ARRAY) {
+				PipeArray& elements = value.array_items();
+				if(min != 0 && elements.size() < min) { _clientState = AcceptedOptional; }
+				if(max != 0 && elements.size() >= max) { 
+					_clientState = DeclinedOptional; 
+					return nextValue();
+				}
+			}
+		}
+
+		// Ask if optional element should be added
+		if(_clientState == None && (optional || nodeType == PipeSchemaTypeArray)) {
 			tstring description = currentNode.description();
 			if(nodeType == PipeSchemaTypeArray)
 				description = _T("a ") + description + _T(" value");
 
-			_clientState = QueriedOptional;
 			result += indent + _T("Do you want to add ") + description + _T("? y/n: ");
+			_clientState = QueriedOptional;
 			return result;
 		}
+		// Ask if the default value should be used
+		else if(_clientState != DeclinedDefault && currentNode.defaultValue() != PipeSchemaConstants::EmptyValue) {
+			result += indent + _T("Do you want to use the default value (") + currentNode.defaultValue().dump() + _T(")? y/n: ");
+			_clientState = QueriedDefault;
+			return result;
+		}
+		// Ask for properties/items
 		else if(nodeType == PipeSchemaTypeObject || nodeType == PipeSchemaTypeArray) {
 			_clientState = None;
 			return result += nextValue();
 		}
+		// Ask for value
 		else {
-			_clientState = QueriedValue;
+			result += indent;
 			result += _T("Value for ") + currentNode.description();
 			result += _T(" [") + schemaTypeString(nodeType) + _T("]: ");
-			return indent + result;
+
+			// Check if we have to ask for an enum value
+			if(!currentNode.enumTypes().empty()) {
+				tstringstream options;
+				options << std::endl;
+				auto& enumOptions = currentNode.enumTypes();
+				for(int idx = 0, cnt = enumOptions.size(); idx < cnt; idx++) {
+					options << indent << setw(IndentSymbol.size()) << idx << _T(": ") << enumOptions[idx].dump() << std::endl;
+				}
+				options << indent << _T("Please choose an option(0-") << enumOptions.size()-1 << _T("): ");
+				result += options.str();
+				_clientState = QueriedEnum;
+			}
+			else {
+				_clientState = QueriedValue;
+			}
+
+			return result;
 		}
 	}
 
@@ -284,6 +353,13 @@ private:
 		}
 
 		return *currentNode;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	PipeSchema& schemaNodeParent(const tstring& address) {
+		auto nodes = texplode(address, TokenAddressSeparator);
+		if(!nodes.empty()) { nodes.resize(nodes.size() - 1); }
+		return schemaNode(timplode(nodes, TokenAddressSeparator));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

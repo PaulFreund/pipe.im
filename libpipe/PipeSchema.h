@@ -191,7 +191,7 @@ public: // Keywords for number, integer
 	bool exclusiveMinimum() { if((type() == PipeSchemaTypeInteger || type() == PipeSchemaTypeNumber) && isDefined(_T("exclusiveMinimum"))) { return (*this)[_T("exclusiveMinimum")].bool_value(); } return false; }
 	PipeSchema& exclusiveMinimum(bool newExclusiveMinimum) { if((type() == PipeSchemaTypeInteger || type() == PipeSchemaTypeNumber)) { (*this)[_T("exclusiveMinimum")] = newExclusiveMinimum; } return *this; }
 
-private:
+public:
 	bool isDefined(tstring name) {
 		if(count(name) == 1)
 			return true;
