@@ -176,17 +176,26 @@ public: // Keywords for strings
 	PipeSchema& pattern(tstring newPattern) { if(type() == PipeSchemaTypeString) { (*this)[_T("pattern")] = newPattern; } return *this; }
 	
 public: // Keywords for number, integer
-	int multipleOf() { if((type() == PipeSchemaTypeInteger || type() == PipeSchemaTypeNumber) && isDefined(_T("multipleOf"))) { return (*this)[_T("multipleOf")].int_value(); } return 0; }
-	PipeSchema& multipleOf(int newMultipleOf) { if((type() == PipeSchemaTypeInteger || type() == PipeSchemaTypeNumber)) { (*this)[_T("multipleOf")] = newMultipleOf; } return *this; }
+	int multipleOf() { if(type() == PipeSchemaTypeInteger && isDefined(_T("multipleOf"))) { return (*this)[_T("multipleOf")].int_value(); } return 0; }
+	PipeSchema& multipleOf(int newMultipleOf) { if(type() == PipeSchemaTypeInteger) { (*this)[_T("multipleOf")] = newMultipleOf; } return *this; }
 
-	int maximum() { if((type() == PipeSchemaTypeInteger || type() == PipeSchemaTypeNumber) && isDefined(_T("maximum"))) { return (*this)[_T("maximum")].int_value(); } return 0; }
-	PipeSchema& maximum(int newMaximum) { if((type() == PipeSchemaTypeInteger || type() == PipeSchemaTypeNumber)) { (*this)[_T("maximum")] = newMaximum; } return *this; }
+	double fmultipleOf() { if(type() == PipeSchemaTypeNumber && isDefined(_T("multipleOf"))) { return (*this)[_T("multipleOf")].number_value(); } return 0.0; }
+	PipeSchema& fmultipleOf(double newMultipleOf) { if(type() == PipeSchemaTypeNumber) { (*this)[_T("multipleOf")] = newMultipleOf; } return *this; }
+
+	int maximum() { if(type() == PipeSchemaTypeInteger && isDefined(_T("maximum"))) { return (*this)[_T("maximum")].int_value(); } return 0; }
+	PipeSchema& maximum(int newMaximum) { if(type() == PipeSchemaTypeInteger) { (*this)[_T("maximum")] = newMaximum; } return *this; }
+
+	float fmaximum() { if(type() == PipeSchemaTypeNumber && isDefined(_T("maximum"))) { return (*this)[_T("maximum")].number_value(); } return 0.0; }
+	PipeSchema& fmaximum(float newMaximum) { if(type() == PipeSchemaTypeNumber) { (*this)[_T("maximum")] = newMaximum; } return *this; }
 
 	bool exclusiveMaximum() { if((type() == PipeSchemaTypeInteger || type() == PipeSchemaTypeNumber) && isDefined(_T("exclusiveMaximum"))) { return (*this)[_T("exclusiveMaximum")].bool_value(); } return false; }
 	PipeSchema& exclusiveMaximum(bool newExclusiveMaximum) { if((type() == PipeSchemaTypeInteger || type() == PipeSchemaTypeNumber)) { (*this)[_T("exclusiveMaximum")] = newExclusiveMaximum; } return *this; }
 
-	int minimum() { if((type() == PipeSchemaTypeInteger || type() == PipeSchemaTypeNumber) && isDefined(_T("minimum"))) { return (*this)[_T("minimum")].int_value(); } return 0; }
-	PipeSchema& minimum(int newMinimum) { if((type() == PipeSchemaTypeInteger || type() == PipeSchemaTypeNumber)) { (*this)[_T("minimum")] = newMinimum; } return *this; }
+	int minimum() { if(type() == PipeSchemaTypeInteger && isDefined(_T("minimum"))) { return (*this)[_T("minimum")].int_value(); } return 0; }
+	PipeSchema& minimum(int newMinimum) { if(type() == PipeSchemaTypeInteger) { (*this)[_T("minimum")] = newMinimum; } return *this; }
+
+	double fminimum() { if(type() == PipeSchemaTypeNumber && isDefined(_T("minimum"))) { return (*this)[_T("minimum")].number_value(); } return 0.0; }
+	PipeSchema& fminimum(double newMinimum) { if(type() == PipeSchemaTypeNumber) { (*this)[_T("minimum")] = newMinimum; } return *this; }
 
 	bool exclusiveMinimum() { if((type() == PipeSchemaTypeInteger || type() == PipeSchemaTypeNumber) && isDefined(_T("exclusiveMinimum"))) { return (*this)[_T("exclusiveMinimum")].bool_value(); } return false; }
 	PipeSchema& exclusiveMinimum(bool newExclusiveMinimum) { if((type() == PipeSchemaTypeInteger || type() == PipeSchemaTypeNumber)) { (*this)[_T("exclusiveMinimum")] = newExclusiveMinimum; } return *this; }

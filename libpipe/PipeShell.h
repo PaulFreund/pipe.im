@@ -285,28 +285,66 @@ private:
 				}
 				
 				case PipeSchemaTypeInteger: {
-					// TODO: Validation
-					/*
-						* multipleOf
-						* minimum
-						* exclusiveMinimum
-						* maximum
-						* exclusiveMaximum
-					*/
-					valueMessageNode = PipeJson(std::stoi(data));
+					int value = 0;
+					try { value = std::stoi(data); }
+					catch(...) { return _T("Error! Value does not seem to be a valid integer"); }
+
+					int mo = schemaMessageNode.multipleOf();
+					if(mo != 0) { if((value%mo) != 0) { return _T("Error! Value has to be a multiple of ") + to_tstring(mo) + _T("."); } }
+
+					int min = schemaMessageNode.minimum();
+					if(min != 0) { 
+						if(schemaMessageNode.exclusiveMinimum()) {
+							if(value <= min) { return _T("Error! Value has to be bigger than ") + to_tstring(min) + _T("."); }
+						}
+						else {
+							if(value < min) { return _T("Error! Value has to be at least ") + to_tstring(min) + _T("."); }
+						}
+					}
+
+					int max = schemaMessageNode.maximum();
+					if(max != 0) { 
+						if(schemaMessageNode.exclusiveMaximum()) {
+							if(value >= max) { return _T("Error! Value has to be smaller than ") + to_tstring(max) + _T("."); }
+						}
+						else {
+							if(value > max) { return _T("Error! Value has to be ") + to_tstring(max) + _T(" at most."); }
+						}
+					}
+
+					valueMessageNode = PipeJson(value);
 					break; 
 				}
 				
 				case PipeSchemaTypeNumber: {
-					// TODO: Validation
-					/*
-						* multipleOf
-						* minimum
-						* exclusiveMinimum
-						* maximum
-						* exclusiveMaximum
-					*/
-					valueMessageNode = PipeJson(std::stof(data));
+					double value = 0;
+					try { value = std::stod(data); }
+					catch(...) { return _T("Error! Value does not seem to be a valid number"); }
+
+					double mo = schemaMessageNode.fmultipleOf();
+					if(mo != 0.0) { if(fmod(value, mo) != 0) { return _T("Error! Value has to be a multiple of ") + to_tstring(mo) + _T("."); } }
+
+					double min = schemaMessageNode.fminimum();
+					if(min != 0.0) {
+						if(schemaMessageNode.exclusiveMinimum()) {
+							if(value <= min) { return _T("Error! Value has to be bigger than ") + to_tstring(min) + _T("."); }
+						}
+						else {
+							if(value < min) { return _T("Error! Value has to be at least ") + to_tstring(min) + _T("."); }
+						}
+					}
+
+					double max = schemaMessageNode.fmaximum();
+					if(max != 0.0) {
+						if(schemaMessageNode.exclusiveMaximum()) {
+							if(value >= max) { return _T("Error! Value has to be smaller than ") + to_tstring(max) + _T("."); }
+						}
+						else {
+							if(value > max) { return _T("Error! Value has to be ") + to_tstring(max) + _T(" at most."); }
+						}
+					}
+
+					valueMessageNode = PipeJson(value);
 					break; 
 				}
 				

@@ -49,6 +49,7 @@ int main(int argc, char* argv[]) {
 	// DEBUG
 
 	auto info = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Info")).description(_T("Information about the node"));
+	info.property(_T("a"), PipeSchemaTypeNumber).title(_T("Num")).description(_T("num")).fminimum(4.4).fmaximum(5.3).fmultipleOf(0.3);
 	info.property(TokenMessageAddress, PipeSchemaTypeString).title(_T("Address")).description(_T("Address of the node"));
 	info.property(_T("type"), PipeSchemaTypeString).title(_T("Type")).description(_T("Unique type of this node")).defaultValue(_T("Rofl"));
 	info.property(_T("description"), PipeSchemaTypeString).title(_T("Description")).description(_T("Description of the node"));
