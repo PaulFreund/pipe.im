@@ -7,6 +7,7 @@
 #include "LibPipe.h"
 #include "LibPipeHelper.h"
 #include "PipeSchema.h"
+#include <regex>
 
 //======================================================================================================================
 
@@ -90,7 +91,7 @@ public:
 		switch(_clientState) {
 			case QueriedValue: {
 				tstring error = setValue(_currentAddress, input);
-				if(!error.empty()) { return _T("Error! Please submit a valid value"); }
+				if(!error.empty()) { return error; }
 
 				_clientState = None;
 				break;
@@ -269,8 +270,9 @@ private:
 	//------------------------------------------------------------------------------------------------------------------
 	tstring setValue(const tstring& address, const tstring& data) {
 		auto& valueMessageNode = valueNode(address);
+		auto& schemaMessageNode = schemaNode(address);
 		try {
-			switch(schemaNode(address).type()) {
+			switch(schemaMessageNode.type()) {
 				case PipeSchemaTypeBoolean: {
 					tstring response = data;
 					std::transform(begin(response), end(response), begin(response), ::tolower);
@@ -309,12 +311,18 @@ private:
 				}
 				
 				case PipeSchemaTypeString: {
-					// TODO: Validation
-					/*
-						* maxLength (string)
-						* minLength (string)
-						* pattern (string)
-					*/
+					int min = schemaMessageNode.minLength();
+					if(min != 0) { if(data.length() < min) { return _T("Error! String must not be shorter than ") + to_tstring(min) + _T(" characters."); } }
+
+					int max = schemaMessageNode.maxLength();
+					if(max != 0) { if(data.length() > max) { return _T("Error! String must not be longer than ") + to_tstring(max) + _T(" characters."); } }
+
+					tstring pattern = schemaMessageNode.pattern();
+					if(!pattern.empty()) {
+						if(!std::regex_match(data, std::regex(pattern)))
+							return _T("Error! String does not match pattern (") + pattern + _T(".");
+					}
+
 					valueMessageNode = PipeJson(data);
 					break;
 				}

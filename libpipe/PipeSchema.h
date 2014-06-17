@@ -83,13 +83,13 @@ public:
 public: // Keywords for all nodes
 	PipeSchemaType type() { if(isDefined(_T("type"))) { return schemaTypeIdentifier((*this)[_T("type")].string_value()); } return PipeSchemaTypeNone; }
 
-	tstring title() { if(isDefined(_T("title"))) { return (*this)[_T("title")].string_value(); } return 0; }
+	tstring title() { if(isDefined(_T("title"))) { return (*this)[_T("title")].string_value(); } return _T(""); }
 	PipeSchema& title(tstring newTitle) { (*this)[_T("title")] = newTitle; return *this; }
 
-	tstring description() { if(isDefined(_T("description"))) { return (*this)[_T("description")].string_value(); } return 0; }
+	tstring description() { if(isDefined(_T("description"))) { return (*this)[_T("description")].string_value(); } return _T(""); }
 	PipeSchema& description(tstring newDescription) { (*this)[_T("description")] = newDescription; return *this; }
 
-	tstring format() { if(isDefined(_T("format"))) { return (*this)[_T("format")].string_value(); } return 0; }
+	tstring format() { if(isDefined(_T("format"))) { return (*this)[_T("format")].string_value(); } return _T(""); }
 	PipeSchema& format(tstring newFormat) { (*this)[_T("format")] = newFormat; return *this; }
 
 	PipeArray& enumTypes() { if(isDefined(_T("enum"))) { return (*this)[_T("enum")].array_items(); } PipeSchemaConstants::EmptyArray.clear(); return PipeSchemaConstants::EmptyArray; }
@@ -172,7 +172,7 @@ public: // Keywords for strings
 	int minLength() { if(type() == PipeSchemaTypeString && isDefined(_T("minLength"))) { return (*this)[_T("minLength")].int_value(); } return 0; }
 	PipeSchema& minLength(int newMinLength) { if(type() == PipeSchemaTypeString) { (*this)[_T("minLength")] = newMinLength; } return *this; }
 
-	tstring pattern() { if(type() == PipeSchemaTypeString && isDefined(_T("pattern"))) { return (*this)[_T("pattern")].string_value(); } return 0; }
+	tstring pattern() { if(type() == PipeSchemaTypeString && isDefined(_T("pattern"))) { return (*this)[_T("pattern")].string_value(); } return _T(""); }
 	PipeSchema& pattern(tstring newPattern) { if(type() == PipeSchemaTypeString) { (*this)[_T("pattern")] = newPattern; } return *this; }
 	
 public: // Keywords for number, integer
