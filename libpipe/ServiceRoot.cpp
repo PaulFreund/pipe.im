@@ -11,8 +11,7 @@ std::vector<std::shared_ptr<PipeExtensionInstance>> ServiceRoot::Extensions;
 
 //======================================================================================================================
 
-ServiceRoot::ServiceRoot(const tstring& path, PipeObjectPtr settings) 
-	: PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), _T("pipe"), path, settings)
+ServiceRoot::ServiceRoot(const tstring& path, PipeObjectPtr settings) : PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), _T("pipe"), path, settings)
 	, _config(newObject())
 	, _scriptIncomingQueue(newArray())
 	, _scriptOutgoingQueue(newArray())
@@ -38,7 +37,7 @@ ServiceRoot::ServiceRoot(const tstring& path, PipeObjectPtr settings)
 	if(!pathObj.exists()) { try { pathObj.createDirectories(); } catch(...) {}
 	}
 	
-	// Load configuration of display error
+	// Load configuration or display error
 	if(!pathObj.exists() || !pathObj.isDirectory() || !pathObj.canRead() || !pathObj.canWrite()) {
 		pushOutgoing(_T(""), _T("error"), _T("Instance path location is invalid. Config can not be loaded or saved"));
 	}

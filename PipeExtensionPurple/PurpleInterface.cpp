@@ -1,7 +1,7 @@
 //======================================================================================================================
 
 #include "CommonHeader.h"
-#include "PurpleDispatcher.h"
+#include "PurpleInterface.h"
 #include "PipeExtensionPurple.h"
 
 #include <glib.h>
@@ -16,6 +16,10 @@
 #endif
 
 using namespace std;
+
+//======================================================================================================================
+
+const tstring PurpleInterface::InterfaceID = _T("pipe.im");
 
 //======================================================================================================================
 
@@ -68,7 +72,7 @@ void* purple_cb_ops_request_action_with_icon(const TCHAR*title, const TCHAR*prim
 
 //======================================================================================================================
 
-PurpleDispatcher::PurpleDispatcher(PipeExtensionPurple* instance, const tstring& path)
+PurpleInterface::PurpleInterface(PipeExtensionPurple* instance, const tstring& path)
 	: _instance(instance) {
 	try {
 		typedef struct _PurpleGLibIOClosure { PurpleInputFunction function; guint result; gpointer data; } PurpleGLibIOClosure;
@@ -112,7 +116,7 @@ PurpleDispatcher::PurpleDispatcher(PipeExtensionPurple* instance, const tstring&
 
 		// TODO: Clear config dir?
 		purple_util_set_user_dir(path.c_str());
-		purple_debug_set_enabled(FALSE);
+		purple_debug_set_enabled(TRUE);
 
 		// ERROR: Local scope
 		_eventloopUIOps = { 
@@ -144,7 +148,7 @@ PurpleDispatcher::PurpleDispatcher(PipeExtensionPurple* instance, const tstring&
 		purple_request_set_ui_ops(&_requestUIOps);
 
 
-		if(!purple_core_init(_T("pipe.im"))) {
+		if(!purple_core_init(PurpleInterface::InterfaceID.c_str())) {
 			throw tstring(_T("libpurple initialization failed. Dumping core.\n" "Please report this!"));
 		}
 
@@ -159,12 +163,12 @@ PurpleDispatcher::PurpleDispatcher(PipeExtensionPurple* instance, const tstring&
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PurpleDispatcher::~PurpleDispatcher() {
+PurpleInterface::~PurpleInterface() {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PipeArrayPtr PurpleDispatcher::getProtocols() {
+PipeArrayPtr PurpleInterface::getProtocols() {
 	PipeArrayPtr protocolsList = newArray();
 
 	for(GList* protocols = purple_plugins_get_protocols() ; protocols; protocols = protocols->next) {
@@ -177,15 +181,30 @@ PipeArrayPtr PurpleDispatcher::getProtocols() {
 		transform(begin(defTypeName), end(defTypeName), begin(defTypeName), ::tolower);
 		def[_T("type")] = tstring(defTypeName);
 		def[_T("description")] = tstring(infoPlugin->description);
+		def[_T("protocol_id")] = tstring(infoPlugin->id);
 		def[_T("settings_schema")] = PipeSchema(PipeSchemaTypeObject);
 
 		auto& settingsSchema = reinterpret_cast<PipeSchema&>(def[_T("settings_schema")].object_items());
 		
-		settingsSchema.property(_T("base_user"), PipeSchemaTypeString).title(_T("User")).description(_T("Username"));
-		settingsSchema.property(_T("base_host"), PipeSchemaTypeString).title(_T("Host")).description(_T("Host"));
+		// Split defines the format of the usernam
+		tstring usernameDescription = _T("Username");
+		if(infoProtocol->user_splits != nullptr) {
+			usernameDescription = _T("Username in format: Username");
+			for(GList* split = infoProtocol->user_splits; split; split = split->next) {
+				PurpleAccountUserSplit* splitData = reinterpret_cast<PurpleAccountUserSplit*>(split->data);
+				usernameDescription += splitData->field_sep;
+				usernameDescription += tstring(splitData->text);
+			}
+		}
+
+		// Every account has a username
+		settingsSchema.property(_T("base_user"), PipeSchemaTypeString).title(_T("User")).description(usernameDescription);
+
+		// Some accounts have passwords
 		if(!(infoProtocol->options & OPT_PROTO_NO_PASSWORD))
 			settingsSchema.property(_T("base_password"), PipeSchemaTypeString).title(_T("Password")).description(_T("Password"));
 
+		// Most accounts have options
 		for(GList* protocolOption = infoProtocol->protocol_options; protocolOption; protocolOption = protocolOption->next) {
 			PurpleAccountOption* option = (PurpleAccountOption *)protocolOption->data;
 
@@ -208,24 +227,22 @@ PipeArrayPtr PurpleDispatcher::getProtocols() {
 						tstring defaultValue(option->default_value.string);
 						if(!defaultValue.empty()) { prop.defaultValue(defaultValue); }
 					}
-
 					break;
 				}
 
 				case PURPLE_PREF_STRING_LIST: {
 					PipeArray defaults;
-					int defaultIdx = 0;
-					int idx = 0;
+					tstring defaultValue = _T("");
 					for(GList* def = purple_account_option_get_list(option); def; def = def->next) {
-						if(def == option->default_value.list) { 
-							defaultIdx = idx; 
-						}
 						PurpleKeyValuePair* defaultData = (PurpleKeyValuePair*)def->data;
-						defaults.push_back(defaultData->key);
-						idx++;
+						tstring currentValue = tstring(reinterpret_cast<char*>(defaultData->value));
+						defaults.push_back(currentValue);
+						if(def == option->default_value.list) {
+							defaultValue = currentValue;
+						}
 					}
 	
-					settingsSchema.property(key, PipeSchemaTypeString).title(key).description(description).enumTypes(defaults).defaultValue(defaultIdx);
+					settingsSchema.property(key, PipeSchemaTypeString).title(key).description(description).enumTypes(defaults).defaultValue(defaultValue);
 					break;
 				}
 				default: { continue; }
@@ -533,7 +550,7 @@ void purple_cb_displaying_userinfo(PurpleAccount* account, const TCHAR* who, Pur
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void PurpleDispatcher::initSignalCallbacks() {
+void PurpleInterface::initSignalCallbacks() {
 	void* cbData = reinterpret_cast<void*>(_instance);
 	void* cbHandle = cbData;
 

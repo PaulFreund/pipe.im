@@ -8,7 +8,7 @@
 #include <purple.h>
 
 //======================================================================================================================
-
+/*
 class PurpleInterfaceBuddy {
 	// signed-on
 	// signed-off
@@ -87,16 +87,19 @@ class PurpleInterfaceBase {
 	// request folder
 	// request action with icon
 };
-
+*/
 class PipeExtensionPurple;
-class PurpleDispatcher {
+class PurpleInterface {
+public:
+	static const tstring InterfaceID;
+
 private:
 	PurpleEventLoopUiOps _eventloopUIOps;
 	PurpleRequestUiOps _requestUIOps;
 	PipeExtensionPurple* _instance;
 public:
-	PurpleDispatcher(PipeExtensionPurple* instance, const tstring& path);
-	~PurpleDispatcher();
+	PurpleInterface(PipeExtensionPurple* instance, const tstring& path);
+	~PurpleInterface();
 
 public:
 	PipeArrayPtr getProtocols();

@@ -8,14 +8,14 @@
 
 //======================================================================================================================
 
-class PurpleDispatcher;
+class PurpleInterface;
 class PipeExtensionPurple : public IPipeExtension {
 public:
 	static PipeExtensionPurple ExtensionInstance;
 	static tstring ExtensionInstancePath;
 	static PipeExtensionCbErr ErrorCallback;
-	static std::shared_ptr<PurpleDispatcher> Purple;
-private:
+	static std::shared_ptr<PurpleInterface> Purple;
+public:
 	std::map<tstring, IPipeExtensionService*> _services;
 
 public:

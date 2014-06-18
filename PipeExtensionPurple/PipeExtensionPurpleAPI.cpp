@@ -2,7 +2,7 @@
 
 #include "CommonHeader.h"
 #include "PipeExtensionPurple.h"
-#include "PurpleDispatcher.h"
+#include "PurpleInterface.h"
 using namespace std;
 using namespace Poco;
 
@@ -31,7 +31,7 @@ PIPE_EXTENSION_ITF void PipeExtensionSetPath(PipeExtensionStr path) {
 
 		PipeExtensionPurple::ExtensionInstancePath = extensionDataPath.toString();
 
-		PipeExtensionPurple::Purple = make_shared<PurpleDispatcher>(&PipeExtensionPurple::ExtensionInstance, PipeExtensionPurple::ExtensionInstancePath);
+		PipeExtensionPurple::Purple = make_shared<PurpleInterface>(&PipeExtensionPurple::ExtensionInstance, PipeExtensionPurple::ExtensionInstancePath);
 	}
 	catch(tstring error) { publishError(_T("PipeExtensionSetPath: ") + error); }
 	catch(...) { publishError(_T("PipeExtensionSetPath: Unknown error")); }

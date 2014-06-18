@@ -1,41 +1,48 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Quelldateien">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="API">
+      <UniqueIdentifier>{142c3b09-ea2e-4d41-98cd-e90b0f53d7cf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headerdateien">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    <Filter Include="Base">
+      <UniqueIdentifier>{0d6dd53a-2c0a-4489-8b4d-0f219b0826f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{e356965b-f2fd-4884-b549-ed24cfe5bc6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PurpleInterface">
+      <UniqueIdentifier>{9a9dcca1-1b69-48e4-a38e-bd56ec8ae377}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PipeExtensionPurpleAPI.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="PipeExtensionPurple.cpp">
-      <Filter>Quelldateien</Filter>
+      <Filter>API</Filter>
     </ClCompile>
     <ClCompile Include="CommonHeader.cpp">
-      <Filter>Quelldateien</Filter>
+      <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="PurpleDispatcher.cpp">
-      <Filter>Quelldateien</Filter>
+    <ClCompile Include="PipeExtensionPurple.cpp">
+      <Filter>Base</Filter>
+    </ClCompile>
+    <ClCompile Include="PurpleInterface.cpp">
+      <Filter>PurpleInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="PurpleInterfaceAccount.cpp">
+      <Filter>PurpleInterface</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PipeExtensionPurple.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="CommonHeader.h">
-      <Filter>Headerdateien</Filter>
+      <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="ServiceIRC.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="PipeExtensionPurple.h">
+      <Filter>Base</Filter>
     </ClInclude>
-    <ClInclude Include="PurpleDispatcher.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="PurpleInterface.h">
+      <Filter>PurpleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="PurpleInterfaceAccount.h">
+      <Filter>PurpleInterface</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

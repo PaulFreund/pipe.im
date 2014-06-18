@@ -88,13 +88,14 @@
     </ClCompile>
     <ClCompile Include="PipeExtensionPurple.cpp" />
     <ClCompile Include="PipeExtensionPurpleAPI.cpp" />
-    <ClCompile Include="PurpleDispatcher.cpp" />
+    <ClCompile Include="PurpleInterface.cpp" />
+    <ClCompile Include="PurpleInterfaceAccount.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonHeader.h" />
     <ClInclude Include="PipeExtensionPurple.h" />
-    <ClInclude Include="PurpleDispatcher.h" />
-    <ClInclude Include="ServiceIRC.h" />
+    <ClInclude Include="PurpleInterface.h" />
+    <ClInclude Include="PurpleInterfaceAccount.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -214,9 +214,6 @@ public:
 				// Send to pipe
 				if(incoming.size() > 0) {
 					for(auto& message : incoming) {
-						if(message.empty())
-							continue;
-
 						if(pApp->_debug) { cout << _T("Websocket message received: ") << message << endl; }
 
 						if(message == _T("debug")) { pApp->_debug = !pApp->_debug; }

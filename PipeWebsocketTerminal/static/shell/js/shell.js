@@ -5,15 +5,15 @@ $().ready(function () {
 	pipe.shellConnect(
 		function(socket) {
 			window.terminal = $('body').terminal(function (command, term) {
-				if (command !== '') {
+//				if (command !== '') {
 					try {
 						socket.send(command);
 					} catch (e) {
 						term.error(new String(e));
 					}
-				} else {
-					term.echo('');
-				}
+//				} else {
+//					term.echo('');
+//				}
 			}, {
 				greetings: '',
 				name: 'pipe_shell',
