@@ -103,8 +103,12 @@ public:
 		PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
 
 		auto uri = request.getURI();
-		if(uri.compare(0, pApp->_uripath.length(), pApp->_uripath) == 0)
-			uri = uri.substr(pApp->_uripath.length());
+		auto uriPath = pApp->_uripath;
+		if(uriPath[uriPath.size() - 1] != _T('/'))
+			uriPath += _T("/");
+
+		if(uri.compare(0, uriPath.length(), uriPath) == 0)
+			uri = uri.substr(uriPath.length()-1);
 
 		if(uri.length() == 0 || uri == _T("/")) {
 			uri = _T("/index.html");
@@ -167,9 +171,9 @@ public:
 //======================================================================================================================
 
 mutex multiClientMutex;
-class PipeRequestHandlerWebSocket : public HTTPRequestHandler {
+class PipeRequestHandlerWebSocketShell : public HTTPRequestHandler {
 public:
-	~PipeRequestHandlerWebSocket() {
+	~PipeRequestHandlerWebSocketShell() {
 		try { multiClientMutex.unlock(); } catch(...) {}
 	}
 public:
@@ -265,9 +269,9 @@ public:
 };
 
 //======================================================================================================================
-class PipeRequestHandlerWebSocketShell : public HTTPRequestHandler {
+class PipeRequestHandlerWebSocket : public HTTPRequestHandler {
 public:
-	~PipeRequestHandlerWebSocketShell() {
+	~PipeRequestHandlerWebSocket() {
 		try { multiClientMutex.unlock(); }
 		catch(...) {}
 	}

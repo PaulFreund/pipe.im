@@ -46,38 +46,6 @@ public:
 //======================================================================================================================
 
 int main(int argc, char* argv[]) {
-	//// DEBUG
-
-	//auto info = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Info")).description(_T("Information about the node"));
-	//info.property(_T("a"), PipeSchemaTypeNumber).title(_T("Num")).description(_T("num")).fminimum(4.4).fmaximum(5.3).fmultipleOf(0.3);
-	//info.property(TokenMessageAddress, PipeSchemaTypeString).title(_T("Address")).description(_T("Address of the node"));
-	//info.property(_T("type"), PipeSchemaTypeString).title(_T("Type")).description(_T("Unique type of this node")).defaultValue(_T("Rofl"));
-	//info.property(_T("description"), PipeSchemaTypeString).title(_T("Description")).description(_T("Description of the node"));
-	//auto& infoDataState = info.property(_T("states"), PipeSchemaTypeArray).title(_T("States")).description(_T("Runtime states of the node"));
-	//auto& infoDataStateItems = infoDataState.items(PipeSchemaTypeObject).title(_T("State")).description(_T("Runtime state"));
-	//infoDataStateItems.property(_T("key"), PipeSchemaTypeString).title(_T("Key")).description(_T("Name of the state"));
-	//infoDataStateItems.property(_T("value"), PipeSchemaTypeString).title(_T("Value")).description(_T("Value of the state"));
-	//
-	//PipeJson schema = PipeJson(info);
-	//cout << endl << _T("[Schema]") << endl << endl << PipeJson(schema).dump() << endl << endl;
-
-	//const unsigned int bufSize = 2048;
-	//TCHAR buf[bufSize];
-
-	//PipeSchemaGenerator gen;
-	//gen.clear();
-	//cout << gen.start(schema);
-
-	//while(!gen.complete()) {
-	//	cin.getline(buf, bufSize, _T('\n'));
-	//	cout << gen.add(tstring(buf)) << endl;
-	//}
-
-	//cout << endl << _T("[Value]") << endl << PipeJson(gen.instance()).dump() << endl << endl;
-
-
-	//// DEBUG
-
 	try {
 		// Get application path
 		PipeTerminalApplication self(argc, argv);
