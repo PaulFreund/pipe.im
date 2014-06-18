@@ -111,9 +111,42 @@ public:
 		NUL, NUMBER, BOOL, STRING, ARRAY, OBJECT
 	};
 
+	class JsonObjectContainer : public std::vector<std::pair<std::string, Json>> {
+	public:
+		JsonObjectContainer() : std::vector<std::pair<std::string, Json>> () {}
+
+		JsonObjectContainer(std::initializer_list<value_type> init) {
+			for(auto& initEle : init) {
+				this->push_back(initEle);
+			}
+		}
+
+		virtual Json& operator[] (const std::string& key) {
+			if(!this->empty()) {
+				auto res = std::find_if(this->begin(), this->end(), [&key](const std::pair<std::string, Json>& obj) {
+					return (obj.first == key);
+				});
+
+				if(res != this->end()) { return res->second; }
+			}
+
+			this->push_back(std::make_pair(key, Json()));
+			return this->back().second;
+		}
+
+		size_type count(const std::string& key) const {
+			if(this->empty()) { return 0; }
+
+			return std::count_if(this->begin(), this->end(), [&key](const std::pair<std::string, Json>& obj) {
+				return (obj.first == key);
+			});
+		}
+	};
+
 	// Array and object typedefs
 	typedef std::vector<Json> array;
-	typedef std::map<std::string, Json> object;
+	typedef JsonObjectContainer object;
+//	typedef std::map<std::string, Json> object;
 
 public:
 	/* JsonParser
@@ -391,7 +424,7 @@ public:
 				return parse_string();
 
 			if(ch == '{') {
-				std::map<std::string, Json> data;
+				JsonObjectContainer data;
 				ch = get_next_token();
 				if(ch == '}')
 					return data;
@@ -463,7 +496,7 @@ public:
 		bool _emptyBool = false;
 		std::string _emptyString;
 		std::vector<Json> _emptyVector;
-		std::map<std::string, Json> _emptyMap;
+		JsonObjectContainer _emptyMap;
 
 	protected:
 		friend class Json;
@@ -480,7 +513,7 @@ public:
 		virtual bool& bool_value() { return _emptyBool; }
 		virtual std::string& string_value() { return _emptyString; }
 		virtual std::vector<Json>& array_items() { return _emptyVector; }
-		virtual std::map<std::string, Json>& object_items() { return _emptyMap; }
+		virtual JsonObjectContainer& object_items() { return _emptyMap; }
 
 		virtual Json& operator[] (size_t) { return static_null(); }
 		virtual Json& operator[] (const std::string &) { return static_null(); }
@@ -713,7 +746,7 @@ public:
 	bool& bool_value() { return m_ptr->bool_value();  }
 	std::string& string_value() { return m_ptr->string_value();  }
 	std::vector<Json>& array_items() { return m_ptr->array_items();  }
-	std::map<std::string, Json>& object_items() { return m_ptr->object_items(); }
+	JsonObjectContainer& object_items() { return m_ptr->object_items(); }
 
 	Json& operator[] (size_t i) { return (*m_ptr)[i];  }
 	Json& operator[] (const std::string &key) { return (*m_ptr)[key]; }
