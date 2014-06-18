@@ -82,9 +82,9 @@ public:
 			else if(parts[1] == _T("send")) {
 				tstring err;
 				PipeJson message = PipeJson::parse(body, err);
-				if(message.type() == PipeJson::ARRAY)
+				if(message.is_array())
 					LibPipe::send(std::make_shared<PipeArray>(message.array_items()));
-				else if(message.type() == PipeJson::OBJECT) 
+				else if(message.is_object()) 
 					LibPipe::send(std::make_shared<PipeArray>(PipeArray { message }));
 
 				return true;

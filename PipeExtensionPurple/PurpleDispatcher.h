@@ -88,15 +88,15 @@ class PurpleInterfaceBase {
 	// request action with icon
 };
 
-
-class PurpleInterface {
+class PipeExtensionPurple;
+class PurpleDispatcher {
 private:
 	PurpleEventLoopUiOps _eventloopUIOps;
 	PurpleRequestUiOps _requestUIOps;
-
+	PipeExtensionPurple* _instance;
 public:
-	PurpleInterface(const tstring& path);
-	~PurpleInterface();
+	PurpleDispatcher(PipeExtensionPurple* instance, const tstring& path);
+	~PurpleDispatcher();
 
 public:
 	PipeArrayPtr getProtocols();

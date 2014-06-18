@@ -27,8 +27,11 @@ $().ready(function () {
 
 			var tokenNewAddress = 'New address: ';
 			var tokenQueryOptional = 'Do you want to add ';
+			var tokenQueryDefault = 'Do you want to use the default value ';
 			var tokenQueryValue = 'Value for ';
-			var tokenCommandCompleted = 'Command completed';
+			var tokenChooseEnum = 'Please choose an option';
+			var tokenCommandCompleted = 'Instance completed';
+			var tokenCommandAborted = 'Aborted command'
 
 			socket.onmessage = function (message) {
 				var messagesText = message.data.toString();
@@ -42,24 +45,40 @@ $().ready(function () {
 						window.terminal.set_prompt(currentAddress);
 					}
 
-						// Query optional
+					// Query optional
 					else if (messageText.trim().indexOf(tokenQueryOptional) == 0) {
 						window.terminal.set_prompt(messageText);
 					}
 
-						// Query value
+					// Query default
+					else if (messageText.trim().indexOf(tokenQueryDefault) == 0) {
+						window.terminal.set_prompt(messageText);
+					}
+
+					// Query enum
+					else if (messageText.trim().indexOf(tokenChooseEnum) == 0) {
+						window.terminal.set_prompt(messageText);
+					}
+					
+					// Query value
 					else if (messageText.trim().indexOf(tokenQueryValue) == 0) {
 						window.terminal.set_prompt(messageText);
 					}
 
-						// Command completed
+					// Command completed
 					else if (messageText.trim().indexOf(tokenCommandCompleted) == 0) {
 						window.terminal.set_prompt(currentAddress);
 						window.terminal.echo('');
-
+					}					
+					
+					// Command aborted
+					else if (messageText.trim().indexOf(tokenCommandAborted) == 0) {
+						window.terminal.set_prompt(currentAddress);
+						window.terminal.echo('');
 					}
 
-						// Output message
+					
+					// Output message
 					else {
 						window.terminal.echo(messageText);
 					}

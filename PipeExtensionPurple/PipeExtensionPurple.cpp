@@ -2,7 +2,7 @@
 
 #include "CommonHeader.h"
 #include "PipeExtensionPurple.h"
-#include "PurpleInterface.h"
+#include "PurpleDispatcher.h"
 #include "ServiceIRC.h"
 
 using namespace std;
@@ -12,7 +12,7 @@ using namespace std;
 PipeExtensionPurple         PipeExtensionPurple::ExtensionInstance;
 tstring                     PipeExtensionPurple::ExtensionInstancePath;
 PipeExtensionCbErr          PipeExtensionPurple::ErrorCallback = nullptr;
-shared_ptr<PurpleInterface> PipeExtensionPurple::Purple = shared_ptr<PurpleInterface>(nullptr);
+shared_ptr<PurpleDispatcher> PipeExtensionPurple::Purple = shared_ptr<PurpleDispatcher>(nullptr);
 
 //======================================================================================================================
 

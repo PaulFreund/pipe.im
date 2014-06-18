@@ -210,7 +210,7 @@ private:
 		auto max = currentNode.maxItems();
 		if(nodeType == PipeSchemaTypeArray && (min != 0 || max != 0)) {
 			auto value = valueNode(_currentAddress);
-			if(value.type() == PipeJson::ARRAY) {
+			if(value.is_array()) {
 				PipeArray& elements = value.array_items();
 				if(min != 0 && elements.size() < min) { _clientState = AcceptedOptional; }
 				if(max != 0 && elements.size() >= max) { 
@@ -232,7 +232,15 @@ private:
 		}
 		// Ask if the default value should be used
 		else if(_clientState != DeclinedDefault && currentNode.defaultValue() != PipeSchemaConstants::EmptyValue) {
-			result += indent + _T("Do you want to use the default value (") + currentNode.defaultValue().dump() + _T(")? y/n: ");
+			tstring defaultText = currentNode.defaultValue().dump();
+
+			// If this is an enum, print value of default value in addition to index
+			if(!currentNode.enumTypes().empty() && currentNode.defaultValue().is_integer()) {
+				int idx = currentNode.defaultValue().int_value();
+				defaultText += _T("[") + currentNode.enumTypes()[idx].dump() + _T("]");
+			}
+
+			result += indent + _T("Do you want to use the default value (") + defaultText + _T(")? for ") + currentNode.description() + _T(" y/n: ");
 			_clientState = QueriedDefault;
 			return result;
 		}
@@ -546,7 +554,7 @@ class PipeShell {
 private:
 	//------------------------------------------------------------------------------------------------------------------
 	const tstring _greetingText = _T("Welcome to the pipe shell, type help for further assistance\n");
-	const tstring _abortText = _T("!abortmessage");
+	const tstring _abortText = _T("!abortcommand");
 private:
 	//------------------------------------------------------------------------------------------------------------------
 	const tstring _identifier;

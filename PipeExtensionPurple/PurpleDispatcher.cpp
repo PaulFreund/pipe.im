@@ -1,7 +1,7 @@
 //======================================================================================================================
 
 #include "CommonHeader.h"
-#include "PurpleInterface.h"
+#include "PurpleDispatcher.h"
 #include "PipeExtensionPurple.h"
 
 #include <glib.h>
@@ -19,57 +19,57 @@ using namespace std;
 
 //======================================================================================================================
 
-
 void* purple_cb_ops_request_input(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, const TCHAR*default_value, gboolean multiline, gboolean masked, gchar* hint, const TCHAR*ok_text, GCallback ok_cb, const TCHAR*cancel_text, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(user_data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(user_data);
 	// TODO: Call ITF
 	return nullptr;
 }
 
 void* purple_cb_ops_request_choice(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, int default_value, const TCHAR*ok_text, GCallback ok_cb, const TCHAR*cancel_text, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data, va_list choices) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(user_data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(user_data);
 	// TODO: Call ITF
 	return nullptr;
 }
 
 void* purple_cb_ops_request_action(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, int default_action, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data, size_t action_count, va_list actions) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(user_data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(user_data);
 	// TODO: Call ITF
 	return nullptr;
 }
 
 void* purple_cb_ops_request_fields(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, PurpleRequestFields* fields, const TCHAR*ok_text, GCallback ok_cb, const TCHAR*cancel_text, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(user_data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(user_data);
 	// TODO: Call ITF
 	return nullptr;
 }
 
 void* purple_cb_ops_request_file(const TCHAR*title, const TCHAR*filename, gboolean savedialog, GCallback ok_cb, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(user_data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(user_data);
 	// TODO: Call ITF
 	return nullptr;
 }
 
 void purple_cb_ops_close_request(PurpleRequestType type, void* ui_handle) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(ui_handle);// not sure if right
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(ui_handle);// not sure if right
 	// TODO: Call ITF
 }
 
 void* purple_cb_ops_request_folder(const TCHAR*title, const TCHAR*dirname, GCallback ok_cb, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(user_data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(user_data);
 	// TODO: Call ITF
 	return nullptr;
 }
 
 void* purple_cb_ops_request_action_with_icon(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, int default_action, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, gconstpointer icon_data, gsize icon_size, void* user_data, size_t action_count, va_list actions) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(user_data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(user_data);
 	// TODO: Call ITF
 	return nullptr;
 }
 
 //======================================================================================================================
 
-PurpleInterface::PurpleInterface(const tstring& path) {
+PurpleDispatcher::PurpleDispatcher(PipeExtensionPurple* instance, const tstring& path)
+	: _instance(instance) {
 	try {
 		typedef struct _PurpleGLibIOClosure { PurpleInputFunction function; guint result; gpointer data; } PurpleGLibIOClosure;
 
@@ -159,19 +159,18 @@ PurpleInterface::PurpleInterface(const tstring& path) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PurpleInterface::~PurpleInterface() {
+PurpleDispatcher::~PurpleDispatcher() {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PipeArrayPtr PurpleInterface::getProtocols() {
+PipeArrayPtr PurpleDispatcher::getProtocols() {
 	PipeArrayPtr protocolsList = newArray();
 
 	for(GList* protocols = purple_plugins_get_protocols() ; protocols; protocols = protocols->next) {
 		PurplePlugin* plugin = reinterpret_cast<PurplePlugin*>(protocols->data);
 		PurplePluginInfo* infoPlugin = plugin->info;
 		PurplePluginProtocolInfo* infoProtocol = PURPLE_PLUGIN_PROTOCOL_INFO(plugin);
-
 
 		PipeObject def;
 		tstring defTypeName = timplode(texplode(infoPlugin->name, _T(' ')), _T('_'));
@@ -182,6 +181,11 @@ PipeArrayPtr PurpleInterface::getProtocols() {
 
 		auto& settingsSchema = reinterpret_cast<PipeSchema&>(def[_T("settings_schema")].object_items());
 		
+		settingsSchema.property(_T("base_user"), PipeSchemaTypeString).title(_T("User")).description(_T("Username"));
+		settingsSchema.property(_T("base_host"), PipeSchemaTypeString).title(_T("Host")).description(_T("Host"));
+		if(!(infoProtocol->options & OPT_PROTO_NO_PASSWORD))
+			settingsSchema.property(_T("base_password"), PipeSchemaTypeString).title(_T("Password")).description(_T("Password"));
+
 		for(GList* protocolOption = infoProtocol->protocol_options; protocolOption; protocolOption = protocolOption->next) {
 			PurpleAccountOption* option = (PurpleAccountOption *)protocolOption->data;
 
@@ -191,29 +195,49 @@ PipeArrayPtr PurpleInterface::getProtocols() {
 
 			switch(type) {
 				case PURPLE_PREF_BOOLEAN: {
-					settingsSchema.property(key, PipeSchemaTypeBoolean).title(key).description(description);
+					settingsSchema.property(key, PipeSchemaTypeBoolean).title(key).description(description).defaultValue(static_cast<bool>(option->default_value.boolean));
 					break;
 				}
 				case PURPLE_PREF_INT: {
-					settingsSchema.property(key, PipeSchemaTypeInteger).title(key).description(description);
+					settingsSchema.property(key, PipeSchemaTypeInteger).title(key).description(description).defaultValue(static_cast<int>(option->default_value.integer));
 					break;
 				}
 				case PURPLE_PREF_STRING: {
-					settingsSchema.property(key, PipeSchemaTypeString).title(key).description(description);
+					auto& prop = settingsSchema.property(key, PipeSchemaTypeString).title(key).description(description);
+					if(option->default_value.string != nullptr) {
+						tstring defaultValue(option->default_value.string);
+						if(!defaultValue.empty()) { prop.defaultValue(defaultValue); }
+					}
+
 					break;
 				}
 
 				case PURPLE_PREF_STRING_LIST: {
 					PipeArray defaults;
+					int defaultIdx = 0;
+					int idx = 0;
 					for(GList* def = purple_account_option_get_list(option); def; def = def->next) {
+						if(def == option->default_value.list) { 
+							defaultIdx = idx; 
+						}
 						PurpleKeyValuePair* defaultData = (PurpleKeyValuePair*)def->data;
 						defaults.push_back(defaultData->key);
+						idx++;
 					}
-					settingsSchema.property(key, PipeSchemaTypeString).title(key).description(description).enumTypes(defaults);
+	
+					settingsSchema.property(key, PipeSchemaTypeString).title(key).description(description).enumTypes(defaults).defaultValue(defaultIdx);
 					break;
 				}
 				default: { continue; }
 			}
+		}
+
+		if(infoProtocol->options & OPT_PROTO_PASSWORD_OPTIONAL) {
+			vector<tstring> required;
+			for(auto& prop : settingsSchema.properties()) {
+				if(prop.first != _T("base_password")) { required.push_back(prop.first); }
+			}
+			settingsSchema.required(required);
 		}
 		
 		protocolsList->push_back(def);
@@ -225,176 +249,176 @@ PipeArrayPtr PurpleInterface::getProtocols() {
 //======================================================================================================================
 
 gboolean purple_cb_autojoin(PurpleConnection* connection, PurpleConnectionError reason, const TCHAR* description, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 	return false;
 }
 
 void purple_cb_account_connecting(PurpleAccount* account, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_account_disabled(PurpleAccount* account, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_account_enabled(PurpleAccount* account, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_account_added(PurpleAccount* account, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_account_removed(PurpleAccount* account, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 gboolean purple_cb_account_status_changed(PurpleAccount* account, PurpleStatus* oldStatus, PurpleStatus* newStatus, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 	return false;
 }
 
 void purple_cb_account_actions_changed(PurpleAccount* account, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_account_alias_changed(PurpleAccount* account, const TCHAR* oldAlias, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 gint purple_cb_account_authorization_requested(PurpleAccount* account, const TCHAR* remoteUser, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 	return 0;
 }
 
 gint purple_cb_account_authorization_requested_with_message(PurpleAccount* account, const TCHAR* remoteUser, const TCHAR* message, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 	return 0;
 }
 
 void purple_cb_account_authorization_denied(PurpleAccount* account, const TCHAR* message, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_account_authorization_granted(PurpleAccount* account, const TCHAR* message, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_account_error_changed(PurpleAccount* account, const TCHAR* oldError, const TCHAR* newError, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_account_signed_on(PurpleAccount* account, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_account_signed_off(PurpleAccount* account, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_account_connection_error(PurpleAccount* account, PurpleConnectionError type, const TCHAR* description, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_status_changed(PurpleBuddy* buddy, PurpleStatus* oldStatus, PurpleStatus* newStatus, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_privacy_changed(PurpleBuddy* buddy, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_idle_changed(PurpleBuddy* buddy, gboolean oldIdle, gboolean newIdle, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_signed_on(PurpleBuddy* buddy, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_signed_off(PurpleBuddy* buddy, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_got_login_time(PurpleBuddy* buddy, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_blist_node_added(PurpleBlistNode* buddy, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_blist_node_removed(PurpleBlistNode* buddy, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_added(PurpleBuddy* buddy, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_removed(PurpleBuddy* buddy, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_icon_changed(PurpleBuddy* buddy, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_blist_node_extended_menu(PurpleBlistNode* buddy, GList** menu, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_blist_node_aliased(PurpleBlistNode* buddy, const TCHAR* oldAlias, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_caps_changed(PurpleBuddy* buddy, PurpleMediaCaps oldCaps, PurpleMediaCaps newCaps, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_sent_attention(PurpleAccount* account, const TCHAR* sender, PurpleConversation* conversation, guint type, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_got_attention(PurpleAccount* account, const TCHAR* sender, PurpleConversation* conversation, guint type, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_received_im_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, PurpleConversation *conv, PurpleMessageFlags flags, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 	//if(conv == null) {
 	//	conv = purple_conversation_new(PurpleConversationType.PURPLE_CONV_TYPE_IM, account, sender);
@@ -407,110 +431,110 @@ void purple_cb_received_im_msg(PurpleAccount* account, const TCHAR* sender, cons
 }
 
 void purple_cb_blocked_im_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, PurpleMessageFlags flags, guint mtime, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_received_chat_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, PurpleConversation *conv, PurpleMessageFlags flags, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_conversation_created(PurpleConversation *conv, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_conversation_updated(PurpleConversation *conv, PurpleConvUpdateType type, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_deleting_conversation(PurpleConversation *conv, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_typing(PurpleAccount* account, const TCHAR* name, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_typed(PurpleAccount* account, const TCHAR* name, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_typing_stopped(PurpleAccount* account, const TCHAR* name, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_chat_buddy_joined(PurpleConversation *conv, const TCHAR* name, PurpleConvChatBuddyFlags flags, gboolean newArrivals, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_chat_buddy_flags(PurpleConversation *conv, const TCHAR* name, PurpleConvChatBuddyFlags oldFlags, PurpleConvChatBuddyFlags newFlags, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_chat_buddy_left(PurpleConversation *conv, const TCHAR* name, const TCHAR* reason, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_deleting_chat_buddy(PurpleConvChatBuddy* buddy, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 int purple_cb_chat_invited(PurpleAccount* account, const TCHAR* sender, const TCHAR* name, const TCHAR* message, GHashTable* inviteData, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 	return 0;
 }
 
 void purple_cb_chat_invite_blocked(PurpleAccount* account, const TCHAR* sender, const TCHAR* name, const TCHAR* message, GHashTable* inviteData, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_chat_joined(PurpleConversation *conv, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_chat_join_failed(PurpleConnection *connection, GHashTable* joinData, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_chat_left(PurpleConversation *conv, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_chat_topic_changed(PurpleConversation *conv, const TCHAR* user, const TCHAR* newTopic, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_conversation_extended_menu(PurpleConversation *conv, GList** menuData, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 void purple_cb_displaying_userinfo(PurpleAccount* account, const TCHAR* who, PurpleNotifyUserInfo* user_info, gpointer data) {
-	PurpleInterface* itf = reinterpret_cast<PurpleInterface*>(data);
+	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
 	// TODO: Call ITF
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void PurpleInterface::initSignalCallbacks() {
-	void* cbData = reinterpret_cast<void*>(this);
+void PurpleDispatcher::initSignalCallbacks() {
+	void* cbData = reinterpret_cast<void*>(_instance);
 	void* cbHandle = cbData;
 
 	// Connection
