@@ -38,6 +38,7 @@ using namespace std;
 #include <Poco/StreamCopier.h>
 #include <Poco/StringTokenizer.h>
 #include <Poco/Format.h>
+#include <Poco/ErrorHandler.h>
 
 using namespace Poco;
 using namespace Poco::Util;
@@ -51,6 +52,53 @@ using namespace Poco::Net;
 
 class PipeRequestHandlerPage : public HTTPRequestHandler {
 public:
+	bool handleCommands(const tstring& uri, std::ostream& outstream, tstring body) {
+		auto parts = texplode(uri, _T('/'));
+		if(parts.size() < 2) { return false; }
+
+		if(parts[0] != _T("rest")) { return false; }
+
+		try {
+			// Commands with parameter
+			if(parts.size() >= 3) {
+				if(parts[1] == _T("nodeChildren")) {
+					outstream << PipeJson(*LibPipe::nodeChildren(parts[2])).dump();
+					return true;
+				}
+				else if(parts[1] == _T("nodeCommandTypes")) {
+					outstream << PipeJson(*LibPipe::nodeCommandTypes(parts[2])).dump();
+					return true;
+				}
+				else if(parts[1] == _T("nodeMessageTypes")) {
+					outstream << PipeJson(*LibPipe::nodeMessageTypes(parts[2])).dump();
+					return true;
+				}
+				else if(parts[1] == _T("nodeInfo")) {
+					outstream << PipeJson(*LibPipe::nodeInfo(parts[2])).dump();
+					return true;
+				}
+			}
+			// Commands without
+			else if(parts[1] == _T("send")) {
+				tstring err;
+				PipeJson message = PipeJson::parse(body, err);
+				if(message.type() == PipeJson::ARRAY)
+					LibPipe::send(std::make_shared<PipeArray>(message.array_items()));
+				else if(message.type() == PipeJson::OBJECT) 
+					LibPipe::send(std::make_shared<PipeArray>(PipeArray { message }));
+
+				return true;
+			}
+			else if(parts[1] == _T("receive")) {
+				outstream << PipeJson(*LibPipe::receive()).dump();
+				return true;
+			}
+		}
+		catch(...) {}
+
+		return false;
+	}
+
 	void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
 		PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
 
@@ -64,6 +112,19 @@ public:
 
 		response.setChunkedTransferEncoding(true);
 		std::ostream& responseStream = response.send();
+
+		// Get body if any
+		tstring body = _T("");
+		if(request.getMethod() == HTTPServerRequest::HTTP_POST) {
+			request.stream() >> body;
+		}
+
+		// Handle commands
+		if(handleCommands(uri, responseStream, body)) {
+			if(body.empty()) { response.setContentType(_T("application/json")); }
+			response.setStatus(HTTPResponse::HTTP_OK);
+			return;
+		}
 
 		File requestPath(pApp->_staticdir + uri);
 		if(pApp->_debug) { cout << _T("File requested: " << requestPath.path()) << endl; }
@@ -97,7 +158,7 @@ public:
 		else {
 			response.setContentType("text/html");
 			response.setStatus(HTTPResponse::HTTP_NOT_FOUND);
-			responseStream << _T("<h1>Requested file could not be found</h1>") << endl;
+			responseStream << _T("<h1>Requested file could not be found</h1><br />") << uri << endl;
 			if(pApp->_debug) { cout << _T("File not found: " << requestPath.path()) << endl; }
 		}
 	}
@@ -204,8 +265,111 @@ public:
 };
 
 //======================================================================================================================
+class PipeRequestHandlerWebSocketShell : public HTTPRequestHandler {
+public:
+	~PipeRequestHandlerWebSocketShell() {
+		try { multiClientMutex.unlock(); }
+		catch(...) {}
+	}
+public:
+	void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
+		PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
+
+		try {
+			WebSocket ws(request, response);
+
+			if(pApp->_debug) { cout << _T("Websocket connection established") << endl; }
+
+			ws.setBlocking(false);
+			ws.setReceiveTimeout(Poco::Timespan(60 * 60, 0));
+
+			const int bufferSize = 2048;
+			ws.setReceiveBufferSize(bufferSize);
+
+			vector<tstring> incoming;
+			vector<tstring> outgoing;
+
+			char buffer[bufferSize];
+			int flags;
+			int bytesRead;
+			do {
+				this_thread::sleep_for(chrono::microseconds(100));
+
+				multiClientMutex.lock();
+
+				// Receive from client
+				try {
+					bytesRead = ws.receiveFrame(buffer, sizeof(buffer), flags);
+					incoming.push_back(tstring(buffer, bytesRead));
+				}
+				catch(TimeoutException& /*e*/) {} // Not very good but works for the moment
+
+				// Send to pipe
+				if(incoming.size() > 0) {
+					for(auto& message : incoming) {
+						if(message.empty())
+							continue;
+
+						if(pApp->_debug) { cout << _T("Websocket message received: ") << message << endl; }
+
+						if(message == _T("debug")) { pApp->_debug = !pApp->_debug; }
+
+						LibPipe::send(make_shared<PipeArray>(PipeArray{ message }));
+					}
+
+					incoming.clear();
+				}
+
+				// Receive from pipe
+				auto received = LibPipe::receive();
+				if(!received->empty()) {
+					for(auto& ele: *received) {
+						outgoing.push_back(ele.dump());
+					}
+				}
+
+				// Send to client
+				if(outgoing.size() > 0) {
+					for(auto& message : outgoing) {
+						ws.sendFrame(message.data(), message.length());
+						if(pApp->_debug) { cout << _T("Websocket message sent: ") << message << endl; }
+					}
+					outgoing.clear();
+				}
+
+				multiClientMutex.unlock();
+			}
+			while(bytesRead > 0 || (flags & WebSocket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE);
+
+			if(pApp->_debug) { cout << _T("Websocket connection closed") << endl; }
+		}
+		catch(WebSocketException& e) {
+			try { multiClientMutex.unlock(); }
+			catch(...) {}
+
+			switch(e.code()) {
+				case WebSocket::WS_ERR_HANDSHAKE_UNSUPPORTED_VERSION:
+					response.set("Sec-WebSocket-Version", WebSocket::WEBSOCKET_VERSION);
+				case WebSocket::WS_ERR_NO_HANDSHAKE:
+				case WebSocket::WS_ERR_HANDSHAKE_NO_VERSION:
+				case WebSocket::WS_ERR_HANDSHAKE_NO_KEY:
+					response.setStatusAndReason(HTTPResponse::HTTP_BAD_REQUEST);
+					response.setContentLength(0);
+					response.send();
+					break;
+			}
+			cout << _T("Websocket error: " << e.displayText()) << endl;
+		}
+
+		if(pApp->_debug) { cout << _T("Websocket connection lost") << endl; }
+	}
+};
+
+//======================================================================================================================
 tstring wsToken = _T("/ws");
+tstring wssToken = _T("/wss");
 size_t lenWsToken = wsToken.length();
+size_t lenWssToken = wssToken.length();
 class PipeRequestHandlerFactory : public HTTPRequestHandlerFactory {
 public:
 		HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& request) {
@@ -213,7 +377,9 @@ public:
 			tstring uri = request.getURI();
 			size_t lenUri = uri.length();
 
-			if(lenUri >= lenWsToken && uri.compare(lenUri - lenWsToken, lenWsToken, wsToken) == 0)
+			if(lenUri >= lenWssToken && uri.compare(lenUri - lenWssToken, lenWssToken, wssToken) == 0)
+				return new PipeRequestHandlerWebSocketShell;
+			else if(lenUri >= lenWsToken && uri.compare(lenUri - lenWsToken, lenWsToken, wsToken) == 0)
 				return new PipeRequestHandlerWebSocket;
 			else
 				return new PipeRequestHandlerPage;
@@ -271,7 +437,20 @@ void PipeWebsocketTerminalApplication::defineOptions(OptionSet& options) {
 		);
 }
 
+class PipeWebsocketTerminalErrorHandler : public ErrorHandler {
+public:
+	PipeWebsocketTerminalErrorHandler() : ErrorHandler() {}
+
+	virtual void exception(const Exception& exc) { cout << _T("[POCO ERROR] ") << exc.message() << endl; }
+	virtual void exception(const std::exception& exc) { cout << _T("[POCO ERROR] ") << exc.what() << endl; }
+	virtual void exception() { cout << _T("[POCO ERROR] Unknown") << endl; }
+};
+
 int PipeWebsocketTerminalApplication::main(const vector<tstring>& args) {
+	ErrorHandler* origHandler = ErrorHandler::get();
+	ErrorHandler* newHandler = new PipeWebsocketTerminalErrorHandler();
+	ErrorHandler::set(newHandler);
+
 	try {
 		if(_help) {
 			HelpFormatter helpFormatter(options());
@@ -306,7 +485,7 @@ int PipeWebsocketTerminalApplication::main(const vector<tstring>& args) {
 		ServerSocket socket(SocketAddress(_address, _port));
 		HTTPServerParams* pParams = new HTTPServerParams();
 		pParams->setMaxThreads(100);
-
+		
 		HTTPServer server(new PipeRequestHandlerFactory(), socket, pParams);
 
 		server.start();
@@ -316,6 +495,9 @@ int PipeWebsocketTerminalApplication::main(const vector<tstring>& args) {
 	catch(exception e) {
 		cout << _T("Exception: ") << e.what() << endl;
 	}
+
+	ErrorHandler::set(origHandler);
+	delete newHandler;
 
 	return EXIT_OK;
 }

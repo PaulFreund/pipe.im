@@ -9,35 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="static">
-      <UniqueIdentifier>{767c4210-cb97-412c-a0c5-20186d699ef8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="static\js">
-      <UniqueIdentifier>{7ae5fd21-c63b-4bf0-b37f-6ee399ff03c9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="static\css">
-      <UniqueIdentifier>{1c10527f-0690-4587-acf5-7986fe2a5c9c}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="static\index.html">
-      <Filter>static</Filter>
-    </None>
-    <None Include="static\js\jquery.terminal-min.js">
-      <Filter>static\js</Filter>
-    </None>
-    <None Include="static\js\jquery-1.7.1.min.js">
-      <Filter>static\js</Filter>
-    </None>
-    <None Include="static\js\pipe.js">
-      <Filter>static\js</Filter>
-    </None>
-    <None Include="static\js\jquery.mousewheel-min.js">
-      <Filter>static\js</Filter>
-    </None>
-    <None Include="static\css\jquery.terminal.css">
-      <Filter>static\css</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PipeWebsocketTerminal.cpp">

@@ -92,14 +92,6 @@
     <ClCompile Include="PipeWebsocketTerminal.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="static\css\jquery.terminal.css" />
-    <None Include="static\index.html" />
-    <None Include="static\js\jquery-1.7.1.min.js" />
-    <None Include="static\js\jquery.mousewheel-min.js" />
-    <None Include="static\js\jquery.terminal-min.js" />
-    <None Include="static\js\pipe.js" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="PipeWebsocketTerminal.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
