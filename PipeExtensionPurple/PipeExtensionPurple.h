@@ -8,7 +8,11 @@
 
 //======================================================================================================================
 
+class PurpleInterfaceAccount;
 class PurpleInterface;
+
+//======================================================================================================================
+
 class PipeExtensionPurple : public IPipeExtension {
 public:
 	static PipeExtensionPurple ExtensionInstance;
@@ -16,7 +20,7 @@ public:
 	static PipeExtensionCbErr ErrorCallback;
 	static std::shared_ptr<PurpleInterface> Purple;
 public:
-	std::map<tstring, IPipeExtensionService*> _services;
+	std::map<tstring, PurpleInterfaceAccount*> _services;
 
 public:
 	PipeExtensionPurple();
@@ -26,6 +30,9 @@ public:
 	virtual PipeArrayPtr serviceTypes();
 	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings);
 	virtual void destroy(IPipeExtensionService* service);
+
+public:
+	PurpleInterfaceAccount* account(PurpleAccount* account);
 };
 
 //======================================================================================================================

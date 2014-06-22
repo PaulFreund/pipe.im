@@ -5,7 +5,6 @@
 //======================================================================================================================
 
 #include "CommonHeader.h"
-#include <purple.h>
 
 //======================================================================================================================
 /*
@@ -21,8 +20,6 @@ class PurpleInterfaceBuddy {
 };
 
 class PurpleInterfaceBuddyList {
-	// buddy added
-	// buddy removed
 	// blist node-added
 	// blist node-removed
 	// blist node-extended-menu
@@ -53,31 +50,12 @@ class PurpleInterfaceConversation {
 };
 
 class PurpleInterfaceAccount {
-	// autojoin
-
-	// connecting
-	// disabled
-	// enabled
-	// status-changed
-	// actions-changed
-	// alias-changed
-	// authorization-requested
-	// authorization-requested-with-message
-	// authorization-denied
-	// authorization-granted
-	// error-changed
-	// signed-on
-	// signed-off
-	// connection-error
-
 	// conversation-created
 	// deleting-conversation
 	// displaying-userinfo
 };
 
 class PurpleInterfaceBase {
-	// account added
-	// account removed
 	// request input
 	// request choice
 	// request action

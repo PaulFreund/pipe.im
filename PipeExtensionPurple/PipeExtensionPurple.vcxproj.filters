@@ -30,6 +30,9 @@
     <ClCompile Include="PurpleInterfaceAccount.cpp">
       <Filter>PurpleInterface</Filter>
     </ClCompile>
+    <ClCompile Include="PurpleInterfaceContact.cpp">
+      <Filter>PurpleInterface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonHeader.h">
@@ -42,6 +45,9 @@
       <Filter>PurpleInterface</Filter>
     </ClInclude>
     <ClInclude Include="PurpleInterfaceAccount.h">
+      <Filter>PurpleInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="PurpleInterfaceContact.h">
       <Filter>PurpleInterface</Filter>
     </ClInclude>
   </ItemGroup>

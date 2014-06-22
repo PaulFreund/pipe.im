@@ -2,17 +2,16 @@
 
 #include "CommonHeader.h"
 #include "PurpleInterface.h"
+#include "PurpleInterfaceAccount.h"
 #include "PipeExtensionPurple.h"
 
-#include <glib.h>
-
 #ifndef _WIN32
-#include <unistd.h>
+	#include <unistd.h>
 #else
-#pragma warning(push)
-#pragma warning(disable:4005)
-#include "win32/win32dep.h"
-#pragma warning(pop)
+	#pragma warning(push)
+	#pragma warning(disable:4005)
+		#include "win32/win32dep.h"
+	#pragma warning(pop)
 #endif
 
 using namespace std;
@@ -23,32 +22,52 @@ const tstring PurpleInterface::InterfaceID = _T("pipe.im");
 
 //======================================================================================================================
 
+inline PurpleInterfaceAccount* accountService(void* data, PurpleAccount* account) {
+	if(data == nullptr) { return nullptr; }
+	PipeExtensionPurple* itf = nullptr;
+	try {
+		itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	} catch(...) {}
+
+	if(itf != nullptr)
+		return itf->account(account);
+
+	return nullptr;
+}
+
+//======================================================================================================================
+
 void* purple_cb_ops_request_input(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, const TCHAR*default_value, gboolean multiline, gboolean masked, gchar* hint, const TCHAR*ok_text, GCallback ok_cb, const TCHAR*cancel_text, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(user_data);
+	PurpleInterfaceAccount* service = accountService(user_data, account);
+	if(service == nullptr) { return nullptr; }
 	// TODO: Call ITF
 	return nullptr;
 }
 
 void* purple_cb_ops_request_choice(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, int default_value, const TCHAR*ok_text, GCallback ok_cb, const TCHAR*cancel_text, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data, va_list choices) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(user_data);
+	PurpleInterfaceAccount* service = accountService(user_data, account);
+	if(service == nullptr) { return nullptr; }
 	// TODO: Call ITF
 	return nullptr;
 }
 
 void* purple_cb_ops_request_action(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, int default_action, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data, size_t action_count, va_list actions) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(user_data);
+	PurpleInterfaceAccount* service = accountService(user_data, account);
+	if(service == nullptr) { return nullptr; }
 	// TODO: Call ITF
 	return nullptr;
 }
 
 void* purple_cb_ops_request_fields(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, PurpleRequestFields* fields, const TCHAR*ok_text, GCallback ok_cb, const TCHAR*cancel_text, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(user_data);
+	PurpleInterfaceAccount* service = accountService(user_data, account);
+	if(service == nullptr) { return nullptr; }
 	// TODO: Call ITF
 	return nullptr;
 }
 
 void* purple_cb_ops_request_file(const TCHAR*title, const TCHAR*filename, gboolean savedialog, GCallback ok_cb, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(user_data);
+	PurpleInterfaceAccount* service = accountService(user_data, account);
+	if(service == nullptr) { return nullptr; }
 	// TODO: Call ITF
 	return nullptr;
 }
@@ -59,13 +78,15 @@ void purple_cb_ops_close_request(PurpleRequestType type, void* ui_handle) {
 }
 
 void* purple_cb_ops_request_folder(const TCHAR*title, const TCHAR*dirname, GCallback ok_cb, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(user_data);
+	PurpleInterfaceAccount* service = accountService(user_data, account);
+	if(service == nullptr) { return nullptr; }
 	// TODO: Call ITF
 	return nullptr;
 }
 
 void* purple_cb_ops_request_action_with_icon(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, int default_action, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, gconstpointer icon_data, gsize icon_size, void* user_data, size_t action_count, va_list actions) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(user_data);
+	PurpleInterfaceAccount* service = accountService(user_data, account);
+	if(service == nullptr) { return nullptr; }
 	// TODO: Call ITF
 	return nullptr;
 }
@@ -265,177 +286,255 @@ PipeArrayPtr PurpleInterface::getProtocols() {
 
 //======================================================================================================================
 
-gboolean purple_cb_autojoin(PurpleConnection* connection, PurpleConnectionError reason, const TCHAR* description, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
-	return false;
+inline tstring connectionErrorString(PurpleConnectionError error) {
+	switch(error) {
+		case PURPLE_CONNECTION_ERROR_NETWORK_ERROR: { return _T("network_error"); break; }
+		case PURPLE_CONNECTION_ERROR_INVALID_USERNAME: { return _T("invalid_username"); break; }
+		case PURPLE_CONNECTION_ERROR_AUTHENTICATION_FAILED: { return _T("authentication_failed"); break; }
+		case PURPLE_CONNECTION_ERROR_AUTHENTICATION_IMPOSSIBLE: { return _T("authentication_impossible"); break; }
+		case PURPLE_CONNECTION_ERROR_NO_SSL_SUPPORT: { return _T("no_ssl_support"); break; }
+		case PURPLE_CONNECTION_ERROR_ENCRYPTION_ERROR: { return _T("encryption_error"); break; }
+		case PURPLE_CONNECTION_ERROR_NAME_IN_USE: { return _T("name_in_use"); break; }
+		case PURPLE_CONNECTION_ERROR_INVALID_SETTINGS: { return _T("invalid_settings"); break; }
+		case PURPLE_CONNECTION_ERROR_CERT_NOT_PROVIDED: { return _T("cert_not_provided"); break; }
+		case PURPLE_CONNECTION_ERROR_CERT_UNTRUSTED: { return _T("cert_untrusted"); break; }
+		case PURPLE_CONNECTION_ERROR_CERT_EXPIRED: { return _T("cert_expired"); break; }
+		case PURPLE_CONNECTION_ERROR_CERT_NOT_ACTIVATED: { return _T("cert_not_activated"); break; }
+		case PURPLE_CONNECTION_ERROR_CERT_HOSTNAME_MISMATCH: { return _T("cert_hostname_mismatch"); break; }
+		case PURPLE_CONNECTION_ERROR_CERT_FINGERPRINT_MISMATCH: { return _T("cert_fingerprint_mismatch"); break; }
+		case PURPLE_CONNECTION_ERROR_CERT_SELF_SIGNED: { return _T("cert_self_signed"); break; }
+		case PURPLE_CONNECTION_ERROR_CERT_OTHER_ERROR: { return _T("cert_other_error"); break; }
+		case PURPLE_CONNECTION_ERROR_OTHER_ERROR: { return _T("other_error"); break; }
+	}
+	return _T("");
 }
 
+//gboolean purple_cb_autojoin(PurpleConnection* connection, PurpleConnectionError reason, const TCHAR* description, gpointer data) {
+//	PurpleInterfaceAccount* service = accountService(data, account);
+//	if(service == nullptr) { return; }
+//	return false;
+//}
+
 void purple_cb_account_connecting(PurpleAccount* account, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
+	service->onConnecting();
 }
 
 void purple_cb_account_disabled(PurpleAccount* account, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
+	service->onDisabled();
 }
 
 void purple_cb_account_enabled(PurpleAccount* account, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
+	service->onEnabled();
 }
 
-void purple_cb_account_added(PurpleAccount* account, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
-}
+//void purple_cb_account_added(PurpleAccount* account, gpointer data) {
+//	PurpleInterfaceAccount* service = accountService(data, account);
+//	if(service == nullptr) { return; }
+//}
 
-void purple_cb_account_removed(PurpleAccount* account, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
-}
+//void purple_cb_account_removed(PurpleAccount* account, gpointer data) {
+//	PurpleInterfaceAccount* service = accountService(data, account);
+//	if(service == nullptr) { return; }
+//}
 
 gboolean purple_cb_account_status_changed(PurpleAccount* account, PurpleStatus* oldStatus, PurpleStatus* newStatus, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return false; }
 	// TODO: Call ITF
+	
 	return false;
 }
 
 void purple_cb_account_actions_changed(PurpleAccount* account, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
+	service->onActionsChanged();
 }
 
-void purple_cb_account_alias_changed(PurpleAccount* account, const TCHAR* oldAlias, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
-}
+//void purple_cb_account_alias_changed(PurpleAccount* account, const TCHAR* oldAlias, gpointer data) {
+//	PurpleInterfaceAccount* service = accountService(data, account);
+//	if(service == nullptr) { return; }
+//}
 
 gint purple_cb_account_authorization_requested(PurpleAccount* account, const TCHAR* remoteUser, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
-	return 0;
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return 0; }
+	service->onAuthRequest(tstring(remoteUser));
+	return PURPLE_ACCOUNT_RESPONSE_PASS;
 }
 
 gint purple_cb_account_authorization_requested_with_message(PurpleAccount* account, const TCHAR* remoteUser, const TCHAR* message, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
-	return 0;
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return 0; }
+	service->onAuthRequest(tstring(remoteUser), tstring(message));
+	return PURPLE_ACCOUNT_RESPONSE_PASS;
 }
 
-void purple_cb_account_authorization_denied(PurpleAccount* account, const TCHAR* message, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
+void purple_cb_account_authorization_denied(PurpleAccount* account, const TCHAR* user, gpointer data) {
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
+	service->onAuthDenied(tstring(user));
 }
 
-void purple_cb_account_authorization_granted(PurpleAccount* account, const TCHAR* message, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
+void purple_cb_account_authorization_granted(PurpleAccount* account, const TCHAR* user, gpointer data) {
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
+	service->onAuthGranted(tstring(user));
 }
 
 void purple_cb_account_error_changed(PurpleAccount* account, const TCHAR* oldError, const TCHAR* newError, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
+	service->onErrorChanged(tstring(oldError), tstring(newError));
 }
 
 void purple_cb_account_signed_on(PurpleAccount* account, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
+	service->onSignedOn();
 }
 
 void purple_cb_account_signed_off(PurpleAccount* account, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
+	service->onSignedOff();
 }
 
 void purple_cb_account_connection_error(PurpleAccount* account, PurpleConnectionError type, const TCHAR* description, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
+	service->onConnectionError(connectionErrorString(type), tstring(description));
 }
 
 void purple_cb_buddy_status_changed(PurpleBuddy* buddy, PurpleStatus* oldStatus, PurpleStatus* newStatus, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, buddy->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_privacy_changed(PurpleBuddy* buddy, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, buddy->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_idle_changed(PurpleBuddy* buddy, gboolean oldIdle, gboolean newIdle, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, buddy->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_signed_on(PurpleBuddy* buddy, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, buddy->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_signed_off(PurpleBuddy* buddy, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, buddy->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_got_login_time(PurpleBuddy* buddy, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, buddy->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
-void purple_cb_blist_node_added(PurpleBlistNode* buddy, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
+void purple_cb_blist_node_added(PurpleBlistNode* node, gpointer data) {
+	switch(purple_blist_node_get_type(node)) {
+		case PURPLE_BLIST_BUDDY_NODE: {
+			PurpleBuddy* buddy = reinterpret_cast<PurpleBuddy*>(node);
+			PurpleInterfaceAccount* service = accountService(data, buddy->account);
+			if(service == nullptr) { return; }
+			service->onBuddyAdded(buddy);
+			break;
+		}
+
+		case PURPLE_BLIST_CHAT_NODE: {
+			int ja = 0; // TODO
+			break;
+		}
+
+		case PURPLE_BLIST_OTHER_NODE: // Ignore other nodes
+		case PURPLE_BLIST_GROUP_NODE: // Ignore group nodes
+		case PURPLE_BLIST_CONTACT_NODE: // Ignore contact (buddy collection) nodes
+		default: {
+			break;
+		}
+	}
 }
 
-void purple_cb_blist_node_removed(PurpleBlistNode* buddy, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
-}
+void purple_cb_blist_node_removed(PurpleBlistNode* node, gpointer data) {
+	switch(purple_blist_node_get_type(node)) {
+		case PURPLE_BLIST_BUDDY_NODE: {
+			PurpleBuddy* buddy = reinterpret_cast<PurpleBuddy*>(node);
+			PurpleInterfaceAccount* service = accountService(data, buddy->account);
+			if(service == nullptr) { return; }
+			service->onBuddyRemoved(buddy);
+			break;
+		}
 
-void purple_cb_buddy_added(PurpleBuddy* buddy, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
-}
+		case PURPLE_BLIST_CHAT_NODE: {
+			int ja = 0; // TODO
+			break;
+		}
 
-void purple_cb_buddy_removed(PurpleBuddy* buddy, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
+		case PURPLE_BLIST_OTHER_NODE: // Ignore other nodes
+		case PURPLE_BLIST_GROUP_NODE: // Ignore group nodes
+		case PURPLE_BLIST_CONTACT_NODE: // Ignore contact (buddy collection) nodes
+		default: {
+			break;
+		}
+	}
 }
 
 void purple_cb_buddy_icon_changed(PurpleBuddy* buddy, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, buddy->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_blist_node_extended_menu(PurpleBlistNode* buddy, GList** menu, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+//	PurpleInterfaceAccount* service = accountService(data, account);
+//	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_blist_node_aliased(PurpleBlistNode* buddy, const TCHAR* oldAlias, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+//	PurpleInterfaceAccount* service = accountService(data);
+//	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_caps_changed(PurpleBuddy* buddy, PurpleMediaCaps oldCaps, PurpleMediaCaps newCaps, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, buddy->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_sent_attention(PurpleAccount* account, const TCHAR* sender, PurpleConversation* conversation, guint type, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_got_attention(PurpleAccount* account, const TCHAR* sender, PurpleConversation* conversation, guint type, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_received_im_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, PurpleConversation *conv, PurpleMessageFlags flags, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 	//if(conv == null) {
 	//	conv = purple_conversation_new(PurpleConversationType.PURPLE_CONV_TYPE_IM, account, sender);
@@ -448,103 +547,123 @@ void purple_cb_received_im_msg(PurpleAccount* account, const TCHAR* sender, cons
 }
 
 void purple_cb_blocked_im_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, PurpleMessageFlags flags, guint mtime, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_received_chat_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, PurpleConversation *conv, PurpleMessageFlags flags, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_conversation_created(PurpleConversation *conv, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, conv->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_conversation_updated(PurpleConversation *conv, PurpleConvUpdateType type, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, conv->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_deleting_conversation(PurpleConversation *conv, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, conv->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_typing(PurpleAccount* account, const TCHAR* name, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_typed(PurpleAccount* account, const TCHAR* name, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_buddy_typing_stopped(PurpleAccount* account, const TCHAR* name, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_chat_buddy_joined(PurpleConversation *conv, const TCHAR* name, PurpleConvChatBuddyFlags flags, gboolean newArrivals, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, conv->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_chat_buddy_flags(PurpleConversation *conv, const TCHAR* name, PurpleConvChatBuddyFlags oldFlags, PurpleConvChatBuddyFlags newFlags, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, conv->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_chat_buddy_left(PurpleConversation *conv, const TCHAR* name, const TCHAR* reason, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, conv->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_deleting_chat_buddy(PurpleConvChatBuddy* buddy, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+//	PurpleInterfaceAccount* service = accountService(data);
+//	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 int purple_cb_chat_invited(PurpleAccount* account, const TCHAR* sender, const TCHAR* name, const TCHAR* message, GHashTable* inviteData, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return 0; }
 	// TODO: Call ITF
 	return 0;
 }
 
 void purple_cb_chat_invite_blocked(PurpleAccount* account, const TCHAR* sender, const TCHAR* name, const TCHAR* message, GHashTable* inviteData, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_chat_joined(PurpleConversation *conv, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, conv->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
-void purple_cb_chat_join_failed(PurpleConnection *connection, GHashTable* joinData, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
-	// TODO: Call ITF
-}
+//void purple_cb_chat_join_failed(PurpleConnection *connection, GHashTable* joinData, gpointer data) {
+//	PurpleInterfaceAccount* service = accountService(data, account);
+//	if(service == nullptr) { return; }
+//	// TODO: Call ITF
+//}
 
 void purple_cb_chat_left(PurpleConversation *conv, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, conv->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_chat_topic_changed(PurpleConversation *conv, const TCHAR* user, const TCHAR* newTopic, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, conv->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_conversation_extended_menu(PurpleConversation *conv, GList** menuData, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, conv->account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
 void purple_cb_displaying_userinfo(PurpleAccount* account, const TCHAR* who, PurpleNotifyUserInfo* user_info, gpointer data) {
-	PipeExtensionPurple* itf = reinterpret_cast<PipeExtensionPurple*>(data);
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
 	// TODO: Call ITF
 }
 
@@ -554,20 +673,20 @@ void PurpleInterface::initSignalCallbacks() {
 	void* cbData = reinterpret_cast<void*>(_instance);
 	void* cbHandle = cbData;
 
-	// Connection
-	auto hConnections = purple_connections_get_handle();
-	purple_signal_connect(hConnections, "autojoin", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_autojoin), cbData);
+	//// Connection
+	//auto hConnections = purple_connections_get_handle();
+	//purple_signal_connect(hConnections, "autojoin", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_autojoin), cbData);
 
 	// Accounts
 	auto hAccounts = purple_accounts_get_handle();
 	purple_signal_connect(hAccounts, "account-connecting", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_connecting), cbData);
 	purple_signal_connect(hAccounts, "account-disabled", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_disabled), cbData);
 	purple_signal_connect(hAccounts, "account-enabled", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_enabled), cbData);
-	purple_signal_connect(hAccounts, "account-added", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_added), cbData);
-	purple_signal_connect(hAccounts, "account-removed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_removed), cbData);
+	//purple_signal_connect(hAccounts, "account-added", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_added), cbData);
+	//purple_signal_connect(hAccounts, "account-removed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_removed), cbData);
 	purple_signal_connect(hAccounts, "account-status-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_status_changed), cbData);
 	purple_signal_connect(hAccounts, "account-actions-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_actions_changed), cbData);
-	purple_signal_connect(hAccounts, "account-alias-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_alias_changed), cbData);
+	//purple_signal_connect(hAccounts, "account-alias-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_alias_changed), cbData);
 	purple_signal_connect(hAccounts, "account-authorization-requested", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_authorization_requested), cbData);
 	purple_signal_connect(hAccounts, "account-authorization-requested-with-message", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_authorization_requested_with_message), cbData);
 	purple_signal_connect(hAccounts, "account-authorization-denied", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_authorization_denied), cbData);
@@ -587,8 +706,6 @@ void PurpleInterface::initSignalCallbacks() {
 	purple_signal_connect(hBuddyList, "buddy-got-login-time", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_got_login_time), cbData);
 	purple_signal_connect(hBuddyList, "blist-node-added", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_blist_node_added), cbData);
 	purple_signal_connect(hBuddyList, "blist-node-removed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_blist_node_removed), cbData);
-	purple_signal_connect(hBuddyList, "buddy-added", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_added), cbData);
-	purple_signal_connect(hBuddyList, "buddy-removed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_removed), cbData);
 	purple_signal_connect(hBuddyList, "buddy-icon-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_icon_changed), cbData);
 	purple_signal_connect(hBuddyList, "blist-node-extended-menu", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_blist_node_extended_menu), cbData);
 	purple_signal_connect(hBuddyList, "blist-node-aliased", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_blist_node_aliased), cbData);
@@ -614,7 +731,7 @@ void PurpleInterface::initSignalCallbacks() {
 	purple_signal_connect(hConversations, "chat-invited", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_invited), cbData);
 	purple_signal_connect(hConversations, "chat-invite-blocked", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_invite_blocked), cbData);
 	purple_signal_connect(hConversations, "chat-joined", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_joined), cbData);
-	purple_signal_connect(hConversations, "chat-join-failed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_join_failed), cbData);
+	//purple_signal_connect(hConversations, "chat-join-failed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_join_failed), cbData);
 	purple_signal_connect(hConversations, "chat-left", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_left), cbData);
 	purple_signal_connect(hConversations, "chat-topic-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_topic_changed), cbData);
 	purple_signal_connect(hConversations, "conversation-extended-menu", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_conversation_extended_menu), cbData);

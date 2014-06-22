@@ -61,9 +61,10 @@ IPipeExtensionService* PipeExtensionPurple::create(const tstring& serviceType, c
 			throw tstring(_T("PipeExtensionPurple::create: Could not create service ") + serviceType + _T(", missing protocol id"));
 	}
 
-	IPipeExtensionService* result = new PurpleInterfaceAccount(id, serviceType, description, address, path, settings);
+	PurpleInterfaceAccount* result = new PurpleInterfaceAccount(serviceType, description, address, path, settings);
 	_services[address] = result;
-	return result;
+	result->init(id);
+	return reinterpret_cast<IPipeExtensionService*>(result);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -78,6 +79,16 @@ void PipeExtensionPurple::destroy(IPipeExtensionService* service) {
 	}
 
 	throw tstring(_T("PipeExtensionPurple::destroy: Could not find service"));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+PurpleInterfaceAccount* PipeExtensionPurple::account(PurpleAccount* account) {
+	for(auto it = begin(_services); it != end(_services); it++) {
+		if(it->second->accountHandle() == account) { return it->second; }
+	}
+
+	return nullptr;
 }
 
 //======================================================================================================================

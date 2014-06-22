@@ -10,12 +10,54 @@
 //======================================================================================================================
 
 class PurpleInterfaceAccount : public PipeServiceNodeBase {
+private:
+	PurpleAccount* _account;
+
 public:
-	PurpleInterfaceAccount(const tstring& protocol_id, const tstring& type, const tstring& description, const tstring& address, const tstring& path, PipeObjectPtr settings);
+	PurpleInterfaceAccount(const tstring& type, const tstring& description, const tstring& address, const tstring& path, PipeObjectPtr settings);
 	~PurpleInterfaceAccount();
 
 public:
+	void init(const tstring& protocol_id);
+	PurpleAccount* accountHandle() { return _account; }
+
+public:
 	virtual PipeArrayPtr receive();
+
+public:
+	void onConnecting();
+	void onDisabled();
+	void onEnabled();
+
+	void onAuthRequest(tstring user, tstring message = _T(""));
+	void onAuthDenied(tstring user);
+	void onAuthGranted(tstring user);
+
+	void onSignedOn();
+	void onSignedOff();
+
+	void onStatusChanged();// 
+	void onActionsChanged();
+
+	void onErrorChanged(tstring oldError, tstring newError);
+	void onConnectionError(tstring error, tstring description = _T(""));
+
+	void onBuddyAdded(PurpleBuddy* buddy);
+	void onBuddyRemoved(PurpleBuddy* buddy);
+	//// Actions
+
+	// connect
+	// disconnect
+	// ?register
+	// ?unregister
+	// request auth
+	// ?set user info
+	// ?set privacy type
+	// set status
+	// add buddy
+	// remove buddy
+	// ?group management
+	// ?change password
 };
 
 //======================================================================================================================

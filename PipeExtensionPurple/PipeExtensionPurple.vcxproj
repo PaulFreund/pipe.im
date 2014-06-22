@@ -90,12 +90,14 @@
     <ClCompile Include="PipeExtensionPurpleAPI.cpp" />
     <ClCompile Include="PurpleInterface.cpp" />
     <ClCompile Include="PurpleInterfaceAccount.cpp" />
+    <ClCompile Include="PurpleInterfaceContact.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonHeader.h" />
     <ClInclude Include="PipeExtensionPurple.h" />
     <ClInclude Include="PurpleInterface.h" />
     <ClInclude Include="PurpleInterfaceAccount.h" />
+    <ClInclude Include="PurpleInterfaceContact.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
