@@ -365,33 +365,33 @@ void purple_cb_account_actions_changed(PurpleAccount* account, gpointer data) {
 gint purple_cb_account_authorization_requested(PurpleAccount* account, const TCHAR* remoteUser, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return 0; }
-	service->onAuthRequest(tstring(remoteUser));
+	service->onAuthRequest((remoteUser == nullptr) ? _T("") : tstring(remoteUser));
 	return PURPLE_ACCOUNT_RESPONSE_PASS;
 }
 
 gint purple_cb_account_authorization_requested_with_message(PurpleAccount* account, const TCHAR* remoteUser, const TCHAR* message, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return 0; }
-	service->onAuthRequest(tstring(remoteUser), tstring(message));
+	service->onAuthRequest((remoteUser == nullptr) ? _T("") : tstring(remoteUser), (message == nullptr) ? _T("") : tstring(message));
 	return PURPLE_ACCOUNT_RESPONSE_PASS;
 }
 
 void purple_cb_account_authorization_denied(PurpleAccount* account, const TCHAR* user, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return; }
-	service->onAuthDenied(tstring(user));
+	service->onAuthDenied((user == nullptr) ? _T("") : tstring(user));
 }
 
 void purple_cb_account_authorization_granted(PurpleAccount* account, const TCHAR* user, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return; }
-	service->onAuthGranted(tstring(user));
+	service->onAuthGranted((user == nullptr) ? _T("") : tstring(user));
 }
 
 void purple_cb_account_error_changed(PurpleAccount* account, const TCHAR* oldError, const TCHAR* newError, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return; }
-	service->onErrorChanged(tstring(oldError), tstring(newError));
+	service->onErrorChanged((oldError == nullptr) ? _T("") : tstring(oldError), (newError == nullptr) ? _T("") : tstring(newError));
 }
 
 void purple_cb_account_signed_on(PurpleAccount* account, gpointer data) {
@@ -409,7 +409,7 @@ void purple_cb_account_signed_off(PurpleAccount* account, gpointer data) {
 void purple_cb_account_connection_error(PurpleAccount* account, PurpleConnectionError type, const TCHAR* description, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return; }
-	service->onConnectionError(connectionErrorString(type), tstring(description));
+	service->onConnectionError(connectionErrorString(type), (description == nullptr) ? _T("") : tstring(description));
 }
 
 void purple_cb_buddy_status_changed(PurpleBuddy* buddy, PurpleStatus* oldStatus, PurpleStatus* newStatus, gpointer data) {

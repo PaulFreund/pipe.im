@@ -257,7 +257,7 @@ private:
 				options << std::endl;
 				auto& enumOptions = currentNode.enumTypes();
 				for(int idx = 0, cnt = enumOptions.size(); idx < cnt; idx++) {
-					options << indent << setw(IndentSymbol.size()) << idx << _T(": ") << enumOptions[idx].dump() << std::endl;
+					options << indent << std::setw(IndentSymbol.size()) << idx << _T(": ") << enumOptions[idx].dump() << std::endl;
 				}
 				options << indent << _T("Please choose an option(0-") << enumOptions.size()-1 << _T("): ");
 				result += options.str();
@@ -580,6 +580,7 @@ public:
 
 public:
 	//------------------------------------------------------------------------------------------------------------------
+
 	bool setAddress(const tstring& newAddress = _T("pipe")) {
 		tstring newAddressAbsolute = getAbsoluteAddress(newAddress);
 		if(newAddressAbsolute.length() == 0)
@@ -596,23 +597,25 @@ public:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+
 	tstring getAddress() {
 		return _address;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void send(const tstring& input) {
+
+	bool addOutgoing(const tstring& input) {
 		// Abort command
 		if(input == _abortText) {
 			_sendBuffer.data.clear();
 			_receiveBuffer << _T("Aborted command.") << std::endl;
-			return;
+			return false;
 		}
 
 		// New command
 		if(_sendBuffer.data.empty()) {
 			auto&& fragments = texplode(input, _T(' '));
-			if(fragments.size() <= 0) { return; }
+			if(fragments.size() <= 0) { return false; }
 
 			// Extract possible address
 			auto address = _address;
@@ -659,7 +662,7 @@ public:
 				// Invalid command
 				if(schema == nullptr) {
 					_receiveBuffer << _T("Error! command not found");
-					return;
+					return false;
 				}
 
 				_sendBuffer = PipeCommandBuffer(_identifier, address, command);
@@ -668,63 +671,63 @@ public:
 				if(!schema->object_items().empty())
 					_receiveBuffer << _sendBuffer.data.start(*schema, parameter);
 
-				updateSendBuffer();
+				return (_sendBuffer.data.empty() || _sendBuffer.data.complete());
 			}
 		}
 		// This message has already been started
 		else {
 			_receiveBuffer << _sendBuffer.data.add(input);
-			updateSendBuffer();
+			return (_sendBuffer.data.empty() || _sendBuffer.data.complete());
 		}
+
+		return false;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	tstring receive() {
+
+	tstring addIncoming(PipeArrayPtr messages) {
 		tstringstream output;
 		output << _receiveBuffer.str();
 		_receiveBuffer.str(tstring());
 
-		if(_sendBuffer.data.empty()) {
-			auto messages = LibPipe::receive();
-			for(auto& msg : *messages) {
-				if(!msg.is_object()) { continue; }
+		for(auto& msg : *messages) {
+			if(!msg.is_object()) { continue; }
 
-				if(!output.str().empty())
-					output << std::endl;
+			if(!output.str().empty())
+				output << std::endl;
 
-				auto&& obj = msg.object_items();
-				if(!obj.count(TokenMessageRef) || !obj.count(TokenMessageAddress) || !obj.count(TokenMessageMessage) || !obj.count(TokenMessageData)) { continue; }
+			auto&& obj = msg.object_items();
+			if(!obj.count(TokenMessageRef) || !obj.count(TokenMessageAddress) || !obj.count(TokenMessageMessage) || !obj.count(TokenMessageData)) { continue; }
 
-				auto ref = obj[TokenMessageRef].string_value();
-				if(ref != _identifier && !ref.empty()) { continue; }
+			auto ref = obj[TokenMessageRef].string_value();
+			if(ref != _identifier && !ref.empty()) { continue; }
 
-				auto address = obj[TokenMessageAddress].string_value();
-				auto type = obj[TokenMessageMessage].string_value();
-				auto data = obj[TokenMessageData];
+			auto address = obj[TokenMessageAddress].string_value();
+			auto type = obj[TokenMessageMessage].string_value();
+			auto data = obj[TokenMessageData];
 
-				tstring source = address + _T(" - ") + type;
+			tstring source = address + _T(" - ") + type;
 
-				if(data.is_object() || data.is_array()) {
-					if((data.is_object() && data.object_items().empty()) || (data.is_array() && data.array_items().empty())) 
-						output << source << _T(": Empty");
+			if(data.is_object() || data.is_array()) {
+				if((data.is_object() && data.object_items().empty()) || (data.is_array() && data.array_items().empty())) 
+					output << source << _T(": Empty");
+				else
+					generateOutput(output, source, data);
+			}
+			else {
+				output << source << _T(" ");
+
+				if(data.is_bool()) {
+					output << (data.bool_value() ? _T("true") : _T("false"));
+				}
+				else if(data.is_number()) {
+					if(data.is_integer())
+						output << to_tstring(data.int_value());
 					else
-						generateOutput(output, source, data);
+						output << to_tstring(data.number_value());
 				}
 				else {
-					output << source << _T(" ");
-
-					if(data.is_bool()) {
-						output << (data.bool_value() ? _T("true") : _T("false"));
-					}
-					else if(data.is_number()) {
-						if(data.is_integer())
-							output << to_tstring(data.int_value());
-						else
-							output << to_tstring(data.number_value());
-					}
-					else {
-						output << data.string_value(); // Assume string
-					}
+					output << data.string_value(); // Assume string
 				}
 			}
 		}
@@ -732,8 +735,16 @@ public:
 		return output.str();
 	}
 
+	//------------------------------------------------------------------------------------------------------------------
+
+	PipeJson getOutgoing() {
+		return _sendBuffer.instance();
+		_sendBuffer.data.clear();
+	}
+
 private:
 	//------------------------------------------------------------------------------------------------------------------
+
 	bool isShellCommand(const tstring& command) {
 		tstring cmd = command;
 		if(command[0] == _T('!'))
@@ -750,6 +761,7 @@ private:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+
 	void newShellCommand(const tstring& command, const tstring& parameter, const tstring& address) {
 		tstring cmd = command;
 		if(command[0] == _T('!'))
@@ -883,6 +895,7 @@ private:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+
 	bool isPipeCommand(const tstring& commandName, const PipeArrayPtr& addressCommands) {
 		for(auto&& command : *addressCommands) {
 			auto&& commandObj = command.object_items();
@@ -894,6 +907,7 @@ private:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+
 	void generateOutput(tstringstream& output, const tstring& key, Json& data, tstring indent = _T(""), bool arrayItem = false) {
 		if((data.is_object() && data.object_items().empty()) || (data.is_array() && data.array_items().empty())) { return; }
 
@@ -939,6 +953,7 @@ private:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
+
 	tstring getAbsoluteAddress(const tstring& address) {
 		tstring absolute = address;
 
@@ -958,15 +973,6 @@ private:
 		}
 
 		return absolute;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-
-	void updateSendBuffer() {
-		if(_sendBuffer.data.empty() || _sendBuffer.data.complete()) {
-			LibPipe::send(newArray({ _sendBuffer.instance() }));
-			_sendBuffer.data.clear();
-		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

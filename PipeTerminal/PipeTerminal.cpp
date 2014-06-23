@@ -68,7 +68,8 @@ int main(int argc, char* argv[]) {
 		thread receive([&]() {
 			tstring received;
 			while(!exit) {
-				received = shell.receive();
+				auto messages = LibPipe::receive();
+				received = shell.addIncoming(messages);
 				if(!received.empty())
 					cout << received << endl;
 
@@ -90,7 +91,9 @@ int main(int argc, char* argv[]) {
 					continue;
 				}
 
-				shell.send(message);
+				if(shell.addOutgoing(message)) {
+					LibPipe::send(newArray({ shell.getOutgoing() }));
+				}
 			}
 		});
 

@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <string>
+#include <mutex>
 
 #define _TCHAR_DEFINED
 #ifdef UNICODE
@@ -20,6 +21,8 @@ typedef unsigned char ubyte;
 
 #include "Poco/Util/ServerApplication.h"
 #include "Poco/Util/OptionSet.h"
+
+#include <libpipe/PipeShell.h>
 
 //======================================================================================================================
 
@@ -36,6 +39,10 @@ public:
 	int _port = 9980;
 	tstring _address;
 	tstring _uripath;
+
+	std::mutex _pipeMutex;
+	PipeArrayPtr _pipeIncoming;
+	PipeArrayPtr _pipeOutgoing;
 
 public:
 	PipeWebsocketTerminalApplication();
