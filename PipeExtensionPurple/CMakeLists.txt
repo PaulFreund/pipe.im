@@ -10,7 +10,7 @@ project(PipeExtensionPurple)
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-        set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")
+        set(CMAKE_CXX_FLAGS "-stdlib=libc++ -Wno-deprecated-register ${CMAKE_CXX_FLAGS}")
 endif()
 
 file(GLOB PIPE_EXTENSION_PURPLE_SRC "*.cpp")

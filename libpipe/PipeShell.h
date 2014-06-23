@@ -145,6 +145,10 @@ public:
 				_clientState = None;
 				break;
 			}
+			case None:
+			default: {
+				break;
+			}
 		}
 
 		return nextValue();
