@@ -52,7 +52,7 @@ using namespace Poco::Net;
 
 class PipeRequestHandlerPage : public HTTPRequestHandler {
 public:
-	void generateFileObject(tstring path, PipeObject& object, bool first = false) {
+	void generateFileObject(const tstring& path, PipeObject& object, bool first = false) {
 		File currentPath(path);
 		if(!currentPath.exists() || !currentPath.canRead()) { return; }
 		Path currentPathName(path);
@@ -77,7 +77,39 @@ public:
 		}
 	}
 
+	void concatFiles(const tstring& path, const tstring& filter, tstring& result) {
+		File currentPath(path);
+		if(!currentPath.exists() || !currentPath.canRead()) { return; }
+
+		if(currentPath.isDirectory()) {
+			for(DirectoryIterator it(currentPath), itEnd; it != itEnd; ++it) {
+				concatFiles(it->path(), filter, result);
+			}
+		}
+		else {
+			Path currentPathName(path);
+			if(filter.empty() || currentPathName.getExtension() == filter) {
+				try {
+					ifstream fileReader(path);
+					tstring fileData((istreambuf_iterator<TCHAR>(fileReader)), istreambuf_iterator<TCHAR>());
+
+					result += _T("\n");
+					result += _T("\n");
+					result += _T("//======================================================================================================================\n");
+					result += _T("// ") + currentPathName.getFileName() + _T(" (") + path + _T(")\n");
+					result += _T("//======================================================================================================================\n");
+					result += _T("\n");
+					result += fileData + _T("\n");
+					result += _T("\n");
+					result += _T("\n");
+				}
+				catch(...) {}
+			}
+		}
+	}
+
 	bool handleCommands(const tstring& uri, std::ostream& outstream, tstring body) {
+		PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
 		auto parts = texplode(uri, _T('/'));
 		if(parts.size() < 2) { return false; }
 
@@ -102,6 +134,36 @@ public:
 					outstream << PipeJson(*LibPipe::nodeInfo(parts[2])).dump();
 					return true;
 				}
+				else if(parts[1] == _T("concat")) {
+					auto partsCopy = parts;
+					partsCopy.erase(begin(partsCopy)); // Remove "rest"
+					partsCopy.erase(begin(partsCopy)); // Remove "concat"
+					
+					tstring path = pApp->_staticdir;
+					tstring filter = _T("");
+					auto parameter = texplode(timplode(partsCopy, _T('/')), _T('.'));
+					if(parameter.size() >= 1) { 
+						filter = parameter[parameter.size() - 1]; 
+					}
+					if(parameter.size() >= 2) {
+						path += Path::separator();
+						tstring uriPath = pApp->_uripath;
+						tstring subPath = _T("/") + parameter[0];
+
+						if(uriPath[uriPath.size() - 1] != _T('/'))
+							uriPath += _T("/");
+
+						if(subPath.compare(0, uriPath.length(), uriPath) == 0)
+							subPath = subPath.substr(uriPath.length() - 1);
+
+						path += subPath;
+					}
+
+					tstring result = _T("");
+					concatFiles(path, filter, result);
+					outstream << result;
+					return true;
+				}
 			}
 			// Commands without
 			else if(parts[1] == _T("send")) {
@@ -120,12 +182,10 @@ public:
 			}
 			else if(parts[1] == _T("files")) {
 				PipeObject files;
-				PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
 				generateFileObject(pApp->_staticdir, files, true);
 				outstream << PipeJson(files).dump();
 				return true;
 			}
-
 		}
 		catch(...) {}
 
