@@ -52,6 +52,31 @@ using namespace Poco::Net;
 
 class PipeRequestHandlerPage : public HTTPRequestHandler {
 public:
+	void generateFileObject(tstring path, PipeObject& object, bool first = false) {
+		File currentPath(path);
+		if(!currentPath.exists() || !currentPath.canRead()) { return; }
+		Path currentPathName(path);
+
+		if(currentPath.isDirectory()) {
+			object[_T("name")] = first ? _T("") : currentPathName.getFileName();
+			object[_T("files")] = PipeArray();
+			object[_T("folders")] = PipeArray();
+
+			for(DirectoryIterator it(currentPath), itEnd; it != itEnd; ++it) {
+				File elementPath(it->path());
+				if(!elementPath.exists() || !elementPath.canRead()) { continue; }
+				if(elementPath.isDirectory()) {
+					object[_T("folders")].array_items().push_back(PipeObject());
+					generateFileObject(it->path(), object[_T("folders")].array_items().back().object_items());
+				}
+				else {
+					Path elementPathName(it->path());
+					object[_T("files")].array_items().push_back(elementPathName.getFileName());
+				}
+			}
+		}
+	}
+
 	bool handleCommands(const tstring& uri, std::ostream& outstream, tstring body) {
 		auto parts = texplode(uri, _T('/'));
 		if(parts.size() < 2) { return false; }
@@ -93,6 +118,14 @@ public:
 				outstream << PipeJson(*LibPipe::receive()).dump();
 				return true;
 			}
+			else if(parts[1] == _T("files")) {
+				PipeObject files;
+				PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
+				generateFileObject(pApp->_staticdir, files, true);
+				outstream << PipeJson(files).dump();
+				return true;
+			}
+
 		}
 		catch(...) {}
 
