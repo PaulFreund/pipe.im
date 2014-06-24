@@ -296,7 +296,7 @@ public:
 			(*info)[_T("instance_name")] = _instance_name;
 			(*info)[_T("instance_description")] = _instance_description;
 			(*info)[_T("icon")] = _icon;
-			(*info)[_T("states")] = *_state_infos;
+			(*info)[_T("state_infos")] = *_state_infos;
 		}
 		else {
 			tstring nextAddress = relativeChildAddress(address);
