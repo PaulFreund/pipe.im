@@ -61,7 +61,7 @@ IPipeExtensionService* PipeExtensionPurple::create(const tstring& serviceType, c
 			throw tstring(_T("PipeExtensionPurple::create: Could not create service ") + serviceType + _T(", missing protocol id"));
 	}
 
-	PurpleInterfaceAccount* result = new PurpleInterfaceAccount(serviceType, description, address, path, settings);
+	PurpleInterfaceAccount* result = new PurpleInterfaceAccount(address, path, settings, serviceType, description);
 	_services[address] = result;
 	result->init(id);
 	return reinterpret_cast<IPipeExtensionService*>(result);

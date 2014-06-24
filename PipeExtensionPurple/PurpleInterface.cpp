@@ -137,7 +137,7 @@ PurpleInterface::PurpleInterface(PipeExtensionPurple* instance, const tstring& p
 
 		// TODO: Clear config dir?
 		purple_util_set_user_dir(path.c_str());
-		purple_debug_set_enabled(TRUE);
+		purple_debug_set_enabled(FALSE);
 
 		// ERROR: Local scope
 		_eventloopUIOps = { 
@@ -640,7 +640,6 @@ void purple_cb_chat_joined(PurpleConversation *conv, gpointer data) {
 //void purple_cb_chat_join_failed(PurpleConnection *connection, GHashTable* joinData, gpointer data) {
 //	PurpleInterfaceAccount* service = accountService(data, account);
 //	if(service == nullptr) { return; }
-//	// TODO: Call ITF
 //}
 
 void purple_cb_chat_left(PurpleConversation *conv, gpointer data) {

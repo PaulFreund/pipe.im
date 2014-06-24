@@ -14,7 +14,7 @@ private:
 	PurpleBuddy* _buddy;
 
 public:
-	PurpleInterfaceContact(PurpleBuddy* buddy, const tstring& type, const tstring& description, const tstring& address, const tstring& path, PipeObjectPtr settings);
+	PurpleInterfaceContact(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& instance_name, const tstring& instance_description, PurpleBuddy* buddy);
 	~PurpleInterfaceContact();
 
 public:

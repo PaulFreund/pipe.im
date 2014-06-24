@@ -7,13 +7,9 @@ using namespace std;
 
 //======================================================================================================================
 
-PurpleInterfaceAccount::PurpleInterfaceAccount(const tstring& type, const tstring& description, const tstring& address, const tstring& path, PipeObjectPtr settings)
-	: PipeServiceNodeBase(type, description, address, path, settings) {	
-	// TODO: Change type and description to be more generic
-	// TODO: make info have node metainfo
-	// TODO: create address sanitizer
-	// TODO: Add constraints to account names
-	// TODO: (GENERIC) Add autojoin to IRC plugin settings
+PurpleInterfaceAccount::PurpleInterfaceAccount(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& instance_name, const tstring& instance_description)
+	: PipeServiceNodeBase(address, path, settings, _T("purple_account"), _T("A purple chat account"), instance_name, instance_description, _T("purple_account")) {
+	// TODO: (GENERIC) Add autojoin to IRC plugin settings?
 }
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -11,16 +11,21 @@
 
 class PipeServiceNodeBase : public IPipeExtensionService {
 public:
-
 	typedef std::function<void(PipeObject&)> PipeCommandFunction;
 	typedef std::function<void(PipeArrayPtr)> PipeHookFunction;
 
 public:
-	const tstring           _type;
-	const tstring           _description;
+	const tstring           _type_name;
+	const tstring           _type_description;
+	const tstring           _instance_name;
+	const tstring           _instance_description;
 	const tstring           _address;
 	const tstring           _path;
+	const tstring           _icon;
 	const PipeObjectPtr    _settings;
+
+protected:
+	PipeArrayPtr _state_infos;
 
 	//------------------------------------------------------------------------------------------------------------------
 
@@ -30,7 +35,6 @@ private:
 	std::map<tstring, PipeCommandFunction> _commands;
 	PipeArrayPtr _commandTypes;
 	PipeArrayPtr _messageTypes;
-	PipeArrayPtr _states;
 
 	bool _preSendHookEnabled = false;
 	PipeHookFunction _preSendHook;
@@ -41,16 +45,19 @@ private:
 public:
 	//------------------------------------------------------------------------------------------------------------------
 
-	PipeServiceNodeBase(const tstring& type, const tstring& description, const tstring& address, const tstring& path, PipeObjectPtr settings)
-		: _type(type)
-		, _description(description)
-		, _address(address)
+	PipeServiceNodeBase(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& type_name, const tstring& type_description, const tstring& instance_name, const tstring& instance_description, const tstring& icon = _T(""))
+		: _address(address)
 		, _path(path)
 		, _settings(settings)
+		, _type_name(type_name)
+		, _type_description(type_description)
+		, _instance_name(instance_name)
+		, _instance_description(instance_description)
+		, _icon(icon)
 		, _outgoing(newArray())
 		, _commandTypes(newArray())
 		, _messageTypes(newArray())
-		, _states(newArray())
+		, _state_infos(newArray())
 	{
 		addBaseMessageTypes();
 		addBaseCommandTypes();
@@ -284,9 +291,12 @@ public:
 		PipeObjectPtr info = newObject();
 		if(address == _address) {
 			(*info)[TokenMessageAddress] = _address;
-			(*info)[_T("type")] = _type;
-			(*info)[_T("description")] = _description;
-			(*info)[_T("states")] = *_states;
+			(*info)[_T("type_name")] = _type_name;
+			(*info)[_T("type_description")] = _type_description;
+			(*info)[_T("instance_name")] = _instance_name;
+			(*info)[_T("instance_description")] = _instance_description;
+			(*info)[_T("icon")] = _icon;
+			(*info)[_T("states")] = *_state_infos;
 		}
 		else {
 			tstring nextAddress = relativeChildAddress(address);
@@ -371,12 +381,15 @@ private:
 		//--------------------------------------------------------------------------------------------------------------
 		auto info = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Info")).description(_T("Information about the node"));
 		info.property(TokenMessageAddress, PipeSchemaTypeString).title(_T("Address")).description(_T("Address of the node"));
-		info.property(_T("type"), PipeSchemaTypeString).title(_T("Type")).description(_T("Unique type of this node"));
-		info.property(_T("description"), PipeSchemaTypeString).title(_T("Description")).description(_T("Description of the node"));
-		auto& infoDataState = info.property(_T("states"), PipeSchemaTypeArray).title(_T("States")).description(_T("Runtime states of the node"));
-		auto& infoDataStateItems = infoDataState.items(PipeSchemaTypeObject).title(_T("State")).description(_T("Runtime state"));
-		infoDataStateItems.property(_T("key"), PipeSchemaTypeString).title(_T("Key")).description(_T("Name of the state"));
-		infoDataStateItems.property(_T("value"), PipeSchemaTypeString).title(_T("Value")).description(_T("Value of the state"));
+		info.property(_T("type_name"), PipeSchemaTypeString).title(_T("Type")).description(_T("Unique type identifier of this node"));
+		info.property(_T("type_description"), PipeSchemaTypeString).title(_T("Description")).description(_T("Description of the node type"));
+		info.property(_T("instance_name"), PipeSchemaTypeString).title(_T("Title")).description(_T("Name of the node instance"));
+		info.property(_T("instance_description"), PipeSchemaTypeString).title(_T("Title")).description(_T("Description of the node instance"));
+		info.property(_T("icon"), PipeSchemaTypeString).title(_T("Icon")).description(_T("Node icon identifier"));
+		auto& infoDataState = info.property(_T("state_infos"), PipeSchemaTypeArray).title(_T("State infos")).description(_T("Runtime state information pairs for the node"));
+		auto& infoDataStateItems = infoDataState.items(PipeSchemaTypeObject).title(_T("State info")).description(_T("Runtime state info"));
+		infoDataStateItems.property(_T("key"), PipeSchemaTypeString).title(_T("Key")).description(_T("Name of the state info"));
+		infoDataStateItems.property(_T("value"), PipeSchemaTypeString).title(_T("Value")).description(_T("Value of the state info"));
 		addMessageType(_T("info"), _T("Information about this node"), info);
 	}
 };

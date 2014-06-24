@@ -11,7 +11,8 @@ std::vector<std::shared_ptr<PipeExtensionInstance>> ServiceRoot::Extensions;
 
 //======================================================================================================================
 
-ServiceRoot::ServiceRoot(const tstring& path, PipeObjectPtr settings) : PipeServiceNodeBase(_T("pipe"), _T("Pipe root node"), _T("pipe"), path, settings)
+ServiceRoot::ServiceRoot(const tstring& path, PipeObjectPtr settings) 
+	: PipeServiceNodeBase(_T("pipe"), path, settings, _T("pipe"), _T("Pipe root node"), _T("Pipe"), _T("Pipe root node"), _T("pipe"))
 	, _config(newObject())
 	, _scriptIncomingQueue(newArray())
 	, _scriptOutgoingQueue(newArray())
@@ -183,11 +184,11 @@ tstring ServiceRoot::configPath() {
 
 void ServiceRoot::initServices() {
 	tstring addressServices = _address + TokenAddressSeparator + _T("services");
-	_serviceServices = make_shared<PipeServiceNodeBase>(_T("services"), _T("Management of services"), addressServices, _path, newObject());
+	_serviceServices = make_shared<PipeServiceNodeBase>(addressServices, _path, newObject(), _T("services"), _T("Management of services"), _T("Services"), _T("Management of services"), _T("services"));
 	addChild(addressServices, _serviceServices);
 
 	tstring addressServicesProviders = addressServices + TokenAddressSeparator + _T("providers");
-	_serviceServicesProviders = make_shared<PipeServiceNodeBase>(_T("service_providers"), _T("Service provider types"), addressServicesProviders, _path, newObject());
+	_serviceServicesProviders = make_shared<PipeServiceNodeBase>(addressServicesProviders, _path, newObject(), _T("service_providers"), _T("Service provider types"), _T("Service providers"), _T("Available service providers"), _T("service_providers"));
 	_serviceServices->addChild(addressServicesProviders, _serviceServicesProviders);
 
 	// Add providers
@@ -207,13 +208,13 @@ void ServiceRoot::initServices() {
 
 			auto providerSettings = newObject();
 			(*providerSettings)[_T("type")].string_value() = typeName;
-			auto provider = make_shared<PipeServiceNodeBase>(_T("provider_") + typeName, typeDescription, addressProvider, _path, providerSettings);
+			auto provider = make_shared<PipeServiceNodeBase>(addressProvider, _path, providerSettings, _T("service_provider"), _T("Representation of a service"), typeName, typeDescription, _T("service_provider_") + typeName);
 			_serviceServicesProviders->addChild(addressProvider, provider);
 
 			// Create command
 			{
 				auto cmdCreate = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Creation Data")).description(_T("Data to create a new service"));
-				cmdCreate.property(_T("name"), PipeSchemaTypeString).title(_T("Name")).description(_T("Name of the new service"));
+				cmdCreate.property(_T("name"), PipeSchemaTypeString).title(_T("Name")).description(_T("Name of the new service")).pattern(_T("[A-z_]+"));
 				cmdCreate.property(_T("settings"), typeSettingsSchema).title(_T("Settings")).description(_T("Settings for the new service"));
 				
 				provider->addCommand(_T("create"), _T("Create a service instance"), cmdCreate, [&, typeName, provider](PipeObject& message) {
@@ -265,7 +266,7 @@ void ServiceRoot::initServices() {
 	}
 
 	tstring addressServicesInstances = addressServices + TokenAddressSeparator + _T("instances");
-	_serviceServicesInstances = make_shared<PipeServiceNodeBase>(_T("service_instances"), _T("Service instances"), addressServicesInstances, _path, newObject());
+	_serviceServicesInstances = make_shared<PipeServiceNodeBase>(addressServicesInstances, _path, newObject(), _T("service_instances"), _T("Service instance nodes"), _T("Instances"), _T("Instance representations"), _T("service_instances"));
 	_serviceServices->addChild(addressServicesInstances, _serviceServicesInstances);
 }
 
@@ -307,7 +308,7 @@ tstring ServiceRoot::createService(const tstring& type, const tstring& name, Pip
 		addChild(addressService, shared_ptr<PipeServiceNodeBase>(service));
 
 		tstring addressInstance = _serviceServicesInstances->_address + TokenAddressSeparator + name;
-		auto instance = make_shared<PipeServiceNodeBase>(_T("instance_") + type, _T("Instance of a ") + type + _T(" service"), addressInstance, _path, newObject());
+		auto instance = make_shared<PipeServiceNodeBase>(addressInstance, _path, newObject(), _T("service_instance"), _T("Instance of a service"), type, _T("A ") + type + _T(" instance"), _T("service_instance_") + type);
 		_serviceServicesInstances->addChild(addressInstance, instance);
 
 		// Delete command
@@ -346,11 +347,11 @@ void ServiceRoot::deleteService(const tstring& name) {
 //----------------------------------------------------------------------------------------------------------------------
 void ServiceRoot::initScripts() {
 	tstring addressScripts = _address + TokenAddressSeparator + _T("scripts");
-	_serviceScripts = make_shared<PipeServiceNodeBase>(_T("scripts"), _T("Management of scripts"), addressScripts, _path, _settings);
+	_serviceScripts = make_shared<PipeServiceNodeBase>(addressScripts, _path, _settings, _T("script_manager"), _T("Management of scripts"), _T("Scripts"), _T("Management of scripts"), _T("script_manager"));
 	addChild(addressScripts, _serviceScripts);
 
 	auto cmdCreate = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Script data")).description(_T("Data to create a new script"));
-	cmdCreate.property(_T("name"), PipeSchemaTypeString).title(_T("Name")).description(_T("Name of the new script"));
+	cmdCreate.property(_T("name"), PipeSchemaTypeString).title(_T("Name")).description(_T("Name of the new script")).pattern(_T("[A-z_]+"));
 	cmdCreate.property(_T("preSend"), PipeSchemaTypeBoolean).title(_T("Pre send hook")).description(_T("Script will be executed before a incoming message is processed"));
 	cmdCreate.property(_T("postReceive"), PipeSchemaTypeBoolean).title(_T("Post receive hook")).description(_T("Script will be executed after a outgoing message was processed"));
 	cmdCreate.property(_T("priority"), PipeSchemaTypeInteger).title(_T("Priority")).description(_T("Execution priority"));
@@ -431,7 +432,7 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 	if(postReceive) { _scriptsPostReceive.push_back(scriptInstance); }
 
 	tstring addressScriptNode = _serviceScripts->_address + TokenAddressSeparator + name;
-	auto scriptNode = make_shared<PipeServiceNodeBase>(_T("script"), _T("A automation script"), addressScriptNode, _path, newObject());
+	auto scriptNode = make_shared<PipeServiceNodeBase>(addressScriptNode, _path, newObject(), _T("script_instance"), _T("Automation script instance"), name, _T("A automation script"), _T("script_instance"));
 	_serviceScripts->addChild(addressScriptNode, scriptNode);
 
 	// Delete command

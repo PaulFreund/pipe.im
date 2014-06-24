@@ -362,7 +362,7 @@ private:
 					tstring pattern = schemaMessageNode.pattern();
 					if(!pattern.empty()) {
 						if(!std::regex_match(data, std::regex(pattern)))
-							return _T("Error! String does not match pattern (") + pattern + _T(".");
+							return _T("Error! String does not match pattern (") + pattern + _T(").");
 					}
 
 					valueMessageNode = PipeJson(data);

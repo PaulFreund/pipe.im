@@ -14,7 +14,7 @@ private:
 	PurpleAccount* _account;
 
 public:
-	PurpleInterfaceAccount(const tstring& type, const tstring& description, const tstring& address, const tstring& path, PipeObjectPtr settings);
+	PurpleInterfaceAccount(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& instance_name, const tstring& instance_description);
 	~PurpleInterfaceAccount();
 
 public:
