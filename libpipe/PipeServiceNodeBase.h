@@ -17,15 +17,10 @@ public:
 public:
 	const tstring           _type_name;
 	const tstring           _type_description;
-	const tstring           _instance_name;
-	const tstring           _instance_description;
 	const tstring           _address;
 	const tstring           _path;
 	const tstring           _icon;
 	const PipeObjectPtr    _settings;
-
-protected:
-	PipeArrayPtr _state_infos;
 
 	//------------------------------------------------------------------------------------------------------------------
 
@@ -41,6 +36,10 @@ private:
 
 	bool _postReceiveHookEnabled = false;
 	PipeHookFunction _postReceiveHook;
+
+	tstring           _instance_name;
+	tstring           _instance_description;
+	PipeArrayPtr      _state_infos;
 
 public:
 	//------------------------------------------------------------------------------------------------------------------
@@ -64,6 +63,68 @@ public:
 	}
 
 	virtual ~PipeServiceNodeBase() {}
+
+protected:
+	//------------------------------------------------------------------------------------------------------------------
+	const std::map<tstring, std::shared_ptr<IPipeExtensionService>>& children() {
+		return _children;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	void infoSetName(const tstring& newName) {
+		_instance_name = newName;
+		infoUpdated();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	void infoSetDescription(const tstring& newDescription) {
+		_instance_description = newDescription;
+		infoUpdated();
+	}
+	
+	//------------------------------------------------------------------------------------------------------------------
+
+	void infoSetState(const tstring& key, const tstring& value) {
+		for(size_t idx = 0, cnt = _state_infos->size(); idx < cnt; idx++) {
+			if((*_state_infos)[idx].object_items()[_T("key")].string_value() == key) {
+				(*_state_infos)[idx].object_items()[_T("value")] = value;
+				infoUpdated();
+				return;
+			}
+		}
+		_state_infos->push_back(PipeObject { { _T("key"), key}, { _T("value"), value} });
+		infoUpdated();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	tstring infoGetState(const tstring& key) {
+		for(size_t idx = 0, cnt = _state_infos->size(); idx < cnt; idx++) {
+			if((*_state_infos)[idx].object_items()[_T("key")].string_value() == key) {
+				return (*_state_infos)[idx].object_items()[_T("value")].string_value();
+			}
+		}
+		return _T("");
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	void infoDeleteState(const tstring& key) {
+		for(size_t idx = 0, cnt = _state_infos->size(); idx < cnt; idx++) {
+			if((*_state_infos)[idx].object_items()[_T("key")].string_value() == key) {
+				_state_infos->erase(begin(*_state_infos)+idx);
+				infoUpdated();
+				break;
+			}
+		}
+	}
+	
+	//------------------------------------------------------------------------------------------------------------------
+
+	void infoUpdated() {
+		pushOutgoing(_T(""), _T("node_info_updated"), _address);
+	}
 
 public:
 	//------------------------------------------------------------------------------------------------------------------
@@ -356,7 +417,10 @@ private:
 
 		////--------------------------------------------------------------------------------------------------------------
 		addMessageType(_T("node_removed"), _T("Removed node"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Name")).description(_T("Name of the removed node")));
-
+		
+		////--------------------------------------------------------------------------------------------------------------
+		addMessageType(_T("node_info_updated"), _T("Updated node info"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Name")).description(_T("Name of the updated node")));
+		
 		////--------------------------------------------------------------------------------------------------------------
 		auto children = PipeSchema::Create(PipeSchemaTypeArray).title(_T("Chilren")).description(_T("List of child nodes"));
 		children.items(PipeSchemaTypeString).title(_T("Child")).description(_T("Name of a child node"));

@@ -2,6 +2,7 @@
 
 #include "CommonHeader.h"
 #include "PurpleInterfaceAccount.h"
+#include "PurpleInterfaceContact.h"
 
 using namespace std;
 
@@ -58,6 +59,19 @@ PipeArrayPtr PurpleInterfaceAccount::receive() {
 		g_main_context_iteration(g_main_context_default(), false);
 	
 	return PipeServiceNodeBase::receive();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+PurpleInterfaceContact* PurpleInterfaceAccount::contactService(PurpleBuddy* buddy) {
+	auto& childNodes = children();
+	for(auto it = begin(childNodes); it != end(childNodes); it++) {
+		PurpleInterfaceContact* contact = reinterpret_cast<PurpleInterfaceContact*>(it->second.get());
+		if(contact->buddyHandle() == buddy)
+			return contact;
+	}
+
+	return nullptr;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -147,15 +161,19 @@ void PurpleInterfaceAccount::onConnectionError(tstring error, tstring descriptio
 //----------------------------------------------------------------------------------------------------------------------
 
 void PurpleInterfaceAccount::onBuddyAdded(PurpleBuddy* buddy) {
-	// TODO
-//	pushOutgoing(_T(""), _T("buddy_added"), name + _T(" (") + alias + _T(")"));
+	tstring contactName(buddy->name);
+	contactName = timplode(texplode(contactName, TokenAddressSeparator), _T('_'));
+	tstring contactAddress = _address + TokenAddressSeparator + contactName;
+	addChild(contactAddress, make_shared<PurpleInterfaceContact>(contactAddress, _path, _settings, buddy->name, _T(""), buddy));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void PurpleInterfaceAccount::onBuddyRemoved(PurpleBuddy* buddy) {
-	// TODO
-//	pushOutgoing(_T(""), _T("buddy_removed"), name);
+	tstring contactName(buddy->name);
+	timplode(texplode(contactName, TokenAddressSeparator), _T('_'));
+	tstring contactAddress = _address + TokenAddressSeparator + contactName;
+	removeChild(contactAddress);
 }
 
 //======================================================================================================================

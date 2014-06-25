@@ -3,6 +3,7 @@
 #include "CommonHeader.h"
 #include "PurpleInterface.h"
 #include "PurpleInterfaceAccount.h"
+#include "PurpleInterfaceContact.h"
 #include "PipeExtensionPurple.h"
 
 #ifndef _WIN32
@@ -309,12 +310,6 @@ inline tstring connectionErrorString(PurpleConnectionError error) {
 	return _T("");
 }
 
-//gboolean purple_cb_autojoin(PurpleConnection* connection, PurpleConnectionError reason, const TCHAR* description, gpointer data) {
-//	PurpleInterfaceAccount* service = accountService(data, account);
-//	if(service == nullptr) { return; }
-//	return false;
-//}
-
 void purple_cb_account_connecting(PurpleAccount* account, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return; }
@@ -333,16 +328,6 @@ void purple_cb_account_enabled(PurpleAccount* account, gpointer data) {
 	service->onEnabled();
 }
 
-//void purple_cb_account_added(PurpleAccount* account, gpointer data) {
-//	PurpleInterfaceAccount* service = accountService(data, account);
-//	if(service == nullptr) { return; }
-//}
-
-//void purple_cb_account_removed(PurpleAccount* account, gpointer data) {
-//	PurpleInterfaceAccount* service = accountService(data, account);
-//	if(service == nullptr) { return; }
-//}
-
 gboolean purple_cb_account_status_changed(PurpleAccount* account, PurpleStatus* oldStatus, PurpleStatus* newStatus, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return false; }
@@ -356,11 +341,6 @@ void purple_cb_account_actions_changed(PurpleAccount* account, gpointer data) {
 	if(service == nullptr) { return; }
 	service->onActionsChanged();
 }
-
-//void purple_cb_account_alias_changed(PurpleAccount* account, const TCHAR* oldAlias, gpointer data) {
-//	PurpleInterfaceAccount* service = accountService(data, account);
-//	if(service == nullptr) { return; }
-//}
 
 gint purple_cb_account_authorization_requested(PurpleAccount* account, const TCHAR* remoteUser, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
@@ -415,6 +395,8 @@ void purple_cb_account_connection_error(PurpleAccount* account, PurpleConnection
 void purple_cb_buddy_status_changed(PurpleBuddy* buddy, PurpleStatus* oldStatus, PurpleStatus* newStatus, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, buddy->account);
 	if(service == nullptr) { return; }
+	PurpleInterfaceContact* contact = service->contactService(buddy);
+	if(contact == nullptr) { return; }	
 	// TODO: Call ITF
 }
 
@@ -499,24 +481,16 @@ void purple_cb_blist_node_removed(PurpleBlistNode* node, gpointer data) {
 void purple_cb_buddy_icon_changed(PurpleBuddy* buddy, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, buddy->account);
 	if(service == nullptr) { return; }
-	// TODO: Call ITF
-}
-
-void purple_cb_blist_node_extended_menu(PurpleBlistNode* buddy, GList** menu, gpointer data) {
-//	PurpleInterfaceAccount* service = accountService(data, account);
-//	if(service == nullptr) { return; }
-	// TODO: Call ITF
-}
-
-void purple_cb_blist_node_aliased(PurpleBlistNode* buddy, const TCHAR* oldAlias, gpointer data) {
-//	PurpleInterfaceAccount* service = accountService(data);
-//	if(service == nullptr) { return; }
-	// TODO: Call ITF
+	PurpleInterfaceContact* contact = service->contactService(buddy);
+	if(contact == nullptr) { return; }
+	contact->onIconChanged();
 }
 
 void purple_cb_buddy_caps_changed(PurpleBuddy* buddy, PurpleMediaCaps oldCaps, PurpleMediaCaps newCaps, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, buddy->account);
 	if(service == nullptr) { return; }
+	PurpleInterfaceContact* contact = service->contactService(buddy);
+	if(contact == nullptr) { return; }
 	// TODO: Call ITF
 }
 
@@ -637,11 +611,6 @@ void purple_cb_chat_joined(PurpleConversation *conv, gpointer data) {
 	// TODO: Call ITF
 }
 
-//void purple_cb_chat_join_failed(PurpleConnection *connection, GHashTable* joinData, gpointer data) {
-//	PurpleInterfaceAccount* service = accountService(data, account);
-//	if(service == nullptr) { return; }
-//}
-
 void purple_cb_chat_left(PurpleConversation *conv, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, conv->account);
 	if(service == nullptr) { return; }
@@ -660,32 +629,19 @@ void purple_cb_conversation_extended_menu(PurpleConversation *conv, GList** menu
 	// TODO: Call ITF
 }
 
-void purple_cb_displaying_userinfo(PurpleAccount* account, const TCHAR* who, PurpleNotifyUserInfo* user_info, gpointer data) {
-	PurpleInterfaceAccount* service = accountService(data, account);
-	if(service == nullptr) { return; }
-	// TODO: Call ITF
-}
-
 //----------------------------------------------------------------------------------------------------------------------
 
 void PurpleInterface::initSignalCallbacks() {
 	void* cbData = reinterpret_cast<void*>(_instance);
 	void* cbHandle = cbData;
 
-	//// Connection
-	//auto hConnections = purple_connections_get_handle();
-	//purple_signal_connect(hConnections, "autojoin", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_autojoin), cbData);
-
 	// Accounts
 	auto hAccounts = purple_accounts_get_handle();
 	purple_signal_connect(hAccounts, "account-connecting", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_connecting), cbData);
 	purple_signal_connect(hAccounts, "account-disabled", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_disabled), cbData);
 	purple_signal_connect(hAccounts, "account-enabled", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_enabled), cbData);
-	//purple_signal_connect(hAccounts, "account-added", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_added), cbData);
-	//purple_signal_connect(hAccounts, "account-removed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_removed), cbData);
 	purple_signal_connect(hAccounts, "account-status-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_status_changed), cbData);
 	purple_signal_connect(hAccounts, "account-actions-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_actions_changed), cbData);
-	//purple_signal_connect(hAccounts, "account-alias-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_alias_changed), cbData);
 	purple_signal_connect(hAccounts, "account-authorization-requested", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_authorization_requested), cbData);
 	purple_signal_connect(hAccounts, "account-authorization-requested-with-message", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_authorization_requested_with_message), cbData);
 	purple_signal_connect(hAccounts, "account-authorization-denied", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_authorization_denied), cbData);
@@ -706,8 +662,6 @@ void PurpleInterface::initSignalCallbacks() {
 	purple_signal_connect(hBuddyList, "blist-node-added", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_blist_node_added), cbData);
 	purple_signal_connect(hBuddyList, "blist-node-removed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_blist_node_removed), cbData);
 	purple_signal_connect(hBuddyList, "buddy-icon-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_icon_changed), cbData);
-	purple_signal_connect(hBuddyList, "blist-node-extended-menu", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_blist_node_extended_menu), cbData);
-	purple_signal_connect(hBuddyList, "blist-node-aliased", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_blist_node_aliased), cbData);
 	purple_signal_connect(hBuddyList, "buddy-caps-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_caps_changed), cbData);
 
 	// Conversation
@@ -730,14 +684,9 @@ void PurpleInterface::initSignalCallbacks() {
 	purple_signal_connect(hConversations, "chat-invited", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_invited), cbData);
 	purple_signal_connect(hConversations, "chat-invite-blocked", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_invite_blocked), cbData);
 	purple_signal_connect(hConversations, "chat-joined", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_joined), cbData);
-	//purple_signal_connect(hConversations, "chat-join-failed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_join_failed), cbData);
 	purple_signal_connect(hConversations, "chat-left", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_left), cbData);
 	purple_signal_connect(hConversations, "chat-topic-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_topic_changed), cbData);
 	purple_signal_connect(hConversations, "conversation-extended-menu", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_conversation_extended_menu), cbData);
-
-	// Notify
-	auto hNotify = purple_notify_get_handle();
-	purple_signal_connect(hNotify, "displaying-userinfo", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_displaying_userinfo), cbData);
 }
 
 //======================================================================================================================

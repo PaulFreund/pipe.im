@@ -9,6 +9,10 @@
 
 //======================================================================================================================
 
+class PurpleInterfaceContact;
+
+//======================================================================================================================
+
 class PurpleInterfaceAccount : public PipeServiceNodeBase {
 private:
 	PurpleAccount* _account;
@@ -23,6 +27,10 @@ public:
 
 public:
 	virtual PipeArrayPtr receive();
+
+public:
+	PurpleInterfaceContact* contactService(PurpleBuddy* buddy);
+
 
 public:
 	void onConnecting();
