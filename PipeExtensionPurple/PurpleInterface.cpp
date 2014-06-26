@@ -333,7 +333,73 @@ gboolean purple_cb_account_status_changed(PurpleAccount* account, PurpleStatus* 
 	if(service == nullptr) { return false; }
 	// TODO: Call ITF
 	// TODO: Statuas can only be handled via functions, struct is private
+	// purple_primitive_get_id_from_type
+	// purple_primitive_get_name_from_type
+	// purple_primitive_get_type_from_id
+
+	// purple_status_get_type
+	// Convenience for type fkts
+	// purple_status_get_presence
+	// purple_status_get_id
+	// purple_status_get_name
+
+	// purple_status_is_independent
+	// purple_status_is_exclusive
+	// purple_status_is_available
+	// purple_status_is_active
+	// purple_status_is_online
+	// purple_status_get_attr_value
+
+	// purple_presence_set_status_active
+	// purple_presence_switch_status
+	// purple_presence_set_idle
+	// purple_presence_set_login_time
+	// purple_presence_get_context
+	// purple_presence_get_account
+	// purple_presence_get_conversation
+	// purple_presence_get_chat_user
+	// purple_presence_get_buddy
+	// purple_presence_get_statuses
+	// purple_presence_get_status
+	// purple_presence_get_active_status
+	// purple_presence_is_available
+	// purple_presence_is_online
+	// purple_presence_is_status_active
+	// purple_presence_is_status_primitive_active
+	// purple_presence_is_idle
+	// purple_presence_get_idle_time
+	// purple_presence_get_login_time
+
+	// PurpleStatusType
+
+		// purple_status_type_get_primitive
+		// purple_status_type_get_id
+		// purple_status_type_get_name
+
+		// purple_status_type_get_attrs
+			// purple_status_attr_get_id
+			// purple_status_attr_get_name
+			// purple_status_attr_get_value
+			
+			// purple_status_set_attr_boolean
+			// ...
+
+	// purple_status_get_type!
+	// purple_status_type_get_primitive!
 	
+	//// PurpleStatusTypes
+	// Hardcoded sets of possible status sets
+
+	//// PurpleStatus
+	// Instance of a PurpleStatusType
+	// Are stored
+
+	//// PurplePresence
+	// Wrapper object around PurpleStatus
+	// Can only hold one exclusive PurpleStatus
+	// Seem to be able to hold multiple non-exclsive PurpleStatus
+	// Will never be stored
+
 	return false;
 }
 
