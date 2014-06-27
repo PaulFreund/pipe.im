@@ -52,7 +52,9 @@ public:
 
 	void onBuddyAdded(PurpleBuddy* buddy);
 	void onBuddyRemoved(PurpleBuddy* buddy);
-	//// Actions
+
+	
+	//// Actions ( deprecated )
 
 	// connect
 	// disconnect

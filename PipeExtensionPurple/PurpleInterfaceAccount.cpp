@@ -10,7 +10,6 @@ using namespace std;
 
 PurpleInterfaceAccount::PurpleInterfaceAccount(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& instance_name, const tstring& instance_description)
 	: PipeServiceNodeBase(address, path, settings, _T("purple_account"), _T("A purple chat account"), instance_name, instance_description, _T("purple_account")) {
-	// TODO: (GENERIC) Add autojoin to IRC plugin settings?
 }
 
 //----------------------------------------------------------------------------------------------------------------------
