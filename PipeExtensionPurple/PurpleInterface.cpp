@@ -439,79 +439,25 @@ void purple_cb_buddy_status_changed(PurpleBuddy* buddy, PurpleStatus* oldStatus,
 	PurpleInterfaceContact* contact = service->contactService(buddy);
 	if(contact == nullptr) { return; }	
 
-	//contact->onStatusChanged()
-	// TODO: Call ITF
+	contact->onStatusChanged(purple_status_get_id(newStatus));
 
-	PurpleStatusType* oldStatusType = purple_status_get_type(oldStatus);
-	PurpleStatusType* newStatusType = purple_status_get_type(newStatus);
-
-	PurpleStatusPrimitive oldStatusPrimitive = purple_status_type_get_primitive(oldStatusType);
-	PurpleStatusPrimitive newStatusPrimitive = purple_status_type_get_primitive(newStatusType);
-
-	tstring oldStatusPrimitiveId = tstring(purple_primitive_get_id_from_type(oldStatusPrimitive));
-	tstring newStatusPrimitiveId = tstring(purple_primitive_get_id_from_type(newStatusPrimitive));
-
-	tstring oldStatusPrimitiveName = tstring(purple_primitive_get_name_from_type(oldStatusPrimitive));
-	tstring newStatusPrimitiveName = tstring(purple_primitive_get_name_from_type(newStatusPrimitive));
-
-	tstring oldStatusId = tstring(purple_status_type_get_id(oldStatusType)); // or purple_status_get_id
-	tstring newStatusId = tstring(purple_status_type_get_id(newStatusType));
-
-	tstring oldStatusName = tstring(purple_status_type_get_name(oldStatusType)); // or purple_status_get_name
-	tstring newStatusName = tstring(purple_status_type_get_name(newStatusType));
-
-	// purple_status_get_attr_value
-
-	for(GList* attr = purple_status_type_get_attrs(oldStatusType); attr; attr = attr->next) {
+	for(GList* attr = purple_status_type_get_attrs(purple_status_get_type(newStatus)); attr; attr = attr->next) {
 		PurpleStatusAttr* attrPtr = reinterpret_cast<PurpleStatusAttr*>(attr->data);
 		if(attrPtr == nullptr) { continue; }
 
 		tstring attrId = tstring(purple_status_attr_get_id(attrPtr));
-		tstring attrName = tstring(purple_status_attr_get_name(attrPtr));
-
-		PurpleValue* attrValue = purple_status_attr_get_value(attrPtr); // or purple_status_get_attr_value
-
-		// purple_status_get_attr_boolean
-		// purple_status_get_attr_int
-		// purple_status_get_attr_string
+		if(attrId == _T("message")) {
+			const TCHAR* bufferMessage = purple_status_get_attr_string(newStatus, _T("message"));
+			contact->onStatusMessageChanged((bufferMessage == nullptr) ? _T("") : bufferMessage);
+		}
+		else if(attrId == _T("priority")) {
+			contact->onStatusPriorityChanged(purple_status_get_attr_int(newStatus, _T("priority"))); 
+		}
+		else if(attrId == _T("nick")) { 
+			const TCHAR* bufferNick = purple_status_get_attr_string(newStatus, _T("nick"));
+			contact->onStatusNickChanged((bufferNick == nullptr) ? _T("") : bufferNick);
+		}
 	}
-
-	for(GList* attr = purple_status_type_get_attrs(newStatusType); attr; attr = attr->next) {
-		PurpleStatusAttr* attrPtr = reinterpret_cast<PurpleStatusAttr*>(attr->data);
-		if(attrPtr == nullptr) { continue; }
-
-		tstring attrId = tstring(purple_status_attr_get_id(attrPtr));
-		tstring attrName = tstring(purple_status_attr_get_name(attrPtr));
-
-		PurpleValue* attrValue = purple_status_attr_get_value(attrPtr); // or purple_status_get_attr_value
-
-		// purple_status_get_attr_boolean
-		// purple_status_get_attr_int
-		// purple_status_get_attr_string
-	}
-
-	bool oldStatusAvaiable = purple_status_is_available(oldStatus);
-	bool newStatusAvaiable = purple_status_is_available(newStatus);
-
-	bool oldStatusActive = purple_status_is_active(oldStatus);
-	bool newStatusActive = purple_status_is_active(newStatus);
-
-	bool oldStatusOnline = purple_status_is_online(oldStatus);
-	bool newStatusOnline = purple_status_is_online(newStatus);
-
-
-	//// PurpleStatusTypes
-	// Hardcoded sets of possible status sets
-
-	//// PurpleStatus
-	// Instance of a PurpleStatusType
-	// Are stored
-
-	//// PurplePresence
-	// Wrapper object around PurpleStatus
-	// Can only hold one exclusive PurpleStatus
-	// Seem to be able to hold multiple non-exclsive PurpleStatus
-	// Will never be stored
 }
 
 void purple_cb_buddy_privacy_changed(PurpleBuddy* buddy, gpointer data) {
