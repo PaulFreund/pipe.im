@@ -328,81 +328,6 @@ void purple_cb_account_enabled(PurpleAccount* account, gpointer data) {
 	service->onEnabled();
 }
 
-gboolean purple_cb_account_status_changed(PurpleAccount* account, PurpleStatus* oldStatus, PurpleStatus* newStatus, gpointer data) {
-	PurpleInterfaceAccount* service = accountService(data, account);
-	if(service == nullptr) { return false; }
-	// TODO: Call ITF
-	// TODO: Statuas can only be handled via functions, struct is private
-	// purple_primitive_get_id_from_type
-	// purple_primitive_get_name_from_type
-	// purple_primitive_get_type_from_id
-
-	// purple_status_get_type
-	// Convenience for type fkts
-	// purple_status_get_presence
-	// purple_status_get_id
-	// purple_status_get_name
-
-	// purple_status_is_independent
-	// purple_status_is_exclusive
-	// purple_status_is_available
-	// purple_status_is_active
-	// purple_status_is_online
-	// purple_status_get_attr_value
-
-	// purple_presence_set_status_active
-	// purple_presence_switch_status
-	// purple_presence_set_idle
-	// purple_presence_set_login_time
-	// purple_presence_get_context
-	// purple_presence_get_account
-	// purple_presence_get_conversation
-	// purple_presence_get_chat_user
-	// purple_presence_get_buddy
-	// purple_presence_get_statuses
-	// purple_presence_get_status
-	// purple_presence_get_active_status
-	// purple_presence_is_available
-	// purple_presence_is_online
-	// purple_presence_is_status_active
-	// purple_presence_is_status_primitive_active
-	// purple_presence_is_idle
-	// purple_presence_get_idle_time
-	// purple_presence_get_login_time
-
-	// PurpleStatusType
-
-		// purple_status_type_get_primitive
-		// purple_status_type_get_id
-		// purple_status_type_get_name
-
-		// purple_status_type_get_attrs
-			// purple_status_attr_get_id
-			// purple_status_attr_get_name
-			// purple_status_attr_get_value
-			
-			// purple_status_set_attr_boolean
-			// ...
-
-	// purple_status_get_type!
-	// purple_status_type_get_primitive!
-	
-	//// PurpleStatusTypes
-	// Hardcoded sets of possible status sets
-
-	//// PurpleStatus
-	// Instance of a PurpleStatusType
-	// Are stored
-
-	//// PurplePresence
-	// Wrapper object around PurpleStatus
-	// Can only hold one exclusive PurpleStatus
-	// Seem to be able to hold multiple non-exclsive PurpleStatus
-	// Will never be stored
-
-	return false;
-}
-
 void purple_cb_account_actions_changed(PurpleAccount* account, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return; }
@@ -513,7 +438,80 @@ void purple_cb_buddy_status_changed(PurpleBuddy* buddy, PurpleStatus* oldStatus,
 	if(service == nullptr) { return; }
 	PurpleInterfaceContact* contact = service->contactService(buddy);
 	if(contact == nullptr) { return; }	
+
+	//contact->onStatusChanged()
 	// TODO: Call ITF
+
+	PurpleStatusType* oldStatusType = purple_status_get_type(oldStatus);
+	PurpleStatusType* newStatusType = purple_status_get_type(newStatus);
+
+	PurpleStatusPrimitive oldStatusPrimitive = purple_status_type_get_primitive(oldStatusType);
+	PurpleStatusPrimitive newStatusPrimitive = purple_status_type_get_primitive(newStatusType);
+
+	tstring oldStatusPrimitiveId = tstring(purple_primitive_get_id_from_type(oldStatusPrimitive));
+	tstring newStatusPrimitiveId = tstring(purple_primitive_get_id_from_type(newStatusPrimitive));
+
+	tstring oldStatusPrimitiveName = tstring(purple_primitive_get_name_from_type(oldStatusPrimitive));
+	tstring newStatusPrimitiveName = tstring(purple_primitive_get_name_from_type(newStatusPrimitive));
+
+	tstring oldStatusId = tstring(purple_status_type_get_id(oldStatusType)); // or purple_status_get_id
+	tstring newStatusId = tstring(purple_status_type_get_id(newStatusType));
+
+	tstring oldStatusName = tstring(purple_status_type_get_name(oldStatusType)); // or purple_status_get_name
+	tstring newStatusName = tstring(purple_status_type_get_name(newStatusType));
+
+	// purple_status_get_attr_value
+
+	for(GList* attr = purple_status_type_get_attrs(oldStatusType); attr; attr = attr->next) {
+		PurpleStatusAttr* attrPtr = reinterpret_cast<PurpleStatusAttr*>(attr->data);
+		if(attrPtr == nullptr) { continue; }
+
+		tstring attrId = tstring(purple_status_attr_get_id(attrPtr));
+		tstring attrName = tstring(purple_status_attr_get_name(attrPtr));
+
+		PurpleValue* attrValue = purple_status_attr_get_value(attrPtr); // or purple_status_get_attr_value
+
+		// purple_status_get_attr_boolean
+		// purple_status_get_attr_int
+		// purple_status_get_attr_string
+	}
+
+	for(GList* attr = purple_status_type_get_attrs(newStatusType); attr; attr = attr->next) {
+		PurpleStatusAttr* attrPtr = reinterpret_cast<PurpleStatusAttr*>(attr->data);
+		if(attrPtr == nullptr) { continue; }
+
+		tstring attrId = tstring(purple_status_attr_get_id(attrPtr));
+		tstring attrName = tstring(purple_status_attr_get_name(attrPtr));
+
+		PurpleValue* attrValue = purple_status_attr_get_value(attrPtr); // or purple_status_get_attr_value
+
+		// purple_status_get_attr_boolean
+		// purple_status_get_attr_int
+		// purple_status_get_attr_string
+	}
+
+	bool oldStatusAvaiable = purple_status_is_available(oldStatus);
+	bool newStatusAvaiable = purple_status_is_available(newStatus);
+
+	bool oldStatusActive = purple_status_is_active(oldStatus);
+	bool newStatusActive = purple_status_is_active(newStatus);
+
+	bool oldStatusOnline = purple_status_is_online(oldStatus);
+	bool newStatusOnline = purple_status_is_online(newStatus);
+
+
+	//// PurpleStatusTypes
+	// Hardcoded sets of possible status sets
+
+	//// PurpleStatus
+	// Instance of a PurpleStatusType
+	// Are stored
+
+	//// PurplePresence
+	// Wrapper object around PurpleStatus
+	// Can only hold one exclusive PurpleStatus
+	// Seem to be able to hold multiple non-exclsive PurpleStatus
+	// Will never be stored
 }
 
 void purple_cb_buddy_privacy_changed(PurpleBuddy* buddy, gpointer data) {
@@ -688,7 +686,6 @@ void PurpleInterface::initSignalCallbacks() {
 	purple_signal_connect(hAccounts, "account-connecting", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_connecting), cbData);
 	purple_signal_connect(hAccounts, "account-disabled", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_disabled), cbData);
 	purple_signal_connect(hAccounts, "account-enabled", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_enabled), cbData);
-	purple_signal_connect(hAccounts, "account-status-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_status_changed), cbData);
 	purple_signal_connect(hAccounts, "account-actions-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_actions_changed), cbData);
 	purple_signal_connect(hAccounts, "account-authorization-requested", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_authorization_requested), cbData);
 	purple_signal_connect(hAccounts, "account-authorization-requested-with-message", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_account_authorization_requested_with_message), cbData);

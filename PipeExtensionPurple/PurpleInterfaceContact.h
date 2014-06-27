@@ -21,7 +21,9 @@ public:
 	PurpleBuddy* buddyHandle() { return _buddy; }
 
 public:
+	void onStatusChanged(tstring id, tstring message);
 	void onIconChanged();
+
 };
 
 //======================================================================================================================
