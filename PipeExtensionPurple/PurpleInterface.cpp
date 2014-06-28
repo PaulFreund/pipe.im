@@ -432,56 +432,48 @@ void purple_cb_blist_node_removed(PurpleBlistNode* node, gpointer data) {
 	}
 }
 
-//----------------------------------------------------------------------------------------------------------------------
 void purple_cb_buddy_status_changed(PurpleBuddy* buddy, PurpleStatus* oldStatus, PurpleStatus* newStatus, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, buddy->account);
 	if(service == nullptr) { return; }
 	PurpleInterfaceContact* contact = service->contactService(buddy);
 	if(contact == nullptr) { return; }	
 
-	contact->onStatusChanged(purple_status_get_id(newStatus));
-
-	for(GList* attr = purple_status_type_get_attrs(purple_status_get_type(newStatus)); attr; attr = attr->next) {
-		PurpleStatusAttr* attrPtr = reinterpret_cast<PurpleStatusAttr*>(attr->data);
-		if(attrPtr == nullptr) { continue; }
-
-		tstring attrId = tstring(purple_status_attr_get_id(attrPtr));
-		if(attrId == _T("message")) {
-			const TCHAR* bufferMessage = purple_status_get_attr_string(newStatus, _T("message"));
-			contact->onStatusMessageChanged((bufferMessage == nullptr) ? _T("") : bufferMessage);
-		}
-		else if(attrId == _T("priority")) {
-			contact->onStatusPriorityChanged(purple_status_get_attr_int(newStatus, _T("priority"))); 
-		}
-		else if(attrId == _T("nick")) { 
-			const TCHAR* bufferNick = purple_status_get_attr_string(newStatus, _T("nick"));
-			contact->onStatusNickChanged((bufferNick == nullptr) ? _T("") : bufferNick);
-		}
-	}
-}
-
-void purple_cb_buddy_privacy_changed(PurpleBuddy* buddy, gpointer data) {
-	PurpleInterfaceAccount* service = accountService(data, buddy->account);
-	if(service == nullptr) { return; }
-	// TODO: Call ITF
+	contact->onStatusChanged(newStatus);
 }
 
 void purple_cb_buddy_idle_changed(PurpleBuddy* buddy, gboolean oldIdle, gboolean newIdle, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, buddy->account);
 	if(service == nullptr) { return; }
-	// TODO: Call ITF
+	PurpleInterfaceContact* contact = service->contactService(buddy);
+	if(contact == nullptr) { return; }
+
+	contact->onIdleChanged(newIdle);
 }
 
 void purple_cb_buddy_signed_on(PurpleBuddy* buddy, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, buddy->account);
 	if(service == nullptr) { return; }
-	// TODO: Call ITF
+	PurpleInterfaceContact* contact = service->contactService(buddy);
+	if(contact == nullptr) { return; }
+
+	if(buddy == nullptr) { return; }
+	PurplePresence* presence = purple_buddy_get_presence(buddy);
+	if(presence == nullptr) { return; }
+
+	contact->onStatusChanged(purple_presence_get_active_status(presence));
 }
 
 void purple_cb_buddy_signed_off(PurpleBuddy* buddy, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, buddy->account);
 	if(service == nullptr) { return; }
-	// TODO: Call ITF
+	PurpleInterfaceContact* contact = service->contactService(buddy);
+	if(contact == nullptr) { return; }
+
+	if(buddy == nullptr) { return; }
+	PurplePresence* presence = purple_buddy_get_presence(buddy);
+	if(presence == nullptr) { return; }
+
+	contact->onStatusChanged(purple_presence_get_active_status(presence));
 }
 
 void purple_cb_buddy_icon_changed(PurpleBuddy* buddy, gpointer data) {
@@ -492,6 +484,7 @@ void purple_cb_buddy_icon_changed(PurpleBuddy* buddy, gpointer data) {
 	contact->onIconChanged();
 }
 
+//----------------------------------------------------------------------------------------------------------------------
 void purple_cb_sent_attention(PurpleAccount* account, const TCHAR* sender, PurpleConversation* conversation, guint type, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return; }
@@ -647,7 +640,6 @@ void PurpleInterface::initSignalCallbacks() {
 	purple_signal_connect(hBuddyList, "blist-node-added", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_blist_node_added), cbData);
 	purple_signal_connect(hBuddyList, "blist-node-removed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_blist_node_removed), cbData);
 	purple_signal_connect(hBuddyList, "buddy-status-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_status_changed), cbData);
-	purple_signal_connect(hBuddyList, "buddy-privacy-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_privacy_changed), cbData);
 	purple_signal_connect(hBuddyList, "buddy-idle-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_idle_changed), cbData);
 	purple_signal_connect(hBuddyList, "buddy-signed-on", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_signed_on), cbData);
 	purple_signal_connect(hBuddyList, "buddy-signed-off", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_signed_off), cbData);

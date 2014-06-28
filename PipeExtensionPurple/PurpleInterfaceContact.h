@@ -21,11 +21,13 @@ public:
 	PurpleBuddy* buddyHandle() { return _buddy; }
 
 public:
-	void onStatusChanged(tstring status);
+	void onStatusChanged(PurpleStatus* status);
+	void onStatusTypeChanged(tstring statusType);
 	void onStatusMessageChanged(tstring message);
 	void onStatusPriorityChanged(int priority);
 	void onStatusNickChanged(tstring nick);
 	void onIconChanged();
+	void onIdleChanged(bool idle);
 
 };
 
