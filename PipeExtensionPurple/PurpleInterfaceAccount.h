@@ -29,7 +29,7 @@ public:
 	virtual PipeArrayPtr receive();
 
 public:
-	PurpleInterfaceContact* contactService(PurpleBuddy* buddy);
+	PurpleInterfaceContact* contactService(PurpleBlistNode* contact);
 	PurpleInterfaceContact* contactService(tstring name);
 
 public:
@@ -50,8 +50,8 @@ public:
 	void onErrorChanged(tstring oldError, tstring newError);
 	void onConnectionError(tstring error, tstring description = _T(""));
 
-	void onBuddyAdded(PurpleBuddy* buddy);
-	void onBuddyRemoved(PurpleBuddy* buddy);
+	void onContactAdded(PurpleBlistNode* contact);
+	void onContactRemoved(PurpleBlistNode* contact);
 
 	void onMessageUnknownSender(tstring sender, tstring message);
 	void onInvited(tstring who, tstring where, tstring message, GHashTable* joinData);

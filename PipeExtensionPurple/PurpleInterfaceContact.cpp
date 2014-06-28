@@ -5,14 +5,33 @@
 
 //======================================================================================================================
 
-PurpleInterfaceContact::PurpleInterfaceContact(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& instance_name, const tstring& instance_description, PurpleBuddy* buddy)
-	: PipeServiceNodeBase(address, path, settings, _T("purple_contact"), _T("A purple chat contact"), instance_name, instance_description, _T("purple_contact")) {
-	_buddy = buddy;
-	if(_buddy == nullptr) { return; }
-	PurplePresence* presence = purple_buddy_get_presence(_buddy);
-	if(presence == nullptr) { return; }
+PurpleInterfaceContact::PurpleInterfaceContact(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& instance_name, const tstring& instance_description, PurpleBlistNode* contact)
+	: PipeServiceNodeBase(address, path, settings, _T("purple_contact"), _T("A purple chat contact"), instance_name, instance_description, _T("purple_contact"))
+	, _contact(contact)
+	, _contactType(purple_blist_node_get_type(contact))
+	, _conversation(nullptr)
+	{
 
-	onStatusChanged(purple_presence_get_active_status(presence));
+	if(_contact == nullptr) { 
+		pushOutgoing(_T(""), _T("error"), _T("Missing contact handle"));
+		return;
+	}
+	
+	// Get current status 
+	if(isBuddy()) {
+		auto* presence = purple_buddy_get_presence(buddyHandle());
+		if(presence != nullptr) {
+			onStatusChanged(purple_presence_get_active_status(presence));
+		}
+	}
+
+	// Create conversation if it does not exist
+	if(_conversation == nullptr) {
+		if(isBuddy()) {
+			auto* buddy = buddyHandle();
+			_conversation = purple_conversation_new(PURPLE_CONV_TYPE_IM, buddy->account, safe_tstring(buddy->name).c_str()); 
+		}
+	}
 
 	auto cmdSay = PipeSchema::Create(PipeSchemaTypeString).title(_T("Message")).description(_T("Message text"));
 	addCommand(_T("say"), _T("Send message"), cmdSay, [&](PipeObject& message) {
@@ -23,7 +42,12 @@ PurpleInterfaceContact::PurpleInterfaceContact(const tstring& address, const tst
 		}
 
 		tstring messageText = message[_T("data")].string_value();
-
+		if(isBuddy()) {
+			purple_conv_im_send(purple_conversation_get_im_data(_conversation), messageText.c_str());
+		}
+		else if(isChat()) {
+			purple_conv_chat_send(purple_conversation_get_chat_data(_conversation), messageText.c_str());
+		}
 	});
 }
 
@@ -34,6 +58,7 @@ PurpleInterfaceContact::~PurpleInterfaceContact() {}
 //----------------------------------------------------------------------------------------------------------------------
 
 void PurpleInterfaceContact::onConversationChanged(PurpleConversation* conversation) {
+	_conversation = conversation;
 	// TODO
 	pushOutgoing(_T(""), _T("conversation_changed"), _T(""));
 }

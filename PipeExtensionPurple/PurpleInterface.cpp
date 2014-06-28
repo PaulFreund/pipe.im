@@ -395,49 +395,43 @@ void purple_cb_account_connection_error(PurpleAccount* account, PurpleConnection
 }
 
 void purple_cb_blist_node_added(PurpleBlistNode* node, gpointer data) {
-	switch(purple_blist_node_get_type(node)) {
-		case PURPLE_BLIST_BUDDY_NODE:
-		case PURPLE_BLIST_CHAT_NODE: {
-			PurpleBuddy* buddy = reinterpret_cast<PurpleBuddy*>(node);
-			PurpleInterfaceAccount* service = accountService(data, buddy->account);
-			if(service == nullptr) { return; }
-			service->onBuddyAdded(buddy);
-			break;
-		}
+	PurpleBlistNodeType type = purple_blist_node_get_type(node);
+	PurpleInterfaceAccount* service = nullptr;
 
-		case PURPLE_BLIST_OTHER_NODE: // Ignore other nodes
-		case PURPLE_BLIST_GROUP_NODE: // Ignore group nodes
-		case PURPLE_BLIST_CONTACT_NODE: // Ignore contact (buddy collection) nodes
-		default: {
-			break;
-		}
+	if(type == PURPLE_BLIST_BUDDY_NODE) {
+		PurpleBuddy* buddy = reinterpret_cast<PurpleBuddy*>(node);
+		service = accountService(data, buddy->account);
 	}
+	else if(type == PURPLE_BLIST_CHAT_NODE) {
+		PurpleChat* chat = reinterpret_cast<PurpleChat*>(node);
+		service = accountService(data, chat->account);
+	}
+
+	if(service == nullptr) { return; }
+	service->onContactAdded(node);
 }
 
 void purple_cb_blist_node_removed(PurpleBlistNode* node, gpointer data) {
-	switch(purple_blist_node_get_type(node)) {
-		case PURPLE_BLIST_BUDDY_NODE:
-		case PURPLE_BLIST_CHAT_NODE: {
-			PurpleBuddy* buddy = reinterpret_cast<PurpleBuddy*>(node);
-			PurpleInterfaceAccount* service = accountService(data, buddy->account);
-			if(service == nullptr) { return; }
-			service->onBuddyRemoved(buddy);
-			break;
-		}
+	PurpleBlistNodeType type = purple_blist_node_get_type(node);
+	PurpleInterfaceAccount* service = nullptr;
 
-		case PURPLE_BLIST_OTHER_NODE: // Ignore other nodes
-		case PURPLE_BLIST_GROUP_NODE: // Ignore group nodes
-		case PURPLE_BLIST_CONTACT_NODE: // Ignore contact (buddy collection) nodes
-		default: {
-			break;
-		}
+	if(type == PURPLE_BLIST_BUDDY_NODE) {
+		PurpleBuddy* buddy = reinterpret_cast<PurpleBuddy*>(node);
+		service = accountService(data, buddy->account);
 	}
+	else if(type == PURPLE_BLIST_CHAT_NODE) {
+		PurpleChat* chat = reinterpret_cast<PurpleChat*>(node);
+		service = accountService(data, chat->account);
+	}
+
+	if(service == nullptr) { return; }
+	service->onContactRemoved(node);
 }
 
 void purple_cb_buddy_status_changed(PurpleBuddy* buddy, PurpleStatus* oldStatus, PurpleStatus* newStatus, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, buddy->account);
 	if(service == nullptr) { return; }
-	PurpleInterfaceContact* contact = service->contactService(buddy);
+	PurpleInterfaceContact* contact = service->contactService(reinterpret_cast<PurpleBlistNode*>(buddy));
 	if(contact == nullptr) { return; }	
 
 	contact->onStatusChanged(newStatus);
@@ -446,7 +440,7 @@ void purple_cb_buddy_status_changed(PurpleBuddy* buddy, PurpleStatus* oldStatus,
 void purple_cb_buddy_idle_changed(PurpleBuddy* buddy, gboolean oldIdle, gboolean newIdle, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, buddy->account);
 	if(service == nullptr) { return; }
-	PurpleInterfaceContact* contact = service->contactService(buddy);
+	PurpleInterfaceContact* contact = service->contactService(reinterpret_cast<PurpleBlistNode*>(buddy));
 	if(contact == nullptr) { return; }
 
 	contact->onIdleChanged(newIdle);
@@ -455,7 +449,7 @@ void purple_cb_buddy_idle_changed(PurpleBuddy* buddy, gboolean oldIdle, gboolean
 void purple_cb_buddy_signed_on(PurpleBuddy* buddy, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, buddy->account);
 	if(service == nullptr) { return; }
-	PurpleInterfaceContact* contact = service->contactService(buddy);
+	PurpleInterfaceContact* contact = service->contactService(reinterpret_cast<PurpleBlistNode*>(buddy));
 	if(contact == nullptr) { return; }
 
 	if(buddy == nullptr) { return; }
@@ -468,7 +462,7 @@ void purple_cb_buddy_signed_on(PurpleBuddy* buddy, gpointer data) {
 void purple_cb_buddy_signed_off(PurpleBuddy* buddy, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, buddy->account);
 	if(service == nullptr) { return; }
-	PurpleInterfaceContact* contact = service->contactService(buddy);
+	PurpleInterfaceContact* contact = service->contactService(reinterpret_cast<PurpleBlistNode*>(buddy));
 	if(contact == nullptr) { return; }
 
 	if(buddy == nullptr) { return; }
@@ -481,12 +475,13 @@ void purple_cb_buddy_signed_off(PurpleBuddy* buddy, gpointer data) {
 void purple_cb_buddy_icon_changed(PurpleBuddy* buddy, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, buddy->account);
 	if(service == nullptr) { return; }
-	PurpleInterfaceContact* contact = service->contactService(buddy);
+	PurpleInterfaceContact* contact = service->contactService(reinterpret_cast<PurpleBlistNode*>(buddy));
 	if(contact == nullptr) { return; }
 	contact->onIconChanged();
 }
 
 void purple_cb_received_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, PurpleConversation *conv, PurpleMessageFlags flags, gpointer data) {
+	if(!(flags & PURPLE_MESSAGE_RECV)) { return; }
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return; }
 	PurpleInterfaceContact* contact = service->contactService(safe_tstring(conv->name));
@@ -494,6 +489,7 @@ void purple_cb_received_msg(PurpleAccount* account, const TCHAR* sender, const T
 		service->onMessageUnknownSender(safe_tstring(sender), safe_tstring(message));
 		return; 
 	}
+
 	if(flags != PURPLE_MESSAGE_RECV) {
 		int j = 0; // TODO: Possibly wrong when message is not a recv
 	}

@@ -11,15 +11,26 @@
 
 class PurpleInterfaceContact : public PipeServiceNodeBase {
 private:
-	PurpleBuddy* _buddy;
+	PurpleBlistNode* _contact;
+	PurpleBlistNodeType _contactType;
+	PurpleConversation* _conversation;
 
 public:
-	PurpleInterfaceContact(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& instance_name, const tstring& instance_description, PurpleBuddy* buddy);
+	PurpleInterfaceContact(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& instance_name, const tstring& instance_description, PurpleBlistNode* contact);
 	~PurpleInterfaceContact();
 
 public:
-	PurpleBuddy* buddyHandle() { return _buddy; }
-	tstring buddyName() { return tstring(_buddy->name); }
+	bool isBuddy() { return _contactType == PURPLE_BLIST_BUDDY_NODE; }
+	bool isChat() { return _contactType == PURPLE_BLIST_CHAT_NODE; }
+	PurpleBlistNode* contactHandle() { return _contact; }
+	PurpleBuddy* buddyHandle() { return reinterpret_cast<PurpleBuddy*>(_contact); }
+	PurpleChat* chatHandle() { return reinterpret_cast<PurpleChat*>(_contact); }
+	PurpleConversation* conversationHandle() { return _conversation; }
+	tstring contactName() { 
+		if(isBuddy()) { return safe_tstring(buddyHandle()->name); }
+		else if(isChat()) { return safe_tstring(chatHandle()->alias); }
+		return _T("");
+	}
 
 public:
 	void onConversationChanged(PurpleConversation* conversation);

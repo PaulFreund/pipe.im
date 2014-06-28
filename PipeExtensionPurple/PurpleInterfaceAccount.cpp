@@ -28,13 +28,13 @@ PurpleInterfaceAccount::PurpleInterfaceAccount(const tstring& address, const tst
 		//	proto_chat_entry* entry = reinterpret_cast<proto_chat_entry*>(comp->data);
 		//}
 
-		PurpleBuddy* channelBuddy = purple_buddy_new(_account, channel.c_str(), channel.c_str());
+		GHashTable* components = info->chat_info_defaults(connection, channel.c_str());
+
+		PurpleChat* channelBuddy = purple_chat_new(_account, channel.c_str(), components);
 
 		tstring channelAddressName = timplode(texplode(channel, TokenAddressSeparator), _T('_'));
 		tstring channelAddress = _address + TokenAddressSeparator + channelAddressName;
-		addChild(channelAddress, make_shared<PurpleInterfaceContact>(channelAddress, _path, _settings, channel, _T(""), channelBuddy));
-
-		GHashTable* components = info->chat_info_defaults(connection, channel.c_str());
+		addChild(channelAddress, make_shared<PurpleInterfaceContact>(channelAddress, _path, _settings, channel, _T(""), reinterpret_cast<PurpleBlistNode*>(channelBuddy)));
 
 		serv_join_chat(connection, components);
 
@@ -92,12 +92,12 @@ PipeArrayPtr PurpleInterfaceAccount::receive() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PurpleInterfaceContact* PurpleInterfaceAccount::contactService(PurpleBuddy* buddy) {
+PurpleInterfaceContact* PurpleInterfaceAccount::contactService(PurpleBlistNode* contact) {
 	auto& childNodes = children();
 	for(auto it = begin(childNodes); it != end(childNodes); it++) {
-		PurpleInterfaceContact* contact = reinterpret_cast<PurpleInterfaceContact*>(it->second.get());
-		if(contact->buddyHandle() == buddy)
-			return contact;
+		PurpleInterfaceContact* service = reinterpret_cast<PurpleInterfaceContact*>(it->second.get());
+		if(service->contactHandle() == contact)
+			return service;
 	}
 
 	return nullptr;
@@ -107,7 +107,7 @@ PurpleInterfaceContact* PurpleInterfaceAccount::contactService(tstring name) {
 	auto& childNodes = children();
 	for(auto it = begin(childNodes); it != end(childNodes); it++) {
 		PurpleInterfaceContact* contact = reinterpret_cast<PurpleInterfaceContact*>(it->second.get());
-		if(contact->buddyName() == name)
+		if(contact->contactName() == name)
 			return contact;
 	}
 
@@ -201,19 +201,33 @@ void PurpleInterfaceAccount::onConnectionError(tstring error, tstring descriptio
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void PurpleInterfaceAccount::onBuddyAdded(PurpleBuddy* buddy) {
-	tstring contactName = safe_tstring(buddy->name);
-	contactName = timplode(texplode(contactName, TokenAddressSeparator), _T('_'));
-	tstring contactAddress = _address + TokenAddressSeparator + contactName;
-	addChild(contactAddress, make_shared<PurpleInterfaceContact>(contactAddress, _path, _settings, safe_tstring(buddy->name), _T(""), buddy));
+inline tstring getContactName(PurpleBlistNode* contact) {
+	auto type = purple_blist_node_get_type(contact);
+	if(type == PURPLE_BLIST_BUDDY_NODE) {
+		return safe_tstring(reinterpret_cast<PurpleBuddy*>(contact)->name);
+	}
+	else if(type == PURPLE_BLIST_CHAT_NODE) {
+		return safe_tstring(reinterpret_cast<PurpleBuddy*>(contact)->alias);
+	}
+
+	return _T("");
+}
+
+void PurpleInterfaceAccount::onContactAdded(PurpleBlistNode* contact) {
+	tstring contactName = getContactName(contact);
+	if(contactName.empty()) { return; }
+
+	tstring contactAddress = _address + TokenAddressSeparator + timplode(texplode(contactName, TokenAddressSeparator), _T('_'));
+	addChild(contactAddress, make_shared<PurpleInterfaceContact>(contactAddress, _path, _settings, contactName, _T(""), contact));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void PurpleInterfaceAccount::onBuddyRemoved(PurpleBuddy* buddy) {
-	tstring contactName = safe_tstring(buddy->name);
-	timplode(texplode(contactName, TokenAddressSeparator), _T('_'));
-	tstring contactAddress = _address + TokenAddressSeparator + contactName;
+void PurpleInterfaceAccount::onContactRemoved(PurpleBlistNode* contact) {
+	tstring contactName = getContactName(contact);
+	if(contactName.empty()) { return; }
+
+	tstring contactAddress = _address + TokenAddressSeparator + timplode(texplode(contactName, TokenAddressSeparator), _T('_'));
 	removeChild(contactAddress);
 }
 
