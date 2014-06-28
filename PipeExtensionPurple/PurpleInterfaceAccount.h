@@ -56,6 +56,8 @@ public:
 	void onMessageUnknownSender(tstring sender, tstring message);
 	void onInvited(tstring who, tstring where, tstring message, GHashTable* joinData);
 
+	void onFileRecvUpdate(PurpleXfer *xfer);
+	void onFileSendUpdate(PurpleXfer *xfer);
 	// Important from PurplePluginProtocolInfo, could also be handled by server
 	// chat_info
 	// chat_info_defaults ? 

@@ -129,11 +129,11 @@ class PipeExtensionPurple;
 class PurpleInterface {
 public:
 	static const tstring InterfaceID;
+	static PipeExtensionPurple* InstanceContext;
 
 private:
 	PurpleEventLoopUiOps _eventloopUIOps;
 	PurpleRequestUiOps _requestUIOps;
-	PipeExtensionPurple* _instance;
 public:
 	PurpleInterface(PipeExtensionPurple* instance, const tstring& path);
 	~PurpleInterface();

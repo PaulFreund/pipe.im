@@ -244,4 +244,18 @@ void PurpleInterfaceAccount::onInvited(tstring who, tstring where, tstring messa
 	pushOutgoing(_T(""), _T("invited"), _T("From: ") + who + _T(" to ") + where + _T(" (") + message + _T(")"));
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+void PurpleInterfaceAccount::onFileRecvUpdate(PurpleXfer *xfer) {
+	// TODO
+	pushOutgoing(_T(""), _T("file_recv_update"), _T(""));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void PurpleInterfaceAccount::onFileSendUpdate(PurpleXfer *xfer) {
+	// TODO
+	pushOutgoing(_T(""), _T("file_send_update"), _T(""));
+}
+
 //======================================================================================================================
