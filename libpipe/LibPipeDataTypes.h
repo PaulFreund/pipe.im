@@ -32,6 +32,11 @@
 //======================================================================================================================
 
 typedef std::basic_string<TCHAR> tstring;
+
+inline tstring safe_tstring(const TCHAR* str) {
+	return (str == nullptr) ? tstring(_T("")) : tstring(str);
+}
+
 typedef std::basic_stringstream<TCHAR, std::char_traits<TCHAR>, std::allocator<TCHAR> > tstringstream;
 
 typedef unsigned char ubyte;

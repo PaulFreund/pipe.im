@@ -13,6 +13,18 @@ PurpleInterfaceContact::PurpleInterfaceContact(const tstring& address, const tst
 	if(presence == nullptr) { return; }
 
 	onStatusChanged(purple_presence_get_active_status(presence));
+
+	auto cmdSay = PipeSchema::Create(PipeSchemaTypeString).title(_T("Message")).description(_T("Message text"));
+	addCommand(_T("say"), _T("Send message"), cmdSay, [&](PipeObject& message) {
+		auto ref = message[_T("ref")].string_value();
+		if(!message.count(_T("data")) || !message[_T("data")].is_string()) {
+			pushOutgoing(ref, _T("error"), _T("Missing command data"));
+			return;
+		}
+
+		tstring messageText = message[_T("data")].string_value();
+
+	});
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -28,9 +40,30 @@ void PurpleInterfaceContact::onConversationChanged(PurpleConversation* conversat
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void PurpleInterfaceContact::onMessageReceived(tstring message) {
+void PurpleInterfaceContact::onMessage(tstring message) {
 	// TODO
-	pushOutgoing(_T(""), _T("message_received"), message);
+	pushOutgoing(_T(""), _T("message"), message);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void PurpleInterfaceContact::onChatStatusChanged(bool joined) {
+	// TODO
+	pushOutgoing(_T(""), _T("chat_status_changed"), to_tstring(joined));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void PurpleInterfaceContact::onChatBuddyOnline(tstring name, PurpleConvChatBuddyFlags flags) {
+	// TODO
+	pushOutgoing(_T(""), _T("chat_buddy_online"), name);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void PurpleInterfaceContact::onChatBuddyOffline(tstring name, tstring reason) {
+	// TODO
+	pushOutgoing(_T(""), _T("chat_buddy_offline"), name + _T(" (") + reason + _T(")"));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -44,17 +77,15 @@ void PurpleInterfaceContact::onStatusChanged(PurpleStatus* status) {
 		PurpleStatusAttr* attrPtr = reinterpret_cast<PurpleStatusAttr*>(attr->data);
 		if(attrPtr == nullptr) { continue; }
 
-		tstring attrId = tstring(purple_status_attr_get_id(attrPtr));
+		tstring attrId = safe_tstring(purple_status_attr_get_id(attrPtr));
 		if(attrId == _T("message")) {
-			const TCHAR* bufferMessage = purple_status_get_attr_string(status, _T("message"));
-			onStatusMessageChanged((bufferMessage == nullptr) ? _T("") : bufferMessage);
+			onStatusMessageChanged(safe_tstring(purple_status_get_attr_string(status, _T("message"))));
 		}
 		else if(attrId == _T("priority")) {
 			onStatusPriorityChanged(purple_status_get_attr_int(status, _T("priority")));
 		}
 		else if(attrId == _T("nick")) {
-			const TCHAR* bufferNick = purple_status_get_attr_string(status, _T("nick"));
-			onStatusNickChanged((bufferNick == nullptr) ? _T("") : bufferNick);
+			onStatusNickChanged(safe_tstring(purple_status_get_attr_string(status, _T("nick"))));
 		}
 	}
 }

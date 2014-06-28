@@ -24,7 +24,11 @@ public:
 public:
 	void onConversationChanged(PurpleConversation* conversation);
 
-	void onMessageReceived(tstring message);
+	void onMessage(tstring message);
+
+	void onChatStatusChanged(bool joined);
+	void onChatBuddyOnline(tstring name, PurpleConvChatBuddyFlags flags);
+	void onChatBuddyOffline(tstring name, tstring reason);
 
 	void onStatusChanged(PurpleStatus* status);
 	void onStatusTypeChanged(tstring statusType);

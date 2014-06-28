@@ -146,7 +146,7 @@ PurpleInterface::PurpleInterface(PipeExtensionPurple* instance, const tstring& p
 
 		// TODO: Clear config dir?
 		purple_util_set_user_dir(path.c_str());
-		purple_debug_set_enabled(FALSE);
+		purple_debug_set_enabled(TRUE);
 
 		_eventloopUIOps = { 
 			g_timeout_add, 
@@ -205,6 +205,8 @@ PipeArrayPtr PurpleInterface::getProtocols() {
 		PurplePlugin* plugin = reinterpret_cast<PurplePlugin*>(protocols->data);
 		PurplePluginInfo* infoPlugin = plugin->info;
 		PurplePluginProtocolInfo* infoProtocol = PURPLE_PLUGIN_PROTOCOL_INFO(plugin);
+		
+		// TODO: more info...
 
 		PipeObject def;
 		tstring defTypeName = timplode(texplode(infoPlugin->name, _T(' ')), _T('_'));
@@ -345,33 +347,33 @@ void purple_cb_account_actions_changed(PurpleAccount* account, gpointer data) {
 gint purple_cb_account_authorization_requested(PurpleAccount* account, const TCHAR* remoteUser, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return 0; }
-	service->onAuthRequest((remoteUser == nullptr) ? _T("") : tstring(remoteUser));
+	service->onAuthRequest(safe_tstring(remoteUser));
 	return PURPLE_ACCOUNT_RESPONSE_PASS;
 }
 
 gint purple_cb_account_authorization_requested_with_message(PurpleAccount* account, const TCHAR* remoteUser, const TCHAR* message, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return 0; }
-	service->onAuthRequest((remoteUser == nullptr) ? _T("") : tstring(remoteUser), (message == nullptr) ? _T("") : tstring(message));
+	service->onAuthRequest(safe_tstring(remoteUser), safe_tstring(message));
 	return PURPLE_ACCOUNT_RESPONSE_PASS;
 }
 
 void purple_cb_account_authorization_denied(PurpleAccount* account, const TCHAR* user, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return; }
-	service->onAuthDenied((user == nullptr) ? _T("") : tstring(user));
+	service->onAuthDenied(safe_tstring(user));
 }
 
 void purple_cb_account_authorization_granted(PurpleAccount* account, const TCHAR* user, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return; }
-	service->onAuthGranted((user == nullptr) ? _T("") : tstring(user));
+	service->onAuthGranted(safe_tstring(user));
 }
 
 void purple_cb_account_error_changed(PurpleAccount* account, const TCHAR* oldError, const TCHAR* newError, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return; }
-	service->onErrorChanged((oldError == nullptr) ? _T("") : tstring(oldError), (newError == nullptr) ? _T("") : tstring(newError));
+	service->onErrorChanged(safe_tstring(oldError), safe_tstring(newError));
 }
 
 void purple_cb_account_signed_on(PurpleAccount* account, gpointer data) {
@@ -389,21 +391,17 @@ void purple_cb_account_signed_off(PurpleAccount* account, gpointer data) {
 void purple_cb_account_connection_error(PurpleAccount* account, PurpleConnectionError type, const TCHAR* description, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return; }
-	service->onConnectionError(connectionErrorString(type), (description == nullptr) ? _T("") : tstring(description));
+	service->onConnectionError(connectionErrorString(type), safe_tstring(description));
 }
 
 void purple_cb_blist_node_added(PurpleBlistNode* node, gpointer data) {
 	switch(purple_blist_node_get_type(node)) {
-		case PURPLE_BLIST_BUDDY_NODE: {
+		case PURPLE_BLIST_BUDDY_NODE:
+		case PURPLE_BLIST_CHAT_NODE: {
 			PurpleBuddy* buddy = reinterpret_cast<PurpleBuddy*>(node);
 			PurpleInterfaceAccount* service = accountService(data, buddy->account);
 			if(service == nullptr) { return; }
 			service->onBuddyAdded(buddy);
-			break;
-		}
-
-		case PURPLE_BLIST_CHAT_NODE: {
-			int ja = 0; // TODO
 			break;
 		}
 
@@ -418,16 +416,12 @@ void purple_cb_blist_node_added(PurpleBlistNode* node, gpointer data) {
 
 void purple_cb_blist_node_removed(PurpleBlistNode* node, gpointer data) {
 	switch(purple_blist_node_get_type(node)) {
-		case PURPLE_BLIST_BUDDY_NODE: {
+		case PURPLE_BLIST_BUDDY_NODE:
+		case PURPLE_BLIST_CHAT_NODE: {
 			PurpleBuddy* buddy = reinterpret_cast<PurpleBuddy*>(node);
 			PurpleInterfaceAccount* service = accountService(data, buddy->account);
 			if(service == nullptr) { return; }
 			service->onBuddyRemoved(buddy);
-			break;
-		}
-
-		case PURPLE_BLIST_CHAT_NODE: {
-			int ja = 0; // TODO
 			break;
 		}
 
@@ -495,11 +489,15 @@ void purple_cb_buddy_icon_changed(PurpleBuddy* buddy, gpointer data) {
 void purple_cb_received_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, PurpleConversation *conv, PurpleMessageFlags flags, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
 	if(service == nullptr) { return; }
-	PurpleInterfaceContact* contact = service->contactService(sender);
-	if(contact == nullptr) { return; }
+	PurpleInterfaceContact* contact = service->contactService(safe_tstring(conv->name));
+	if(contact == nullptr) { 
+		service->onMessageUnknownSender(safe_tstring(sender), safe_tstring(message));
+		return; 
+	}
 	if(flags != PURPLE_MESSAGE_RECV) {
 		int j = 0; // TODO: Possibly wrong when message is not a recv
 	}
+	contact->onMessage(safe_tstring(message));
 }
 
 void purple_cb_received_im_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, PurpleConversation *conv, PurpleMessageFlags flags, gpointer data) {
@@ -515,7 +513,7 @@ void purple_cb_received_chat_msg(PurpleAccount* account, const TCHAR* sender, co
 void purple_cb_conversation_created(PurpleConversation *conv, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, conv->account);
 	if(service == nullptr) { return; }
-	PurpleInterfaceContact* contact = service->contactService(conv->name);
+	PurpleInterfaceContact* contact = service->contactService(safe_tstring(conv->name));
 	if(contact == nullptr) { return; }
 	contact->onConversationChanged(conv);	
 }
@@ -524,84 +522,85 @@ void purple_cb_conversation_created(PurpleConversation *conv, gpointer data) {
 void purple_cb_conversation_updated(PurpleConversation *conv, PurpleConvUpdateType type, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, conv->account);
 	if(service == nullptr) { return; }
-	PurpleInterfaceContact* contact = service->contactService(conv->name);
+	PurpleInterfaceContact* contact = service->contactService(safe_tstring(conv->name));
 	if(contact == nullptr) { return; }
-	// TODO: Call ITF
-	// TODO: Handle typing notifications etc. here
-
-	// PURPLE_CONV_UPDATE_CHATLEFT
-	// PURPLE_CONV_UPDATE_FEATURES
-	// PURPLE_CONV_UPDATE_TOPIC
-	// PURPLE_CONV_UPDATE_UNSEEN
-	// PURPLE_CONV_UPDATE_TYPING
-	// 
+	switch(type) {
+		case PURPLE_CONV_UPDATE_TOPIC: {
+			int j = 0; // TODO
+			break;
+		}
+		case PURPLE_CONV_UPDATE_FEATURES: {
+			int j = 0; // TODO
+			break;
+		}
+		case PURPLE_CONV_UPDATE_TYPING: {
+			int j = 0; // TODO
+			break;
+		}
+		case PURPLE_CONV_UPDATE_CHATLEFT: {
+			int j = 0; // TODO
+			break;
+		}
+		case PURPLE_CONV_UPDATE_UNSEEN: {
+			int j = 0; // TODO
+			break;
+		}
+	} 
 }
 
 void purple_cb_deleting_conversation(PurpleConversation *conv, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, conv->account);
 	if(service == nullptr) { return; }
-	PurpleInterfaceContact* contact = service->contactService(conv->name);
+	PurpleInterfaceContact* contact = service->contactService(safe_tstring(conv->name));
 	if(contact == nullptr) { return; }
 	contact->onConversationChanged(nullptr);
-
 }
 
 void purple_cb_chat_buddy_joined(PurpleConversation *conv, const TCHAR* name, PurpleConvChatBuddyFlags flags, gboolean newArrivals, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, conv->account);
 	if(service == nullptr) { return; }
-	// TODO: Call ITF
+	PurpleInterfaceContact* contact = service->contactService(safe_tstring(conv->name));
+	if(contact == nullptr) { return; }
+	contact->onChatBuddyOnline(safe_tstring(name), flags);
 }
 
 void purple_cb_chat_buddy_flags(PurpleConversation *conv, const TCHAR* name, PurpleConvChatBuddyFlags oldFlags, PurpleConvChatBuddyFlags newFlags, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, conv->account);
 	if(service == nullptr) { return; }
-	// TODO: Call ITF
+	PurpleInterfaceContact* contact = service->contactService(safe_tstring(conv->name));
+	if(contact == nullptr) { return; }
+	contact->onChatBuddyOnline(safe_tstring(name), newFlags);
 }
 
 void purple_cb_chat_buddy_left(PurpleConversation *conv, const TCHAR* name, const TCHAR* reason, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, conv->account);
 	if(service == nullptr) { return; }
-	// TODO: Call ITF
-}
-
-void purple_cb_deleting_chat_buddy(PurpleConvChatBuddy* buddy, gpointer data) {
-	int j = 0;
-//	PurpleInterfaceAccount* service = accountService(data, buddy->);
-//	if(service == nullptr) { return; }
-
-	//	if(service == nullptr) { return; }
-	// TODO: Call ITF
+	PurpleInterfaceContact* contact = service->contactService(safe_tstring(conv->name));
+	if(contact == nullptr) { return; }
+	contact->onChatBuddyOffline(safe_tstring(name), safe_tstring(reason));
 }
 
 int purple_cb_chat_invited(PurpleAccount* account, const TCHAR* inviter, const TCHAR* chat, const TCHAR* invite_message, GHashTable* components, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, account);
-	if(service == nullptr) { return 0; }
-	// TODO: Call ITF
+	if(service == nullptr) { return PURPLE_ACCOUNT_RESPONSE_PASS; }
+	service->onInvited(safe_tstring(inviter), safe_tstring(chat), safe_tstring(invite_message), components);
 	return PURPLE_ACCOUNT_RESPONSE_PASS;
 }
 
 void purple_cb_chat_joined(PurpleConversation *conv, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, conv->account);
 	if(service == nullptr) { return; }
-	PurpleInterfaceContact* contact = service->contactService(conv->name);
+	PurpleInterfaceContact* contact = service->contactService(safe_tstring(conv->name));
 	if(contact == nullptr) { return; }
-	// TODO: Call ITF
+	contact->onChatStatusChanged(true);
 }
 
 void purple_cb_chat_left(PurpleConversation *conv, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, conv->account);
 	if(service == nullptr) { return; }
-	PurpleInterfaceContact* contact = service->contactService(conv->name);
+	PurpleInterfaceContact* contact = service->contactService(safe_tstring(conv->name));
 	if(contact == nullptr) { return; }
-	// TODO: Call ITF
-}
-
-void purple_cb_chat_topic_changed(PurpleConversation *conv, const TCHAR* user, const TCHAR* newTopic, gpointer data) {
-	PurpleInterfaceAccount* service = accountService(data, conv->account);
-	if(service == nullptr) { return; }
-	PurpleInterfaceContact* contact = service->contactService(conv->name);
-	if(contact == nullptr) { return; }
-	// TODO: Call ITF
+	contact->onChatStatusChanged(false);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -645,11 +644,9 @@ void PurpleInterface::initSignalCallbacks() {
 	purple_signal_connect(hConversations, "chat-buddy-joined", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_buddy_joined), cbData);
 	purple_signal_connect(hConversations, "chat-buddy-flags", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_buddy_flags), cbData);
 	purple_signal_connect(hConversations, "chat-buddy-left", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_buddy_left), cbData);
-	purple_signal_connect(hConversations, "deleting-chat-buddy", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_deleting_chat_buddy), cbData);
 	purple_signal_connect(hConversations, "chat-invited", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_invited), cbData);
 	purple_signal_connect(hConversations, "chat-joined", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_joined), cbData);
 	purple_signal_connect(hConversations, "chat-left", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_left), cbData);
-	purple_signal_connect(hConversations, "chat-topic-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_topic_changed), cbData);
 
 	// FUTURE: File signals
 }

@@ -80,6 +80,26 @@
 		* purple_conv_im_get_typing_state
 		* purple_conv_im_get_icon
 
+	* server
+		* serv_send_typing
+		* serv_move_buddy
+		* serv_get_info
+		* serv_set_info
+		* serv_join_chat
+		* serv_reject_chat
+		* serv_send_file
+
+		* serv_add_permit ? 
+		* serv_add_deny ? 
+		* serv_rem_permit ? 
+		* serv_rem_deny ? 
+		* serv_set_permit_deny ? 
+		* serv_chat_invite ? 
+		* serv_chat_leave ? 
+		* serv_chat_whisper ? 
+		* serv_alias_buddy ? 
+		* serv_got_alias ? 
+
 
 	* ft ( in the future )
 

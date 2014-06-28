@@ -71,18 +71,18 @@ public:
 		if(schemaData == nullptr || schemaData->type() == PipeSchemaTypeNone)
 			return _T("Error! Invalid schema supplied");
 
+		_schema = schema;
+		_instanceEmpty = false;
+
 		PipeSchemaType schemaType = schemaData->type();
 		if(schemaType == PipeSchemaTypeObject || schemaType == PipeSchemaTypeArray) {
 			if(!parameter.empty()) { return _T("Error! Schema can not be created by parameter"); }
-
-			_instanceEmpty = false;
-			_schema = schema;
 			return queryValue();
 		}
 		else {
 			_instanceEmpty = false;
 			_instanceComplete = true;
-			return setValue(TokenMessageData, parameter);
+			return setValue(_T(""), parameter);
 		}
 	}
 
@@ -274,7 +274,10 @@ private:
 	//------------------------------------------------------------------------------------------------------------------
 	tstring setValue(const tstring& address, const tstring& data) {
 		auto& valueMessageNode = valueNode(address);
-		auto& schemaMessageNode = schemaNode(address);
+
+		tstring schemaAddress = address.empty() ? TokenMessageData : address;
+		auto& schemaMessageNode = schemaNode(schemaAddress);
+		
 		try {
 			switch(schemaMessageNode.type()) {
 				case PipeSchemaTypeBoolean: {
@@ -738,8 +741,9 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 
 	PipeJson getOutgoing() {
-		return _sendBuffer.instance();
+		PipeJson result = _sendBuffer.instance();
 		_sendBuffer.data.clear();
+		return result;
 	}
 
 private:

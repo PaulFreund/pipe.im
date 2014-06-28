@@ -10,6 +10,36 @@ using namespace std;
 
 PurpleInterfaceAccount::PurpleInterfaceAccount(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& instance_name, const tstring& instance_description)
 	: PipeServiceNodeBase(address, path, settings, _T("purple_account"), _T("A purple chat account"), instance_name, instance_description, _T("purple_account")) {
+
+	auto cmdJoin = PipeSchema::Create(PipeSchemaTypeString).title(_T("Channel")).description(_T("Channel name"));
+	addCommand(_T("join"), _T("Test"), cmdJoin, [&](PipeObject& message) {
+		auto ref = message[_T("ref")].string_value();
+		if(!message.count(_T("data")) || !message[_T("data")].is_string()) {
+			pushOutgoing(ref, _T("error"), _T("Missing command data"));
+			return;
+		}
+
+		tstring channel = message[_T("data")].string_value();
+
+		PurpleConnection* connection = purple_account_get_connection(_account);
+		PurplePluginProtocolInfo* info = PURPLE_PLUGIN_PROTOCOL_INFO(purple_connection_get_prpl(connection));
+		//// TODO: This should be a command type later
+		//for(GList* comp = info->chat_info(connection); comp; comp = comp->next) {
+		//	proto_chat_entry* entry = reinterpret_cast<proto_chat_entry*>(comp->data);
+		//}
+
+		PurpleBuddy* channelBuddy = purple_buddy_new(_account, channel.c_str(), channel.c_str());
+
+		tstring channelAddressName = timplode(texplode(channel, TokenAddressSeparator), _T('_'));
+		tstring channelAddress = _address + TokenAddressSeparator + channelAddressName;
+		addChild(channelAddress, make_shared<PurpleInterfaceContact>(channelAddress, _path, _settings, channel, _T(""), channelBuddy));
+
+		GHashTable* components = info->chat_info_defaults(connection, channel.c_str());
+
+		serv_join_chat(connection, components);
+
+		g_hash_table_destroy(components);
+	});
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -172,19 +202,32 @@ void PurpleInterfaceAccount::onConnectionError(tstring error, tstring descriptio
 //----------------------------------------------------------------------------------------------------------------------
 
 void PurpleInterfaceAccount::onBuddyAdded(PurpleBuddy* buddy) {
-	tstring contactName(buddy->name);
+	tstring contactName = safe_tstring(buddy->name);
 	contactName = timplode(texplode(contactName, TokenAddressSeparator), _T('_'));
 	tstring contactAddress = _address + TokenAddressSeparator + contactName;
-	addChild(contactAddress, make_shared<PurpleInterfaceContact>(contactAddress, _path, _settings, buddy->name, _T(""), buddy));
+	addChild(contactAddress, make_shared<PurpleInterfaceContact>(contactAddress, _path, _settings, safe_tstring(buddy->name), _T(""), buddy));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void PurpleInterfaceAccount::onBuddyRemoved(PurpleBuddy* buddy) {
-	tstring contactName(buddy->name);
+	tstring contactName = safe_tstring(buddy->name);
 	timplode(texplode(contactName, TokenAddressSeparator), _T('_'));
 	tstring contactAddress = _address + TokenAddressSeparator + contactName;
 	removeChild(contactAddress);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+void PurpleInterfaceAccount::onMessageUnknownSender(tstring sender, tstring message) {
+	// TODO
+	pushOutgoing(_T(""), _T("message_unknown_sender"), sender + _T(": ") + message);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void PurpleInterfaceAccount::onInvited(tstring who, tstring where, tstring message, GHashTable* joinData) {
+	// TODO
+	pushOutgoing(_T(""), _T("invited"), _T("From: ") + who + _T(" to ") + where + _T(" (") + message + _T(")"));
 }
 
 //======================================================================================================================
