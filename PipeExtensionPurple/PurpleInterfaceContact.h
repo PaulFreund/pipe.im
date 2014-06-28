@@ -19,8 +19,13 @@ public:
 
 public:
 	PurpleBuddy* buddyHandle() { return _buddy; }
+	tstring buddyName() { return tstring(_buddy->name); }
 
 public:
+	void onConversationChanged(PurpleConversation* conversation);
+
+	void onMessageReceived(tstring message);
+
 	void onStatusChanged(PurpleStatus* status);
 	void onStatusTypeChanged(tstring statusType);
 	void onStatusMessageChanged(tstring message);

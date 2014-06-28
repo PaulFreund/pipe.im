@@ -61,15 +61,17 @@
 		* purple_conv_chat_ignore
 		* purple_conv_chat_unignore
 		* purple_conv_chat_is_user_ignored
-		* purple_conv_chat_send
-		* purple_conv_chat_send_with_flags
 		* purple_conv_chat_has_left
 		* purple_conv_chat_get_users
 		* purple_conv_chat_invite_user
 		* purple_conv_chat_get_topic
-		* purple_conv_im_get_icon
+
+		* purple_conv_chat_send
+		* purple_conv_chat_send_with_flags
+
 		* purple_conv_im_send
 		* purple_conv_im_send_with_flags
+
 		* purple_conv_im_write
 		* purple_conv_im_stop_send_typed_timeout
 		* purple_conv_im_start_send_typed_timeout 

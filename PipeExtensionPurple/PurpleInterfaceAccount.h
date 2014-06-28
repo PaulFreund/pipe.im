@@ -30,7 +30,7 @@ public:
 
 public:
 	PurpleInterfaceContact* contactService(PurpleBuddy* buddy);
-
+	PurpleInterfaceContact* contactService(tstring name);
 
 public:
 	void onConnecting();

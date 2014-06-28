@@ -21,6 +21,20 @@ PurpleInterfaceContact::~PurpleInterfaceContact() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void PurpleInterfaceContact::onConversationChanged(PurpleConversation* conversation) {
+	// TODO
+	pushOutgoing(_T(""), _T("conversation_changed"), _T(""));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void PurpleInterfaceContact::onMessageReceived(tstring message) {
+	// TODO
+	pushOutgoing(_T(""), _T("message_received"), message);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void PurpleInterfaceContact::onStatusChanged(PurpleStatus* status) {
 	if(status == nullptr) { return; }
 

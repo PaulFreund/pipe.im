@@ -73,6 +73,18 @@ PurpleInterfaceContact* PurpleInterfaceAccount::contactService(PurpleBuddy* budd
 	return nullptr;
 }
 
+PurpleInterfaceContact* PurpleInterfaceAccount::contactService(tstring name) {
+	auto& childNodes = children();
+	for(auto it = begin(childNodes); it != end(childNodes); it++) {
+		PurpleInterfaceContact* contact = reinterpret_cast<PurpleInterfaceContact*>(it->second.get());
+		if(contact->buddyName() == name)
+			return contact;
+	}
+
+	// TODO: What to do when Contact does not exist ( IRC for example )
+	return nullptr;
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 void PurpleInterfaceAccount::onConnecting() {
