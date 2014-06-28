@@ -79,9 +79,9 @@ void PurpleInterfaceContact::onTypingStateChanged(PurpleTypingState state) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void PurpleInterfaceContact::onMessage(tstring message) {
+void PurpleInterfaceContact::onMessage(tstring sender, tstring message) {
 	// TODO
-	pushOutgoing(_T(""), _T("message"), message);
+	pushOutgoing(_T(""), _T("message"), sender + _T(": ") + message);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

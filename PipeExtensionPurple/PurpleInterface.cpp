@@ -146,7 +146,7 @@ PurpleInterface::PurpleInterface(PipeExtensionPurple* instance, const tstring& p
 
 		// TODO: Clear config dir?
 		purple_util_set_user_dir(path.c_str());
-		purple_debug_set_enabled(TRUE);
+		purple_debug_set_enabled(FALSE);
 
 		_eventloopUIOps = { 
 			g_timeout_add, 
@@ -181,10 +181,10 @@ PurpleInterface::PurpleInterface(PipeExtensionPurple* instance, const tstring& p
 			throw tstring(_T("libpurple initialization failed. Dumping core.\n" "Please report this!"));
 		}
 
-		initSignalCallbacks();
-
-		// TODO: Good?
 		purple_set_blist(purple_blist_new());
+		purple_blist_load();
+
+		initSignalCallbacks();
 	}
 	
 	catch(tstring error) { if(PipeExtensionPurple::ErrorCallback != nullptr) { PipeExtensionPurple::ErrorCallback(error.c_str()); } }
@@ -493,7 +493,7 @@ void purple_cb_received_msg(PurpleAccount* account, const TCHAR* sender, const T
 	if(flags != PURPLE_MESSAGE_RECV) {
 		int j = 0; // TODO: Possibly wrong when message is not a recv
 	}
-	contact->onMessage(safe_tstring(message));
+	contact->onMessage(safe_tstring(sender), safe_tstring(message));
 }
 
 void purple_cb_received_im_msg(PurpleAccount* account, const TCHAR* sender, const TCHAR* message, PurpleConversation *conv, PurpleMessageFlags flags, gpointer data) {

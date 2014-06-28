@@ -37,7 +37,7 @@ public:
 	void onTopicChanged(tstring user, tstring topic);
 	void onTypingStateChanged(PurpleTypingState state);
 
-	void onMessage(tstring message);
+	void onMessage(tstring sender, tstring message);
 
 	void onChatStatusChanged(bool joined);
 	void onChatBuddyOnline(tstring name, PurpleConvChatBuddyFlags flags);
