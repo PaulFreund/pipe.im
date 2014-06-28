@@ -518,42 +518,32 @@ void purple_cb_conversation_created(PurpleConversation *conv, gpointer data) {
 	contact->onConversationChanged(conv);	
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-void purple_cb_conversation_updated(PurpleConversation *conv, PurpleConvUpdateType type, gpointer data) {
-	PurpleInterfaceAccount* service = accountService(data, conv->account);
-	if(service == nullptr) { return; }
-	PurpleInterfaceContact* contact = service->contactService(safe_tstring(conv->name));
-	if(contact == nullptr) { return; }
-	switch(type) {
-		case PURPLE_CONV_UPDATE_TOPIC: {
-			int j = 0; // TODO
-			break;
-		}
-		case PURPLE_CONV_UPDATE_FEATURES: {
-			int j = 0; // TODO
-			break;
-		}
-		case PURPLE_CONV_UPDATE_TYPING: {
-			int j = 0; // TODO
-			break;
-		}
-		case PURPLE_CONV_UPDATE_CHATLEFT: {
-			int j = 0; // TODO
-			break;
-		}
-		case PURPLE_CONV_UPDATE_UNSEEN: {
-			int j = 0; // TODO
-			break;
-		}
-	} 
-}
-
 void purple_cb_deleting_conversation(PurpleConversation *conv, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, conv->account);
 	if(service == nullptr) { return; }
 	PurpleInterfaceContact* contact = service->contactService(safe_tstring(conv->name));
 	if(contact == nullptr) { return; }
 	contact->onConversationChanged(nullptr);
+}
+
+void purple_typing_state_updated(PurpleAccount* account, const TCHAR* name, gpointer data, PurpleTypingState type) {
+	PurpleInterfaceAccount* service = accountService(data, account);
+	if(service == nullptr) { return; }
+	PurpleInterfaceContact* contact = service->contactService(safe_tstring(name));
+	if(contact == nullptr) { return; }
+	contact->onTypingStateChanged(type);
+}
+
+void purple_cb_buddy_typing(PurpleAccount* account, const TCHAR* name, gpointer data) {
+	purple_typing_state_updated(account, name, data, PURPLE_TYPING);
+}
+
+void purple_cb_buddy_typed(PurpleAccount* account, const TCHAR* name, gpointer data) {
+	purple_typing_state_updated(account, name, data, PURPLE_TYPED);
+}
+
+void purple_cb_buddy_typing_stopped(PurpleAccount* account, const TCHAR* name, gpointer data) {
+	purple_typing_state_updated(account, name, data, PURPLE_NOT_TYPING);
 }
 
 void purple_cb_chat_buddy_joined(PurpleConversation *conv, const TCHAR* name, PurpleConvChatBuddyFlags flags, gboolean newArrivals, gpointer data) {
@@ -603,6 +593,14 @@ void purple_cb_chat_left(PurpleConversation *conv, gpointer data) {
 	contact->onChatStatusChanged(false);
 }
 
+void purple_cb_chat_topic_changed(PurpleConversation *conv, const TCHAR* user, const TCHAR* newTopic, gpointer data) {
+	PurpleInterfaceAccount* service = accountService(data, conv->account);
+	if(service == nullptr) { return; }
+	PurpleInterfaceContact* contact = service->contactService(safe_tstring(conv->name));
+	if(contact == nullptr) { return; }
+	contact->onTopicChanged(safe_tstring(user), safe_tstring(newTopic));
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 void PurpleInterface::initSignalCallbacks() {
@@ -639,14 +637,17 @@ void PurpleInterface::initSignalCallbacks() {
 	purple_signal_connect(hConversations, "received-im-msg", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_received_im_msg), cbData);
 	purple_signal_connect(hConversations, "received-chat-msg", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_received_chat_msg), cbData);
 	purple_signal_connect(hConversations, "conversation-created", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_conversation_created), cbData);
-	purple_signal_connect(hConversations, "conversation-updated", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_conversation_updated), cbData);
 	purple_signal_connect(hConversations, "deleting-conversation", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_deleting_conversation), cbData);
+	purple_signal_connect(hConversations, "buddy-typing", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_typing), cbData);
+	purple_signal_connect(hConversations, "buddy-typed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_typed), cbData);
+	purple_signal_connect(hConversations, "buddy-typing-stopped", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_buddy_typing_stopped), cbData);
 	purple_signal_connect(hConversations, "chat-buddy-joined", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_buddy_joined), cbData);
 	purple_signal_connect(hConversations, "chat-buddy-flags", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_buddy_flags), cbData);
 	purple_signal_connect(hConversations, "chat-buddy-left", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_buddy_left), cbData);
 	purple_signal_connect(hConversations, "chat-invited", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_invited), cbData);
 	purple_signal_connect(hConversations, "chat-joined", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_joined), cbData);
 	purple_signal_connect(hConversations, "chat-left", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_left), cbData);
+	purple_signal_connect(hConversations, "chat-topic-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_topic_changed), cbData);
 
 	// FUTURE: File signals
 }

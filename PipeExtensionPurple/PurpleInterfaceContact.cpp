@@ -40,6 +40,20 @@ void PurpleInterfaceContact::onConversationChanged(PurpleConversation* conversat
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void PurpleInterfaceContact::onTopicChanged(tstring user, tstring topic) {
+	// TODO
+	pushOutgoing(_T(""), _T("topic_changed"), user + _T(" changed topic to ") + topic);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void PurpleInterfaceContact::onTypingStateChanged(PurpleTypingState state) {
+	// TODO
+	pushOutgoing(_T(""), _T("typing_state_changed"), to_tstring(state));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void PurpleInterfaceContact::onMessage(tstring message) {
 	// TODO
 	pushOutgoing(_T(""), _T("message"), message);

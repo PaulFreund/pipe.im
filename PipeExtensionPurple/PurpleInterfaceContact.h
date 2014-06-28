@@ -23,6 +23,8 @@ public:
 
 public:
 	void onConversationChanged(PurpleConversation* conversation);
+	void onTopicChanged(tstring user, tstring topic);
+	void onTypingStateChanged(PurpleTypingState state);
 
 	void onMessage(tstring message);
 
