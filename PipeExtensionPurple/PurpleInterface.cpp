@@ -20,7 +20,7 @@ using namespace std;
 //======================================================================================================================
 
 const tstring PurpleInterface::InterfaceID = _T("pipe.im");
-static PipeExtensionPurple* PurpleInterface::InstanceContext = nullptr;
+PipeExtensionPurple* PurpleInterface::InstanceContext = nullptr;
 
 //======================================================================================================================
 
@@ -41,7 +41,7 @@ inline PurpleInterfaceAccount* accountService(void* data, PurpleAccount* account
 
 void* purple_cb_ops_request_input(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, const TCHAR*default_value, gboolean multiline, gboolean masked, gchar* hint, const TCHAR*ok_text, GCallback ok_cb, const TCHAR*cancel_text, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
 	PurpleInterfaceAccount* service = accountService(PurpleInterface::InstanceContext, account);
-	if(service == nullptr) { return; }
+	if(service == nullptr) { return nullptr; }
 
 	// TODO: Call ITF
 	return nullptr;
@@ -49,7 +49,7 @@ void* purple_cb_ops_request_input(const TCHAR*title, const TCHAR*primary, const 
 
 void* purple_cb_ops_request_choice(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, int default_value, const TCHAR*ok_text, GCallback ok_cb, const TCHAR*cancel_text, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data, va_list choices) {
 	PurpleInterfaceAccount* service = accountService(PurpleInterface::InstanceContext, account);
-	if(service == nullptr) { return; }
+	if(service == nullptr) { return nullptr; }
 
 	// TODO: Call ITF
 	return nullptr;
@@ -57,7 +57,7 @@ void* purple_cb_ops_request_choice(const TCHAR*title, const TCHAR*primary, const
 
 void* purple_cb_ops_request_action(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, int default_action, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data, size_t action_count, va_list actions) {
 	PurpleInterfaceAccount* service = accountService(PurpleInterface::InstanceContext, account);
-	if(service == nullptr) { return; }
+	if(service == nullptr) { return nullptr; }
 
 	// TODO: Call ITF
 	return nullptr;
@@ -65,7 +65,7 @@ void* purple_cb_ops_request_action(const TCHAR*title, const TCHAR*primary, const
 
 void* purple_cb_ops_request_fields(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, PurpleRequestFields* fields, const TCHAR*ok_text, GCallback ok_cb, const TCHAR*cancel_text, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
 	PurpleInterfaceAccount* service = accountService(PurpleInterface::InstanceContext, account);
-	if(service == nullptr) { return; }
+	if(service == nullptr) { return nullptr; }
 
 	// TODO: Call ITF
 	return nullptr;
@@ -73,7 +73,7 @@ void* purple_cb_ops_request_fields(const TCHAR*title, const TCHAR*primary, const
 
 void* purple_cb_ops_request_file(const TCHAR*title, const TCHAR*filename, gboolean savedialog, GCallback ok_cb, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
 	PurpleInterfaceAccount* service = accountService(PurpleInterface::InstanceContext, account);
-	if(service == nullptr) { return; }
+	if(service == nullptr) { return nullptr; }
 
 	// TODO: Call ITF
 	return nullptr;
@@ -84,7 +84,7 @@ void purple_cb_ops_close_request(PurpleRequestType type, void* ui_handle) {
 
 void* purple_cb_ops_request_folder(const TCHAR*title, const TCHAR*dirname, GCallback ok_cb, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
 	PurpleInterfaceAccount* service = accountService(PurpleInterface::InstanceContext, account);
-	if(service == nullptr) { return; }
+	if(service == nullptr) { return nullptr; }
 
 	// TODO: Call ITF
 	return nullptr;
@@ -92,7 +92,7 @@ void* purple_cb_ops_request_folder(const TCHAR*title, const TCHAR*dirname, GCall
 
 void* purple_cb_ops_request_action_with_icon(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, int default_action, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, gconstpointer icon_data, gsize icon_size, void* user_data, size_t action_count, va_list actions) {
 	PurpleInterfaceAccount* service = accountService(PurpleInterface::InstanceContext, account);
-	if(service == nullptr) { return; }
+	if(service == nullptr) { return nullptr; }
 
 	// TODO: Call ITF
 	return nullptr;
@@ -627,7 +627,7 @@ void purple_cb_file_send_start(PurpleXfer *xfer, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, xfer->account);
 	if(service == nullptr) { return; }
 	service->onFileSendUpdate(xfer);
-
+}
 
 void purple_cb_file_send_cancel(PurpleXfer *xfer, gpointer data) {
 	PurpleInterfaceAccount* service = accountService(data, xfer->account);
@@ -644,7 +644,7 @@ void purple_cb_file_send_complete(PurpleXfer *xfer, gpointer data) {
 //----------------------------------------------------------------------------------------------------------------------
 
 void PurpleInterface::initSignalCallbacks() {
-	void* cbData = reinterpret_cast<void*>(_instance);
+	void* cbData = reinterpret_cast<void*>(PurpleInterface::InstanceContext);
 	void* cbHandle = cbData;
 
 	// Accounts
