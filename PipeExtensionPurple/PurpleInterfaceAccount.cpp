@@ -82,6 +82,13 @@ void PurpleInterfaceAccount::init(const tstring& protocol_id) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+bool PurpleInterfaceAccount::hasRequestHandle(void* requestHandle) {
+	// TODO
+	return false;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 PipeArrayPtr PurpleInterfaceAccount::receive() {
 	// Trigger event loop
 	if(_account != nullptr)
@@ -256,6 +263,53 @@ void PurpleInterfaceAccount::onFileRecvUpdate(PurpleXfer *xfer) {
 void PurpleInterfaceAccount::onFileSendUpdate(PurpleXfer *xfer) {
 	// TODO
 	pushOutgoing(_T(""), _T("file_send_update"), _T(""));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void PurpleInterfaceAccount::onCloseRequest(void* requestHandle) {
+	// TODO
+	pushOutgoing(_T(""), _T("close_request"), _T(""));
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void* PurpleInterfaceAccount::onRequestInput(PurpleConversation* conversation, PurpleInterfaceRequestInputCb ok_cb, PurpleInterfaceRequestCancelCb cancel_cb, void* user_data, tstring who, tstring title, tstring ok_text, tstring cancel_text, tstring primary, tstring secondary, tstring default_value, tstring hint, bool multiline, bool masked) {
+	// TODO
+	pushOutgoing(_T(""), _T("request_input"), _T(""));
+	return nullptr; // TODO: Return made-up handle
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void* PurpleInterfaceAccount::onRequestChoice(PurpleConversation* conversation, PurpleInterfaceRequestChoiceCb ok_cb, PurpleInterfaceRequestCancelCb cancel_cb, void* user_data, tstring who, tstring title, tstring ok_text, tstring cancel_text, tstring primary, tstring secondary, int default_value, std::map<int, tstring> choices) {
+	// TODO
+	pushOutgoing(_T(""), _T("request_choice"), _T(""));
+	return nullptr; // TODO: Return made-up handle
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void* PurpleInterfaceAccount::onRequestAction(PurpleConversation* conversation, void* user_data, tstring who, tstring title, tstring primary, tstring secondary, int default_action, std::map<int, std::pair<tstring, PurpleInterfaceRequestActionCb>> actions) {
+	// TODO
+	pushOutgoing(_T(""), _T("request_action"), _T(""));
+	return nullptr; // TODO: Return made-up handle
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void* PurpleInterfaceAccount::onRequestFile(PurpleConversation* conversation, PurpleInterfaceRequestFileCb ok_cb, PurpleInterfaceRequestCancelCb cancel_cb, void* user_data, tstring who, tstring title, tstring filanem, bool savedialog) {
+	// TODO
+	pushOutgoing(_T(""), _T("request_file"), _T(""));
+	return nullptr; // TODO: Return made-up handle
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void* PurpleInterfaceAccount::onRequestFolder(PurpleConversation* conversation, PurpleInterfaceRequestFolderCb ok_cb, PurpleInterfaceRequestCancelCb cancel_cb, void* user_data, tstring who, tstring title, tstring dirname) {
+	// TODO
+	pushOutgoing(_T(""), _T("request_folder"), _T(""));
+	return nullptr; // TODO: Return made-up handle
 }
 
 //======================================================================================================================

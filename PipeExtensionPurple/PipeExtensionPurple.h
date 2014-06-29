@@ -33,6 +33,7 @@ public:
 
 public:
 	PurpleInterfaceAccount* account(PurpleAccount* account);
+	PurpleInterfaceAccount* accountByRequestHandle(void* requestHandle);
 };
 
 //======================================================================================================================

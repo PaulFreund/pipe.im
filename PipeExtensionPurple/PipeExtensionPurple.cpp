@@ -91,4 +91,14 @@ PurpleInterfaceAccount* PipeExtensionPurple::account(PurpleAccount* account) {
 	return nullptr;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+PurpleInterfaceAccount* PipeExtensionPurple::accountByRequestHandle(void* requestHandle) {
+	for(auto it = begin(_services); it != end(_services); it++) {
+		if(it->second->hasRequestHandle(requestHandle)) { return it->second; }
+	}
+
+	return nullptr;
+}
+
 //======================================================================================================================

@@ -39,63 +39,76 @@ inline PurpleInterfaceAccount* accountService(void* data, PurpleAccount* account
 
 //======================================================================================================================
 
-void* purple_cb_ops_request_input(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, const TCHAR*default_value, gboolean multiline, gboolean masked, gchar* hint, const TCHAR*ok_text, GCallback ok_cb, const TCHAR*cancel_text, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
+void* purple_cb_ops_request_input(const TCHAR* title, const TCHAR* primary, const TCHAR* secondary, const TCHAR* default_value, gboolean multiline, gboolean masked, gchar* hint, const TCHAR* ok_text, GCallback ok_cb, const TCHAR* cancel_text, GCallback cancel_cb, PurpleAccount* account, const TCHAR* who, PurpleConversation* conv, void* user_data) {
 	PurpleInterfaceAccount* service = accountService(PurpleInterface::InstanceContext, account);
 	if(service == nullptr) { return nullptr; }
-
-	// TODO: Call ITF
-	return nullptr;
+	return service->onRequestInput(conv, reinterpret_cast<PurpleInterfaceRequestInputCb>(ok_cb), reinterpret_cast<PurpleInterfaceRequestCancelCb>(cancel_cb), user_data, safe_tstring(who), safe_tstring(title), safe_tstring(ok_text), safe_tstring(cancel_text), safe_tstring(primary), safe_tstring(secondary), safe_tstring(default_value), safe_tstring(hint), multiline, masked);
 }
 
 void* purple_cb_ops_request_choice(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, int default_value, const TCHAR*ok_text, GCallback ok_cb, const TCHAR*cancel_text, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data, va_list choices) {
 	PurpleInterfaceAccount* service = accountService(PurpleInterface::InstanceContext, account);
 	if(service == nullptr) { return nullptr; }
 
-	// TODO: Call ITF
-	return nullptr;
+	map<int, tstring> mapChoices;
+	const TCHAR* choiceBuffer = nullptr;
+	while((choiceBuffer = va_arg(choices, const TCHAR *))) {
+		mapChoices[va_arg(choices, int)] = safe_tstring(choiceBuffer);
+	}
+
+	return service->onRequestChoice(conv, reinterpret_cast<PurpleInterfaceRequestChoiceCb>(ok_cb), reinterpret_cast<PurpleInterfaceRequestCancelCb>(cancel_cb), user_data, safe_tstring(who), safe_tstring(title), safe_tstring(ok_text), safe_tstring(cancel_text), safe_tstring(primary), safe_tstring(secondary), default_value, mapChoices);
 }
 
 void* purple_cb_ops_request_action(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, int default_action, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data, size_t action_count, va_list actions) {
 	PurpleInterfaceAccount* service = accountService(PurpleInterface::InstanceContext, account);
 	if(service == nullptr) { return nullptr; }
 
-	// TODO: Call ITF
-	return nullptr;
+	map<int, pair<tstring, PurpleInterfaceRequestActionCb>> mapActions;
+	for(int i = 0; i < action_count; i++) {
+		tstring text = safe_tstring(va_arg(actions, const TCHAR*));
+		PurpleInterfaceRequestActionCb callback = va_arg(actions, PurpleInterfaceRequestActionCb);
+		mapActions[i] = make_pair(text, callback);
+	}
+
+	return service->onRequestAction(conv, user_data, safe_tstring(who), safe_tstring(title), safe_tstring(primary), safe_tstring(secondary), default_action, mapActions);
 }
 
 void* purple_cb_ops_request_fields(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, PurpleRequestFields* fields, const TCHAR*ok_text, GCallback ok_cb, const TCHAR*cancel_text, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
-	PurpleInterfaceAccount* service = accountService(PurpleInterface::InstanceContext, account);
-	if(service == nullptr) { return nullptr; }
-
-	// TODO: Call ITF
+	// WARNING: This feature will not be available
+	// This feature will be missed by the following plugins:
+	// yahoo (nothgin important)
+	// silc (many things)
+	// sametime (nothing important)
+	// oscar (nothing important)
+	// novell (nothing important)
+	// mxit (many things)
+	// msn (something with multi-login)
+	// xmpp (a few things but I think nothing important
+	// gadu gadu (I hope nothing important)
+	// account.c (something with password changing)
+	// conversation.c (inviting a user)
 	return nullptr;
 }
 
 void* purple_cb_ops_request_file(const TCHAR*title, const TCHAR*filename, gboolean savedialog, GCallback ok_cb, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
 	PurpleInterfaceAccount* service = accountService(PurpleInterface::InstanceContext, account);
 	if(service == nullptr) { return nullptr; }
-
-	// TODO: Call ITF
-	return nullptr;
+	return service->onRequestFile(conv, reinterpret_cast<PurpleInterfaceRequestFileCb>(ok_cb), reinterpret_cast<PurpleInterfaceRequestCancelCb>(cancel_cb), user_data, safe_tstring(who), safe_tstring(title), safe_tstring(filename), savedialog);
 }
 
 void purple_cb_ops_close_request(PurpleRequestType type, void* ui_handle) {
+	PurpleInterfaceAccount* service = PurpleInterface::InstanceContext->accountByRequestHandle(ui_handle);
+	if(service == nullptr) { return; }
+	service->onCloseRequest(ui_handle);
 }
 
 void* purple_cb_ops_request_folder(const TCHAR*title, const TCHAR*dirname, GCallback ok_cb, GCallback cancel_cb, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, void* user_data) {
 	PurpleInterfaceAccount* service = accountService(PurpleInterface::InstanceContext, account);
 	if(service == nullptr) { return nullptr; }
-
-	// TODO: Call ITF
-	return nullptr;
+	return service->onRequestFolder(conv, reinterpret_cast<PurpleInterfaceRequestFolderCb>(ok_cb), reinterpret_cast<PurpleInterfaceRequestCancelCb>(cancel_cb), user_data, safe_tstring(who), safe_tstring(title), safe_tstring(dirname));
 }
 
 void* purple_cb_ops_request_action_with_icon(const TCHAR*title, const TCHAR*primary, const TCHAR*secondary, int default_action, PurpleAccount* account, const TCHAR*who, PurpleConversation* conv, gconstpointer icon_data, gsize icon_size, void* user_data, size_t action_count, va_list actions) {
-	PurpleInterfaceAccount* service = accountService(PurpleInterface::InstanceContext, account);
-	if(service == nullptr) { return nullptr; }
-
-	// TODO: Call ITF
-	return nullptr;
+	return purple_cb_ops_request_action(title, primary, secondary, default_action, account, who, conv, user_data, action_count, actions);
 }
 
 //======================================================================================================================

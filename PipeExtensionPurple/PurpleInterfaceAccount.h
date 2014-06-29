@@ -24,6 +24,7 @@ public:
 public:
 	void init(const tstring& protocol_id);
 	PurpleAccount* accountHandle() { return _account; }
+	bool hasRequestHandle(void* requestHandle);
 
 public:
 	virtual PipeArrayPtr receive();
@@ -58,6 +59,14 @@ public:
 
 	void onFileRecvUpdate(PurpleXfer *xfer);
 	void onFileSendUpdate(PurpleXfer *xfer);
+
+	void onCloseRequest(void* requestHandle);
+	void* onRequestInput(PurpleConversation* conversation, PurpleInterfaceRequestInputCb ok_cb, PurpleInterfaceRequestCancelCb cancel_cb, void* user_data, tstring who, tstring title, tstring ok_text, tstring cancel_text, tstring primary, tstring secondary, tstring default_value, tstring hint, bool multiline, bool masked);
+	void* onRequestChoice(PurpleConversation* conversation, PurpleInterfaceRequestChoiceCb ok_cb, PurpleInterfaceRequestCancelCb cancel_cb, void* user_data, tstring who, tstring title, tstring ok_text, tstring cancel_text, tstring primary, tstring secondary, int default_value, std::map<int, tstring> choices);
+	void* onRequestAction(PurpleConversation* conversation, void* user_data, tstring who, tstring title, tstring primary, tstring secondary, int default_action, std::map<int, std::pair<tstring, PurpleInterfaceRequestActionCb>> actions);
+	void* onRequestFile(PurpleConversation* conversation, PurpleInterfaceRequestFileCb ok_cb, PurpleInterfaceRequestCancelCb cancel_cb, void* user_data, tstring who, tstring title, tstring filanem, bool savedialog);
+	void* onRequestFolder(PurpleConversation* conversation, PurpleInterfaceRequestFolderCb ok_cb, PurpleInterfaceRequestCancelCb cancel_cb, void* user_data, tstring who, tstring title, tstring dirname);
+	
 	// Important from PurplePluginProtocolInfo, could also be handled by server
 	// chat_info
 	// chat_info_defaults ? 
