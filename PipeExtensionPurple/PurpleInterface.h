@@ -111,20 +111,10 @@
 
 
 	* status ( Helper functions might be needed )
-
-
-
-	TODO: General events
-	// request input
-	// request choice
-	// request action
-	// request fields
-	// request file
-	// close request
-	// request folder
-	// request action with icon
-
 */
+
+//======================================================================================================================
+
 typedef void(*PurpleInterfaceRequestCancelCb)(void* user_data);
 typedef void(*PurpleInterfaceRequestInputCb)(void* user_data, const TCHAR * input);
 typedef void(*PurpleInterfaceRequestActionCb)(void* user_data, int action);
@@ -132,7 +122,12 @@ typedef void(*PurpleInterfaceRequestChoiceCb)(void* user_data, int choice);
 typedef void(*PurpleInterfaceRequestFileCb)(void* user_data, const TCHAR* filename);
 typedef void(*PurpleInterfaceRequestFolderCb)(void* user_data, const TCHAR* dirname);
 
+//======================================================================================================================
+
 class PipeExtensionPurple;
+
+//======================================================================================================================
+
 class PurpleInterface {
 public:
 	static const tstring InterfaceID;
@@ -150,9 +145,6 @@ public:
 
 private:
 	void initSignalCallbacks();
-
-public:
-
 };
 
 //======================================================================================================================

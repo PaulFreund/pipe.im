@@ -319,8 +319,7 @@ public:
 				// Send to pipe
 				if(incoming.size() > 0) {
 					for(auto& message : incoming) {
-						if(message.empty())
-							continue;
+
 
 						if(pApp->_debug) { cout << _T("Websocket message received: ") << message << endl; }
 
@@ -334,7 +333,7 @@ public:
 									pApp->_pipeOutgoing->push_back(_shell.getOutgoing());
 								}
 							}
-							else {
+							else if(!message.empty()) {
 								pApp->_pipeOutgoing->push_back(message);
 							}
 						}

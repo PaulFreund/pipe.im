@@ -75,7 +75,7 @@ public:
 		_instanceEmpty = false;
 
 		PipeSchemaType schemaType = schemaData->type();
-		if(schemaType == PipeSchemaTypeObject || schemaType == PipeSchemaTypeArray) {
+		if(schemaType == PipeSchemaTypeObject || schemaType == PipeSchemaTypeArray || parameter.empty()) {
 			if(!parameter.empty()) { return _T("Error! Schema can not be created by parameter"); }
 			return queryValue();
 		}
