@@ -10,25 +10,6 @@
 /*
 	Required functions in libpurple headers:
 
-	* account
-		* purple_account_connect
-		* purple_account_disconnect
-		* purple_account_request_close_with_account
-		* purple_account_set_enabled
-		* purple_account_get_presence
-
-		* purple_account_get_active_status
-		* purple_account_remove_buddy
-		* purple_account_get_status_types
-		* purple_account_get_status_type
-		* purple_account_add_buddy
-
-		* purple_account_set_password
-		* purple_account_get_current_error
-		* purple_account_clear_current_error
-		* purple_account_set_buddy_icon_path
-		* purple_account_get_buddy_icon_path
-
 
 	* blist
 		* purple_buddy_get_group

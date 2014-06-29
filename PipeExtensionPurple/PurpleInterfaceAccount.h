@@ -16,6 +16,7 @@ class PurpleInterfaceContact;
 class PurpleInterfaceAccount : public PipeServiceNodeBase {
 private:
 	PurpleAccount* _account;
+	void* _currentRequestHandle;
 
 public:
 	PurpleInterfaceAccount(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& instance_name, const tstring& instance_description);
@@ -26,6 +27,14 @@ public:
 	PurpleAccount* accountHandle() { return _account; }
 	bool hasRequestHandle(void* requestHandle);
 
+	//void* nextRequestHandle() {
+	//	_currentRequestHandle++;
+
+	//	if(_currentRequestHandle == INTPTR_MAX)
+	//		_currentRequestHandle = 0;
+
+	//	return _currentRequestHandle;
+	//}
 public:
 	virtual PipeArrayPtr receive();
 
@@ -67,6 +76,26 @@ public:
 	void* onRequestFile(PurpleConversation* conversation, PurpleInterfaceRequestFileCb ok_cb, PurpleInterfaceRequestCancelCb cancel_cb, void* user_data, tstring who, tstring title, tstring filanem, bool savedialog);
 	void* onRequestFolder(PurpleConversation* conversation, PurpleInterfaceRequestFolderCb ok_cb, PurpleInterfaceRequestCancelCb cancel_cb, void* user_data, tstring who, tstring title, tstring dirname);
 	
+	/*
+		*purple_account_connect
+		* purple_account_disconnect
+		* purple_account_request_close_with_account
+		* purple_account_set_enabled
+		* purple_account_get_presence
+
+		* purple_account_get_active_status
+		* purple_account_remove_buddy
+		* purple_account_get_status_types
+		* purple_account_get_status_type
+		* purple_account_add_buddy
+
+		* purple_account_set_password
+		* purple_account_get_current_error
+		* purple_account_clear_current_error
+		* purple_account_set_buddy_icon_path
+		* purple_account_get_buddy_icon_path
+	*/
+
 	// Important from PurplePluginProtocolInfo, could also be handled by server
 	// chat_info
 	// chat_info_defaults ? 
