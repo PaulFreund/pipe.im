@@ -57,6 +57,8 @@ void loadExtension(const tstring& path) {
 
 	PipeExtensionFunctions extensionFunctions;
 	try {
+		extensionFunctions.fktPipeExtensionProcess               = reinterpret_cast<FktPipeExtensionProcess>              (loadExtensionSymbol(library, NamePipeExtensionProcess               ));
+		
 		extensionFunctions.fktPipeExtensionSetErrorCallback             = reinterpret_cast<FktPipeExtensionSetErrorCallback>            (loadExtensionSymbol(library, NamePipeExtensionSetErrorCallback             ));
 		extensionFunctions.fktPipeExtensionSetPath                      = reinterpret_cast<FktPipeExtensionSetPath>                     (loadExtensionSymbol(library, NamePipeExtensionSetPath                      ));
 
@@ -64,8 +66,8 @@ void loadExtension(const tstring& path) {
 		extensionFunctions.fktPipeExtensionServiceCreate                = reinterpret_cast<FktPipeExtensionServiceCreate>               (loadExtensionSymbol(library, NamePipeExtensionServiceCreate                ));
 		extensionFunctions.fktPipeExtensionServiceDestroy               = reinterpret_cast<FktPipeExtensionServiceDestroy>              (loadExtensionSymbol(library, NamePipeExtensionServiceDestroy               ));
 
-		extensionFunctions.fktPipeExtensionServiceSend                  = reinterpret_cast<FktPipeExtensionServiceSend>                 (loadExtensionSymbol(library, NamePipeExtensionServiceSend                  ));
-		extensionFunctions.fktPipeExtensionServiceReceive               = reinterpret_cast<FktPipeExtensionServiceReceive>              (loadExtensionSymbol(library, NamePipeExtensionServiceReceive               ));
+		extensionFunctions.fktPipeExtensionServicePush                  = reinterpret_cast<FktPipeExtensionServicePush>                 (loadExtensionSymbol(library, NamePipeExtensionServicePush                  ));
+		extensionFunctions.fktPipeExtensionServicePull                  = reinterpret_cast<FktPipeExtensionServicePull>                 (loadExtensionSymbol(library, NamePipeExtensionServicePull                  ));
 
 		extensionFunctions.fktPipeExtensionServiceGetNodeChildren       = reinterpret_cast<FktPipeExtensionServiceGetNodeChildren>      (loadExtensionSymbol(library, NamePipeExtensionServiceGetNodeChildren       ));
 		extensionFunctions.fktPipeExtensionServiceGetNodeCommandTypes   = reinterpret_cast<FktPipeExtensionServiceGetNodeCommandTypes>  (loadExtensionSymbol(library, NamePipeExtensionServiceGetNodeCommandTypes   ));
@@ -80,6 +82,17 @@ void loadExtension(const tstring& path) {
 }
 
 //======================================================================================================================
+
+LIBPIPE_ITF void LibPipeProcess() {
+	try {
+		if(!InitDone) { throw tstring(_T("LibPipe not initialized")); }
+		ServiceRootInstance->process();
+	}
+	catch(tstring error) { publishError(_T("LibPipeProcess: ") + error); }
+	catch(...) { publishError(_T("LibPipeProcess: Unknown error")); }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeSetErrorCallback(LibPipeCbContext context, LibPipeCbErr cbError) {
 	ErrorCallbackContext = context;
@@ -158,22 +171,24 @@ LIBPIPE_ITF void LibPipeInit(LibPipeStr serviceTypes) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeSend(LibPipeStr messages) {
+LIBPIPE_ITF void LibPipePush(LibPipeStr messages) {
 	try {
 		if(!InitDone) { throw tstring(_T("LibPipe not initialized")); }
-		ServiceRootInstance->send(parseArray(messages));
+		ServiceRootInstance->push(parseArray(messages));
 	}
-	catch(tstring error) { publishError(_T("LibPipeSend: ") + error); }
-	catch(...) { publishError(_T("LibPipeSend: Unknown error")); }
+	catch(tstring error) { publishError(_T("LibPipePush: ") + error); }
+	catch(...) { publishError(_T("LibPipePush: Unknown error")); }
 }
 
-LIBPIPE_ITF void LibPipeReceive(LibPipeCbContext context, LibPipeCbStr cbMessages) {
+//----------------------------------------------------------------------------------------------------------------------
+
+LIBPIPE_ITF void LibPipePull(LibPipeCbContext context, LibPipeCbStr cbMessages) {
 	try {
 		if(!InitDone) { throw tstring(_T("LibPipe not initialized")); }
-		cbMessages(context, dumpArray(ServiceRootInstance->receive()).c_str());
+		cbMessages(context, dumpArray(ServiceRootInstance->pull()).c_str());
 	}
-	catch(tstring error) { publishError(_T("LibPipeReceive: ") + error); }
-	catch(...) { publishError(_T("LibPipeReceive: Unknown error")); }
+	catch(tstring error) { publishError(_T("LibPipePull: ") + error); }
+	catch(...) { publishError(_T("LibPipePull: Unknown error")); }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -187,6 +202,8 @@ LIBPIPE_ITF void LibPipeGetNodeChildren(LibPipeStr address, LibPipeCbContext con
 	catch(...) { publishError(_T("LibPipeGetNodeChildren: Unknown error")); }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
 LIBPIPE_ITF void LibPipeGetNodeCommandTypes(LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeCommandTypes) {
 	try {
 		if(!InitDone) { throw tstring(_T("LibPipe not initialized")); }
@@ -196,6 +213,9 @@ LIBPIPE_ITF void LibPipeGetNodeCommandTypes(LibPipeStr address, LibPipeCbContext
 	catch(...) { publishError(_T("LibPipeGetNodeCommandTypes: Unknown error")); }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+
 LIBPIPE_ITF void LibPipeGetNodeMessageTypes(LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeMessageTypes) {
 	try {
 		if(!InitDone) { throw tstring(_T("LibPipe not initialized")); }
@@ -204,6 +224,9 @@ LIBPIPE_ITF void LibPipeGetNodeMessageTypes(LibPipeStr address, LibPipeCbContext
 	catch(tstring error) { publishError(_T("LibPipeGetNodeMessageTypes: ") + error); }
 	catch(...) { publishError(_T("LibPipeGetNodeMessageTypes: Unknown error")); }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
 
 LIBPIPE_ITF void LibPipeGetNodeInfo(LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeInfo) {
 	try {

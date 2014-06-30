@@ -8,25 +8,27 @@
 
 //======================================================================================================================
 
+const tstring NamePipeExtensionProcess                      = _T("PipeExtensionProcess");
 const tstring NamePipeExtensionSetErrorCallback             = _T("PipeExtensionSetErrorCallback");
 const tstring NamePipeExtensionSetPath                      = _T("PipeExtensionSetPath");
 const tstring NamePipeExtensionGetServiceTypes              = _T("PipeExtensionGetServiceTypes");
 const tstring NamePipeExtensionServiceCreate                = _T("PipeExtensionServiceCreate");
 const tstring NamePipeExtensionServiceDestroy               = _T("PipeExtensionServiceDestroy");
-const tstring NamePipeExtensionServiceSend                  = _T("PipeExtensionServiceSend");
-const tstring NamePipeExtensionServiceReceive               = _T("PipeExtensionServiceReceive");
+const tstring NamePipeExtensionServicePush                  = _T("PipeExtensionServicePush");
+const tstring NamePipeExtensionServicePull                  = _T("PipeExtensionServicePull");
 const tstring NamePipeExtensionServiceGetNodeChildren       = _T("PipeExtensionServiceGetNodeChildren");
 const tstring NamePipeExtensionServiceGetNodeCommandTypes   = _T("PipeExtensionServiceGetNodeCommandTypes");
 const tstring NamePipeExtensionServiceGetNodeMessageTypes   = _T("PipeExtensionServiceGetNodeMessageTypes");
 const tstring NamePipeExtensionServiceGetNodeInfo           = _T("PipeExtensionServiceGetNodeInfo");
 
+typedef void(*FktPipeExtensionProcess)                      ();
 typedef void(*FktPipeExtensionSetErrorCallback)             (PipeExtensionCbStr);
 typedef void(*FktPipeExtensionSetPath)                      (PipeExtensionStr);
 typedef void(*FktPipeExtensionGetServiceTypes)              (PipeExtensionCbContext, PipeExtensionCbStr);
 typedef void(*FktPipeExtensionServiceCreate)                (PipeExtensionStr, PipeExtensionStr, PipeExtensionStr, HPipeExtensionService*);
 typedef void(*FktPipeExtensionServiceDestroy)               (HPipeExtensionService);
-typedef void(*FktPipeExtensionServiceSend)                  (HPipeExtensionService, PipeExtensionStr);
-typedef void(*FktPipeExtensionServiceReceive)               (HPipeExtensionService, PipeExtensionCbContext, PipeExtensionCbStr);
+typedef void(*FktPipeExtensionServicePush)                  (HPipeExtensionService, PipeExtensionStr);
+typedef void(*FktPipeExtensionServicePull)                  (HPipeExtensionService, PipeExtensionCbContext, PipeExtensionCbStr);
 typedef void(*FktPipeExtensionServiceGetNodeChildren)       (HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
 typedef void(*FktPipeExtensionServiceGetNodeCommandTypes)   (HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
 typedef void(*FktPipeExtensionServiceGetNodeMessageTypes)   (HPipeExtensionService, PipeExtensionStr, PipeExtensionCbContext, PipeExtensionCbStr);
@@ -35,13 +37,14 @@ typedef void(*FktPipeExtensionServiceGetNodeInfo)           (HPipeExtensionServi
 //======================================================================================================================
 
 struct PipeExtensionFunctions {
+	FktPipeExtensionProcess                     fktPipeExtensionProcess                     = nullptr;
 	FktPipeExtensionSetErrorCallback            fktPipeExtensionSetErrorCallback            = nullptr;
 	FktPipeExtensionSetPath                     fktPipeExtensionSetPath                     = nullptr;
 	FktPipeExtensionGetServiceTypes             fktPipeExtensionGetServiceTypes             = nullptr;
 	FktPipeExtensionServiceCreate               fktPipeExtensionServiceCreate               = nullptr;
 	FktPipeExtensionServiceDestroy              fktPipeExtensionServiceDestroy              = nullptr;
-	FktPipeExtensionServiceSend                 fktPipeExtensionServiceSend                 = nullptr;
-	FktPipeExtensionServiceReceive              fktPipeExtensionServiceReceive              = nullptr;
+	FktPipeExtensionServicePush                 fktPipeExtensionServicePush                 = nullptr;
+	FktPipeExtensionServicePull                 fktPipeExtensionServicePull                 = nullptr;
 	FktPipeExtensionServiceGetNodeChildren      fktPipeExtensionServiceGetNodeChildren      = nullptr;
 	FktPipeExtensionServiceGetNodeCommandTypes  fktPipeExtensionServiceGetNodeCommandTypes  = nullptr;
 	FktPipeExtensionServiceGetNodeMessageTypes  fktPipeExtensionServiceGetNodeMessageTypes  = nullptr;
@@ -63,16 +66,18 @@ public:
 	}
 
 public:
-	virtual void send(PipeArrayPtr messages) {
-		_functions.fktPipeExtensionServiceSend(_service, dumpArray(messages).c_str());
+	//------------------------------------------------------------------------------------------------------------------
+
+	virtual void push(PipeArrayPtr messages) {
+		_functions.fktPipeExtensionServicePush(_service, dumpArray(messages).c_str());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeArrayPtr receive() {
+	virtual PipeArrayPtr pull() {
 		PipeArrayPtr messages;
 
-		_functions.fktPipeExtensionServiceReceive(_service, &messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
+		_functions.fktPipeExtensionServicePull(_service, &messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
 			(*static_cast<PipeArrayPtr*>(context)) = parseArray(messagesData);
 		});
 
@@ -141,6 +146,14 @@ public:
 	virtual ~PipeExtensionInstance() {}
 
 public:
+	//------------------------------------------------------------------------------------------------------------------
+
+	virtual void process() {
+		_functions.fktPipeExtensionProcess();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
 	virtual PipeArrayPtr serviceTypes() {
 		PipeArrayPtr types;
 		

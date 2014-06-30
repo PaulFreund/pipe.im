@@ -4,15 +4,14 @@
 
 //======================================================================================================================
 
-#include "LibPipeInterface.h"
 #include "PipeExtensionAPI.h"
 
 //======================================================================================================================
 
 class IPipeExtensionService {
 public:
-	virtual void send(PipeArrayPtr messages) = 0;
-	virtual PipeArrayPtr receive() = 0;
+	virtual void push(PipeArrayPtr messages) = 0;
+	virtual PipeArrayPtr pull() = 0;
 
 	virtual PipeArrayPtr nodeChildren(const tstring& address) = 0;
 	virtual PipeArrayPtr nodeCommandTypes(const tstring& address) = 0;
@@ -24,6 +23,7 @@ public:
 
 class IPipeExtension {
 public:
+	virtual void process() = 0;
 	virtual PipeArrayPtr serviceTypes() = 0;
 	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings) = 0;
 	virtual void destroy(IPipeExtensionService* service) = 0;

@@ -4,14 +4,19 @@
 
 //======================================================================================================================
 
-#include "LibPipeInterface.h"
 #include "LibPipeHelper.h"
-
+#include "LibPipeAPI.h"
 
 //======================================================================================================================
 
 namespace LibPipe {
 	typedef void(*ErrorCallback)(tstring);
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	inline void process() {
+		LibPipeProcess();
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
@@ -54,16 +59,16 @@ namespace LibPipe {
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	inline void send(PipeArrayPtr messages) {
-		LibPipeSend(dumpArray(messages).c_str());
+	inline void push(PipeArrayPtr messages) {
+		LibPipePush(dumpArray(messages).c_str());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	inline PipeArrayPtr receive() {
+	inline PipeArrayPtr pull() {
 		PipeArrayPtr messages;
 
-		LibPipeReceive(&messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
+		LibPipePull(&messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
 			(*static_cast<PipeArrayPtr*>(context)) = parseArray(messagesData);
 		});
 

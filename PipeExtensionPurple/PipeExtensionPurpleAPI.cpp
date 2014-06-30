@@ -15,6 +15,16 @@ void publishError(tstring error) {
 
 //======================================================================================================================
 
+PIPE_EXTENSION_ITF void PipeExtensionProcess() {
+	try {
+		PipeExtensionPurple::ExtensionInstance.process();
+	}
+	catch(tstring error) { publishError(_T("PipeExtensionProcess: ") + error); }
+	catch(...) { publishError(_T("PipeExtensionProcess: Unknown error")); }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 PIPE_EXTENSION_ITF void PipeExtensionSetErrorCallback(PipeExtensionCbErr cbError) {
 	PipeExtensionPurple::ErrorCallback = cbError;
 }
@@ -72,22 +82,22 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy(HPipeExtensionService servic
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceSend(HPipeExtensionService service, PipeExtensionStr messages) {
+PIPE_EXTENSION_ITF void PipeExtensionServicePush(HPipeExtensionService service, PipeExtensionStr messages) {
 	try {
-		reinterpret_cast<IPipeExtensionService*>(service)->send(parseArray(messages));
+		reinterpret_cast<IPipeExtensionService*>(service)->push(parseArray(messages));
 	}
-	catch(tstring error) { publishError(_T("PipeExtensionServiceSend: ") + error); }
-	catch(...) { publishError(_T("PipeExtensionServiceSend: Unknown error")); }
+	catch(tstring error) { publishError(_T("PipeExtensionServicePush: ") + error); }
+	catch(...) { publishError(_T("PipeExtensionServicePush: Unknown error")); }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceReceive(HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbStr cbMessages) {
+PIPE_EXTENSION_ITF void PipeExtensionServicePull(HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbStr cbMessages) {
 	try {
-		cbMessages(context, dumpArray(reinterpret_cast<IPipeExtensionService*>(service)->receive()).c_str());
+		cbMessages(context, dumpArray(reinterpret_cast<IPipeExtensionService*>(service)->pull()).c_str());
 	}
-	catch(tstring error) { publishError(_T("PipeExtensionServiceReceive: ") + error); }
-	catch(...) { publishError(_T("PipeExtensionServiceReceive: Unknown error")); }
+	catch(tstring error) { publishError(_T("PipeExtensionServicePull: ") + error); }
+	catch(...) { publishError(_T("PipeExtensionServicePull: Unknown error")); }
 }
 
 //----------------------------------------------------------------------------------------------------------------------

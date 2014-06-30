@@ -36,7 +36,7 @@ public:
 	//	return _currentRequestHandle;
 	//}
 public:
-	virtual PipeArrayPtr receive();
+	virtual PipeArrayPtr pull();
 
 public:
 	PurpleInterfaceContact* contactService(PurpleBlistNode* contact);

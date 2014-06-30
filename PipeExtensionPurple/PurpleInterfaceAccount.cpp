@@ -89,12 +89,12 @@ bool PurpleInterfaceAccount::hasRequestHandle(void* requestHandle) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PipeArrayPtr PurpleInterfaceAccount::receive() {
+PipeArrayPtr PurpleInterfaceAccount::pull() {
 	// Trigger event loop
 	if(_account != nullptr)
 		g_main_context_iteration(g_main_context_default(), false);
 	
-	return PipeServiceNodeBase::receive();
+	return PipeServiceNodeBase::pull();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

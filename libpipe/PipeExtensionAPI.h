@@ -25,6 +25,10 @@ typedef void            (*PipeExtensionCbStr)(PipeExtensionCbContext, PipeExtens
 
 //======================================================================================================================
 
+PIPE_EXTENSION_ITF void PipeExtensionProcess();
+
+//----------------------------------------------------------------------------------------------------------------------
+
 PIPE_EXTENSION_ITF void PipeExtensionSetErrorCallback           (PipeExtensionCbErr cbError);
 PIPE_EXTENSION_ITF void PipeExtensionSetPath                    (PipeExtensionStr path);
 
@@ -37,8 +41,8 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy             (HPipeExtensionS
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceSend                (HPipeExtensionService service, PipeExtensionStr messages);
-PIPE_EXTENSION_ITF void PipeExtensionServiceReceive             (HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbStr cbMessages);
+PIPE_EXTENSION_ITF void PipeExtensionServicePush                (HPipeExtensionService service, PipeExtensionStr messages);
+PIPE_EXTENSION_ITF void PipeExtensionServicePull                (HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbStr cbMessages);
 
 //----------------------------------------------------------------------------------------------------------------------
 

@@ -41,6 +41,27 @@ using namespace Poco::Net;
 
 //======================================================================================================================
 
+bool checkAuth(PipeWebsocketTerminalApplication* pApp, HTTPServerRequest& request, HTTPServerResponse& response) {
+	if(pApp->_authToken.empty()) { return true; } // Does not require authentication
+
+	// Get authentication
+	if(request.hasCredentials()) {
+		try {
+			tstring scheme = _T("");
+			tstring authInfo = _T("");
+			request.getCredentials(scheme, authInfo);
+			if(authInfo == pApp->_authToken) { return true; }
+		}
+		catch(NotAuthenticatedException e) {}
+	}
+
+	// No valid authentication, request it
+	response.setStatus(HTTPResponse::HTTP_UNAUTHORIZED);
+	response.requireAuthentication(_T("Authentication required"));
+	response.send();
+	return false;
+}
+
 class PipeRequestHandlerPage : public HTTPRequestHandler {
 public:
 	void generateFileObject(const tstring& path, PipeObject& object, bool first = false) {
@@ -157,7 +178,7 @@ public:
 				}
 			}
 			// Commands without
-			else if(parts[1] == _T("send")) {
+			else if(parts[1] == _T("push")) {
 				tstring err;
 				PipeJson message = PipeJson::parse(body, err);
 				PipeArrayPtr outgoing;
@@ -174,7 +195,7 @@ public:
 
 				return true;
 			}
-			else if(parts[1] == _T("receive")) {
+			else if(parts[1] == _T("pull")) {
 				pApp->_pipeMutex.lock();
 				outstream << PipeJson(*pApp->_pipeIncoming).dump();
 				pApp->_pipeIncoming->clear();
@@ -195,6 +216,8 @@ public:
 
 	void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
 		PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
+		if(!checkAuth(pApp, request, response))
+			return;
 
 		auto uri = request.getURI();
 		auto uriPath = pApp->_uripath;
@@ -288,6 +311,9 @@ public:
 public:
 	void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
 		PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
+
+		if(!checkAuth(pApp, request, response))
+			return;
 
 		try {
 			WebSocket ws(request, response);
@@ -412,7 +438,7 @@ size_t lenWssToken = wssToken.length();
 class PipeRequestHandlerFactory : public HTTPRequestHandlerFactory {
 public:
 		HTTPRequestHandler* createRequestHandler(const HTTPServerRequest& request) {
-
+			
 			tstring uri = request.getURI();
 			size_t lenUri = uri.length();
 
@@ -440,6 +466,12 @@ PipeWebsocketTerminalApplication::~PipeWebsocketTerminalApplication() {}
 
 
 void PipeWebsocketTerminalApplication::defineOptions(OptionSet& options) {
+	options.addOption(
+		Option(_T("help"), _T("h"), _T("Display help"))
+		.required(false)
+		.repeatable(false)
+		.callback(OptionCallback<PipeWebsocketTerminalApplication>(this, &PipeWebsocketTerminalApplication::displayHelp))
+		);
 	options.addOption(
 		Option(_T("extdir"), _T("e"), _T("Path to folder where extensions are located"))
 		.required(false)
@@ -482,6 +514,13 @@ void PipeWebsocketTerminalApplication::defineOptions(OptionSet& options) {
 		.binding(_T("uripath"))
 		.argument(_T("[uripath]"))
 		);
+	options.addOption(
+		Option(_T("authtoken"), _T("t"), _T("Authentication information in CRYPT form"))
+		.required(false)
+		.repeatable(false)
+		.binding(_T("authtoken"))
+		.argument(_T("[authtoken]"))
+		);
 }
 
 class PipeWebsocketTerminalErrorHandler : public ErrorHandler {
@@ -516,6 +555,7 @@ int PipeWebsocketTerminalApplication::main(const vector<tstring>& args) {
 		_port = config().getInt(_T("port"), 9980);
 		_address = config().getString(_T("address"), _T("127.0.0.1"));
 		_uripath = config().getString(_T("uripath"), _T(""));
+		_authToken = config().getString(_T("authtoken"), _T("d29vazpkb2JiaWU1OTUw"));
 		if(_uripath[0] != _T('/'))
 			_uripath = _T("/") + _uripath;
 
@@ -543,11 +583,11 @@ int PipeWebsocketTerminalApplication::main(const vector<tstring>& args) {
 			_pipeMutex.lock();
 			{
 				// Receive
-				PipeArrayPtr incoming = LibPipe::receive();
+				PipeArrayPtr incoming = LibPipe::pull();
 				_pipeIncoming->insert(end(*_pipeIncoming), begin(*incoming), end(*incoming));
 
 				// Send
-				LibPipe::send(_pipeOutgoing);
+				LibPipe::push(_pipeOutgoing);
 				_pipeOutgoing->clear();
 			}
 			_pipeMutex.unlock();

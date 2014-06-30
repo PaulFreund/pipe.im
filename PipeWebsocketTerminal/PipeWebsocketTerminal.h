@@ -39,6 +39,7 @@ public:
 	int _port = 9980;
 	tstring _address;
 	tstring _uripath;
+	tstring _authToken;
 
 	std::mutex _pipeMutex;
 	PipeArrayPtr _pipeIncoming;

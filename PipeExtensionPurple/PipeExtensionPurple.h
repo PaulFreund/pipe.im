@@ -27,6 +27,7 @@ public:
 	virtual ~PipeExtensionPurple();
 
 public:
+	virtual void process();
 	virtual PipeArrayPtr serviceTypes();
 	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings);
 	virtual void destroy(IPipeExtensionService* service);

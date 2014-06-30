@@ -65,10 +65,10 @@ int main(int argc, char* argv[]) {
 
 		bool exit = false;
 
-		thread receive([&]() {
+		thread pull([&]() {
 			tstring received;
 			while(!exit) {
-				auto messages = LibPipe::receive();
+				auto messages = LibPipe::pull();
 				received = shell.addIncoming(messages);
 				if(!received.empty())
 					cout << received << endl;
@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
 			}
 		});
 
-		thread send([&]() {
+		thread push([&]() {
 			const unsigned int bufferSize = 2048;
 			TCHAR buffer[bufferSize];
 
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 				}
 
 				if(shell.addOutgoing(message)) {
-					LibPipe::send(newArray({ shell.getOutgoing() }));
+					LibPipe::push(newArray({ shell.getOutgoing() }));
 				}
 			}
 		});
@@ -101,8 +101,8 @@ int main(int argc, char* argv[]) {
 			Thread::sleep(100);
 		}
 
-		receive.join();
-		send.join();
+		pull.join();
+		push.join();
 	}
 	catch(exception e) {
 		cout << _T("Exception: ") << e.what() << endl;

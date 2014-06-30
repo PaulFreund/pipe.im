@@ -22,6 +22,5 @@
 
 #include "LibPipeAPI.h"
 #include "PipeExtensionAPI.h"
-#include "LibPipeInterface.h"
 
 //======================================================================================================================

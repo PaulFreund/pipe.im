@@ -30,6 +30,12 @@ PipeExtensionPurple::~PipeExtensionPurple() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void PipeExtensionPurple::process() {
+	// TODO
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 PipeArrayPtr PipeExtensionPurple::serviceTypes() {
 	return PipeExtensionPurple::Purple->getProtocols();
 }

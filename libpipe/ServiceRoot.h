@@ -36,6 +36,9 @@ public:
 	void scriptPushIncoming(PipeObjectPtr message);
 	void scriptPushOutgoing(PipeObjectPtr message);
 
+public:
+	void process();
+
 private:
 	void loadConfig();
 	bool readConfig();

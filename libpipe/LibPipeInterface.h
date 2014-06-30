@@ -11,8 +11,9 @@
 
 class ILibPipe {
 public:
-	virtual void send(PipeArrayPtr messages) = 0;
-	virtual PipeArrayPtr receive() = 0;
+	virtual void process() = 0;
+	virtual void push(PipeArrayPtr messages) = 0;
+	virtual PipeArrayPtr pull() = 0;
 
 	virtual PipeArrayPtr nodeChildren(const tstring& address) = 0;
 	virtual PipeArrayPtr nodeCommandTypes(const tstring& address) = 0;

@@ -65,6 +65,12 @@ void ServiceRoot::scriptPushOutgoing(PipeObjectPtr message) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void ServiceRoot::process() {
+	// TODO
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void ServiceRoot::loadConfig() {
 	if(!readConfig())
 		return;
@@ -651,7 +657,7 @@ void ServiceRoot::executeScripts(PipeArrayPtr messages, bool preSend, bool postR
 	if(preSend && !_scriptIncomingQueue->empty()) {
 		PipeArrayPtr incoming = move(_scriptIncomingQueue);
 		_scriptIncomingQueue = newArray();
-		send(incoming);
+		push(incoming);
 	}
 }
 

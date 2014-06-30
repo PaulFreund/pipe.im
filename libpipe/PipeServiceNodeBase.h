@@ -228,7 +228,7 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 
 public:
-	virtual void send(PipeArrayPtr messages) {
+	virtual void push(PipeArrayPtr messages) {
 		if(_preSendHookEnabled)
 			_preSendHook(messages);
 
@@ -264,7 +264,7 @@ public:
 				else {
 					tstring nextAddress = relativeChildAddress(messageAddress);
 					if(_children.count(nextAddress))
-						_children[nextAddress]->send(newArray({ message }));
+						_children[nextAddress]->push(newArray({ message }));
 					else 
 						throw tstring(_T("Address not found"));
 				}
@@ -280,12 +280,12 @@ public:
 	
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeArrayPtr receive() {
+	virtual PipeArrayPtr pull() {
 		PipeArrayPtr messages = _outgoing;
 		_outgoing = newArray();
 
 		for(auto&& child : _children) {
-			auto&& serviceOutgoing = child.second->receive();
+			auto&& serviceOutgoing = child.second->pull();
 			if(serviceOutgoing->size() > 0)
 				messages->insert(messages->end(), serviceOutgoing->begin(), serviceOutgoing->end());
 		}
