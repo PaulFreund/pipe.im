@@ -65,6 +65,11 @@ int main(int argc, char* argv[]) {
 
 		bool exit = false;
 
+		thread process([&]() {
+			LibPipe::process();
+			Thread::sleep(100);
+		});
+
 		thread pull([&]() {
 			tstring received;
 			while(!exit) {
@@ -73,7 +78,7 @@ int main(int argc, char* argv[]) {
 				if(!received.empty())
 					cout << received << endl;
 
-				Thread::sleep(1000);
+				Thread::sleep(100);
 			}
 		});
 
@@ -101,6 +106,7 @@ int main(int argc, char* argv[]) {
 			Thread::sleep(100);
 		}
 
+		process.join();
 		pull.join();
 		push.join();
 	}

@@ -175,7 +175,7 @@ private:
 		_clientState = None;
 
 		// Instance is complete
-		if(_instanceComplete) { return _T("Instance completed\n"); }
+		if(_instanceComplete) { return _T("Instance completed"); }
 
 		return queryValue();
 	}
@@ -552,31 +552,40 @@ struct PipeCommandBuffer {
 class PipeShell {
 private:
 	//------------------------------------------------------------------------------------------------------------------
-	const tstring _greetingText = _T("Welcome to the pipe shell, type help for further assistance\n");
+	const tstring _greetingText = _T("Welcome to the pipe shell, type help for further assistance");
 	const tstring _abortText = _T("!abortcommand");
 private:
 	//------------------------------------------------------------------------------------------------------------------
 	const tstring _identifier;
+	const std::function<void(tstring)> _cbOutputText;
+	const std::function<void(PipeJson)> _cbOutputMessage;
 	bool _greeting;
 
 	tstring _address;
-	PipeArrayPtr _addressCommands;
 
-	tstringstream _receiveBuffer;
+	tstring _nextCommandStart;
+	tstring _nextAddress;
+
 	PipeCommandBuffer _sendBuffer;
+
 
 public:
 	//------------------------------------------------------------------------------------------------------------------
 
-	PipeShell(const tstring& identifier, bool greeting = false)
+	PipeShell(const tstring& identifier, std::function<void(tstring)> cbOutputText, std::function<void(PipeJson)> cbOutputMessage, bool greeting = false)
 		: _identifier(identifier)
+		, _cbOutputText(cbOutputText)
+		, _cbOutputMessage(cbOutputMessage)
 		, _greeting(greeting)
 		, _address(_T("pipe"))
-		, _addressCommands(LibPipe::nodeCommandTypes(_address))
+		, _nextCommandStart(_T(""))
+		, _nextAddress(_T(""))
 
 	{
+		PipeObject empty;
+		setAddress(empty);
 		if(_greeting)
-			_receiveBuffer << _greetingText << std::endl;
+			_cbOutputText(_greetingText);
 	}
 
 	~PipeShell() {};
@@ -584,123 +593,80 @@ public:
 public:
 	//------------------------------------------------------------------------------------------------------------------
 
-	bool setAddress(const tstring& newAddress = _T("pipe")) {
-		tstring newAddressAbsolute = getAbsoluteAddress(newAddress);
-		if(newAddressAbsolute.length() == 0)
-			return false;
-
-		PipeArrayPtr newAddressCommands;
-		newAddressCommands = LibPipe::nodeCommandTypes(newAddressAbsolute);
-		if(LibPipe::nodeInfo(newAddressAbsolute)->empty())
-			return false;
-
-		_address = newAddressAbsolute;
-		_addressCommands = newAddressCommands;
-		return true;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-
-	tstring getAddress() {
+	const tstring& getAddress() {
 		return _address;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	bool addOutgoing(const tstring& input) {
+	void inputText(const tstring& input) {
 		// Abort command
 		if(input == _abortText) {
 			_sendBuffer.data.clear();
-			_receiveBuffer << _T("Aborted command.") << std::endl;
-			return false;
+			_nextCommandStart = _T("");
+			_nextAddress = _T("");
+			_cbOutputText(_T("Aborted command."));
+			return;
 		}
 
 		// New command
 		if(_sendBuffer.data.empty()) {
 			auto&& fragments = texplode(input, _T(' '));
-			if(fragments.size() <= 0) { return false; }
+			if(fragments.size() <= 0) { return; }
 
 			// Extract possible address
 			auto address = _address;
-			auto addressCommands = _addressCommands;
 			if(fragments.size() >= 2) {
 				if(fragments[0] == _T("pipe") || fragments[0].find_first_of(TokenAddressSeparator) != tstring::npos) {
 					address = fragments[0];
-					addressCommands = LibPipe::nodeCommandTypes(address);
 					fragments.erase(begin(fragments));
 				}
 			}
 
-			// Get command
-			tstring command = fragments[0];
-			fragments.erase(begin(fragments));
-
-			bool shellCommand = isShellCommand(command);
-
-			// commands starting with # indicate a service command
-			if(command[0] == _T('#')) {
-				command.erase(begin(command));
-				shellCommand = false;
-			}
-
-			// Warn when command is ambigous between shell and service
-			if(shellCommand && isPipeCommand(command, addressCommands)) {
-				_receiveBuffer << _T("Warning! Command is ambiguous, use !<command> to use shell instead of service or #<command> to explicitly use the service and stop this warning") << std::endl;
-				shellCommand = false;
-			}
-
-			tstring parameter = timplode(fragments, _T(' '));
-
-			if(shellCommand) {
-				newShellCommand(command, parameter, address);
-			}
-			else {
-				PipeJson* schema = nullptr;
-				for(auto&& addressCommand : *addressCommands) {
-					auto&& cmd = addressCommand.object_items();
-					if(cmd[TokenMessageCommand].string_value() == command)
-						schema = &addressCommand[_T("data_schema")];
-				}
-
-				// Invalid command
-				if(schema == nullptr) {
-					_receiveBuffer << _T("Error! command not found");
-					return false;
-				}
-
-				_sendBuffer = PipeCommandBuffer(_identifier, address, command);
-				
-				// If data has to be supplied, start 
-				if(!schema->object_items().empty())
-					_receiveBuffer << _sendBuffer.data.start(*schema, parameter);
-
-				return (_sendBuffer.data.empty() || _sendBuffer.data.complete());
-			}
+			_nextCommandStart = timplode(fragments, _T(' '));
+			PipeJson msg = PipeJson(PipeObject());
+			PipeObject& msgObj = msg.object_items();
+			msgObj[TokenMessageRef] = _identifier;
+			msgObj[TokenMessageAddress] = address;
+			msgObj[TokenMessageCommand] = _T("commands");
+			_cbOutputMessage(msgObj);
 		}
 		// This message has already been started
 		else {
-			_receiveBuffer << _sendBuffer.data.add(input);
-			return (_sendBuffer.data.empty() || _sendBuffer.data.complete());
-		}
+			tstring result = _sendBuffer.data.add(input);
+			if(!result.empty())
+				_cbOutputText(result);
 
-		return false;
+			if(_sendBuffer.data.complete()) {
+				PipeJson result = _sendBuffer.instance();
+				_sendBuffer.data.clear();
+				_cbOutputMessage(result);
+			}
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	tstring addIncoming(PipeArrayPtr messages) {
-		tstringstream output;
-		output << _receiveBuffer.str();
-		_receiveBuffer.str(tstring());
-
+	void inputMessages(PipeArrayPtr messages) {
 		for(auto& msg : *messages) {
 			if(!msg.is_object()) { continue; }
 
-			if(!output.str().empty())
-				output << std::endl;
-
 			auto&& obj = msg.object_items();
 			if(!obj.count(TokenMessageRef) || !obj.count(TokenMessageAddress) || !obj.count(TokenMessageMessage) || !obj.count(TokenMessageData)) { continue; }
+
+			if(!_nextAddress.empty() && obj[TokenMessageMessage].string_value() == _T("children")) {
+				setAddress(obj, _nextAddress);
+				_nextAddress = _T("");
+				return;
+			}
+
+			if(!_nextCommandStart.empty() && obj[TokenMessageMessage].string_value() == _T("commands")) {
+				newCommand(obj, _nextCommandStart);
+				_nextCommandStart = _T("");
+				return;
+			}
+
+			tstringstream output;
 
 			auto ref = obj[TokenMessageRef].string_value();
 			if(ref != _identifier && !ref.empty()) { continue; }
@@ -733,20 +699,94 @@ public:
 					output << data.string_value(); // Assume string
 				}
 			}
+
+			_cbOutputText(output.str());
+		}
+	}
+
+private:
+	//------------------------------------------------------------------------------------------------------------------
+
+	void newCommand(PipeObject& nodeCommandsMsg, const tstring& commandStart) {
+		tstring address = nodeCommandsMsg[TokenMessageAddress].string_value();
+		PipeArray& nodeCommands = nodeCommandsMsg[TokenMessageData].array_items();
+		auto&& fragments = texplode(commandStart, _T(' '));
+		if(fragments.size() <= 0) { return; }
+
+		// Get command
+		tstring command = fragments[0];
+		fragments.erase(begin(fragments));
+
+		bool shellCommand = isShellCommand(command);
+
+		// commands starting with # indicate a service command
+		if(command[0] == _T('#')) {
+			command.erase(begin(command));
+			shellCommand = false;
 		}
 
-		return output.str();
+		// Warn when command is ambigous between shell and service
+		if(shellCommand && isPipeCommand(command, nodeCommands)) {
+			_cbOutputText(_T("Warning! Command is ambiguous, use !<command> to use shell instead of service or #<command> to explicitly use the service and stop this warning"));
+			shellCommand = false;
+		}
+
+		tstring parameter = timplode(fragments, _T(' '));
+
+		if(shellCommand) {
+			newShellCommand(command, parameter, address);
+		}
+		else {
+			PipeJson* schema = nullptr;
+			for(auto&& addressCommand : nodeCommands) {
+				auto&& cmd = addressCommand.object_items();
+				if(cmd[TokenMessageCommand].string_value() == command)
+					schema = &addressCommand[_T("data_schema")];
+			}
+
+			// Invalid command
+			if(schema == nullptr) {
+				_cbOutputText(_T("Error! command not found"));
+				return;
+			}
+
+			_sendBuffer = PipeCommandBuffer(_identifier, address, command);
+
+			// If data has to be supplied, start 
+			if(!schema->object_items().empty()) {
+				tstring result = _sendBuffer.data.start(*schema, parameter);
+				if(!result.empty())
+					_cbOutputText(result);
+			}
+
+			if(_sendBuffer.data.complete()) {
+				PipeJson result = _sendBuffer.instance();
+				_sendBuffer.data.clear();
+				_cbOutputMessage(result);
+			}
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	PipeJson getOutgoing() {
-		PipeJson result = _sendBuffer.instance();
-		_sendBuffer.data.clear();
-		return result;
+	void setAddress(PipeObject& nodeChildrenMsg, const tstring& newAddress = _T("pipe")) {
+		tstring newAddressAbsolute = getAbsoluteAddress(newAddress);
+		if(newAddressAbsolute.length() == 0) {
+			_cbOutputText(_T("Shell error! Invalid address"));
+			return;
+		}
+
+		// TODO: Check if nodeChildren contains new address if it is not pipe
+
+		//PipeArrayPtr newAddressCommands;
+		//newAddressCommands = LibPipe::nodeCommandTypes(newAddressAbsolute);
+		//_addressCommands = newAddressCommands;
+
+		_address = newAddressAbsolute;
+
+		_cbOutputText(_T("New address: ") + _address);
 	}
 
-private:
 	//------------------------------------------------------------------------------------------------------------------
 
 	bool isShellCommand(const tstring& command) {
@@ -773,6 +813,8 @@ private:
 
 		//--------------------------------------------------------------------------------------------------------------
 		if(cmd == _T("help")) {
+			// TODO
+			/*
 			tstring helpAddress = (parameter.length() > 0 ? getAbsoluteAddress(parameter) : getAbsoluteAddress(address));
 			if(helpAddress.length() == 0) {
 				_receiveBuffer << _T("Invalid address") << std::endl;
@@ -807,70 +849,76 @@ private:
 				auto&& cmd = command.object_items();
 				_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << cmd[TokenMessageCommand].string_value() << _T(" - ") << cmd[_T("description")].string_value() << std::endl;
 			}
+			*/
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		if(cmd == _T("usage")) {
-			_receiveBuffer << _T("Syntax to supply parameters on demand:") << std::endl;
-			_receiveBuffer << IndentSymbol << _T("[<address>] <command>") << std::endl;
-			_receiveBuffer << std::endl;
-			_receiveBuffer << _T("Syntax if there is only on parameter for the command:") << std::endl;
-			_receiveBuffer << IndentSymbol << _T("[<address>] <command> <parameter>") << std::endl;
-			_receiveBuffer << std::endl;
-			_receiveBuffer << _T("You can abort a command at any time by sending \"") + _abortText + _T("\".") << std::endl;
+			tstringstream outputBuffer;
+			outputBuffer << _T("Syntax to supply parameters on demand:") << std::endl;
+			outputBuffer << IndentSymbol << _T("[<address>] <command>") << std::endl;
+			outputBuffer << std::endl;
+			outputBuffer << _T("Syntax if there is only on parameter for the command:") << std::endl;
+			outputBuffer << IndentSymbol << _T("[<address>] <command> <parameter>") << std::endl;
+			outputBuffer << std::endl;
+			outputBuffer << _T("You can abort a command at any time by sending \"") + _abortText + _T("\".") << std::endl;
+			_cbOutputText(outputBuffer.str());
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		else if(cmd == _T("ls")) {
 			tstring lsAddress = (parameter.length() > 0 ? getAbsoluteAddress(parameter) : getAbsoluteAddress(address));
 			if(lsAddress.length() == 0) {
-				_receiveBuffer << _T("Invalid address") << std::endl;
+				_cbOutputText(_T("Invalid address"));
 				return;
 			}
 
-			auto info = LibPipe::nodeInfo(lsAddress);
-			if(info->size() == 0) {
-				_receiveBuffer << _T("Invalid address") << std::endl;
-				return;
-			}
-
-			auto children = LibPipe::nodeChildren(lsAddress);
-			if(children->size() == 0) {
-				_receiveBuffer << _T("No children") << std::endl;
-				return;
-			}
-
-			for(auto&& child : *children)
-				_receiveBuffer << texplode(child.string_value(), TokenAddressSeparator).back() << _T(" ");
-
-			_receiveBuffer << std::endl;
+			PipeJson msg = PipeJson(PipeObject());
+			PipeObject& msgObj = msg.object_items();
+			msgObj[TokenMessageRef] = _identifier;
+			msgObj[TokenMessageAddress] = address;
+			msgObj[TokenMessageCommand] = _T("children");
+			_cbOutputMessage(msgObj);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		else if(cmd == _T("cd")) {
 			if(parameter.length() <= 0) {
-				_receiveBuffer << _T("Shell error! \"cd\" requires one parameter") << std::endl;
+				_cbOutputText(_T("Shell error! \"cd\" requires one parameter"));
 				return;
 			}
 
-			if(!setAddress(parameter))
-				_receiveBuffer << _T("Shell error! Invalid address") << std::endl;
-			else 
-				_receiveBuffer << _T("New address: ") << _address << std::endl;
+
+			tstring parent = _T("pipe");
+			if(!address.empty() && address != _T("pipe")) {
+				auto parentParts = texplode(address, TokenAddressSeparator);
+				parentParts.pop_back();
+				parent = timplode(parentParts, TokenAddressSeparator);
+			}
+
+			_nextAddress = address;
+			PipeJson msg = PipeJson(PipeObject());
+			PipeObject& msgObj = msg.object_items();
+			msgObj[TokenMessageRef] = _identifier;
+			msgObj[TokenMessageAddress] = parent;
+			msgObj[TokenMessageCommand] = _T("children");
+			_cbOutputMessage(msgObj);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		else if(cmd == _T("pwd")) {
 			if(parameter.length() > 0) {
-				_receiveBuffer << _T("Shell error! \"pwd\" does not accept any parameters") << std::endl;
+				_cbOutputText(_T("Shell error! \"pwd\" does not accept any parameters"));
 				return;
 			}
 
-			_receiveBuffer << _address << std::endl;
+			_cbOutputText(_address);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
 		else if(cmd == _T("tree")) {
+			// TODO
+			/*
 			tstring treeAddress = (parameter.length() > 0 ? getAbsoluteAddress(parameter) : getAbsoluteAddress(address));
 			if(treeAddress.length() == 0) {
 				_receiveBuffer << _T("Invalid address") << std::endl;
@@ -893,6 +941,7 @@ private:
 			};
 
 			printChildren(treeAddress, _T(""));
+			*/
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -900,9 +949,9 @@ private:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	bool isPipeCommand(const tstring& commandName, const PipeArrayPtr& addressCommands) {
-		for(auto&& command : *addressCommands) {
-			auto&& commandObj = command.object_items();
+	bool isPipeCommand(const tstring& commandName, PipeArray& addressCommands) {
+		for(auto& command : addressCommands) {
+			auto& commandObj = command.object_items();
 			if(commandObj[TokenMessageCommand].string_value() == commandName) {
 				return true;
 			}

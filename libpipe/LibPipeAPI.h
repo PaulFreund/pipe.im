@@ -44,9 +44,9 @@ LIBPIPE_ITF void LibPipePull                (LibPipeCbContext context, LibPipeCb
 
 //----------------------------------------------------------------------------------------------------------------------
 
-LIBPIPE_ITF void LibPipeGetNodeChildren     (LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbChildNodes);
-LIBPIPE_ITF void LibPipeGetNodeCommandTypes (LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeCommandTypes);
-LIBPIPE_ITF void LibPipeGetNodeMessageTypes (LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeMessageTypes);
-LIBPIPE_ITF void LibPipeGetNodeInfo         (LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeInfo);
+//LIBPIPE_ITF void LibPipeGetNodeChildren     (LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbChildNodes);
+//LIBPIPE_ITF void LibPipeGetNodeCommandTypes (LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeCommandTypes);
+//LIBPIPE_ITF void LibPipeGetNodeMessageTypes (LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeMessageTypes);
+//LIBPIPE_ITF void LibPipeGetNodeInfo         (LibPipeStr address, LibPipeCbContext context, LibPipeCbStr cbNodeInfo);
 
 //======================================================================================================================

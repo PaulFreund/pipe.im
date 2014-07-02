@@ -67,6 +67,37 @@ void ServiceRoot::scriptPushOutgoing(PipeObjectPtr message) {
 
 void ServiceRoot::process() {
 	// TODO
+	//_exchangeMutex.lock();
+	//{
+	//	// Receive
+	//	PipeArrayPtr incoming = LibPipe::pull();
+	//	_incomingQueue->insert(end(*_incomingQueue), begin(*incoming), end(*incoming));
+
+	//	// Send
+	//	LibPipe::push(_outgoingQueue);
+	//	_outgoingQueue->clear();
+	//}
+	//_exchangeMutex.unlock();
+
+	/*
+					pApp->_exchangeMutex.lock();
+				pApp->_pipeOutgoing->insert(end(*pApp->_pipeOutgoing), begin(*outgoing), end(*outgoing));
+				pApp->_exchangeMutex.unlock();
+
+
+				pApp->_exchangeMutex.lock();
+				outstream << PipeJson(*pApp->_pipeIncoming).dump();
+				pApp->_pipeIncoming->clear();
+				pApp->_exchangeMutex.unlock();
+
+				if(_acquiredLock) {
+				PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
+				try { pApp->_exchangeMutex.unlock(); }
+				catch(...) {}
+				}
+	*/
+
+
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -419,8 +450,8 @@ void ServiceRoot::initScripts() {
 		});
 	}
 
-	enablePreSendHook([&](PipeArrayPtr messages) { executeScripts(messages, true, false); });
-	enablePostReceiveHook([&](PipeArrayPtr messages) { executeScripts(messages, false, true); });
+	enableHookPrePush([&](PipeArrayPtr messages) { executeScripts(messages, true, false); });
+	enableHookPostPull([&](PipeArrayPtr messages) { executeScripts(messages, false, true); });
 }
 
 //----------------------------------------------------------------------------------------------------------------------

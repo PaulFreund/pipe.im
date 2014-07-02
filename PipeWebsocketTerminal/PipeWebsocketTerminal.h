@@ -41,9 +41,6 @@ public:
 	tstring _uripath;
 	tstring _authToken;
 
-	std::mutex _pipeMutex;
-	PipeArrayPtr _pipeIncoming;
-	PipeArrayPtr _pipeOutgoing;
 
 public:
 	PipeWebsocketTerminalApplication();

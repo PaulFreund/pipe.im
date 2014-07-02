@@ -25,17 +25,25 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 
 private:
-	std::map<tstring, std::shared_ptr<IPipeExtensionService>> _children;
+private:
+	std::mutex _exchangeMutex;
+	PipeArrayPtr _incomingQueue;
+	PipeArrayPtr _outgoingQueue;
+
+	std::map<tstring, std::shared_ptr<PipeServiceNodeBase>> _children;
 	PipeArrayPtr _outgoing;
 	std::map<tstring, PipeCommandFunction> _commands;
 	PipeArrayPtr _commandTypes;
 	PipeArrayPtr _messageTypes;
 
-	bool _preSendHookEnabled = false;
-	PipeHookFunction _preSendHook;
+	bool _hookPrePushEnable = false;
+	PipeHookFunction _hookPrePush;
 
-	bool _postReceiveHookEnabled = false;
-	PipeHookFunction _postReceiveHook;
+	bool _hookPostPullEnable = false;
+	PipeHookFunction _hookPostPull;
+
+	bool _hookProcessEnable = false;
+	PipeHookFunction _hookProcess;
 
 	tstring           _instance_name;
 	tstring           _instance_description;
@@ -45,7 +53,9 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 
 	PipeServiceNodeBase(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& type_name, const tstring& type_description, const tstring& instance_name, const tstring& instance_description, const tstring& icon = _T(""))
-		: _address(address)
+		: _incomingQueue(newArray())
+		, _outgoingQueue(newArray())
+		, _address(address)
 		, _path(path)
 		, _settings(settings)
 		, _type_name(type_name)
@@ -66,7 +76,7 @@ public:
 
 protected:
 	//------------------------------------------------------------------------------------------------------------------
-	const std::map<tstring, std::shared_ptr<IPipeExtensionService>>& children() {
+	const std::map<tstring, std::shared_ptr<PipeServiceNodeBase>>& children() {
 		return _children;
 	}
 
@@ -129,27 +139,40 @@ protected:
 public:
 	//------------------------------------------------------------------------------------------------------------------
 
-	void enablePreSendHook(PipeHookFunction hook) {
-		_preSendHook = hook;
-		_preSendHookEnabled = true;
+	void enableHookPrePush(PipeHookFunction hook) {
+		_hookPrePush = hook;
+		_hookPrePushEnable = true;
 	}
 	//------------------------------------------------------------------------------------------------------------------
 
-	void disablePreSendHook() {
-		_preSendHookEnabled = false;
+	void disableHookPrePush() {
+		_hookPrePushEnable = false;
 	}
 	
 	//------------------------------------------------------------------------------------------------------------------
 
-	void enablePostReceiveHook(PipeHookFunction hook) {
-		_postReceiveHook = hook;
-		_postReceiveHookEnabled = true;
+	void enableHookPostPull(PipeHookFunction hook) {
+		_hookPostPull = hook;
+		_hookPostPullEnable = true;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	void disablePostReceiveHook() {
-		_postReceiveHookEnabled = false;
+	void disableHookPostPull() {
+		_hookPostPullEnable = false;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	void enableHookProcess(PipeHookFunction hook) {
+		_hookProcess = hook;
+		_hookProcessEnable = true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	void disableHookProcess() {
+		_hookProcessEnable = false;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -168,7 +191,7 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	void addChild(const tstring& address, const std::shared_ptr<IPipeExtensionService>& child) {
+	void addChild(const tstring& address, const std::shared_ptr<PipeServiceNodeBase>& child) {
 		if(_children.count(address))
 			throw tstring(_T("There already is a child with the name \"") + address + _T("\""));
 
@@ -228,9 +251,19 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 
 public:
+	//------------------------------------------------------------------------------------------------------------------
+	
+	virtual void process() {
+		for(auto&& child : _children) {
+			//child.second->process();
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
 	virtual void push(PipeArrayPtr messages) {
-		if(_preSendHookEnabled)
-			_preSendHook(messages);
+		if(_hookPrePushEnable)
+			_hookPrePush(messages);
 
 		for(auto&& messagesMember : *messages) {
 			auto& message = messagesMember.object_items();
@@ -290,8 +323,8 @@ public:
 				messages->insert(messages->end(), serviceOutgoing->begin(), serviceOutgoing->end());
 		}
 
-		if(_postReceiveHookEnabled)
-			_postReceiveHook(messages);
+		if(_hookPostPullEnable)
+			_hookPostPull(messages);
 
 		return messages;
 	}

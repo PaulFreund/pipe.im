@@ -131,19 +131,23 @@ public:
 			// Commands with parameter
 			if(parts.size() >= 3) {
 				if(parts[1] == _T("nodeChildren")) {
-					outstream << PipeJson(*LibPipe::nodeChildren(parts[2])).dump();
+					// TODO
+					// outstream << PipeJson(*LibPipe::nodeChildren(parts[2])).dump();
 					return true;
 				}
 				else if(parts[1] == _T("nodeCommandTypes")) {
-					outstream << PipeJson(*LibPipe::nodeCommandTypes(parts[2])).dump();
+					// TODO
+					// outstream << PipeJson(*LibPipe::nodeCommandTypes(parts[2])).dump();
 					return true;
 				}
 				else if(parts[1] == _T("nodeMessageTypes")) {
-					outstream << PipeJson(*LibPipe::nodeMessageTypes(parts[2])).dump();
+					// TODO
+					// outstream << PipeJson(*LibPipe::nodeMessageTypes(parts[2])).dump();
 					return true;
 				}
 				else if(parts[1] == _T("nodeInfo")) {
-					outstream << PipeJson(*LibPipe::nodeInfo(parts[2])).dump();
+					// TODO
+					// outstream << PipeJson(*LibPipe::nodeInfo(parts[2])).dump();
 					return true;
 				}
 				else if(parts[1] == _T("concat")) {
@@ -189,17 +193,12 @@ public:
 				else
 					return false;
 
-				pApp->_pipeMutex.lock();
-				pApp->_pipeOutgoing->insert(end(*pApp->_pipeOutgoing), begin(*outgoing), end(*outgoing));
-				pApp->_pipeMutex.unlock();
+				LibPipe::push(outgoing);
 
 				return true;
 			}
 			else if(parts[1] == _T("pull")) {
-				pApp->_pipeMutex.lock();
-				outstream << PipeJson(*pApp->_pipeIncoming).dump();
-				pApp->_pipeIncoming->clear();
-				pApp->_pipeMutex.unlock();
+				outstream << PipeJson(*LibPipe::pull()).dump();
 				return true;
 			}
 			else if(parts[1] == _T("files")) {
@@ -289,24 +288,30 @@ public:
 
 class PipeRequestHandlerWebSocket : public HTTPRequestHandler {
 private:
-	bool _acquiredLock;
 	bool _shellEnabled;
-	PipeShell _shell;
+	shared_ptr<PipeShell> _shell;
+
+	vector<tstring> _incoming;
+	vector<tstring> _outgoing;
 
 public:
 	PipeRequestHandlerWebSocket(bool shellEnabled = false) 
-		: _acquiredLock(false)
-		, _shellEnabled(shellEnabled) 
-		, _shell(_T("terminal"), true)
+		: _shellEnabled(shellEnabled) 
 	{
+		_shell = make_shared<PipeShell>(
+			_T("terminal"), 
+			[&](tstring text) {
+				_outgoing.push_back(text);
+			}, 
+			[](PipeJson msg) {
+				LibPipe::push(std::make_shared<PipeArray>(PipeArray { msg }));
+			}, 
+			true
+		);
+
 	}
 
 	~PipeRequestHandlerWebSocket() {
-		if(_acquiredLock) {
-			PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
-			try { pApp->_pipeMutex.unlock(); }
-			catch(...) {}
-		}
 	}
 public:
 	void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
@@ -326,9 +331,6 @@ public:
 			const int bufferSize = 2048;
 			ws.setReceiveBufferSize(bufferSize);
 
-			vector<tstring> incoming;
-			vector<tstring> outgoing;
-
 			char buffer[bufferSize];
 			int flags;
 			int bytesRead;
@@ -338,68 +340,49 @@ public:
 				// Receive from client
 				try {
 					bytesRead = ws.receiveFrame(buffer, sizeof(buffer), flags);
-					incoming.push_back(tstring(buffer, bytesRead));
+					_incoming.push_back(tstring(buffer, bytesRead));
 				}
 				catch(TimeoutException& /*e*/) {} // Not very good but works for the moment
 
 				// Send to pipe
-				if(incoming.size() > 0) {
-					for(auto& message : incoming) {
+				if(_incoming.size() > 0) {
+					for(auto& message : _incoming) {
 
 
 						if(pApp->_debug) { cout << _T("Websocket message received: ") << message << endl; }
 
 						if(message == _T("debug")) { pApp->_debug = !pApp->_debug; }
 
-						pApp->_pipeMutex.lock();
-						_acquiredLock = true;
 						try {
-							if(_shellEnabled) {
-								if(_shell.addOutgoing(message)) {
-									pApp->_pipeOutgoing->push_back(_shell.getOutgoing());
-								}
-							}
-							else if(!message.empty()) {
-								pApp->_pipeOutgoing->push_back(message);
-							}
+							if(_shellEnabled)
+								_shell->inputText(message);
+							else if(!message.empty())
+								LibPipe::push(std::make_shared<PipeArray>(PipeArray { message }));
 						}
 						catch(...) {}
-						_acquiredLock = false;
-						pApp->_pipeMutex.unlock();
-
 					}
 
-					incoming.clear();
+					_incoming.clear();
 				}
 
 				// Receive from pipe
-				pApp->_pipeMutex.lock();
-				_acquiredLock = true;
-
-				auto received = std::move(pApp->_pipeIncoming);
-				pApp->_pipeIncoming = newArray();
-
-				_acquiredLock = false;
-				pApp->_pipeMutex.unlock();
-
+				auto received = LibPipe::pull();
 				if(_shellEnabled) {
-					auto&& result = _shell.addIncoming(received);
-					if(!result.empty())
-						outgoing.push_back(result);
+					 _shell->inputMessages(received);
 				}
 				else {
 					for(auto& ele : *received) {
-						outgoing.push_back(ele.dump());
+						_outgoing.push_back(ele.dump());
 					}
 				}
 
 				// Send to client
-				if(outgoing.size() > 0) {
-					for(auto& message : outgoing) {
+				if(_outgoing.size() > 0) {
+					for(auto& message : _outgoing) {
 						ws.sendFrame(message.data(), message.length());
 						if(pApp->_debug) { cout << _T("Websocket message sent: ") << message << endl; }
 					}
-					outgoing.clear();
+					_outgoing.clear();
 				}
 			}
 			while(bytesRead > 0 || (flags & WebSocket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE);
@@ -407,11 +390,6 @@ public:
 			if(pApp->_debug) { cout << _T("Websocket connection closed") << endl; }
 		}
 		catch(WebSocketException& e) {
-			if(_acquiredLock) {
-				try { pApp->_pipeMutex.unlock(); }
-				catch(...) {}
-			}
-
 			switch(e.code()) {
 				case WebSocket::WS_ERR_HANDSHAKE_UNSUPPORTED_VERSION:
 					response.set("Sec-WebSocket-Version", WebSocket::WEBSOCKET_VERSION);
@@ -456,8 +434,6 @@ public:
 PipeWebsocketTerminalApplication::PipeWebsocketTerminalApplication()
 	: _help(false)
 	, _debug(false)
-	, _pipeIncoming(newArray())
-	, _pipeOutgoing(newArray())
 	{
 		setUnixOptions(true); 
 	}
@@ -555,7 +531,7 @@ int PipeWebsocketTerminalApplication::main(const vector<tstring>& args) {
 		_port = config().getInt(_T("port"), 9980);
 		_address = config().getString(_T("address"), _T("127.0.0.1"));
 		_uripath = config().getString(_T("uripath"), _T(""));
-		_authToken = config().getString(_T("authtoken"), _T("d29vazpkb2JiaWU1OTUw"));
+		_authToken = config().getString(_T("authtoken"), _T(""));
 		if(_uripath[0] != _T('/'))
 			_uripath = _T("/") + _uripath;
 
@@ -579,18 +555,7 @@ int PipeWebsocketTerminalApplication::main(const vector<tstring>& args) {
 
 		while(true) {
 			this_thread::sleep_for(chrono::milliseconds(10));
-
-			_pipeMutex.lock();
-			{
-				// Receive
-				PipeArrayPtr incoming = LibPipe::pull();
-				_pipeIncoming->insert(end(*_pipeIncoming), begin(*incoming), end(*incoming));
-
-				// Send
-				LibPipe::push(_pipeOutgoing);
-				_pipeOutgoing->clear();
-			}
-			_pipeMutex.unlock();
+			LibPipe::process();
 		}
 
 		server.stop();

@@ -46,9 +46,9 @@ PIPE_EXTENSION_ITF void PipeExtensionServicePull                (HPipeExtensionS
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeChildren     (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbChildNodes);
-PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeCommandTypes (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeCommandTypes);
-PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeMessageTypes (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeMessageTypes);
-PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeInfo         (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeInfo);
+//PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeChildren     (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbChildNodes);
+//PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeCommandTypes (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeCommandTypes);
+//PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeMessageTypes (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeMessageTypes);
+//PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeInfo         (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeInfo);
 
 //======================================================================================================================
