@@ -61,7 +61,16 @@ int main(int argc, char* argv[]) {
 		auto serviceTypes = LibPipe::serviceTypes();
 		LibPipe::init(serviceTypes);
 
-		PipeShell shell(_T("terminal"), true);
+		PipeShell shell(
+			_T("terminal"),
+			[&](tstring text) {
+				cout << text << endl;
+			},
+			[](PipeJson msg) {
+				LibPipe::push(std::make_shared<PipeArray>(PipeArray { msg }));
+			},
+			true
+		);
 
 		bool exit = false;
 
@@ -73,11 +82,7 @@ int main(int argc, char* argv[]) {
 		thread pull([&]() {
 			tstring received;
 			while(!exit) {
-				auto messages = LibPipe::pull();
-				received = shell.addIncoming(messages);
-				if(!received.empty())
-					cout << received << endl;
-
+				shell.inputMessages(LibPipe::pull());
 				Thread::sleep(100);
 			}
 		});
@@ -96,9 +101,7 @@ int main(int argc, char* argv[]) {
 					continue;
 				}
 
-				if(shell.addOutgoing(message)) {
-					LibPipe::push(newArray({ shell.getOutgoing() }));
-				}
+				shell.inputText(message);
 			}
 		});
 

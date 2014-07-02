@@ -888,7 +888,7 @@ private:
 				return;
 			}
 
-
+			// TODO: Wrong address
 			tstring parent = _T("pipe");
 			if(!address.empty() && address != _T("pipe")) {
 				auto parentParts = texplode(address, TokenAddressSeparator);
@@ -1001,7 +1001,7 @@ private:
 			}
 
 
-			output << std::endl;
+			//output << std::endl;
 		}
 	}
 
