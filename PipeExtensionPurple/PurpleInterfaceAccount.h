@@ -13,7 +13,7 @@ class PurpleInterfaceContact;
 
 //======================================================================================================================
 
-class PurpleInterfaceAccount : public PipeServiceNodeBase {
+class PurpleInterfaceAccount : public PipeServiceNode {
 private:
 	PurpleAccount* _account;
 	void* _currentRequestHandle;
@@ -35,8 +35,6 @@ public:
 
 	//	return _currentRequestHandle;
 	//}
-public:
-	virtual PipeArrayPtr pull();
 
 public:
 	PurpleInterfaceContact* contactService(PurpleBlistNode* contact);

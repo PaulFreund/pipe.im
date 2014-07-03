@@ -5,39 +5,46 @@
 //======================================================================================================================
 
 #include "PipeScript.h"
-#include "PipeServiceNodeBase.h"
+#include "PipeServiceNode.h"
 #include "PipeExtensionInstance.h"
 
 //======================================================================================================================
 
-class ServiceRoot : public PipeServiceNodeBase {
+class ServiceRoot : public PipeServiceNode {
 public:
 	static std::vector<std::shared_ptr<PipeExtensionInstance>> Extensions;
 
 private:
+	std::mutex _mutexQueue;
+	PipeArrayPtr _queueIncoming;
+	PipeArrayPtr _queueOutgoing;
+
 	PipeObjectPtr _config;
 
 	std::vector<tstring> _providerTypes;
 
-	PipeArrayPtr _scriptIncomingQueue;
-	PipeArrayPtr _scriptOutgoingQueue;
-	std::vector<std::shared_ptr<PipeScript>> _scriptsPreSend;
-	std::vector<std::shared_ptr<PipeScript>> _scriptsPostReceive;
+	PipeArrayPtr _scriptIncomingQueue; // TODO: Recap/Cleanup
+	PipeArrayPtr _scriptOutgoingQueue; // TODO: Recap/Cleanup
+	std::vector<std::shared_ptr<PipeScript>> _scriptsPreSend; // TODO: Recap/Cleanup
+	std::vector<std::shared_ptr<PipeScript>> _scriptsPostReceive; // TODO: Recap/Cleanup
 
-	std::shared_ptr<PipeServiceNodeBase> _serviceScripts;
-	std::shared_ptr<PipeServiceNodeBase> _serviceServices;
-	std::shared_ptr<PipeServiceNodeBase> _serviceServicesProviders;
-	std::shared_ptr<PipeServiceNodeBase> _serviceServicesInstances;
+	std::shared_ptr<PipeServiceNode> _serviceScripts;
+	std::shared_ptr<PipeServiceNode> _serviceServices;
+	std::shared_ptr<PipeServiceNode> _serviceServicesProviders;
+	std::shared_ptr<PipeServiceNode> _serviceServicesInstances;
 
 public:
 	ServiceRoot(const tstring& path, PipeObjectPtr settings);
 	virtual ~ServiceRoot();
 
-	void scriptPushIncoming(PipeObjectPtr message);
-	void scriptPushOutgoing(PipeObjectPtr message);
+	void scriptPushIncoming(PipeObjectPtr message); // TODO: Recap/Cleanup
+	void scriptPushOutgoing(PipeObjectPtr message); // TODO: Recap/Cleanup
 
 public:
 	void process();
+
+	virtual void addIncoming(PipeArrayPtr messages);
+	virtual PipeArrayPtr getOutgoing();
 
 private:
 	void loadConfig();

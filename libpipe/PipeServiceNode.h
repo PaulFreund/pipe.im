@@ -9,7 +9,7 @@
 
 //======================================================================================================================
 
-class PipeServiceNodeBase {
+class PipeServiceNode : public IPipeExtensionService {
 public:
 	typedef std::function<void(PipeObject&)> PipeCommandFunction;
 	typedef std::function<void(PipeArrayPtr)> PipeHookFunction;
@@ -25,26 +25,13 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 
 private:
-private:
-	std::mutex _exchangeMutex;
-	PipeArrayPtr _incomingQueue;
-	PipeArrayPtr _outgoingQueue;
-
-	std::map<tstring, std::shared_ptr<PipeServiceNodeBase>> _children;
+	std::map<tstring, std::shared_ptr<PipeServiceNode>> _children;
 	PipeArrayPtr _outgoing;
 	std::map<tstring, PipeCommandFunction> _commands;
 	PipeArrayPtr _commandTypes;
 	PipeArrayPtr _messageTypes;
 
-	bool _hookPrePushEnable = false;
-	PipeHookFunction _hookPrePush;
-
-	bool _hookPostPullEnable = false;
-	PipeHookFunction _hookPostPull;
-
-	bool _hookProcessEnable = false;
-	PipeHookFunction _hookProcess;
-
+private:
 	tstring           _instance_name;
 	tstring           _instance_description;
 	PipeArrayPtr      _state_infos;
@@ -52,31 +39,29 @@ private:
 public:
 	//------------------------------------------------------------------------------------------------------------------
 
-	PipeServiceNodeBase(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& type_name, const tstring& type_description, const tstring& instance_name, const tstring& instance_description, const tstring& icon = _T(""))
-		: _incomingQueue(newArray())
-		, _outgoingQueue(newArray())
+	PipeServiceNode(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& type_name, const tstring& type_description, const tstring& instance_name, const tstring& instance_description, const tstring& icon = _T(""))
+		: _type_name(type_name)
+		, _type_description(type_description)
 		, _address(address)
 		, _path(path)
-		, _settings(settings)
-		, _type_name(type_name)
-		, _type_description(type_description)
-		, _instance_name(instance_name)
-		, _instance_description(instance_description)
 		, _icon(icon)
+		, _settings(settings)
 		, _outgoing(newArray())
 		, _commandTypes(newArray())
 		, _messageTypes(newArray())
+		, _instance_name(instance_name)
+		, _instance_description(instance_description)
 		, _state_infos(newArray())
 	{
 		addBaseMessageTypes();
 		addBaseCommandTypes();
 	}
 
-	virtual ~PipeServiceNodeBase() {}
+	virtual ~PipeServiceNode() {}
 
 protected:
 	//------------------------------------------------------------------------------------------------------------------
-	const std::map<tstring, std::shared_ptr<PipeServiceNodeBase>>& children() {
+	const std::map<tstring, std::shared_ptr<PipeServiceNode>>& children() {
 		return _children;
 	}
 
@@ -139,44 +124,6 @@ protected:
 public:
 	//------------------------------------------------------------------------------------------------------------------
 
-	void enableHookPrePush(PipeHookFunction hook) {
-		_hookPrePush = hook;
-		_hookPrePushEnable = true;
-	}
-	//------------------------------------------------------------------------------------------------------------------
-
-	void disableHookPrePush() {
-		_hookPrePushEnable = false;
-	}
-	
-	//------------------------------------------------------------------------------------------------------------------
-
-	void enableHookPostPull(PipeHookFunction hook) {
-		_hookPostPull = hook;
-		_hookPostPullEnable = true;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-
-	void disableHookPostPull() {
-		_hookPostPullEnable = false;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-
-	void enableHookProcess(PipeHookFunction hook) {
-		_hookProcess = hook;
-		_hookProcessEnable = true;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-
-	void disableHookProcess() {
-		_hookProcessEnable = false;
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-
 	void pushOutgoing(const tstring& reference, const tstring& type, PipeJson data) {
 		PipeObject message;
 		message[TokenMessageAddress] = _address;
@@ -184,14 +131,12 @@ public:
 		message[TokenMessageMessage] = type;
 		message[TokenMessageData] = data;
 
-		// Optionally validate messages with message type when debugging
-
 		_outgoing->push_back(std::move(message));
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	void addChild(const tstring& address, const std::shared_ptr<PipeServiceNodeBase>& child) {
+	void addChild(const tstring& address, const std::shared_ptr<PipeServiceNode>& child) {
 		if(_children.count(address))
 			throw tstring(_T("There already is a child with the name \"") + address + _T("\""));
 
@@ -252,21 +197,8 @@ public:
 
 public:
 	//------------------------------------------------------------------------------------------------------------------
-	
-	virtual void process() {
-		// TODO [PROCESS]
-		for(auto&& child : _children) {
-			//child.second->process();
-		}
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
 
 	virtual void push(PipeArrayPtr messages) {
-		// TODO [PROCESS]
-		if(_hookPrePushEnable)
-			_hookPrePush(messages);
-
 		for(auto&& messagesMember : *messages) {
 			auto& message = messagesMember.object_items();
 
@@ -316,7 +248,6 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 
 	virtual PipeArrayPtr pull() {
-		// TODO [PROCESS]
 		PipeArrayPtr messages = _outgoing;
 		_outgoing = newArray();
 
@@ -325,9 +256,6 @@ public:
 			if(serviceOutgoing->size() > 0)
 				messages->insert(messages->end(), serviceOutgoing->begin(), serviceOutgoing->end());
 		}
-
-		if(_hookPostPullEnable)
-			_hookPostPull(messages);
 
 		return messages;
 	}

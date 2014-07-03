@@ -667,14 +667,14 @@ public:
 				if(_helpInvoked) {
 					displayHelp(obj);
 					_helpInvoked = false;
+					return;
 				}
 
 				if(!_nextCommandStart.empty()) {
 					newCommand(obj, _nextCommandStart);
 					_nextCommandStart = _T("");
+					return;
 				}
-
-				return;
 			}
 
 			tstringstream output;
@@ -764,7 +764,13 @@ private:
 			_sendBuffer = PipeCommandBuffer(_identifier, address, command);
 
 			// If data has to be supplied, start 
-			if(!schema->object_items().empty()) {
+			if(schema->object_items().empty()) {
+				if(!fragments.empty()) {
+					_cbOutputText(_T("Error! Schema can not be created by parameter"));
+					return;
+				}
+			}
+			else {
 				tstring result = _sendBuffer.data.start(*schema, parameter);
 				if(!result.empty())
 					_cbOutputText(result);
@@ -1024,7 +1030,7 @@ private:
 		else if(address == _T(".")) {
 			return _address;
 		}
-		else if(address.substr(0, TokenPipe.size()) != TokenPipe) {
+		else if(!startsWith(address, TokenPipe)) {
 			absolute = _address + _T(".") + address;
 		}
 

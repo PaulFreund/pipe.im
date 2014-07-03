@@ -9,7 +9,7 @@ using namespace std;
 //======================================================================================================================
 
 PurpleInterfaceAccount::PurpleInterfaceAccount(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& instance_name, const tstring& instance_description)
-	: PipeServiceNodeBase(address, path, settings, _T("purple_account"), _T("A purple chat account"), instance_name, instance_description, _T("purple_account")) {
+	: PipeServiceNode(address, path, settings, _T("purple_account"), _T("A purple chat account"), instance_name, instance_description, _T("purple_account")) {
 
 	auto cmdJoin = PipeSchema::Create(PipeSchemaTypeString).title(_T("Channel")).description(_T("Channel name"));
 	addCommand(_T("join"), _T("Test"), cmdJoin, [&](PipeObject& message) {
@@ -85,16 +85,6 @@ void PurpleInterfaceAccount::init(const tstring& protocol_id) {
 bool PurpleInterfaceAccount::hasRequestHandle(void* requestHandle) {
 	// TODO
 	return false;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-PipeArrayPtr PurpleInterfaceAccount::pull() {
-	// Trigger event loop
-	if(_account != nullptr)
-		g_main_context_iteration(g_main_context_default(), false);
-	
-	return PipeServiceNodeBase::pull();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

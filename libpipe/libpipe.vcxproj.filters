@@ -50,9 +50,6 @@
     <ClInclude Include="LibPipeDataTypes.h">
       <Filter>LibPipe\Wrapper</Filter>
     </ClInclude>
-    <ClInclude Include="PipeServiceNodeBase.h">
-      <Filter>PipeExtension\Wrapper</Filter>
-    </ClInclude>
     <ClInclude Include="PipeShell.h">
       <Filter>LibPipe\Wrapper</Filter>
     </ClInclude>
@@ -76,6 +73,9 @@
     </ClInclude>
     <ClInclude Include="PipeSchema.h">
       <Filter>LibPipe\Wrapper</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeServiceNode.h">
+      <Filter>PipeExtension\Wrapper</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

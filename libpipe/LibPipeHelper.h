@@ -78,4 +78,10 @@ inline std::vector<tstring> texplode(const tstring& data, const TCHAR delimiter)
 	return result;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+inline bool startsWith(const tstring& heystack, const tstring& needle) {
+	return (heystack.substr(0, needle.length()) == needle);
+}
+
 //======================================================================================================================

@@ -6,7 +6,6 @@
 
 #include <vector>
 #include <string>
-#include <mutex>
 
 #define _TCHAR_DEFINED
 #ifdef UNICODE

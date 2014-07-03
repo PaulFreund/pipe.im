@@ -12,7 +12,9 @@ std::vector<std::shared_ptr<PipeExtensionInstance>> ServiceRoot::Extensions;
 //======================================================================================================================
 
 ServiceRoot::ServiceRoot(const tstring& path, PipeObjectPtr settings) 
-	: PipeServiceNodeBase(TokenPipe, path, settings, TokenPipe, _T("Pipe root node"), _T("Pipe"), _T("Pipe root node"), TokenPipe)
+	: PipeServiceNode(TokenPipe, path, settings, TokenPipe, _T("Pipe root node"), _T("Pipe"), _T("Pipe root node"), TokenPipe)
+	, _queueIncoming(newArray())
+	, _queueOutgoing(newArray())
 	, _config(newObject())
 	, _scriptIncomingQueue(newArray())
 	, _scriptOutgoingQueue(newArray())
@@ -66,38 +68,58 @@ void ServiceRoot::scriptPushOutgoing(PipeObjectPtr message) {
 //----------------------------------------------------------------------------------------------------------------------
 
 void ServiceRoot::process() {
-	// TODO [PROCESS]
-	//_exchangeMutex.lock();
-	//{
-	//	// Receive
-	//	PipeArrayPtr incoming = LibPipe::pull();
-	//	_incomingQueue->insert(end(*_incomingQueue), begin(*incoming), end(*incoming));
+	// Get pushed messages
+	_mutexQueue.lock();
+	PipeArrayPtr incoming = move(_queueIncoming);
+	_queueIncoming = newArray();
+	_mutexQueue.unlock();
 
-	//	// Send
-	//	LibPipe::push(_outgoingQueue);
-	//	_outgoingQueue->clear();
-	//}
-	//_exchangeMutex.unlock();
+	if(!incoming->empty()) {
+		// Execute prePush
+		executeScripts(incoming, true, false); // TODO: Recap/Cleanup
 
-	/*
-					pApp->_exchangeMutex.lock();
-				pApp->_pipeOutgoing->insert(end(*pApp->_pipeOutgoing), begin(*outgoing), end(*outgoing));
-				pApp->_exchangeMutex.unlock();
+		// Process incoming messages
+		push(incoming);
+	}
+
+	// Call process for extensions
+	for(auto& extension : ServiceRoot::Extensions) {
+		extension->process();
+	}
+
+	// TODO: Do own processing stuff
+
+	// Get outgoing messages
+	PipeArrayPtr outgoing = pull();
+
+	if(!outgoing->empty()) {
+		// Execute postReceive
+		executeScripts(outgoing, false, true); // TODO: Recap/Cleanup
+
+		// Put messages for pulling
+		_mutexQueue.lock();
+		_queueOutgoing->insert(end(*_queueOutgoing), begin(*outgoing), end(*outgoing));
+		_mutexQueue.unlock();
+	}
+}
 
 
-				pApp->_exchangeMutex.lock();
-				outstream << PipeJson(*pApp->_pipeIncoming).dump();
-				pApp->_pipeIncoming->clear();
-				pApp->_exchangeMutex.unlock();
+//----------------------------------------------------------------------------------------------------------------------
 
-				if(_acquiredLock) {
-				PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
-				try { pApp->_exchangeMutex.unlock(); }
-				catch(...) {}
-				}
-	*/
+void ServiceRoot::addIncoming(PipeArrayPtr messages) {
+	_mutexQueue.lock();
+	_queueIncoming->insert(end(*_queueIncoming), begin(*messages), end(*messages));
+	_mutexQueue.unlock();
+}
 
+//----------------------------------------------------------------------------------------------------------------------
 
+PipeArrayPtr ServiceRoot::getOutgoing() {
+	_mutexQueue.lock();
+	PipeArrayPtr result = move(_queueOutgoing);
+	_queueOutgoing = newArray();
+	_mutexQueue.unlock();
+	return result;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -221,11 +243,11 @@ tstring ServiceRoot::configPath() {
 
 void ServiceRoot::initServices() {
 	tstring addressServices = _address + TokenAddressSeparator + _T("services");
-	_serviceServices = make_shared<PipeServiceNodeBase>(addressServices, _path, newObject(), _T("services"), _T("Management of services"), _T("Services"), _T("Management of services"), _T("services"));
+	_serviceServices = make_shared<PipeServiceNode>(addressServices, _path, newObject(), _T("services"), _T("Management of services"), _T("Services"), _T("Management of services"), _T("services"));
 	addChild(addressServices, _serviceServices);
 
 	tstring addressServicesProviders = addressServices + TokenAddressSeparator + _T("providers");
-	_serviceServicesProviders = make_shared<PipeServiceNodeBase>(addressServicesProviders, _path, newObject(), _T("service_providers"), _T("Service provider types"), _T("Service providers"), _T("Available service providers"), _T("service_providers"));
+	_serviceServicesProviders = make_shared<PipeServiceNode>(addressServicesProviders, _path, newObject(), _T("service_providers"), _T("Service provider types"), _T("Service providers"), _T("Available service providers"), _T("service_providers"));
 	_serviceServices->addChild(addressServicesProviders, _serviceServicesProviders);
 
 	// Add providers
@@ -245,7 +267,7 @@ void ServiceRoot::initServices() {
 
 			auto providerSettings = newObject();
 			(*providerSettings)[_T("type")].string_value() = typeName;
-			auto provider = make_shared<PipeServiceNodeBase>(addressProvider, _path, providerSettings, _T("service_provider"), _T("Representation of a service"), typeName, typeDescription, _T("service_provider_") + typeName);
+			auto provider = make_shared<PipeServiceNode>(addressProvider, _path, providerSettings, _T("service_provider"), _T("Representation of a service"), typeName, typeDescription, _T("service_provider_") + typeName);
 			_serviceServicesProviders->addChild(addressProvider, provider);
 
 			// Create command
@@ -303,7 +325,7 @@ void ServiceRoot::initServices() {
 	}
 
 	tstring addressServicesInstances = addressServices + TokenAddressSeparator + _T("instances");
-	_serviceServicesInstances = make_shared<PipeServiceNodeBase>(addressServicesInstances, _path, newObject(), _T("service_instances"), _T("Service instance nodes"), _T("Instances"), _T("Instance representations"), _T("service_instances"));
+	_serviceServicesInstances = make_shared<PipeServiceNode>(addressServicesInstances, _path, newObject(), _T("service_instances"), _T("Service instance nodes"), _T("Instances"), _T("Instance representations"), _T("service_instances"));
 	_serviceServices->addChild(addressServicesInstances, _serviceServicesInstances);
 }
 
@@ -338,14 +360,14 @@ tstring ServiceRoot::createService(const tstring& type, const tstring& name, Pip
 
 		PipeObjectPtr ptrSettings(&settings, [](void*) { return; });
 		tstring addressService = _address + TokenAddressSeparator + name;
-		PipeServiceNodeBase* service = static_cast<PipeServiceNodeBase*>(extension->create(type, addressService, servicePath.toString(), ptrSettings));
+		PipeServiceNode* service = static_cast<PipeServiceNode*>(extension->create(type, addressService, servicePath.toString(), ptrSettings));
 		if(service == nullptr)
 			return _T("Creating service failed");
 
-		addChild(addressService, shared_ptr<PipeServiceNodeBase>(service));
+		addChild(addressService, shared_ptr<PipeServiceNode>(service));
 
 		tstring addressInstance = _serviceServicesInstances->_address + TokenAddressSeparator + name;
-		auto instance = make_shared<PipeServiceNodeBase>(addressInstance, _path, newObject(), _T("service_instance"), _T("Instance of a service"), type, _T("A ") + type + _T(" instance"), _T("service_instance_") + type);
+		auto instance = make_shared<PipeServiceNode>(addressInstance, _path, newObject(), _T("service_instance"), _T("Instance of a service"), type, _T("A ") + type + _T(" instance"), _T("service_instance_") + type);
 		_serviceServicesInstances->addChild(addressInstance, instance);
 
 		// Delete command
@@ -382,9 +404,10 @@ void ServiceRoot::deleteService(const tstring& name) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+
 void ServiceRoot::initScripts() {
 	tstring addressScripts = _address + TokenAddressSeparator + _T("scripts");
-	_serviceScripts = make_shared<PipeServiceNodeBase>(addressScripts, _path, _settings, _T("script_manager"), _T("Management of scripts"), _T("Scripts"), _T("Management of scripts"), _T("script_manager"));
+	_serviceScripts = make_shared<PipeServiceNode>(addressScripts, _path, _settings, _T("script_manager"), _T("Management of scripts"), _T("Scripts"), _T("Management of scripts"), _T("script_manager"));
 	addChild(addressScripts, _serviceScripts);
 
 	auto cmdCreate = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Script data")).description(_T("Data to create a new script"));
@@ -449,9 +472,6 @@ void ServiceRoot::initScripts() {
 			writeConfig();
 		});
 	}
-
-	enableHookPrePush([&](PipeArrayPtr messages) { executeScripts(messages, true, false); });
-	enableHookPostPull([&](PipeArrayPtr messages) { executeScripts(messages, false, true); });
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -469,7 +489,7 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 	if(postReceive) { _scriptsPostReceive.push_back(scriptInstance); }
 
 	tstring addressScriptNode = _serviceScripts->_address + TokenAddressSeparator + name;
-	auto scriptNode = make_shared<PipeServiceNodeBase>(addressScriptNode, _path, newObject(), _T("script_instance"), _T("Automation script instance"), name, _T("A automation script"), _T("script_instance"));
+	auto scriptNode = make_shared<PipeServiceNode>(addressScriptNode, _path, newObject(), _T("script_instance"), _T("Automation script instance"), name, _T("A automation script"), _T("script_instance"));
 	_serviceScripts->addChild(addressScriptNode, scriptNode);
 
 	// Delete command
@@ -663,7 +683,7 @@ void ServiceRoot::executeScripts(PipeArrayPtr messages, bool preSend, bool postR
 		tstring address = message[TokenMessageAddress].string_value();
 
 		// Do not execute scripts on the script node
-		if(address.substr(0, tokenScriptNode.length()) == tokenScriptNode)
+		if(startsWith(address, tokenScriptNode))
 			continue;
 
 		for(auto& script : *targetList) {
@@ -691,7 +711,5 @@ void ServiceRoot::executeScripts(PipeArrayPtr messages, bool preSend, bool postR
 		push(incoming);
 	}
 }
-
-
 
 //======================================================================================================================

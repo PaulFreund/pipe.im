@@ -66,8 +66,8 @@ void loadExtension(const tstring& path) {
 
 		extensionFunctions.fktPipeExtensionProcess          = reinterpret_cast<FktPipeExtensionProcess>             (loadExtensionSymbol(library, NamePipeExtensionProcess          ));
 
-		extensionFunctions.fktPipeExtensionPush             = reinterpret_cast<FktPipeExtensionPush>                (loadExtensionSymbol(library, NamePipeExtensionPush             ));
-		extensionFunctions.fktPipeExtensionPull             = reinterpret_cast<FktPipeExtensionPull>                (loadExtensionSymbol(library, NamePipeExtensionPull             ));
+		extensionFunctions.fktPipeExtensionServicePush      = reinterpret_cast<FktPipeExtensionServicePush>         (loadExtensionSymbol(library, NamePipeExtensionServicePush      ));
+		extensionFunctions.fktPipeExtensionServicePull      = reinterpret_cast<FktPipeExtensionServicePull>         (loadExtensionSymbol(library, NamePipeExtensionServicePull      ));
 	}
 	catch(tstring error) { publishError(error); }
 	catch(...) { return; }
@@ -169,7 +169,7 @@ LIBPIPE_ITF void LibPipeProcess() {
 LIBPIPE_ITF void LibPipePush(LibPipeStr messages) {
 	try {
 		if(!InitDone) { throw tstring(_T("LibPipe not initialized")); }
-		ServiceRootInstance->push(parseArray(messages));
+		ServiceRootInstance->addIncoming(parseArray(messages));
 	}
 	catch(tstring error) { publishError(_T("LibPipePush: ") + error); }
 	catch(...) { publishError(_T("LibPipePush: Unknown error")); }
@@ -180,7 +180,7 @@ LIBPIPE_ITF void LibPipePush(LibPipeStr messages) {
 LIBPIPE_ITF void LibPipePull(LibPipeCbContext context, LibPipeCbStr cbMessages) {
 	try {
 		if(!InitDone) { throw tstring(_T("LibPipe not initialized")); }
-		cbMessages(context, dumpArray(ServiceRootInstance->pull()).c_str());
+		cbMessages(context, dumpArray(ServiceRootInstance->getOutgoing()).c_str());
 	}
 	catch(tstring error) { publishError(_T("LibPipePull: ") + error); }
 	catch(...) { publishError(_T("LibPipePull: Unknown error")); }

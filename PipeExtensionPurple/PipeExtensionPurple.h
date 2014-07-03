@@ -19,7 +19,8 @@ public:
 	static tstring ExtensionInstancePath;
 	static PipeExtensionCbErr ErrorCallback;
 	static std::shared_ptr<PurpleInterface> Purple;
-public:
+
+private:
 	std::map<tstring, PurpleInterfaceAccount*> _services;
 
 public:
@@ -29,13 +30,10 @@ public:
 public:
 	virtual PipeArrayPtr serviceTypes();
 
-	virtual HPipeExtensionService create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings);
-	virtual void destroy(HPipeExtensionService service);
+	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings);
+	virtual void destroy(IPipeExtensionService* service);
 
 	virtual void process();
-
-	virtual void push(PipeArrayPtr messages);
-	virtual PipeArrayPtr pull();
 
 public:
 	PurpleInterfaceAccount* account(PurpleAccount* account);

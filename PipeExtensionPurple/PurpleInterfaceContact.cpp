@@ -6,7 +6,7 @@
 //======================================================================================================================
 
 PurpleInterfaceContact::PurpleInterfaceContact(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& instance_name, const tstring& instance_description, PurpleBlistNode* contact)
-	: PipeServiceNodeBase(address, path, settings, _T("purple_contact"), _T("A purple chat contact"), instance_name, instance_description, _T("purple_contact"))
+	: PipeServiceNode(address, path, settings, _T("purple_contact"), _T("A purple chat contact"), instance_name, instance_description, _T("purple_contact"))
 	, _contact(contact)
 	, _contactType(purple_blist_node_get_type(contact))
 	, _conversation(nullptr)

@@ -9,7 +9,7 @@
 
 //======================================================================================================================
 
-class PurpleInterfaceContact : public PipeServiceNodeBase {
+class PurpleInterfaceContact : public PipeServiceNode {
 private:
 	PurpleBlistNode* _contact;
 	PurpleBlistNodeType _contactType;

@@ -107,7 +107,7 @@
     <ClInclude Include="PipeExtensionInstance.h" />
     <ClInclude Include="PipeSchema.h" />
     <ClInclude Include="PipeScript.h" />
-    <ClInclude Include="PipeServiceNodeBase.h" />
+    <ClInclude Include="PipeServiceNode.h" />
     <ClInclude Include="PipeShell.h" />
     <ClInclude Include="ServiceRoot.h" />
   </ItemGroup>

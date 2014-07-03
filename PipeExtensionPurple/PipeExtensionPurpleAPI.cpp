@@ -53,7 +53,8 @@ PIPE_EXTENSION_ITF void PipeExtensionGetServiceTypes(PipeExtensionCbContext cont
 PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceType, PipeExtensionStr address, PipeExtensionStr settings, HPipeExtensionService* service) {
 	try {
 		if(PipeExtensionPurple::ExtensionInstancePath.empty()) { throw tstring(_T("Empty or invalid path supplied")); }
-		(*service) = PipeExtensionPurple::ExtensionInstance.create(serviceType, address, PipeExtensionPurple::ExtensionInstancePath, parseObject(settings));
+		(*service) = reinterpret_cast<HPipeExtensionService>(PipeExtensionPurple::ExtensionInstance.create(serviceType, address, PipeExtensionPurple::ExtensionInstancePath, parseObject(settings)));
+
 	}
 	catch(tstring error) { service = nullptr; publishError(_T("PipeExtensionServiceCreate: ") + error); }
 	catch(...) { service = nullptr; publishError(_T("PipeExtensionServiceCreate: Unknown error")); }
@@ -64,7 +65,7 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceCreate(PipeExtensionStr serviceType,
 PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy(HPipeExtensionService service) {
 	try {
 		if(PipeExtensionPurple::ExtensionInstancePath.empty()) { throw tstring(_T("Empty or invalid path supplied")); }
-		PipeExtensionPurple::ExtensionInstance.destroy(service);
+		PipeExtensionPurple::ExtensionInstance.destroy(reinterpret_cast<IPipeExtensionService*>(service));
 	}
 	catch(tstring error) { publishError(_T("PipeExtensionServiceDestroy: ") + error); }
 	catch(...) { publishError(_T("PipeExtensionServiceDestroy: Unknown error")); }
@@ -82,22 +83,22 @@ PIPE_EXTENSION_ITF void PipeExtensionProcess() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionPush(PipeExtensionStr messages) {
+PIPE_EXTENSION_ITF void PipeExtensionServicePush(HPipeExtensionService service, PipeExtensionStr messages) {
 	try {
-		PipeExtensionPurple::ExtensionInstance.push(parseArray(messages));
+		reinterpret_cast<IPipeExtensionService*>(service)->push(parseArray(messages));
 	}
-	catch(tstring error) { publishError(_T("PipeExtensionPush: ") + error); }
-	catch(...) { publishError(_T("PipeExtensionPush: Unknown error")); }
+	catch(tstring error) { publishError(_T("PipeExtensionServicePush: ") + error); }
+	catch(...) { publishError(_T("PipeExtensionServicePush: Unknown error")); }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionPull(PipeExtensionCbContext context, PipeExtensionCbStr cbMessages) {
+PIPE_EXTENSION_ITF void PipeExtensionServicePull(HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbStr cbMessages) {
 	try {
-		cbMessages(context, dumpArray(PipeExtensionPurple::ExtensionInstance.pull()).c_str());
+		cbMessages(context, dumpArray(reinterpret_cast<IPipeExtensionService*>(service)->pull()).c_str());
 	}
-	catch(tstring error) { publishError(_T("PipeExtensionPull: ") + error); }
-	catch(...) { publishError(_T("PipeExtensionPull: Unknown error")); }
+	catch(tstring error) { publishError(_T("PipeExtensionServicePull: ") + error); }
+	catch(...) { publishError(_T("PipeExtensionServicePull: Unknown error")); }
 }
 
 //======================================================================================================================
