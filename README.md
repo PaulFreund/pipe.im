@@ -12,7 +12,9 @@ Scriptable online communication
 ### Linux
 * Install GCC >= 4.8.2
 * Install CMake >= 2.8
-* Install the current master of [Poco](https://github.com/pocoproject/poco) (checkout master, configure with --omit=Data/ODBC)
+* Install the current master of [Poco](https://github.com/pocoproject/poco) 
+	* run git checkout master
+	* run ./configure --omit=XML,JSON,Data,Data/SQLite,MongoDB,Data/MySQL,Data/ODBC,CppParser,PDF,Zip,PageCompiler --no-samples --no-tests
 * Install glib
 * Install libpurple >= 2.10.9
 * Build Pipe
