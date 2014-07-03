@@ -12,7 +12,7 @@ std::vector<std::shared_ptr<PipeExtensionInstance>> ServiceRoot::Extensions;
 //======================================================================================================================
 
 ServiceRoot::ServiceRoot(const tstring& path, PipeObjectPtr settings) 
-	: PipeServiceNodeBase(_T("pipe"), path, settings, _T("pipe"), _T("Pipe root node"), _T("Pipe"), _T("Pipe root node"), _T("pipe"))
+	: PipeServiceNodeBase(TokenPipe, path, settings, TokenPipe, _T("Pipe root node"), _T("Pipe"), _T("Pipe root node"), TokenPipe)
 	, _config(newObject())
 	, _scriptIncomingQueue(newArray())
 	, _scriptOutgoingQueue(newArray())
@@ -310,7 +310,7 @@ void ServiceRoot::initServices() {
 //----------------------------------------------------------------------------------------------------------------------
 
 tstring ServiceRoot::createService(const tstring& type, const tstring& name, PipeObject& settings) {
-	auto children = nodeChildren(_T("pipe"));
+	auto children = nodeChildren(TokenPipe);
 	for(auto& child : *children) {
 		auto childParts = texplode(child.string_value(), TokenAddressSeparator);
 		if(childParts[1] == name)

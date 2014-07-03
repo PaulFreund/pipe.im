@@ -59,6 +59,8 @@ typedef std::shared_ptr<PipeObject> PipeObjectPtr;
 
 const TCHAR     TokenAddressSeparator   = _T('.');
 
+const tstring   TokenPipe               = _T("pipe");
+
 const tstring   TokenMessageRef         = _T("ref");
 const tstring   TokenMessageAddress     = _T("address");
 const tstring   TokenMessageCommand     = _T("command");

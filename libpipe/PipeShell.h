@@ -563,6 +563,7 @@ private:
 
 	tstring _address;
 
+	bool _helpInvoked;
 	tstring _nextCommandStart;
 	tstring _nextAddress;
 
@@ -577,7 +578,8 @@ public:
 		, _cbOutputText(cbOutputText)
 		, _cbOutputMessage(cbOutputMessage)
 		, _greeting(greeting)
-		, _address(_T("pipe"))
+		, _address(TokenPipe)
+		, _helpInvoked(false)
 		, _nextCommandStart(_T(""))
 		, _nextAddress(_T(""))
 
@@ -603,6 +605,7 @@ public:
 		// Abort command
 		if(input == _abortText) {
 			_sendBuffer.data.clear();
+			_helpInvoked = false;
 			_nextCommandStart = _T("");
 			_nextAddress = _T("");
 			_cbOutputText(_T("Aborted command."));
@@ -617,7 +620,7 @@ public:
 			// Extract possible address
 			auto address = _address;
 			if(fragments.size() >= 2) {
-				if(fragments[0] == _T("pipe") || fragments[0].find_first_of(TokenAddressSeparator) != tstring::npos) {
+				if(fragments[0] == TokenPipe || fragments[0].find_first_of(TokenAddressSeparator) != tstring::npos) {
 					address = fragments[0];
 					fragments.erase(begin(fragments));
 				}
@@ -660,9 +663,17 @@ public:
 				return;
 			}
 
-			if(!_nextCommandStart.empty() && obj[TokenMessageMessage].string_value() == _T("commands")) {
-				newCommand(obj, _nextCommandStart);
-				_nextCommandStart = _T("");
+			if(obj[TokenMessageMessage].string_value() == _T("commands")) {
+				if(_helpInvoked) {
+					displayHelp(obj);
+					_helpInvoked = false;
+				}
+
+				if(!_nextCommandStart.empty()) {
+					newCommand(obj, _nextCommandStart);
+					_nextCommandStart = _T("");
+				}
+
 				return;
 			}
 
@@ -769,22 +780,63 @@ private:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	void setAddress(PipeObject& nodeChildrenMsg, const tstring& newAddress = _T("pipe")) {
+	void setAddress(PipeObject& nodeChildrenMsg, const tstring& newAddress = TokenPipe) {
 		tstring newAddressAbsolute = getAbsoluteAddress(newAddress);
+		if(newAddressAbsolute == _address) { return; }
+
 		if(newAddressAbsolute.length() == 0) {
 			_cbOutputText(_T("Shell error! Invalid address"));
 			return;
 		}
 
-		// TODO: Check if nodeChildren contains new address if it is not pipe
+		bool found = false;
+		if(newAddressAbsolute == TokenPipe) { 
+			found = true; 
+		}
+		else {
+			PipeArray& children = nodeChildrenMsg[TokenMessageData].array_items();
+			for(auto& child : children) {
+				if(child.string_value() == newAddress)
+					found = true;
+			}
+		}
 
-		//PipeArrayPtr newAddressCommands;
-		//newAddressCommands = LibPipe::nodeCommandTypes(newAddressAbsolute);
-		//_addressCommands = newAddressCommands;
+		if(!found) {
+			_cbOutputText(_T("Shell error! Invalid address"));
+			return;
+		}
 
 		_address = newAddressAbsolute;
-
 		_cbOutputText(_T("New address: ") + _address);
+	}
+
+	void displayHelp(PipeObject& nodeCommandsMsg) {
+		auto addressCommands = nodeCommandsMsg[TokenMessageData].array_items();
+
+		size_t cmdWidth = 0;
+		for(auto& command : addressCommands) {
+			auto& cmd = command.object_items();
+			auto objWidth = cmd[TokenMessageCommand].string_value().length();
+			if(objWidth > cmdWidth)
+				cmdWidth = objWidth;
+		}
+
+		tstringstream outputBuffer;
+		outputBuffer << std::setfill(_T(' '));
+		outputBuffer << _T("Shell commands:") << std::endl;
+		outputBuffer << IndentSymbol << std::setw(cmdWidth) << _T("help") << _T(" - ") << _T("Print a list of available commands") << std::endl;
+		outputBuffer << IndentSymbol << std::setw(cmdWidth) << _T("usage") << _T(" - ") << _T("Print additional usage information") << std::endl;
+		outputBuffer << IndentSymbol << std::setw(cmdWidth) << _T("ls") << _T(" - ") << _T("Get a list of child nodes") << std::endl;
+		outputBuffer << IndentSymbol << std::setw(cmdWidth) << _T("cd") << _T(" - ") << _T("Set current node address") << std::endl;
+		outputBuffer << IndentSymbol << std::setw(cmdWidth) << _T("pwd") << _T(" - ") << _T("Get current node address") << std::endl;
+		outputBuffer << IndentSymbol << std::setw(cmdWidth) << _T("tree") << _T(" - ") << _T("Print a tree of subnodes") << std::endl;
+		outputBuffer << std::endl;
+		outputBuffer << _T("Node commands:") << std::endl;
+		for(auto& command : addressCommands) {
+			auto& cmd = command.object_items();
+			outputBuffer << IndentSymbol << std::setw(cmdWidth) << cmd[TokenMessageCommand].string_value() << _T(" - ") << cmd[_T("description")].string_value() << std::endl;
+		}
+		_cbOutputText(outputBuffer.str());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -799,7 +851,6 @@ private:
 		else if(cmd == _T("ls")) { return true; }
 		else if(cmd == _T("cd")) { return true; }
 		else if(cmd == _T("pwd")) { return true; }
-		else if(cmd == _T("tree")) { return true; }
 		
 		return false;
 	}
@@ -813,43 +864,19 @@ private:
 
 		//--------------------------------------------------------------------------------------------------------------
 		if(cmd == _T("help")) {
-			// TODO
-			/*
 			tstring helpAddress = (parameter.length() > 0 ? getAbsoluteAddress(parameter) : getAbsoluteAddress(address));
 			if(helpAddress.length() == 0) {
-				_receiveBuffer << _T("Invalid address") << std::endl;
+				_cbOutputText(_T("Invalid address"));
 				return;
 			}
 
-			auto addressCommands = LibPipe::nodeCommandTypes(helpAddress);
-			if(LibPipe::nodeInfo(helpAddress)->empty()) {
-				_receiveBuffer << _T("Invalid node") << std::endl;
-				return;
-			}
-
-			size_t cmdWidth = 0;
-			for(auto&& command : *addressCommands) {
-				auto&& cmd = command.object_items();
-				auto objWidth = cmd[TokenMessageCommand].string_value().length();
-				if(objWidth > cmdWidth)
-					cmdWidth = objWidth;
-			}
-
-			_receiveBuffer << std::setfill(_T(' ')) ;
-			_receiveBuffer << _T("Shell commands:") << std::endl;
-			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("help") << _T(" - ") << _T("Print a list of available commands") << std::endl;
-			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("usage") << _T(" - ") << _T("Print additional usage information") << std::endl;
-			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("ls") << _T(" - ") << _T("Get a list of child nodes") << std::endl;
-			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("cd") << _T(" - ") << _T("Set current node address") << std::endl;
-			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("pwd") << _T(" - ") << _T("Get current node address") << std::endl;
-			_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << _T("tree") << _T(" - ") << _T("Print a tree of subnodes") << std::endl;
-			_receiveBuffer << std::endl;
-			_receiveBuffer << _T("Node commands:") << std::endl;
-			for(auto&& command : *addressCommands) {
-				auto&& cmd = command.object_items();
-				_receiveBuffer << IndentSymbol << std::setw(cmdWidth) << cmd[TokenMessageCommand].string_value() << _T(" - ") << cmd[_T("description")].string_value() << std::endl;
-			}
-			*/
+			_helpInvoked = true;
+			PipeJson msg = PipeJson(PipeObject());
+			PipeObject& msgObj = msg.object_items();
+			msgObj[TokenMessageRef] = _identifier;
+			msgObj[TokenMessageAddress] = helpAddress;
+			msgObj[TokenMessageCommand] = _T("commands");
+			_cbOutputMessage(msgObj);
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -876,7 +903,7 @@ private:
 			PipeJson msg = PipeJson(PipeObject());
 			PipeObject& msgObj = msg.object_items();
 			msgObj[TokenMessageRef] = _identifier;
-			msgObj[TokenMessageAddress] = address;
+			msgObj[TokenMessageAddress] = lsAddress;
 			msgObj[TokenMessageCommand] = _T("children");
 			_cbOutputMessage(msgObj);
 		}
@@ -888,15 +915,21 @@ private:
 				return;
 			}
 
-			// TODO: Wrong address
-			tstring parent = _T("pipe");
-			if(!address.empty() && address != _T("pipe")) {
-				auto parentParts = texplode(address, TokenAddressSeparator);
+			tstring cdAddress = getAbsoluteAddress(parameter);
+			if(cdAddress.length() == 0) {
+				_cbOutputText(_T("Invalid address"));
+				return;
+			}
+			
+			_nextAddress = cdAddress;
+
+			tstring parent = TokenPipe;
+			if(!cdAddress.empty() && cdAddress != TokenPipe) {
+				auto parentParts = texplode(cdAddress, TokenAddressSeparator);
 				parentParts.pop_back();
 				parent = timplode(parentParts, TokenAddressSeparator);
 			}
 
-			_nextAddress = address;
 			PipeJson msg = PipeJson(PipeObject());
 			PipeObject& msgObj = msg.object_items();
 			msgObj[TokenMessageRef] = _identifier;
@@ -913,35 +946,6 @@ private:
 			}
 
 			_cbOutputText(_address);
-		}
-
-		//--------------------------------------------------------------------------------------------------------------
-		else if(cmd == _T("tree")) {
-			// TODO
-			/*
-			tstring treeAddress = (parameter.length() > 0 ? getAbsoluteAddress(parameter) : getAbsoluteAddress(address));
-			if(treeAddress.length() == 0) {
-				_receiveBuffer << _T("Invalid address") << std::endl;
-				return;
-			}
-
-			auto info = LibPipe::nodeInfo(treeAddress);
-			if(info->size() == 0) {
-				_receiveBuffer << _T("Invalid address") << std::endl;
-				return;
-			}
-
-			std::function<void(tstring, tstring)> printChildren = [&](tstring address, tstring indent) {
-				auto addressParts = texplode(address, TokenAddressSeparator);
-				_receiveBuffer << indent << addressParts.back() << std::endl;
-
-				auto children = LibPipe::nodeChildren(address);
-				for(auto&& child : *children)
-					printChildren(child.string_value(), indent + IndentSymbol);
-			};
-
-			printChildren(treeAddress, _T(""));
-			*/
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -981,7 +985,7 @@ private:
 			auto& items = data.array_items();
 			for(auto item = begin(items); item != end(items); item++) {
 				generateOutput(output, _T("  - "), *item, (indent + IndentSymbol), true);
-				if((item + 1) != end(items)) { output << std::endl; }
+				//if((item + 1) != end(items)) { output << std::endl; }
 			}
 		}
 		else {
@@ -999,9 +1003,8 @@ private:
 			else {
 				output << data.string_value(); // Assume string
 			}
-
-
-			//output << std::endl;
+			
+			output << std::endl;
 		}
 	}
 
@@ -1021,7 +1024,7 @@ private:
 		else if(address == _T(".")) {
 			return _address;
 		}
-		else if(address != _T("pipe") && address.find_first_of(TokenAddressSeparator) == tstring::npos) {
+		else if(address.substr(0, TokenPipe.size()) != TokenPipe) {
 			absolute = _address + _T(".") + address;
 		}
 
