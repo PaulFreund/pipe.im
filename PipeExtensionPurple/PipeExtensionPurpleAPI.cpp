@@ -15,16 +15,6 @@ void publishError(tstring error) {
 
 //======================================================================================================================
 
-PIPE_EXTENSION_ITF void PipeExtensionProcess() {
-	try {
-		PipeExtensionPurple::ExtensionInstance.process();
-	}
-	catch(tstring error) { publishError(_T("PipeExtensionProcess: ") + error); }
-	catch(...) { publishError(_T("PipeExtensionProcess: Unknown error")); }
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 PIPE_EXTENSION_ITF void PipeExtensionSetErrorCallback(PipeExtensionCbErr cbError) {
 	PipeExtensionPurple::ErrorCallback = cbError;
 }
@@ -78,6 +68,16 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy(HPipeExtensionService servic
 	}
 	catch(tstring error) { publishError(_T("PipeExtensionServiceDestroy: ") + error); }
 	catch(...) { publishError(_T("PipeExtensionServiceDestroy: Unknown error")); }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+PIPE_EXTENSION_ITF void PipeExtensionProcess() {
+	try {
+		PipeExtensionPurple::ExtensionInstance.process();
+	}
+	catch(tstring error) { publishError(_T("PipeExtensionProcess: ") + error); }
+	catch(...) { publishError(_T("PipeExtensionProcess: Unknown error")); }
 }
 
 //----------------------------------------------------------------------------------------------------------------------

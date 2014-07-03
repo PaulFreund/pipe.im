@@ -18,10 +18,10 @@ public:
 
 class IPipeExtension {
 public:
-	virtual void process() = 0;
 	virtual PipeArrayPtr serviceTypes() = 0;
 	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings) = 0;
 	virtual void destroy(IPipeExtensionService* service) = 0;
+	virtual void process() = 0;
 };
 
 //======================================================================================================================

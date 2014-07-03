@@ -24,9 +24,6 @@ typedef void            (*LibPipeCbStr)(LibPipeCbContext, LibPipeStr);
 
 //======================================================================================================================
 
-LIBPIPE_ITF void LibPipeProcess();
-
-//----------------------------------------------------------------------------------------------------------------------
 
 LIBPIPE_ITF void LibPipeSetErrorCallback    (LibPipeCbContext context, LibPipeCbErr cbError);
 LIBPIPE_ITF void LibPipeSetPath             (LibPipeStr path);
@@ -36,6 +33,10 @@ LIBPIPE_ITF void LibPipeLoadExtensions      (LibPipeStr path);
 
 LIBPIPE_ITF void LibPipeGetServiceTypes     (LibPipeCbContext context, LibPipeCbStr cbServiceTypes);
 LIBPIPE_ITF void LibPipeInit                (LibPipeStr serviceTypes);
+
+//----------------------------------------------------------------------------------------------------------------------
+
+LIBPIPE_ITF void LibPipeProcess             ();
 
 //----------------------------------------------------------------------------------------------------------------------
 

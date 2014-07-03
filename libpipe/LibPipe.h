@@ -14,12 +14,6 @@ namespace LibPipe {
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	inline void process() {
-		LibPipeProcess();
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-
 	inline void setErrorCallback(ErrorCallback cb) {
 		
 		LibPipeSetErrorCallback(reinterpret_cast<void*>(cb), [](LibPipeCbContext context, LibPipeStr error) {
@@ -55,6 +49,12 @@ namespace LibPipe {
 
 	inline void init(PipeArrayPtr serviceTypes) {
 		LibPipeInit(dumpArray(serviceTypes).c_str());
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	inline void process() {
+		LibPipeProcess();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
