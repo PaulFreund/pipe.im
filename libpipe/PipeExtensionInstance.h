@@ -83,54 +83,6 @@ public:
 
 		return messages;
 	}
-	
-	//------------------------------------------------------------------------------------------------------------------
-
-	//virtual PipeArrayPtr nodeChildren(const tstring& address) {
-	//	PipeArrayPtr children;
-
-	//	_functions.fktPipeExtensionServiceGetNodeChildren(_service, address.c_str(), &children, [](PipeExtensionCbContext context, PipeExtensionStr childrenData) {
-	//		(*static_cast<PipeArrayPtr*>(context)) = parseArray(childrenData);
-	//	});
-
-	//	return children;
-	//}
-
-	////------------------------------------------------------------------------------------------------------------------
-
-	//virtual PipeArrayPtr nodeCommandTypes(const tstring& address) {
-	//	PipeArrayPtr commandTypes;
-
-	//	_functions.fktPipeExtensionServiceGetNodeCommandTypes(_service, address.c_str(), &commandTypes, [](PipeExtensionCbContext context, PipeExtensionStr commandTypesData) {
-	//		(*static_cast<PipeArrayPtr*>(context)) = parseArray(commandTypesData);
-	//	});
-
-	//	return commandTypes;
-	//}
-
-	////------------------------------------------------------------------------------------------------------------------
-
-	//virtual PipeArrayPtr nodeMessageTypes(const tstring& address) {
-	//	PipeArrayPtr messageTypes;
-
-	//	_functions.fktPipeExtensionServiceGetNodeMessageTypes(_service, address.c_str(), &messageTypes, [](PipeExtensionCbContext context, PipeExtensionStr messageTypesData) {
-	//		(*static_cast<PipeArrayPtr*>(context)) = parseArray(messageTypesData);
-	//	});
-
-	//	return messageTypes;
-	//}
-
-	////------------------------------------------------------------------------------------------------------------------
-
-	//virtual PipeObjectPtr nodeInfo(const tstring& address) {
-	//	PipeObjectPtr info;
-
-	//	_functions.fktPipeExtensionServiceGetNodeInfo(_service, address.c_str(), &info, [](PipeExtensionCbContext context, PipeExtensionStr infoData) {
-	//		(*static_cast<PipeObjectPtr*>(context)) = parseObject(infoData);
-	//	});
-
-	//	return info;
-	//}
 };
 
 //======================================================================================================================

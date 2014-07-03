@@ -44,11 +44,4 @@ PIPE_EXTENSION_ITF void PipeExtensionServiceDestroy             (HPipeExtensionS
 PIPE_EXTENSION_ITF void PipeExtensionServicePush                (HPipeExtensionService service, PipeExtensionStr messages);
 PIPE_EXTENSION_ITF void PipeExtensionServicePull                (HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbStr cbMessages);
 
-//----------------------------------------------------------------------------------------------------------------------
-
-//PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeChildren     (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbChildNodes);
-//PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeCommandTypes (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeCommandTypes);
-//PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeMessageTypes (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeMessageTypes);
-//PIPE_EXTENSION_ITF void PipeExtensionServiceGetNodeInfo         (HPipeExtensionService service, PipeExtensionStr address, PipeExtensionCbContext context, PipeExtensionCbStr cbNodeInfo);
-
 //======================================================================================================================
