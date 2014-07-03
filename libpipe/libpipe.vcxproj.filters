@@ -38,9 +38,6 @@
     <ClInclude Include="LibPipeAPI.h">
       <Filter>LibPipe\API</Filter>
     </ClInclude>
-    <ClInclude Include="LibPipeInterface.h">
-      <Filter>LibPipe\Wrapper</Filter>
-    </ClInclude>
     <ClInclude Include="PipeExtensionAPI.h">
       <Filter>PipeExtension\API</Filter>
     </ClInclude>

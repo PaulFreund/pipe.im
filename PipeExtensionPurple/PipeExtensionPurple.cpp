@@ -30,19 +30,13 @@ PipeExtensionPurple::~PipeExtensionPurple() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void PipeExtensionPurple::process() {
-	// TODO
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 PipeArrayPtr PipeExtensionPurple::serviceTypes() {
 	return PipeExtensionPurple::Purple->getProtocols();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-IPipeExtensionService* PipeExtensionPurple::create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings) {
+HPipeExtensionService PipeExtensionPurple::create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings) {
 	auto types = serviceTypes();
 	auto provider = find_if(begin(*types), end(*types), [&serviceType](PipeJson& ele) {
 		if(ele.is_object() && ele.object_items()[_T("type")].string_value() == serviceType)
@@ -70,12 +64,12 @@ IPipeExtensionService* PipeExtensionPurple::create(const tstring& serviceType, c
 	PurpleInterfaceAccount* result = new PurpleInterfaceAccount(address, path, settings, serviceType, description);
 	_services[address] = result;
 	result->init(id);
-	return reinterpret_cast<IPipeExtensionService*>(result);
+	return reinterpret_cast<HPipeExtensionService>(result);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void PipeExtensionPurple::destroy(IPipeExtensionService* service) {
+void PipeExtensionPurple::destroy(HPipeExtensionService service) {
 	for(auto it = begin(_services); it != end(_services); it++) {
 		if(it->second == service) {
 			delete it->second;
@@ -105,6 +99,25 @@ PurpleInterfaceAccount* PipeExtensionPurple::accountByRequestHandle(void* reques
 	}
 
 	return nullptr;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void PipeExtensionPurple::process() {
+	// TODO [PROCESS]
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void PipeExtensionPurple::push(PipeArrayPtr messages) {
+	// TODO [PROCESS]
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+PipeArrayPtr PipeExtensionPurple::pull() {
+	// TODO [PROCESS]
+	return newArray();
 }
 
 //======================================================================================================================

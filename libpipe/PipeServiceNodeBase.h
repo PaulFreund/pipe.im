@@ -9,7 +9,7 @@
 
 //======================================================================================================================
 
-class PipeServiceNodeBase : public IPipeExtensionService {
+class PipeServiceNodeBase {
 public:
 	typedef std::function<void(PipeObject&)> PipeCommandFunction;
 	typedef std::function<void(PipeArrayPtr)> PipeHookFunction;
@@ -254,6 +254,7 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 	
 	virtual void process() {
+		// TODO [PROCESS]
 		for(auto&& child : _children) {
 			//child.second->process();
 		}
@@ -262,6 +263,7 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 
 	virtual void push(PipeArrayPtr messages) {
+		// TODO [PROCESS]
 		if(_hookPrePushEnable)
 			_hookPrePush(messages);
 
@@ -314,6 +316,7 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 
 	virtual PipeArrayPtr pull() {
+		// TODO [PROCESS]
 		PipeArrayPtr messages = _outgoing;
 		_outgoing = newArray();
 

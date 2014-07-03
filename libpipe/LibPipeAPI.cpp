@@ -5,7 +5,7 @@
 #include "PipeExtensionInstance.h"
 
 using namespace std;
-using namespace Poco;
+using namespace Poco; // TODO: Remove
 
 //======================================================================================================================
 
@@ -57,17 +57,17 @@ void loadExtension(const tstring& path) {
 
 	PipeExtensionFunctions extensionFunctions;
 	try {
-		extensionFunctions.fktPipeExtensionSetErrorCallback             = reinterpret_cast<FktPipeExtensionSetErrorCallback>            (loadExtensionSymbol(library, NamePipeExtensionSetErrorCallback             ));
-		extensionFunctions.fktPipeExtensionSetPath                      = reinterpret_cast<FktPipeExtensionSetPath>                     (loadExtensionSymbol(library, NamePipeExtensionSetPath                      ));
+		extensionFunctions.fktPipeExtensionSetErrorCallback = reinterpret_cast<FktPipeExtensionSetErrorCallback>    (loadExtensionSymbol(library, NamePipeExtensionSetErrorCallback ));
+		extensionFunctions.fktPipeExtensionSetPath          = reinterpret_cast<FktPipeExtensionSetPath>             (loadExtensionSymbol(library, NamePipeExtensionSetPath          ));
 
-		extensionFunctions.fktPipeExtensionGetServiceTypes              = reinterpret_cast<FktPipeExtensionGetServiceTypes>             (loadExtensionSymbol(library, NamePipeExtensionGetServiceTypes              ));
-		extensionFunctions.fktPipeExtensionServiceCreate                = reinterpret_cast<FktPipeExtensionServiceCreate>               (loadExtensionSymbol(library, NamePipeExtensionServiceCreate                ));
-		extensionFunctions.fktPipeExtensionServiceDestroy               = reinterpret_cast<FktPipeExtensionServiceDestroy>              (loadExtensionSymbol(library, NamePipeExtensionServiceDestroy               ));
+		extensionFunctions.fktPipeExtensionGetServiceTypes  = reinterpret_cast<FktPipeExtensionGetServiceTypes>     (loadExtensionSymbol(library, NamePipeExtensionGetServiceTypes  ));
+		extensionFunctions.fktPipeExtensionServiceCreate    = reinterpret_cast<FktPipeExtensionServiceCreate>       (loadExtensionSymbol(library, NamePipeExtensionServiceCreate    ));
+		extensionFunctions.fktPipeExtensionServiceDestroy   = reinterpret_cast<FktPipeExtensionServiceDestroy>      (loadExtensionSymbol(library, NamePipeExtensionServiceDestroy   ));
 
-		extensionFunctions.fktPipeExtensionProcess                      = reinterpret_cast<FktPipeExtensionProcess>                     (loadExtensionSymbol(library, NamePipeExtensionProcess                      ));
+		extensionFunctions.fktPipeExtensionProcess          = reinterpret_cast<FktPipeExtensionProcess>             (loadExtensionSymbol(library, NamePipeExtensionProcess          ));
 
-		extensionFunctions.fktPipeExtensionServicePush                  = reinterpret_cast<FktPipeExtensionServicePush>                 (loadExtensionSymbol(library, NamePipeExtensionServicePush                  ));
-		extensionFunctions.fktPipeExtensionServicePull                  = reinterpret_cast<FktPipeExtensionServicePull>                 (loadExtensionSymbol(library, NamePipeExtensionServicePull                  ));
+		extensionFunctions.fktPipeExtensionPush             = reinterpret_cast<FktPipeExtensionPush>                (loadExtensionSymbol(library, NamePipeExtensionPush             ));
+		extensionFunctions.fktPipeExtensionPull             = reinterpret_cast<FktPipeExtensionPull>                (loadExtensionSymbol(library, NamePipeExtensionPull             ));
 	}
 	catch(tstring error) { publishError(error); }
 	catch(...) { return; }

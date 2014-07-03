@@ -5,7 +5,7 @@
 #include "LibPipe.h"
 
 using namespace std;
-using namespace Poco;
+using namespace Poco; // TODO: Remove
 
 std::vector<std::shared_ptr<PipeExtensionInstance>> ServiceRoot::Extensions;
 
@@ -66,7 +66,7 @@ void ServiceRoot::scriptPushOutgoing(PipeObjectPtr message) {
 //----------------------------------------------------------------------------------------------------------------------
 
 void ServiceRoot::process() {
-	// TODO
+	// TODO [PROCESS]
 	//_exchangeMutex.lock();
 	//{
 	//	// Receive

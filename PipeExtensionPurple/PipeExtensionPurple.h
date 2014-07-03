@@ -27,10 +27,15 @@ public:
 	virtual ~PipeExtensionPurple();
 
 public:
-	virtual void process();
 	virtual PipeArrayPtr serviceTypes();
-	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings);
-	virtual void destroy(IPipeExtensionService* service);
+
+	virtual HPipeExtensionService create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings);
+	virtual void destroy(HPipeExtensionService service);
+
+	virtual void process();
+
+	virtual void push(PipeArrayPtr messages);
+	virtual PipeArrayPtr pull();
 
 public:
 	PurpleInterfaceAccount* account(PurpleAccount* account);

@@ -41,7 +41,7 @@ PIPE_EXTENSION_ITF void PipeExtensionProcess                    ();
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PIPE_EXTENSION_ITF void PipeExtensionServicePush                (HPipeExtensionService service, PipeExtensionStr messages);
-PIPE_EXTENSION_ITF void PipeExtensionServicePull                (HPipeExtensionService service, PipeExtensionCbContext context, PipeExtensionCbStr cbMessages);
+PIPE_EXTENSION_ITF void PipeExtensionPush                       (PipeExtensionStr messages);
+PIPE_EXTENSION_ITF void PipeExtensionPull                       (PipeExtensionCbContext context, PipeExtensionCbStr cbMessages);
 
 //======================================================================================================================

@@ -130,27 +130,7 @@ public:
 		try {
 			// Commands with parameter
 			if(parts.size() >= 3) {
-				if(parts[1] == _T("nodeChildren")) {
-					// TODO
-					// outstream << PipeJson(*LibPipe::nodeChildren(parts[2])).dump();
-					return true;
-				}
-				else if(parts[1] == _T("nodeCommandTypes")) {
-					// TODO
-					// outstream << PipeJson(*LibPipe::nodeCommandTypes(parts[2])).dump();
-					return true;
-				}
-				else if(parts[1] == _T("nodeMessageTypes")) {
-					// TODO
-					// outstream << PipeJson(*LibPipe::nodeMessageTypes(parts[2])).dump();
-					return true;
-				}
-				else if(parts[1] == _T("nodeInfo")) {
-					// TODO
-					// outstream << PipeJson(*LibPipe::nodeInfo(parts[2])).dump();
-					return true;
-				}
-				else if(parts[1] == _T("concat")) {
+				if(parts[1] == _T("concat")) {
 					auto partsCopy = parts;
 					partsCopy.erase(begin(partsCopy)); // Remove "rest"
 					partsCopy.erase(begin(partsCopy)); // Remove "concat"

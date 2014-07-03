@@ -14,8 +14,8 @@ const tstring NamePipeExtensionGetServiceTypes              = _T("PipeExtensionG
 const tstring NamePipeExtensionServiceCreate                = _T("PipeExtensionServiceCreate");
 const tstring NamePipeExtensionServiceDestroy               = _T("PipeExtensionServiceDestroy");
 const tstring NamePipeExtensionProcess                      = _T("PipeExtensionProcess");
-const tstring NamePipeExtensionServicePush                  = _T("PipeExtensionServicePush");
-const tstring NamePipeExtensionServicePull                  = _T("PipeExtensionServicePull");
+const tstring NamePipeExtensionPush                         = _T("PipeExtensionPush");
+const tstring NamePipeExtensionPull                         = _T("PipeExtensionPull");
 
 typedef void(*FktPipeExtensionSetErrorCallback)             (PipeExtensionCbStr);
 typedef void(*FktPipeExtensionSetPath)                      (PipeExtensionStr);
@@ -23,8 +23,8 @@ typedef void(*FktPipeExtensionGetServiceTypes)              (PipeExtensionCbCont
 typedef void(*FktPipeExtensionServiceCreate)                (PipeExtensionStr, PipeExtensionStr, PipeExtensionStr, HPipeExtensionService*);
 typedef void(*FktPipeExtensionServiceDestroy)               (HPipeExtensionService);
 typedef void(*FktPipeExtensionProcess)                      ();
-typedef void(*FktPipeExtensionServicePush)                  (HPipeExtensionService, PipeExtensionStr);
-typedef void(*FktPipeExtensionServicePull)                  (HPipeExtensionService, PipeExtensionCbContext, PipeExtensionCbStr);
+typedef void(*FktPipeExtensionPush)                         (PipeExtensionStr);
+typedef void(*FktPipeExtensionPull)                         (PipeExtensionCbContext, PipeExtensionCbStr);
 
 //======================================================================================================================
 
@@ -35,42 +35,8 @@ struct PipeExtensionFunctions {
 	FktPipeExtensionServiceCreate               fktPipeExtensionServiceCreate               = nullptr;
 	FktPipeExtensionServiceDestroy              fktPipeExtensionServiceDestroy              = nullptr;
 	FktPipeExtensionProcess                     fktPipeExtensionProcess                     = nullptr;
-	FktPipeExtensionServicePush                 fktPipeExtensionServicePush                 = nullptr;
-	FktPipeExtensionServicePull                 fktPipeExtensionServicePull                 = nullptr;
-};
-
-//======================================================================================================================
-
-class PipeExtensionServiceInstance : public IPipeExtensionService {
-private:
-	PipeExtensionFunctions _functions;
-	HPipeExtensionService _service;
-
-public:
-	PipeExtensionServiceInstance(const PipeExtensionFunctions& functions, HPipeExtensionService service) : _functions(functions), _service(service) {}
-
-	virtual ~PipeExtensionServiceInstance() {
-		_functions.fktPipeExtensionServiceDestroy(_service);
-	}
-
-public:
-	//------------------------------------------------------------------------------------------------------------------
-
-	virtual void push(PipeArrayPtr messages) {
-		_functions.fktPipeExtensionServicePush(_service, dumpArray(messages).c_str());
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-
-	virtual PipeArrayPtr pull() {
-		PipeArrayPtr messages;
-
-		_functions.fktPipeExtensionServicePull(_service, &messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
-			(*static_cast<PipeArrayPtr*>(context)) = parseArray(messagesData);
-		});
-
-		return messages;
-	}
+	FktPipeExtensionPush                        fktPipeExtensionPush                        = nullptr;
+	FktPipeExtensionPull                        fktPipeExtensionPull                        = nullptr;
 };
 
 //======================================================================================================================
@@ -100,27 +66,42 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual IPipeExtensionService* create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings) {
+	virtual HPipeExtensionService create(const tstring& serviceType, const tstring& address, const tstring& path, PipeObjectPtr settings) {
 		HPipeExtensionService service = 0;
 
 		_functions.fktPipeExtensionServiceCreate(serviceType.c_str(), address.c_str(), dumpObject(settings).c_str(), &service);
 
-		if(service != 0)
-			return new PipeExtensionServiceInstance(_functions, service);
-
-		return nullptr;
+		return service;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual void destroy(IPipeExtensionService* service) {
-		_functions.fktPipeExtensionServiceDestroy(reinterpret_cast<HPipeExtensionService>(service));
+	virtual void destroy(HPipeExtensionService service) {
+		_functions.fktPipeExtensionServiceDestroy(service);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	
 	virtual void process() {
 		_functions.fktPipeExtensionProcess();
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	virtual void push(PipeArrayPtr messages) {
+		_functions.fktPipeExtensionPush(dumpArray(messages).c_str());
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	virtual PipeArrayPtr pull() {
+		PipeArrayPtr messages;
+
+		_functions.fktPipeExtensionPull(&messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
+			(*static_cast<PipeArrayPtr*>(context)) = parseArray(messagesData);
+		});
+
+		return messages;
 	}
 
 };
