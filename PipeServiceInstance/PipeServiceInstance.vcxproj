@@ -11,10 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5EB09F56-E1FC-44B4-90FB-C8666EDD1BF5}</ProjectGuid>
+    <ProjectGuid>{514684E8-E453-4C04-A3D7-AA172552953D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>PipeWebsocketTerminal</RootNamespace>
-    <ProjectName>PipeWebsocketTerminal</ProjectName>
+    <RootNamespace>PipeServiceInstance</RootNamespace>
+    <ProjectName>PipeServiceInstance</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -61,10 +61,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>LibPiped.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -83,16 +79,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>LibPipe.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="PipeWebsocketTerminal.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="PipeWebsocketTerminal.h" />
+    <ClCompile Include="PipeServiceInstance.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

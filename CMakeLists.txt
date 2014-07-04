@@ -9,7 +9,7 @@ project(pipe.im)
 
 add_subdirectory(libpipe)
 add_subdirectory(PipeExtensionPurple)
-add_subdirectory(PipeTerminal)
-add_subdirectory(PipeWebsocketTerminal)
+add_subdirectory(PipeServiceInstance)
+add_subdirectory(PipeServiceHost)
 
 #-------------------------------------------------------------------------------

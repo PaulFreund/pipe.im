@@ -1,6 +1,6 @@
 //======================================================================================================================
 
-#include "PipeWebsocketTerminal.h"
+#include "PipeServiceHost.h"
 
 #include <thread>
 #include <chrono>
@@ -41,7 +41,7 @@ using namespace Poco::Net;
 
 //======================================================================================================================
 
-bool checkAuth(PipeWebsocketTerminalApplication* pApp, HTTPServerRequest& request, HTTPServerResponse& response) {
+bool checkAuth(PipeServiceHostApplication* pApp, HTTPServerRequest& request, HTTPServerResponse& response) {
 	if(pApp->_authToken.empty()) { return true; } // Does not require authentication
 
 	// Get authentication
@@ -121,7 +121,7 @@ public:
 	}
 
 	bool handleCommands(const tstring& uri, std::ostream& outstream, tstring body) {
-		PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
+		PipeServiceHostApplication* pApp = reinterpret_cast<PipeServiceHostApplication*>(&Application::instance());
 		auto parts = texplode(uri, _T('/'));
 		if(parts.size() < 2) { return false; }
 
@@ -194,7 +194,7 @@ public:
 	}
 
 	void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
-		PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
+		PipeServiceHostApplication* pApp = reinterpret_cast<PipeServiceHostApplication*>(&Application::instance());
 		if(!checkAuth(pApp, request, response))
 			return;
 
@@ -295,7 +295,7 @@ public:
 	}
 public:
 	void handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
-		PipeWebsocketTerminalApplication* pApp = reinterpret_cast<PipeWebsocketTerminalApplication*>(&Application::instance());
+		PipeServiceHostApplication* pApp = reinterpret_cast<PipeServiceHostApplication*>(&Application::instance());
 
 		if(!checkAuth(pApp, request, response))
 			return;
@@ -411,22 +411,22 @@ public:
 
 //======================================================================================================================
 
-PipeWebsocketTerminalApplication::PipeWebsocketTerminalApplication()
+PipeServiceHostApplication::PipeServiceHostApplication()
 	: _help(false)
 	, _debug(false)
 	{
 		setUnixOptions(true); 
 	}
 
-PipeWebsocketTerminalApplication::~PipeWebsocketTerminalApplication() {}
+PipeServiceHostApplication::~PipeServiceHostApplication() {}
 
 
-void PipeWebsocketTerminalApplication::defineOptions(OptionSet& options) {
+void PipeServiceHostApplication::defineOptions(OptionSet& options) {
 	options.addOption(
 		Option(_T("help"), _T("h"), _T("Display help"))
 		.required(false)
 		.repeatable(false)
-		.callback(OptionCallback<PipeWebsocketTerminalApplication>(this, &PipeWebsocketTerminalApplication::displayHelp))
+		.callback(OptionCallback<PipeServiceHostApplication>(this, &PipeServiceHostApplication::displayHelp))
 		);
 	options.addOption(
 		Option(_T("extdir"), _T("e"), _T("Path to folder where extensions are located"))
@@ -479,18 +479,18 @@ void PipeWebsocketTerminalApplication::defineOptions(OptionSet& options) {
 		);
 }
 
-class PipeWebsocketTerminalErrorHandler : public ErrorHandler {
+class PipeServiceHostErrorHandler : public ErrorHandler {
 public:
-	PipeWebsocketTerminalErrorHandler() : ErrorHandler() {}
+	PipeServiceHostErrorHandler() : ErrorHandler() {}
 
 	virtual void exception(const Exception& exc) { cout << _T("[POCO ERROR] ") << exc.message() << endl; }
 	virtual void exception(const std::exception& exc) { cout << _T("[POCO ERROR] ") << exc.what() << endl; }
 	virtual void exception() { cout << _T("[POCO ERROR] Unknown") << endl; }
 };
 
-int PipeWebsocketTerminalApplication::main(const vector<tstring>& args) {
+int PipeServiceHostApplication::main(const vector<tstring>& args) {
 	ErrorHandler* origHandler = ErrorHandler::get();
-	ErrorHandler* newHandler = new PipeWebsocketTerminalErrorHandler();
+	ErrorHandler* newHandler = new PipeServiceHostErrorHandler();
 	ErrorHandler::set(newHandler);
 
 	try {
@@ -550,7 +550,7 @@ int PipeWebsocketTerminalApplication::main(const vector<tstring>& args) {
 	return EXIT_OK;
 }
 
-void PipeWebsocketTerminalApplication::displayHelp(const tstring& name, const tstring& value) {
+void PipeServiceHostApplication::displayHelp(const tstring& name, const tstring& value) {
 	_help = true;
 	stopOptionsProcessing();
 }
@@ -558,7 +558,7 @@ void PipeWebsocketTerminalApplication::displayHelp(const tstring& name, const ts
 //======================================================================================================================
 
 int main(int argc, char* argv[]) {
-	PipeWebsocketTerminalApplication self;
+	PipeServiceHostApplication self;
 	self.run(argc, argv);
 	return 0;
 }

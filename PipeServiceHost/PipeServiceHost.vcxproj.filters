@@ -9,10 +9,21 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="Users">
+      <UniqueIdentifier>{1fabb000-afb3-4611-9790-9055000db6e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PipeTerminal.cpp">
+    <ClCompile Include="PipeServiceHost.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PipeServiceHost.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeServiceUser.h">
+      <Filter>Users</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

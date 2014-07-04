@@ -18,15 +18,19 @@
 typedef std::basic_string<TCHAR> tstring;
 typedef unsigned char ubyte;
 
-#include "Poco/Util/ServerApplication.h"
-#include "Poco/Util/OptionSet.h"
+#include <Poco/Util/ServerApplication.h>
+#include <Poco/Util/OptionSet.h>
 
 #include <libpipe/PipeShell.h>
 
+/*
+// Find way to cross platform background start apps
+auto bRet = _tspawnl(_P_NOWAITO, path_to_app, path, NULL);
+*/
 //======================================================================================================================
 
 class ServerApplication;
-class PipeWebsocketTerminalApplication : public Poco::Util::ServerApplication {
+class PipeServiceHostApplication : public Poco::Util::ServerApplication {
 public:
 	bool _help;
 	bool _debug;
@@ -42,8 +46,8 @@ public:
 
 
 public:
-	PipeWebsocketTerminalApplication();
-	~PipeWebsocketTerminalApplication();
+	PipeServiceHostApplication();
+	~PipeServiceHostApplication();
 
 public:
 	void defineOptions(Poco::Util::OptionSet& options);

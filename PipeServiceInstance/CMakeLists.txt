@@ -2,7 +2,7 @@
 # Project definition
 
 cmake_minimum_required(VERSION 2.8)
-project(PipeTerminal)
+project(PipeServiceInstance)
 
 #-------------------------------------------------------------------------------
 # Project configuration
@@ -13,30 +13,32 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
         set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")
 endif()
 
-file(GLOB PIPE_TERMINAL_SRC "*.cpp")
-add_executable(PipeTerminal ${PIPE_TERMINAL_SRC})
+file(GLOB PIPE_SERVICE_INSTANCE_SRC "*.cpp")
+add_executable(PipeServiceInstance ${PIPE_SERVICE_INSTANCE_SRC})
 
 #-------------------------------------------------------------------------------
 # General dependencies
 
 include_directories(${CMAKE_SOURCE_DIR})
-target_link_libraries(PipeTerminal pipe)
+target_link_libraries(PipeServiceInstance pipe)
 
 #-------------------------------------------------------------------------------
 # POCO
 
 find_library(POCO_UTIL NAMES PocoUtil)
+find_library(POCO_NET NAMES PocoNet)
 
 set(POCO_LIBRARIES 
 	${POCO_UTIL} 
+	${POCO_NET} 
 )
 
-target_link_libraries (PipeTerminal ${POCO_LIBRARIES})
+target_link_libraries (PipeServiceInstance ${POCO_LIBRARIES})
 
 #-------------------------------------------------------------------------------
 # Installation
 
-install(TARGETS PipeTerminal
+install(TARGETS PipeServiceInstance
         RUNTIME DESTINATION bin
 )
 

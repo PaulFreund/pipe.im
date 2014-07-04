@@ -2,7 +2,7 @@
 # Project definition
 
 cmake_minimum_required(VERSION 2.8)
-project(PipeWebsocketTerminal)
+project(PipeServiceHost)
 
 #-------------------------------------------------------------------------------
 # Project configuration
@@ -13,14 +13,14 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
         set(CMAKE_CXX_FLAGS "-stdlib=libc++ ${CMAKE_CXX_FLAGS}")
 endif()
 
-file(GLOB PIPE_WEBSOCKET_TERMINAL_SRC "*.cpp")
-add_executable(PipeWebsocketTerminal ${PIPE_WEBSOCKET_TERMINAL_SRC})
+file(GLOB PIPE_SERVICE_HOST_SRC "*.cpp")
+add_executable(PipeServiceHost ${PIPE_SERVICE_HOST_SRC})
 
 #-------------------------------------------------------------------------------
 # General dependencies
 
 include_directories(${CMAKE_SOURCE_DIR})
-target_link_libraries(PipeWebsocketTerminal pipe)
+target_link_libraries(PipeServiceHost pipe)
 
 #-------------------------------------------------------------------------------
 # POCO
@@ -33,15 +33,15 @@ set(POCO_LIBRARIES
 	${POCO_NET} 
 )
 
-target_link_libraries (PipeWebsocketTerminal ${POCO_LIBRARIES})
+target_link_libraries (PipeServiceHost ${POCO_LIBRARIES})
 
 #-------------------------------------------------------------------------------
 # Installation
 
-install(TARGETS PipeWebsocketTerminal
+install(TARGETS PipeServiceHost
         RUNTIME DESTINATION bin
 )
 
-install(DIRECTORY static/ DESTINATION share/pipe/WebsocketTerminal/static)
+install(DIRECTORY static/ DESTINATION share/pipe/PipeServiceHost/static)
 
 #-------------------------------------------------------------------------------
