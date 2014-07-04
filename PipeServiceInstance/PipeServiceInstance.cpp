@@ -47,12 +47,85 @@ public:
 	void run() {
 		StreamSocket& ss = socket();
 		try {
-			char buffer[256];
-			int n = ss.receiveBytes(buffer, sizeof(buffer));
-			while(n > 0) {
-				ss.sendBytes(buffer, n);
-				n = ss.receiveBytes(buffer, sizeof(buffer));
-			}
+			//char buffer[256];
+			//int n = ss.receiveBytes(buffer, sizeof(buffer));
+			//while(n > 0) {
+			//	ss.sendBytes(buffer, n);
+			//	n = ss.receiveBytes(buffer, sizeof(buffer));
+			//}
+
+			// TODO: Something like this but thread safe 
+
+			/*
+				try {
+					// Get application path
+					PipeServiceInstanceApplication self(argc, argv);
+					Path commandPath(self.commandPath());
+
+					auto appPath = commandPath.parent().toString();
+					auto userPath = appPath + _T("PipeTerminalData");
+					LibPipe::setErrorCallback([](tstring error) {
+						cout << _T("[LIBPIPE ERROR]") << error << endl;
+					});
+					LibPipe::setPath(userPath);
+					LibPipe::loadExtensions(appPath);
+					auto serviceTypes = LibPipe::serviceTypes();
+					LibPipe::init(serviceTypes);
+
+					PipeShell shell(
+						_T("terminal"),
+						[&](tstring text) {
+							cout << text << endl;
+						},
+						[](PipeJson msg) {
+							LibPipe::push(std::make_shared<PipeArray>(PipeArray { msg }));
+						},
+						true
+					);
+
+					bool exit = false;
+
+					thread process([&]() {
+						LibPipe::process();
+						Thread::sleep(100);
+					});
+
+					thread pull([&]() {
+						tstring received;
+						while(!exit) {
+							shell.inputMessages(LibPipe::pull());
+							Thread::sleep(100);
+						}
+					});
+
+					thread push([&]() {
+						const unsigned int bufferSize = 2048;
+						TCHAR buffer[bufferSize];
+
+						while(!exit) {
+							cin.getline(buffer, bufferSize, _T('\n'));
+
+							tstring message(buffer);
+
+							if(message.compare(_T("exit")) == 0) {
+								exit = true;
+								continue;
+							}
+
+							shell.inputText(message);
+						}
+					});
+
+					while(!exit) {
+						Thread::sleep(100);
+					}
+
+					process.join();
+					pull.join();
+					push.join();
+				}
+
+			*/
 		}
 		catch(Poco::Exception& exc) {
 			std::cerr << "EchoConnection: " << exc.displayText() << std::endl;
