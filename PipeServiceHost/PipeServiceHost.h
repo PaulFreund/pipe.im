@@ -11,7 +11,7 @@
 
 //======================================================================================================================
 
-class PipeServiceHostApplication : public Poco::Util::ServerApplication {
+class PipeServiceHost : public Poco::Util::ServerApplication {
 public:
 	bool _help;
 	bool _debug;
@@ -20,15 +20,17 @@ public:
 	tstring _extdir;
 	tstring _datadir;
 	tstring _staticdir;
-	int _port = 9980;
-	tstring _address;
-	tstring _uripath;
-	tstring _authToken;
 
+	tstring _webserverAddress;
+	int _webserverPort = 9980;
+	tstring _webserverPath;
+
+	tstring _instanceAddress;
+	int _instancePort = 9980;
 
 public:
-	PipeServiceHostApplication();
-	~PipeServiceHostApplication();
+	PipeServiceHost();
+	~PipeServiceHost();
 
 public:
 	int main(const std::vector<tstring>& args);

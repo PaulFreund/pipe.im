@@ -94,13 +94,15 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PipeServiceHost.cpp" />
+    <ClCompile Include="UserInstance.cpp" />
+    <ClCompile Include="UserInstanceManager.cpp" />
     <ClCompile Include="WebService.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonHeader.h" />
-    <ClInclude Include="InstanceManager.h" />
     <ClInclude Include="PipeServiceHost.h" />
-    <ClInclude Include="PipeServiceUser.h" />
+    <ClInclude Include="UserInstance.h" />
+    <ClInclude Include="UserInstanceManager.h" />
     <ClInclude Include="WebService.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

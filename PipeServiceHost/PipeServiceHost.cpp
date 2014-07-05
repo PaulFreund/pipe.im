@@ -2,6 +2,7 @@
 
 #include "CommonHeader.h"
 #include "PipeServiceHost.h"
+#include "UserInstanceManager.h"
 #include "WebService.h"
 
 #include <Poco/ErrorHandler.h>
@@ -24,7 +25,7 @@ public:
 
 //======================================================================================================================
 
-PipeServiceHostApplication::PipeServiceHostApplication()
+PipeServiceHost::PipeServiceHost()
 	: _help(false)
 	, _debug(false)
 {
@@ -33,11 +34,11 @@ PipeServiceHostApplication::PipeServiceHostApplication()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-PipeServiceHostApplication::~PipeServiceHostApplication() {}
+PipeServiceHost::~PipeServiceHost() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-int PipeServiceHostApplication::main(const vector<tstring>& args) {
+int PipeServiceHost::main(const vector<tstring>& args) {
 	ErrorHandler* origHandler = ErrorHandler::get();
 	ErrorHandler* newHandler = new PipeServiceHostErrorHandler();
 	ErrorHandler::set(newHandler);
@@ -59,25 +60,9 @@ int PipeServiceHostApplication::main(const vector<tstring>& args) {
 		return EXIT_USAGE;
 	}
 
-	//// TODO:
-	// Update settings
-		// Base folder
-		// instance socket
-		// webservice socket
-		// other
+	shared_ptr<UserInstanceManager> manager = make_shared<UserInstanceManager>();
+	shared_ptr<WebService> service = make_shared<WebService>();
 
-	// Create instance of UserInstanceManager
-		
-
-	// Creeate instance of WebService
-		// Authentication and registration layer
-
-		// Create Administration
-			// Configuration of bots
-			// Configuration for user management
-
-		// Create user management
-	
 	waitForTerminationRequest();
 
 	ErrorHandler::set(origHandler);
@@ -88,12 +73,12 @@ int PipeServiceHostApplication::main(const vector<tstring>& args) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void PipeServiceHostApplication::defineOptions(OptionSet& options) {
+void PipeServiceHost::defineOptions(OptionSet& options) {
 	options.addOption(
 		Option(_T("help"), _T("h"), _T("Display help"))
 		.required(false)
 		.repeatable(false)
-		.callback(OptionCallback<PipeServiceHostApplication>(this, &PipeServiceHostApplication::displayHelp))
+		.callback(OptionCallback<PipeServiceHost>(this, &PipeServiceHost::displayHelp))
 	);
 	options.addOption(
 		Option(_T("extdir"), _T("e"), _T("Path to folder where extensions are located"))
@@ -117,53 +102,63 @@ void PipeServiceHostApplication::defineOptions(OptionSet& options) {
 		.argument(_T("[staticdir]"))
 	);
 	options.addOption(
-		Option(_T("port"), _T("p"), _T("Port on which application will listen"))
+		Option(_T("webserverAddress"), _T("wa"), _T("Address the webserver binds to"))
 		.required(false)
 		.repeatable(false)
-		.binding(_T("port"))
-		.argument(_T("[port]"))
+		.binding(_T("webserverAddress"))
+		.argument(_T("[webserverAddress]"))
 	);
 	options.addOption(
-		Option(_T("address"), _T("a"), _T("Address to bind"))
+		Option(_T("webserverPort"), _T("wp"), _T("Port on which webserver will listen"))
 		.required(false)
 		.repeatable(false)
-		.binding(_T("address"))
-		.argument(_T("[address]"))
+		.binding(_T("webserverPort"))
+		.argument(_T("[webserverPort]"))
 	);
 	options.addOption(
-		Option(_T("uripath"), _T("u"), _T("Subpath where application will be served"))
+		Option(_T("webserverPath"), _T("wu"), _T("Subpath where application will be served"))
 		.required(false)
 		.repeatable(false)
-		.binding(_T("uripath"))
-		.argument(_T("[uripath]"))
+		.binding(_T("webserverPath"))
+		.argument(_T("[webserverPath]"))
 	);
 	options.addOption(
-		Option(_T("authtoken"), _T("t"), _T("Authentication information in CRYPT form"))
+		Option(_T("instanceAddress"), _T("ia"), _T("Address the instance listener binds to"))
 		.required(false)
 		.repeatable(false)
-		.binding(_T("authtoken"))
-		.argument(_T("[authtoken]"))
+		.binding(_T("instanceAddress"))
+		.argument(_T("[instanceAddress]"))
+	);
+	options.addOption(
+		Option(_T("instancePort"), _T("ip"), _T("Port on which instance listener will listen"))
+		.required(false)
+		.repeatable(false)
+		.binding(_T("instancePort"))
+		.argument(_T("[instancePort]"))
 	);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void PipeServiceHostApplication::readOptions() {
+void PipeServiceHost::readOptions() {
 	_appPath = Path(commandPath()).parent().toString();
 	_extdir = config().getString(_T("extdir"), _appPath);
 	_datadir = config().getString(_T("datadir"), _appPath + _T("Data"));
 	_staticdir = config().getString(_T("staticdir"), _appPath + _T("static"));
-	_port = config().getInt(_T("port"), 9980);
-	_address = config().getString(_T("address"), _T("127.0.0.1"));
-	_uripath = config().getString(_T("uripath"), _T(""));
-	_authToken = config().getString(_T("authtoken"), _T(""));
-	if(_uripath[0] != _T('/'))
-		_uripath = _T("/") + _uripath;
+
+	_webserverAddress = config().getString(_T("webserverAddress"), _T("127.0.0.1"));
+	_webserverPort = config().getInt(_T("webserverPort"), 9980);
+	_webserverPath = config().getString(_T("webserverPath"), _T(""));
+	if(_webserverPath[0] != _T('/'))
+		_webserverPath = _T("/") + _webserverPath;
+
+	_instanceAddress = config().getString(_T("instanceAddress"), _T("127.0.0.1"));
+	_instancePort = config().getInt(_T("instancePort"), 9991);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void PipeServiceHostApplication::displayHelp(const tstring& name, const tstring& value) {
+void PipeServiceHost::displayHelp(const tstring& name, const tstring& value) {
 	_help = true;
 	stopOptionsProcessing();
 }
@@ -171,7 +166,7 @@ void PipeServiceHostApplication::displayHelp(const tstring& name, const tstring&
 //======================================================================================================================
 
 int main(int argc, char* argv[]) {
-	PipeServiceHostApplication self;
+	PipeServiceHost self;
 	self.run(argc, argv);
 	return 0;
 }
