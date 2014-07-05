@@ -21,6 +21,15 @@ public:
 	UserInstanceManager();
 	~UserInstanceManager();
 
+	// TODO:
+	/*
+		* Configuration management (loading, saving etc)
+		* Instantiating of PipeServiceInstances
+		* Managing between WebService and Instances
+		* Own service for Host with bots
+		* Where should the shell live?		
+	*/
+
 };
 
 //======================================================================================================================
