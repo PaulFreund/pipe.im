@@ -14,7 +14,6 @@
 #include <Poco/Net/HTTPRequestHandler.h>
 #include <Poco/Net/HTTPRequestHandlerFactory.h>
 
-
 //======================================================================================================================
 
 class WebServiceHandlerPage : public Poco::Net::HTTPRequestHandler {
