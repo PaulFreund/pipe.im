@@ -1,29 +1,48 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="Users">
       <UniqueIdentifier>{1fabb000-afb3-4611-9790-9055000db6e1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="WebService">
+      <UniqueIdentifier>{95e73a4a-0e10-40a3-82a9-1de7805426f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instances">
+      <UniqueIdentifier>{ec11d23b-8a95-4b68-9861-ffda2c7c627c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Host">
+      <UniqueIdentifier>{3215f087-8926-4bce-a033-70cad5b505c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{96193a86-5349-421b-ad19-6210e70e746b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PipeServiceHost.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="PipeServiceHost.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PipeServiceUser.h">
       <Filter>Users</Filter>
     </ClInclude>
+    <ClInclude Include="InstanceManager.h">
+      <Filter>Instances</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeServiceHost.h">
+      <Filter>Host</Filter>
+    </ClInclude>
+    <ClInclude Include="WebService.h">
+      <Filter>WebService</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonHeader.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="PipeServiceHost.cpp">
+      <Filter>Host</Filter>
+    </ClCompile>
+    <ClCompile Include="WebService.cpp">
+      <Filter>WebService</Filter>
+    </ClCompile>
+    <ClCompile Include="CommonHeader.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

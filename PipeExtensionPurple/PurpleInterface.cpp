@@ -702,7 +702,7 @@ void PurpleInterface::initSignalCallbacks() {
 	purple_signal_connect(hConversations, "chat-left", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_left), cbData);
 	purple_signal_connect(hConversations, "chat-topic-changed", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_chat_topic_changed), cbData);
 
-	// FUTURE: File signals
+	// File signals
 	auto hXfers = purple_xfers_get_handle();
 	purple_signal_connect(hXfers, "file-recv-accept", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_file_recv_accept), cbData);
 	purple_signal_connect(hXfers, "file-recv-start", cbHandle, reinterpret_cast<PurpleCallback>(&purple_cb_file_recv_start), cbData);

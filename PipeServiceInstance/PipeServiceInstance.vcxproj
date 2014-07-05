@@ -83,6 +83,9 @@
   <ItemGroup>
     <ClCompile Include="PipeServiceInstance.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PipeServiceInstance.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -588,7 +588,7 @@ tstring ServiceRoot::createScript(const tstring& name, bool preSend, bool postRe
 								}
 							}
 
-							// Readd
+							// Read
 							if(preSend) { _scriptsPreSend.push_back(updatedScriptInstance); }
 							if(postReceive) { _scriptsPostReceive.push_back(updatedScriptInstance); }
 

@@ -10,14 +10,24 @@
 //======================================================================================================================
 
 namespace LibPipe {
-	typedef void(*ErrorCallback)(tstring);
+	typedef void* ErrorCallbackContxt;
+	typedef void(*ErrorCallback)(ErrorCallbackContxt, tstring);
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	inline void setErrorCallback(ErrorCallback cb) {
-		
-		LibPipeSetErrorCallback(reinterpret_cast<void*>(cb), [](LibPipeCbContext context, LibPipeStr error) {
-			(*reinterpret_cast<ErrorCallback>(context))(tstring(error));
+	inline void setErrorCallback(ErrorCallbackContxt ctx, ErrorCallback cb) {
+		struct ErrorCallbackData {
+			ErrorCallbackContxt ctx;
+			ErrorCallback cb;
+		};
+
+		ErrorCallbackData data;
+		data.ctx = ctx;
+		data.cb = cb;
+
+		LibPipeSetErrorCallback(reinterpret_cast<void*>(&data), [](LibPipeCbContext context, LibPipeStr error) {
+			ErrorCallbackData* pData = reinterpret_cast<ErrorCallbackData*>(context);
+			(*pData->cb)(pData->ctx, tstring(error));
 		});
 	}
 

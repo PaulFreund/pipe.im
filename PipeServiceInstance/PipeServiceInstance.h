@@ -4,31 +4,33 @@
 
 //======================================================================================================================
 
-#include "CommonHeader.h"
+#include <libpipe/LibPipe.h>
 
 #include <Poco/Util/ServerApplication.h>
 #include <Poco/Util/OptionSet.h>
 
 //======================================================================================================================
 
-class PipeServiceHostApplication : public Poco::Util::ServerApplication {
+class PipeServiceInstanceApplication : public Poco::Util::ServerApplication {
 public:
-	bool _help;
 	bool _debug;
 
-	tstring _appPath;
-	tstring _extdir;
-	tstring _datadir;
-	tstring _staticdir;
-	int _port = 9980;
+private:
+	bool _help;
 	tstring _address;
-	tstring _uripath;
-	tstring _authToken;
+	int _port;
+	tstring _extdir;
+	tstring _userdir;
+	PipeArrayPtr _resultServices;
+
+	const int _retryLimit;
+	int _retryCount;
+	bool _shutdown;
 
 
 public:
-	PipeServiceHostApplication();
-	~PipeServiceHostApplication();
+	PipeServiceInstanceApplication();
+	~PipeServiceInstanceApplication();
 
 public:
 	int main(const std::vector<tstring>& args);
