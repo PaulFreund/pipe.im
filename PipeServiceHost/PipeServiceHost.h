@@ -46,8 +46,6 @@ public:
 	void readOptions();
 
 	void displayHelp(const tstring& name, const tstring& value);
-
-	void onError(tstring error);
 };
 
 //======================================================================================================================

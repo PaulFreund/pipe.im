@@ -16,9 +16,15 @@ class PipeServiceHostErrorHandler : public ErrorHandler {
 public:
 	PipeServiceHostErrorHandler() : ErrorHandler() {}
 
-	virtual void exception(const Exception& exc) { tcout << _T("[POCO ERROR] ") << exc.message() << endl; }
-	virtual void exception(const std::exception& exc) { tcout << _T("[POCO ERROR] ") << exc.what() << endl; }
-	virtual void exception() { tcout << _T("[POCO ERROR] Unknown") << endl; }
+	virtual void exception(const Exception& exc) {
+		Application::instance().logger().warning(tstring(_T("[POCO ERROR]") + exc.message()));
+	}
+	virtual void exception(const std::exception& exc) {
+		Application::instance().logger().warning(tstring(_T("[POCO ERROR]") + tstring(exc.what())));
+	}
+	virtual void exception() {
+		Application::instance().logger().warning(tstring(_T("[POCO ERROR] Unknown")));
+	}
 };
 
 //======================================================================================================================
@@ -57,6 +63,8 @@ int PipeServiceHost::main(const vector<tstring>& args) {
 	catch(...) {
 		return EXIT_USAGE;
 	}
+
+	if(!_debug) { logger().setLevel(0); }
 
 	_manager = make_shared<UserInstanceManager>();
 	_service = make_shared<WebService>();
@@ -175,14 +183,6 @@ void PipeServiceHost::readOptions() {
 void PipeServiceHost::displayHelp(const tstring& name, const tstring& value) {
 	_help = true;
 	stopOptionsProcessing();
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-void PipeServiceHost::onError(tstring error) {
-	if(_debug) {
-		tcout << error << endl;
-	}
 }
 
 //======================================================================================================================

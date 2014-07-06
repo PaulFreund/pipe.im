@@ -3,6 +3,8 @@
 #include "CommonHeader.h"
 #include "UserInstanceManager.h"
 
+#include <thread>
+
 #include <Poco/File.h>
 #include <Poco/Path.h>
 #include <Poco/DirectoryIterator.h>
@@ -11,6 +13,10 @@ using namespace std;
 using namespace Poco;
 using namespace Poco::Util;
 using namespace Poco::Net;
+
+//======================================================================================================================
+
+const TCHAR TokenCommand = _T('#');
 
 //======================================================================================================================
 
@@ -27,27 +33,85 @@ UserInstanceConnection::UserInstanceConnection(const StreamSocket& socket)
 //----------------------------------------------------------------------------------------------------------------------
 
 void UserInstanceConnection::run() {
-	StreamSocket& ss = socket();
+	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
+
 	try {
-		// TODO: Communicate with instance :)
-		/*
-		char buffer[256];
-		int n = ss.receiveBytes(buffer, sizeof(buffer));
-		while(n > 0) {
-			ss.sendBytes(buffer, n);
-			n = ss.receiveBytes(buffer, sizeof(buffer));
+		StreamSocket& ss = socket();
+		ss.setBlocking(false);
+
+		if(pApp->_debug) { pApp->logger().information(tstring(_T("[UserInstanceConnection::run] Instance connection established"))); }
+
+		vector<tstring> incoming;
+		vector<tstring> outgoing;
+
+		tstring request;
+		request += TokenCommand;
+		request += _T("account");
+		outgoing.push_back(request);
+
+		const int bufferSize = 10240;
+		ss.setReceiveBufferSize(bufferSize);
+		char buffer[bufferSize];
+
+		int flags = 0;
+		int bytesRead = 0;
+		do {
+			this_thread::sleep_for(chrono::milliseconds(10)); // TODO: DEBUG SETTING
+
+			try {
+				bytesRead = ss.receiveBytes(buffer, sizeof(buffer), flags);
+				if(bytesRead > 0)
+					incoming.push_back(tstring(buffer, bytesRead));
+			}
+			catch(TimeoutException& /*e*/) {} // Not very good but works for the moment
+
+			// Send to pipe
+			if(incoming.size() > 0) {
+				for(auto& message : incoming) {
+					if(message.empty()) { continue; }
+					if(pApp->_debug) { pApp->logger().information(tstring(_T("[UserInstanceConnection::run] Instance Message received: ")) + message); }
+
+					if(message[0] == TokenCommand) {
+						tstring response = message.substr(1);
+						vector<tstring> responseParts = texplode(response, _T('='));
+						if(responseParts.size() < 2) { continue; }
+
+						if(responseParts[0] == _T("account")) {
+							auto instance = pApp->_manager->instance(responseParts[1]);
+							if(instance.get() != nullptr) {
+								instance->setConnection(this);
+							}
+						}
+					}
+					else {
+						// TODO: Forward to every client
+					}
+				}
+
+				incoming.clear();
+			}
+
+			// TODO: Forward from every client to instance
+
+			// Send to server
+			if(outgoing.size() > 0) {
+				for(auto& message : outgoing) {
+					ss.sendBytes(message.data(), message.length());
+					pApp->logger().information(tstring(_T("[UserInstanceConnection::run] Message sent: ")) + message);
+				}
+				outgoing.clear();
+			}
 		}
-		*/
+		while(bytesRead != 0 /*|| (flags & Socket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE*/);		
 	}
-	catch(Poco::Exception& exc) {
-		std::cerr << "EchoConnection: " << exc.displayText() << std::endl;
+	catch(exception e) {
+		pApp->logger().warning(tstring(_T("[UserInstanceConnection::run] Exception: ")) + e.what());
 	}
 }
 
 //======================================================================================================================
 
 UserInstanceManager::UserInstanceManager() {
-
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 
 	// Instance management server
@@ -72,6 +136,15 @@ UserInstanceManager::~UserInstanceManager() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+shared_ptr<UserInstance> UserInstanceManager::instance(const tstring& account) {
+	if(_instances.count(account) == 1)
+		return _instances[account];
+	
+	return shared_ptr<UserInstance>(nullptr);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void UserInstanceManager::loadUsers() {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 
@@ -92,33 +165,33 @@ void UserInstanceManager::loadUsers() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void UserInstanceManager::createUser(const tstring& address, const tstring& password) {
+void UserInstanceManager::createUser(const tstring& account, const tstring& password) {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 
-	File userDirectory(_usersDataPath + Path::separator() + address);
-	if(_instances.count(address) != 0 || userDirectory.exists()) {
-		pApp->onError(_T("User already exists"));
+	File userDirectory(_usersDataPath + Path::separator() + account);
+	if(_instances.count(account) != 0 || userDirectory.exists()) {
+		pApp->logger().warning(tstring(_T("[UserInstanceManager::createUser] User already exists")));
 		return;
 	}
 
 	userDirectory.createDirectory();
 	if(!userDirectory.exists() || !userDirectory.canRead() || !userDirectory.isDirectory()) { return; }
 
-	_instances[address] = make_shared<UserInstance>(userDirectory.path(), address, password);
+	_instances[account] = make_shared<UserInstance>(userDirectory.path(), account, password);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void UserInstanceManager::deleteUser(const tstring& address) {
+void UserInstanceManager::deleteUser(const tstring& account) {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 
-	if(_instances.count(address) == 0) {
-		pApp->onError(_T("User could not be deleted"));
+	if(_instances.count(account) == 0) {
+		pApp->logger().warning(tstring(_T("[UserInstanceManager::deleteUser] User could not be deleted")));
 		return;
 	}
 
-	_instances.erase(address);
-	File userDirectory(_usersDataPath + Path::separator() + address);
+	_instances.erase(account);
+	File userDirectory(_usersDataPath + Path::separator() + account);
 	userDirectory.remove(true);
 }
 
@@ -132,7 +205,7 @@ bool UserInstanceManager::prepareUsersDataPath() {
 	if(!dataPath.exists()) { dataPath.createDirectory(); }
 
 	if(!dataPath.exists() || !dataPath.canRead() || !dataPath.isDirectory()) {
-		pApp->onError(_T("Could not open or create data folder"));
+		pApp->logger().warning(tstring(_T("[UserInstanceManager::prepareUsersDataPath] Could not open or create data folder")));
 		return false;
 	}
 
@@ -145,7 +218,7 @@ bool UserInstanceManager::prepareUsersDataPath() {
 	if(!userDataPath.exists()) { userDataPath.createDirectory(); }
 
 	if(!userDataPath.exists() || !userDataPath.canRead() || !userDataPath.isDirectory()) {
-		pApp->onError(_T("Could not open or create data folder"));
+		pApp->logger().warning(tstring(_T("[UserInstanceManager::prepareUsersDataPath] Could not open or create data folder")));
 		return false;
 	}
 

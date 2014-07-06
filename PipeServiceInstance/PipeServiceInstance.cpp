@@ -14,13 +14,23 @@ using namespace Poco::Net;
 
 //======================================================================================================================
 
+const TCHAR TokenCommand = _T('#');
+
+//======================================================================================================================
+
 class PipeServiceInstanceErrorHandler : public ErrorHandler {
 public:
 	PipeServiceInstanceErrorHandler() : ErrorHandler() {}
 
-	virtual void exception(const Exception& exc) { tcout << _T("[POCO ERROR] ") << exc.message() << endl; }
-	virtual void exception(const std::exception& exc) { tcout << _T("[POCO ERROR] ") << exc.what() << endl; }
-	virtual void exception() { tcout << _T("[POCO ERROR] Unknown") << endl; }
+	virtual void exception(const Exception& exc) { 
+		Application::instance().logger().warning(tstring(_T("[POCO ERROR]") + exc.message()));
+	}
+	virtual void exception(const std::exception& exc) { 
+		Application::instance().logger().warning(tstring(_T("[POCO ERROR]") + tstring(exc.what())));
+	}
+	virtual void exception() {
+		Application::instance().logger().warning(tstring(_T("[POCO ERROR] Unknown")));
+	}
 };
 
 //======================================================================================================================
@@ -59,8 +69,7 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 
 	LibPipe::setErrorCallback(reinterpret_cast<LibPipe::ErrorCallbackContxt>(this), [](LibPipe::ErrorCallbackContxt context, tstring error) {
 		PipeServiceInstanceApplication* app = reinterpret_cast<PipeServiceInstanceApplication*>(context);
-		if(app->_debug)
-			tcout << _T("[LIBPIPE ERROR]") << error << endl;
+		app->logger().warning(tstring(_T("[PipeServiceInstanceApplication::main] LibPipe error: ")) + error);
 	});
 
 	try {
@@ -69,6 +78,8 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 	catch(...) {
 		return EXIT_USAGE;
 	}
+
+	if(!_debug) { logger().setLevel(0); }
 
 	LibPipe::init(_resultServices);
 
@@ -100,10 +111,20 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 				// Send to pipe
 				if(incoming.size() > 0) {
 					for(auto& message : incoming) {
-						if(_debug) { tcout << _T("Message received: ") << message << endl; }
-
-						if(message == _T("exit")) { _shutdown = true; }
-
+						logger().information(tstring(_T("[PipeServiceInstanceApplication::main] Message received: ")) + message);
+						if(message[0] == TokenCommand) {
+							tstring command = message.substr(1);
+							if(command == _T("exit")) {
+								_shutdown = true; 
+							}
+							else if(command == _T("account")) {
+								tstring response;
+								response += TokenCommand;
+								response += _T("account=");
+								response += _account;
+								outgoing.push_back(response);
+							}
+						}
 						try {
 							if(!message.empty())
 								LibPipe::push(std::make_shared<PipeArray>(PipeArray { message }));
@@ -115,7 +136,8 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 				}
 
 				// Receive from pipe
-				for(auto& ele : *LibPipe::pull()) {
+				PipeArrayPtr received = LibPipe::pull();
+				for(auto& ele : *received) {
 					outgoing.push_back(ele.dump());
 				}
 
@@ -123,7 +145,8 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 				if(outgoing.size() > 0) {
 					for(auto& message : outgoing) {
 						socket.sendBytes(message.data(), message.length());
-						if(_debug) { tcout << _T("Message sent: ") << message << endl; }
+						logger().information(tstring(_T("[PipeServiceInstanceApplication::main] Message sent: ")) + message);
+
 					}
 					outgoing.clear();
 				}
@@ -131,10 +154,10 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 			while(bytesRead > 0 /*|| (flags & Socket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE*/);
 		}
 		catch(exception e) {
-			if(_debug) { tcout << _T("Exception: ") << e.what() << endl; }
+			logger().warning(tstring(_T("[PipeServiceInstanceApplication::main] Exception: ")) + e.what());
 		}
 
-		if(_debug) { tcout << _T("Connection lost") << endl; }
+		logger().warning(tstring(_T("[PipeServiceInstanceApplication::main] Connection lost")));
 		if(_retryCount >= _retryLimit)
 			_shutdown = true;
 		else
@@ -156,6 +179,13 @@ void PipeServiceInstanceApplication::defineOptions(OptionSet& options) {
 		.callback(OptionCallback<PipeServiceInstanceApplication>(this, &PipeServiceInstanceApplication::displayHelp))
 	);
 	options.addOption(
+		Option(_T("account"), _T("c"), _T("Account this instance is identified with"))
+		.required(true)
+		.repeatable(false)
+		.binding(_T("account"))
+		.argument(_T("[account]"))
+	);
+	options.addOption(
 		Option(_T("address"), _T("a"), _T("Address to connect to"))
 		.required(false)
 		.repeatable(false)
@@ -171,14 +201,14 @@ void PipeServiceInstanceApplication::defineOptions(OptionSet& options) {
 	);
 	options.addOption(
 		Option(_T("extdir"), _T("x"), _T("Path to folder where extensions are located"))
-		.required(false)
+		.required(true)
 		.repeatable(false)
 		.binding(_T("extdir"))
 		.argument(_T("[extdir]"))
 	);
 	options.addOption(
 		Option(_T("userdir"), _T("u"), _T("Path to folder where user data will be located"))
-		.required(false)
+		.required(true)
 		.repeatable(false)
 		.binding(_T("userdir"))
 		.argument(_T("[userdir]"))
@@ -209,6 +239,8 @@ void PipeServiceInstanceApplication::defineOptions(OptionSet& options) {
 
 void PipeServiceInstanceApplication::readOptions() {
 	_debug = config().has(_T("debug"));
+
+	_account = config().getString(_T("account"), _T(""));
 
 	_address = config().getString(_T("address"), _T("127.0.0.1"));
 	_port = config().getInt(_T("port"), 9980);

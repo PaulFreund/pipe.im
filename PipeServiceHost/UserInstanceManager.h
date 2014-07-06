@@ -16,6 +16,10 @@
 //======================================================================================================================
 
 class UserInstanceConnection : public Poco::Net::TCPServerConnection {
+private:
+	//std::vector<tstring> _incoming;
+	//std::vector<tstring> _outgoing;
+
 public:
 	UserInstanceConnection(const Poco::Net::StreamSocket& s);
 
@@ -42,9 +46,11 @@ public:
 	~UserInstanceManager();
 
 public:
+	std::shared_ptr<UserInstance> instance(const tstring& account);
+
 	void loadUsers();
-	void createUser(const tstring& address, const tstring& password);
-	void deleteUser(const tstring& address);
+	void createUser(const tstring& account, const tstring& password);
+	void deleteUser(const tstring& account);
 
 private:
 	bool prepareUsersDataPath();

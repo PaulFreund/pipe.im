@@ -203,7 +203,7 @@ void WebServiceHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 	}
 
 	File requestPath(pApp->_staticdir + uri);
-	if(pApp->_debug) { tcout << _T("File requested: " << requestPath.path()) << endl; }
+	pApp->logger().information(tstring(_T("[WebServiceHandlerPage::handleRequest] File requested: ")) + requestPath.path());
 	if(requestPath.exists() && requestPath.canRead()) {
 		auto extension = Path(requestPath.path()).getExtension();
 		try {
@@ -220,13 +220,14 @@ void WebServiceHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 			response.setContentType(contentType);
 			std::ifstream fileStream(requestPath.path());
 			Poco::StreamCopier::copyStream(fileStream, responseStream);
-			if(pApp->_debug) { tcout << _T("File response: " << requestPath.path()) << endl; }
+			pApp->logger().information(tstring(_T("[WebServiceHandlerPage::handleRequest] File response: ")) + requestPath.path());
 		}
 		catch(exception e) {
 			responseStream << _T("<h1>Internal server error</h1>") << endl;
 			responseStream << e.what();
 			response.setStatus(HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
-			tcout << _T("File serving error: " << e.what()) << endl;
+			pApp->logger().warning(tstring(_T("[WebServiceHandlerPage::handleRequest] File serving error: ")) + e.what());
+
 		}
 
 		response.setStatus(HTTPResponse::HTTP_OK);
@@ -235,7 +236,7 @@ void WebServiceHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 		response.setContentType("text/html");
 		response.setStatus(HTTPResponse::HTTP_NOT_FOUND);
 		responseStream << _T("<h1>Requested file could not be found</h1><br />") << uri << endl;
-		if(pApp->_debug) { tcout << _T("File not found: " << requestPath.path()) << endl; }
+		pApp->logger().warning(tstring(_T("[WebServiceHandlerPage::handleRequest] File not found: ")) + requestPath.path());
 	}
 }
 
@@ -268,7 +269,7 @@ void WebServiceHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 	try {
 		WebSocket ws(request, response);
 
-		if(pApp->_debug) { tcout << _T("Websocket connection established") << endl; }
+		pApp->logger().information(tstring(_T("[WebServiceHandlerSocket::handleRequest] Websocket connection established")));
 
 		ws.setBlocking(false);
 		ws.setReceiveTimeout(Poco::Timespan(60 * 60, 0));
@@ -292,11 +293,8 @@ void WebServiceHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 			// Send to pipe
 			if(_incoming.size() > 0) {
 				for(auto& message : _incoming) {
-
-
-					if(pApp->_debug) { tcout << _T("Websocket message received: ") << message << endl; }
-
-					if(message == _T("debug")) { pApp->_debug = !pApp->_debug; }
+					if(message.empty()) { continue; }
+					pApp->logger().information(tstring(_T("[WebServiceHandlerSocket::handleRequest] Websocket message received")) + message);
 
 					try {
 						if(_shellEnabled)
@@ -325,14 +323,15 @@ void WebServiceHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 			if(_outgoing.size() > 0) {
 				for(auto& message : _outgoing) {
 					ws.sendFrame(message.data(), message.length());
-					if(pApp->_debug) { tcout << _T("Websocket message sent: ") << message << endl; }
+					pApp->logger().information(tstring(_T("[WebServiceHandlerSocket::handleRequest] Websocket message sent")) + message);
 				}
 				_outgoing.clear();
 			}
 		}
 		while(bytesRead > 0 || (flags & WebSocket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE);
 
-		if(pApp->_debug) { tcout << _T("Websocket connection closed") << endl; }
+		pApp->logger().information(tstring(_T("[WebServiceHandlerSocket::handleRequest] Websocket connection closed")));
+
 	}
 	catch(WebSocketException& e) {
 		switch(e.code()) {
@@ -346,10 +345,11 @@ void WebServiceHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 				response.send();
 				break;
 		}
-		tcout << _T("Websocket error: " << e.displayText()) << endl;
+		pApp->logger().warning(tstring(_T("[WebServiceHandlerSocket::handleRequest] Websocket error: ")) + e.displayText());
+
 	}
 
-	if(pApp->_debug) { tcout << _T("Websocket connection lost") << endl; }
+	pApp->logger().information(tstring(_T("[WebServiceHandlerSocket::handleRequest] Websocket connection lost")));
 }
 
 //======================================================================================================================
