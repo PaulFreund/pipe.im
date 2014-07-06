@@ -86,12 +86,19 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 	vector<tstring> incoming;
 	vector<tstring> outgoing;
 
+	tstring identity;
+	identity += TokenCommand;
+	identity += _T("account=");
+	identity += _account;
+	outgoing.push_back(identity);
+
 	while(!_shutdown) {
 		try {
-			StreamSocket socket(SocketAddress(_address, _port));
+			StreamSocket ss(SocketAddress(_address, _port));
+			ss.setBlocking(false);
 
 			const int bufferSize = 10240;
-			socket.setReceiveBufferSize(bufferSize);
+			ss.setReceiveBufferSize(bufferSize);
 			ubyte buffer[bufferSize];
 			_retryCount = 0;
 
@@ -105,7 +112,7 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 
 				// Receive from client
 				try {
-					bytesRead = socket.receiveBytes(buffer, sizeof(buffer), flags);
+					bytesRead = ss.receiveBytes(buffer, sizeof(buffer), flags);
 					if(bytesRead > 0) {
 						receivedBuffer.insert(end(receivedBuffer), reinterpret_cast<ubyte*>(&buffer), reinterpret_cast<ubyte*>(&buffer[bytesRead]));
 						while(!receivedBuffer.empty()) {
@@ -129,13 +136,6 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 							if(command == _T("exit")) {
 								_shutdown = true; 
 							}
-							else if(command == _T("account")) {
-								tstring response;
-								response += TokenCommand;
-								response += _T("account=");
-								response += _account;
-								outgoing.push_back(response);
-							}
 						}
 						try {
 							if(!message.empty())
@@ -157,14 +157,14 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 				if(outgoing.size() > 0) {
 					for(auto& message : outgoing) {
 						uint32_t messageSize = static_cast<uint32_t>(message.length());
-						socket.sendBytes(&messageSize, sizeof(uint32_t));
-						socket.sendBytes(message.data(), message.length());
+						ss.sendBytes(&messageSize, sizeof(uint32_t));
+						ss.sendBytes(message.data(), message.length());
 						logger().information(tstring(_T("[PipeServiceInstanceApplication::main] Message sent: ")) + message);
 					}
 					outgoing.clear();
 				}
 			}
-			while(bytesRead > 0 /*|| (flags & Socket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE*/);
+			while(bytesRead != 0);
 		}
 		catch(exception e) {
 			logger().warning(tstring(_T("[PipeServiceInstanceApplication::main] Exception: ")) + e.what());

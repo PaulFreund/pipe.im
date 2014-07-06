@@ -34,6 +34,7 @@ UserInstanceConnection::UserInstanceConnection(const StreamSocket& socket)
 
 void UserInstanceConnection::run() {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
+	shared_ptr<UserInstance> instance = shared_ptr<UserInstance>(nullptr);
 
 	try {
 		StreamSocket& ss = socket();
@@ -43,11 +44,6 @@ void UserInstanceConnection::run() {
 
 		vector<tstring> incoming;
 		vector<tstring> outgoing;
-
-		tstring request;
-		request += TokenCommand;
-		request += _T("account");
-		outgoing.push_back(request);
 
 		const int bufferSize = 10240;
 		ss.setReceiveBufferSize(bufferSize);
@@ -88,21 +84,24 @@ void UserInstanceConnection::run() {
 						if(responseParts.size() < 2) { continue; }
 
 						if(responseParts[0] == _T("account")) {
-							auto instance = pApp->_manager->instance(responseParts[1]);
-							if(instance.get() != nullptr) {
-								instance->setConnection(this);
-							}
+							instance = pApp->_manager->instance(responseParts[1]);
+							if(instance.get() != nullptr) { instance->setConnection(this); }
 						}
 					}
-					else {
-						// TODO: Forward to every client
+					// Add message to instance incoming queue
+					else if(instance.get() != nullptr) {
+						instance->addIncoming(message);
 					}
 				}
 
 				incoming.clear();
 			}
 
-			// TODO: Forward from every client to instance
+			// Get outgoing messages from instance
+			if(instance.get() != nullptr) {
+				auto newOutgoing = instance->getOutgoing(); // TODO: Inefficeint
+				outgoing.insert(begin(outgoing), begin(newOutgoing), end(newOutgoing));
+			}
 
 			// Send to server
 			if(outgoing.size() > 0) {
@@ -115,11 +114,13 @@ void UserInstanceConnection::run() {
 				outgoing.clear();
 			}
 		}
-		while(bytesRead != 0 /*|| (flags & Socket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE*/);		
+		while(bytesRead != 0);	
 	}
 	catch(exception e) {
 		pApp->logger().warning(tstring(_T("[UserInstanceConnection::run] Exception: ")) + e.what());
 	}
+
+	if(instance.get() != nullptr) {	instance->setConnection(nullptr); }
 }
 
 //======================================================================================================================

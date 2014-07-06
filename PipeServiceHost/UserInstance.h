@@ -14,12 +14,18 @@ private:
 	PipeObjectPtr _config;
 	UserInstanceConnection* _connection;
 
+	std::vector<tstring> _incoming;
+	std::vector<tstring> _outgoing;
+
 public:
 	UserInstance(const tstring& path);
 	UserInstance(const tstring& path, const tstring& account, const tstring& password);
 	~UserInstance();
 
 public:
+	void addIncoming(const tstring& message);
+	std::vector<tstring> getOutgoing();
+
 	bool authenticate(const tstring& suppliedPassword);
 	void setConnection(UserInstanceConnection* connection);
 

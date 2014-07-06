@@ -44,6 +44,20 @@ UserInstance::~UserInstance() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+void UserInstance::addIncoming(const tstring& message) {
+	_incoming.push_back(message);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+vector<tstring> UserInstance::getOutgoing() {
+	vector<tstring> result = _outgoing; // TODO: Inefficient
+	_outgoing.clear();
+	return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 bool UserInstance::authenticate(const tstring& suppliedPassword) {
 	return (password() == suppliedPassword);
 }
