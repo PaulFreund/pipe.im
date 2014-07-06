@@ -4,10 +4,15 @@
 #include "UserInstance.h"
 
 #include <Poco/File.h>
+#include <Poco/Process.h>
 
 using namespace std;
 using namespace Poco;
 using namespace Poco::Util;
+
+//======================================================================================================================
+
+const tstring UserInstance::UserFileName = _T("user.json");
 
 //======================================================================================================================
 
@@ -32,13 +37,27 @@ UserInstance::UserInstance(const tstring& path, const tstring& address, const ts
 //----------------------------------------------------------------------------------------------------------------------
 
 UserInstance::~UserInstance() {
-	// TODO: Terminate connection etc?.
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool UserInstance::authenticate(const tstring& password) {
+	return ((*_config)[_T("password")].string_value() == password);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void UserInstance::loadUser() {
+	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 
+	Process::Args args;
+	args.push_back(_T("--address=") + pApp->_instanceAddress);
+	args.push_back(_T("--port=") + to_tstring(pApp->_instancePort));
+	args.push_back(_T("--extdir=") + pApp->_extdir);
+	args.push_back(_T("--userdir=") + _path);
+	//args.push_back(_T("--includedServices=")); // TODO
+	//args.push_back(_T("--excludedServices="));
+	Process::launch(pApp->_instanceCommand, args);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -52,13 +71,13 @@ void UserInstance::createUser(const tstring& address, const tstring& password) {
 //----------------------------------------------------------------------------------------------------------------------
 
 bool UserInstance::readConfig() {
-	File configFile(_path);
+	File configFile(_path + Path::separator() + UserInstance::UserFileName);
 
 	if(!configFile.exists() || !configFile.canRead())
 		return false;
 
 	try {
-		ifstream configReader(_path);
+		ifstream configReader(configFile.path());
 		tstring configData((istreambuf_iterator<TCHAR>(configReader)), istreambuf_iterator<TCHAR>());
 
 		tstring error;
@@ -80,7 +99,7 @@ bool UserInstance::readConfig() {
 
 void UserInstance::writeConfig() {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
-	File configFile(_path);
+	File configFile(_path + Path::separator() + UserInstance::UserFileName);
 
 	if(!configFile.exists()) {
 		try {
@@ -98,7 +117,7 @@ void UserInstance::writeConfig() {
 	}
 
 	try {
-		ofstream configWriter(_path);
+		ofstream configWriter(configFile.path());
 		configWriter << dumpObject(_config);
 	}
 	catch(...) {

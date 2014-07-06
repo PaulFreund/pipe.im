@@ -26,10 +26,11 @@ public:
 //======================================================================================================================
 
 class UserInstanceManager {
+public:
+	static const tstring UsersFolderName;
+
 private:
 	tstring _usersDataPath;
-	const tstring _usersFolderName;
-	const tstring _userFileName;
 	std::shared_ptr<Poco::Net::ServerSocket> _socket;
 	std::shared_ptr<Poco::Net::TCPServer> _server;
 

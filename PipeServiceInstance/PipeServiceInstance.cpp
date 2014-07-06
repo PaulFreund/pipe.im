@@ -29,6 +29,7 @@ PipeServiceInstanceApplication::PipeServiceInstanceApplication()
 		: _resultServices(newArray())
 		, _shutdown(false)
 		, _debug(true)
+		, _help(false)
 		, _retryLimit(10)
 		, _retryCount(0)
 {

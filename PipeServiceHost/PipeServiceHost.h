@@ -30,6 +30,7 @@ public:
 
 	tstring _instanceAddress;
 	int _instancePort = 9980;
+	tstring _instanceCommand;
 
 	std::shared_ptr<UserInstanceManager> _manager;
 	std::shared_ptr<WebService> _service;

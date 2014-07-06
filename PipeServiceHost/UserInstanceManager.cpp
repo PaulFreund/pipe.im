@@ -14,6 +14,10 @@ using namespace Poco::Net;
 
 //======================================================================================================================
 
+const tstring UserInstanceManager::UsersFolderName = _T("users");
+
+//======================================================================================================================
+
 UserInstanceConnection::UserInstanceConnection(const StreamSocket& socket) 
 	: TCPServerConnection(socket)
 {
@@ -25,12 +29,15 @@ UserInstanceConnection::UserInstanceConnection(const StreamSocket& socket)
 void UserInstanceConnection::run() {
 	StreamSocket& ss = socket();
 	try {
+		// TODO: Communicate with instance :)
+		/*
 		char buffer[256];
 		int n = ss.receiveBytes(buffer, sizeof(buffer));
 		while(n > 0) {
 			ss.sendBytes(buffer, n);
 			n = ss.receiveBytes(buffer, sizeof(buffer));
 		}
+		*/
 	}
 	catch(Poco::Exception& exc) {
 		std::cerr << "EchoConnection: " << exc.displayText() << std::endl;
@@ -39,10 +46,7 @@ void UserInstanceConnection::run() {
 
 //======================================================================================================================
 
-UserInstanceManager::UserInstanceManager() 
-	: _usersFolderName(_T("users"))
-	, _userFileName(_T("user.json"))
-{
+UserInstanceManager::UserInstanceManager() {
 
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 
@@ -77,12 +81,12 @@ void UserInstanceManager::loadUsers() {
 		if(!userDirectory.exists() || !userDirectory.canRead() || !userDirectory.isDirectory()) { continue; }
 
 		// Check if user file exist
-		File userFile(Path(Path(userDirectory.path()), _userFileName));
+		File userFile(Path(Path(userDirectory.path()), UserInstance::UserFileName));
 		if(!userFile.exists() || !userFile.canRead() || !userFile.isFile()) { continue; }
 
 		Path userDirectoryPath(userDirectory.path());
 		tstring username = userDirectoryPath.getFileName();
-		_instances[username] = make_shared<UserInstance>(userFile.path());
+		_instances[username] = make_shared<UserInstance>(userDirectory.path());
 	}
 }
 
@@ -100,7 +104,7 @@ void UserInstanceManager::createUser(const tstring& address, const tstring& pass
 	userDirectory.createDirectory();
 	if(!userDirectory.exists() || !userDirectory.canRead() || !userDirectory.isDirectory()) { return; }
 
-	_instances[address] = make_shared<UserInstance>(userDirectory.path() + Path::separator() + _userFileName, address, password);
+	_instances[address] = make_shared<UserInstance>(userDirectory.path(), address, password);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -135,7 +139,7 @@ bool UserInstanceManager::prepareUsersDataPath() {
 	// Prepare user data path
 	tstring userDataDir = pApp->_datadir;
 	if(userDataDir[userDataDir.size() - 1] != Path::separator()) { userDataDir += Path::separator(); }
-	userDataDir += _usersFolderName;
+	userDataDir += UserInstanceManager::UsersFolderName;
 
 	File userDataPath(userDataDir);
 	if(!userDataPath.exists()) { userDataPath.createDirectory(); }

@@ -135,6 +135,13 @@ void PipeServiceHost::defineOptions(OptionSet& options) {
 		.argument(_T("[instancePort]"))
 	);
 	options.addOption(
+		Option(_T("instanceCommand"), _T("ic"), _T("Command (path) of the service instance application"))
+		.required(false)
+		.repeatable(false)
+		.binding(_T("instanceCommand"))
+		.argument(_T("[instanceCommand]"))
+	);
+	options.addOption(
 		Option(_T("debug"), _T("d"), _T("Enable debug console"))
 		.required(false)
 		.repeatable(false)
@@ -160,6 +167,7 @@ void PipeServiceHost::readOptions() {
 
 	_instanceAddress = config().getString(_T("instanceAddress"), _T("127.0.0.1"));
 	_instancePort = config().getInt(_T("instancePort"), 9991);
+	_instanceCommand = config().getString(_T("instanceCommand"), _T("PipeServiceInstance"));
 }
 
 //----------------------------------------------------------------------------------------------------------------------
