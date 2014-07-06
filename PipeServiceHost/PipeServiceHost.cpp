@@ -2,8 +2,6 @@
 
 #include "CommonHeader.h"
 #include "PipeServiceHost.h"
-#include "UserInstanceManager.h"
-#include "WebService.h"
 
 #include <Poco/ErrorHandler.h>
 #include <Poco/Util/HelpFormatter.h>
@@ -18,9 +16,9 @@ class PipeServiceHostErrorHandler : public ErrorHandler {
 public:
 	PipeServiceHostErrorHandler() : ErrorHandler() {}
 
-	virtual void exception(const Exception& exc) { cout << _T("[POCO ERROR] ") << exc.message() << endl; }
-	virtual void exception(const std::exception& exc) { cout << _T("[POCO ERROR] ") << exc.what() << endl; }
-	virtual void exception() { cout << _T("[POCO ERROR] Unknown") << endl; }
+	virtual void exception(const Exception& exc) { tcout << _T("[POCO ERROR] ") << exc.message() << endl; }
+	virtual void exception(const std::exception& exc) { tcout << _T("[POCO ERROR] ") << exc.what() << endl; }
+	virtual void exception() { tcout << _T("[POCO ERROR] Unknown") << endl; }
 };
 
 //======================================================================================================================
@@ -49,7 +47,7 @@ int PipeServiceHost::main(const vector<tstring>& args) {
 		helpFormatter.setCommand(commandName());
 		helpFormatter.setUsage("OPTIONS");
 		helpFormatter.setHeader("PipeServiceHost");
-		helpFormatter.format(cout);
+		helpFormatter.format(tcout);
 		return Application::EXIT_OK;
 	}
 
@@ -60,8 +58,8 @@ int PipeServiceHost::main(const vector<tstring>& args) {
 		return EXIT_USAGE;
 	}
 
-	shared_ptr<UserInstanceManager> manager = make_shared<UserInstanceManager>();
-	shared_ptr<WebService> service = make_shared<WebService>();
+	_manager = make_shared<UserInstanceManager>();
+	_service = make_shared<WebService>();
 
 	waitForTerminationRequest();
 
@@ -136,11 +134,19 @@ void PipeServiceHost::defineOptions(OptionSet& options) {
 		.binding(_T("instancePort"))
 		.argument(_T("[instancePort]"))
 	);
+	options.addOption(
+		Option(_T("debug"), _T("d"), _T("Enable debug console"))
+		.required(false)
+		.repeatable(false)
+		.binding(_T("debug"))
+	);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void PipeServiceHost::readOptions() {
+	_debug = config().has(_T("debug"));
+
 	_appPath = Path(commandPath()).parent().toString();
 	_extdir = config().getString(_T("extdir"), _appPath);
 	_datadir = config().getString(_T("datadir"), _appPath + _T("Data"));
@@ -161,6 +167,14 @@ void PipeServiceHost::readOptions() {
 void PipeServiceHost::displayHelp(const tstring& name, const tstring& value) {
 	_help = true;
 	stopOptionsProcessing();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void PipeServiceHost::onError(tstring error) {
+	if(_debug) {
+		tcout << error << endl;
+	}
 }
 
 //======================================================================================================================

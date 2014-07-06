@@ -18,9 +18,9 @@ class PipeServiceInstanceErrorHandler : public ErrorHandler {
 public:
 	PipeServiceInstanceErrorHandler() : ErrorHandler() {}
 
-	virtual void exception(const Exception& exc) { cout << _T("[POCO ERROR] ") << exc.message() << endl; }
-	virtual void exception(const std::exception& exc) { cout << _T("[POCO ERROR] ") << exc.what() << endl; }
-	virtual void exception() { cout << _T("[POCO ERROR] Unknown") << endl; }
+	virtual void exception(const Exception& exc) { tcout << _T("[POCO ERROR] ") << exc.message() << endl; }
+	virtual void exception(const std::exception& exc) { tcout << _T("[POCO ERROR] ") << exc.what() << endl; }
+	virtual void exception() { tcout << _T("[POCO ERROR] Unknown") << endl; }
 };
 
 //======================================================================================================================
@@ -52,14 +52,14 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 		helpFormatter.setCommand(commandName());
 		helpFormatter.setUsage("OPTIONS");
 		helpFormatter.setHeader("PipeServiceInstance");
-		helpFormatter.format(cout);
+		helpFormatter.format(tcout);
 		return EXIT_OK;
 	}
 
 	LibPipe::setErrorCallback(reinterpret_cast<LibPipe::ErrorCallbackContxt>(this), [](LibPipe::ErrorCallbackContxt context, tstring error) {
 		PipeServiceInstanceApplication* app = reinterpret_cast<PipeServiceInstanceApplication*>(context);
 		if(app->_debug)
-			cout << _T("[LIBPIPE ERROR]") << error << endl;
+			tcout << _T("[LIBPIPE ERROR]") << error << endl;
 	});
 
 	try {
@@ -83,8 +83,8 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 			char buffer[bufferSize];
 			_retryCount = 0;
 
-			int flags;
-			int bytesRead;
+			int flags = 0;
+			int bytesRead = 0;
 			do {
 				this_thread::sleep_for(chrono::milliseconds(10)); // TODO: DEBUG SETTING
 				LibPipe::process();
@@ -99,7 +99,7 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 				// Send to pipe
 				if(incoming.size() > 0) {
 					for(auto& message : incoming) {
-						if(_debug) { cout << _T("Message received: ") << message << endl; }
+						if(_debug) { tcout << _T("Message received: ") << message << endl; }
 
 						if(message == _T("exit")) { _shutdown = true; }
 
@@ -122,7 +122,7 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 				if(outgoing.size() > 0) {
 					for(auto& message : outgoing) {
 						socket.sendBytes(message.data(), message.length());
-						if(_debug) { cout << _T("Message sent: ") << message << endl; }
+						if(_debug) { tcout << _T("Message sent: ") << message << endl; }
 					}
 					outgoing.clear();
 				}
@@ -130,10 +130,10 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 			while(bytesRead > 0 /*|| (flags & Socket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE*/);
 		}
 		catch(exception e) {
-			if(_debug) { cout << _T("Exception: ") << e.what() << endl; }
+			if(_debug) { tcout << _T("Exception: ") << e.what() << endl; }
 		}
 
-		if(_debug) { cout << _T("Connection lost") << endl; }
+		if(_debug) { tcout << _T("Connection lost") << endl; }
 		if(_retryCount >= _retryLimit)
 			_shutdown = true;
 		else
@@ -201,14 +201,13 @@ void PipeServiceInstanceApplication::defineOptions(OptionSet& options) {
 		.required(false)
 		.repeatable(false)
 		.binding(_T("debug"))
-		.argument(_T("[debug]"))
 	);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void PipeServiceInstanceApplication::readOptions() {
-	_debug = config().getBool(_T("debug")), false;
+	_debug = config().has(_T("debug"));
 
 	_address = config().getString(_T("address"), _T("127.0.0.1"));
 	_port = config().getInt(_T("port"), 9980);

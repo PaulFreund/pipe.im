@@ -6,6 +6,9 @@
 
 #include "CommonHeader.h"
 
+#include "UserInstanceManager.h"
+#include "WebService.h"
+
 #include <Poco/Util/ServerApplication.h>
 #include <Poco/Util/OptionSet.h>
 
@@ -28,6 +31,9 @@ public:
 	tstring _instanceAddress;
 	int _instancePort = 9980;
 
+	std::shared_ptr<UserInstanceManager> _manager;
+	std::shared_ptr<WebService> _service;
+
 public:
 	PipeServiceHost();
 	~PipeServiceHost();
@@ -39,6 +45,8 @@ public:
 	void readOptions();
 
 	void displayHelp(const tstring& name, const tstring& value);
+
+	void onError(tstring error);
 };
 
 //======================================================================================================================

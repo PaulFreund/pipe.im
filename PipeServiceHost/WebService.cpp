@@ -87,8 +87,25 @@ bool WebServiceHandlerPage::handleCommands(const tstring& uri, std::ostream& out
 	if(parts[0] != _T("rest")) { return false; }
 
 	try {
+		// User commands
+		if(parts.size() >= 4) {
+			if(parts[1] == _T("users")) {
+				if(parts[2] == _T("create")) {
+					vector<tstring> authParts = texplode(parts[3], _T(':'));
+					if(authParts.size() < 2) { return true; }
+
+					pApp->_manager->createUser(authParts[0], authParts[1]);
+					return true;
+				}
+				else if(parts[2] == _T("delete")) {
+					pApp->_manager->deleteUser(parts[3]);
+					return true;
+				}
+			}
+		}
+
 		// Commands with parameter
-		if(parts.size() >= 3) {
+		else if(parts.size() >= 3) {
 			if(parts[1] == _T("concat")) {
 				auto partsCopy = parts;
 				partsCopy.erase(begin(partsCopy)); // Remove "rest"
@@ -186,7 +203,7 @@ void WebServiceHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 	}
 
 	File requestPath(pApp->_staticdir + uri);
-	if(pApp->_debug) { cout << _T("File requested: " << requestPath.path()) << endl; }
+	if(pApp->_debug) { tcout << _T("File requested: " << requestPath.path()) << endl; }
 	if(requestPath.exists() && requestPath.canRead()) {
 		auto extension = Path(requestPath.path()).getExtension();
 		try {
@@ -203,13 +220,13 @@ void WebServiceHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 			response.setContentType(contentType);
 			std::ifstream fileStream(requestPath.path());
 			Poco::StreamCopier::copyStream(fileStream, responseStream);
-			if(pApp->_debug) { cout << _T("File response: " << requestPath.path()) << endl; }
+			if(pApp->_debug) { tcout << _T("File response: " << requestPath.path()) << endl; }
 		}
 		catch(exception e) {
 			responseStream << _T("<h1>Internal server error</h1>") << endl;
 			responseStream << e.what();
 			response.setStatus(HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
-			cout << _T("File serving error: " << e.what()) << endl;
+			tcout << _T("File serving error: " << e.what()) << endl;
 		}
 
 		response.setStatus(HTTPResponse::HTTP_OK);
@@ -218,7 +235,7 @@ void WebServiceHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 		response.setContentType("text/html");
 		response.setStatus(HTTPResponse::HTTP_NOT_FOUND);
 		responseStream << _T("<h1>Requested file could not be found</h1><br />") << uri << endl;
-		if(pApp->_debug) { cout << _T("File not found: " << requestPath.path()) << endl; }
+		if(pApp->_debug) { tcout << _T("File not found: " << requestPath.path()) << endl; }
 	}
 }
 
@@ -251,7 +268,7 @@ void WebServiceHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 	try {
 		WebSocket ws(request, response);
 
-		if(pApp->_debug) { cout << _T("Websocket connection established") << endl; }
+		if(pApp->_debug) { tcout << _T("Websocket connection established") << endl; }
 
 		ws.setBlocking(false);
 		ws.setReceiveTimeout(Poco::Timespan(60 * 60, 0));
@@ -277,7 +294,7 @@ void WebServiceHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 				for(auto& message : _incoming) {
 
 
-					if(pApp->_debug) { cout << _T("Websocket message received: ") << message << endl; }
+					if(pApp->_debug) { tcout << _T("Websocket message received: ") << message << endl; }
 
 					if(message == _T("debug")) { pApp->_debug = !pApp->_debug; }
 
@@ -308,14 +325,14 @@ void WebServiceHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 			if(_outgoing.size() > 0) {
 				for(auto& message : _outgoing) {
 					ws.sendFrame(message.data(), message.length());
-					if(pApp->_debug) { cout << _T("Websocket message sent: ") << message << endl; }
+					if(pApp->_debug) { tcout << _T("Websocket message sent: ") << message << endl; }
 				}
 				_outgoing.clear();
 			}
 		}
 		while(bytesRead > 0 || (flags & WebSocket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE);
 
-		if(pApp->_debug) { cout << _T("Websocket connection closed") << endl; }
+		if(pApp->_debug) { tcout << _T("Websocket connection closed") << endl; }
 	}
 	catch(WebSocketException& e) {
 		switch(e.code()) {
@@ -329,10 +346,10 @@ void WebServiceHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 				response.send();
 				break;
 		}
-		cout << _T("Websocket error: " << e.displayText()) << endl;
+		tcout << _T("Websocket error: " << e.displayText()) << endl;
 	}
 
-	if(pApp->_debug) { cout << _T("Websocket connection lost") << endl; }
+	if(pApp->_debug) { tcout << _T("Websocket connection lost") << endl; }
 }
 
 //======================================================================================================================
@@ -367,7 +384,6 @@ HTTPRequestHandler* WebServiceHandlerFactory::createRequestHandler(const HTTPSer
 WebService::WebService() {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 
-	// Set up Websocket server
 	_socket = make_shared<ServerSocket>(SocketAddress(pApp->_webserverAddress, pApp->_webserverPort));
 
 	HTTPServerParams* pParams = new HTTPServerParams();

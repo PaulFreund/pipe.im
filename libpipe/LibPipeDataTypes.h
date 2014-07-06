@@ -30,6 +30,12 @@
 #define to_tstring std::to_string
 #endif
 
+#ifdef UNICODE
+#define tcout std::wcout
+#else
+#define tcout std::cout
+#endif
+
 //======================================================================================================================
 
 typedef std::basic_string<TCHAR> tstring;
