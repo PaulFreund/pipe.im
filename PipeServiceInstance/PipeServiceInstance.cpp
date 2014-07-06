@@ -92,11 +92,13 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 
 			const int bufferSize = 10240;
 			socket.setReceiveBufferSize(bufferSize);
-			char buffer[bufferSize];
+			ubyte buffer[bufferSize];
 			_retryCount = 0;
 
 			int flags = 0;
 			int bytesRead = 0;
+
+			vector<ubyte> receivedBuffer;
 			do {
 				this_thread::sleep_for(chrono::milliseconds(10)); // TODO: DEBUG SETTING
 				LibPipe::process();
@@ -104,7 +106,17 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 				// Receive from client
 				try {
 					bytesRead = socket.receiveBytes(buffer, sizeof(buffer), flags);
-					incoming.push_back(tstring(buffer, bytesRead));
+					if(bytesRead > 0) {
+						receivedBuffer.insert(end(receivedBuffer), reinterpret_cast<ubyte*>(&buffer), reinterpret_cast<ubyte*>(&buffer[bytesRead]));
+						while(!receivedBuffer.empty()) {
+							uint32_t messageSize = *reinterpret_cast<uint32_t*>(receivedBuffer.data());
+							uint32_t packetSize = messageSize + sizeof(uint32_t);
+							if(receivedBuffer.size() < packetSize) { break; }
+		
+							incoming.push_back(tstring(receivedBuffer.begin() + sizeof(uint32_t), receivedBuffer.begin() + packetSize));
+							receivedBuffer.erase(begin(receivedBuffer), begin(receivedBuffer) + packetSize);
+						}
+					}
 				}
 				catch(TimeoutException& /*e*/) {} // Not very good but works for the moment
 
@@ -144,9 +156,10 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 				// Send to server
 				if(outgoing.size() > 0) {
 					for(auto& message : outgoing) {
+						uint32_t messageSize = static_cast<uint32_t>(message.length());
+						socket.sendBytes(&messageSize, sizeof(uint32_t));
 						socket.sendBytes(message.data(), message.length());
 						logger().information(tstring(_T("[PipeServiceInstanceApplication::main] Message sent: ")) + message);
-
 					}
 					outgoing.clear();
 				}
