@@ -1,7 +1,7 @@
 //======================================================================================================================
 
 #include "CommonHeader.h"
-#include "WebService.h"
+#include "GatewayWeb.h"
 
 #include <thread>
 
@@ -19,7 +19,7 @@ using namespace Poco::Net;
 
 //======================================================================================================================
 
-void WebServiceHandlerPage::generateFileObject(const tstring& path, PipeObject& object, bool first) {
+void GatewayWebHandlerPage::generateFileObject(const tstring& path, PipeObject& object, bool first) {
 	File currentPath(path);
 	if(!currentPath.exists() || !currentPath.canRead()) { return; }
 	Path currentPathName(path);
@@ -46,7 +46,7 @@ void WebServiceHandlerPage::generateFileObject(const tstring& path, PipeObject& 
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void WebServiceHandlerPage::concatFiles(const tstring& path, const tstring& filter, tstring& result) {
+void GatewayWebHandlerPage::concatFiles(const tstring& path, const tstring& filter, tstring& result) {
 	File currentPath(path);
 	if(!currentPath.exists() || !currentPath.canRead()) { return; }
 
@@ -79,7 +79,7 @@ void WebServiceHandlerPage::concatFiles(const tstring& path, const tstring& filt
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool WebServiceHandlerPage::handleCommands(const tstring& uri, std::ostream& outstream, tstring body) {
+bool GatewayWebHandlerPage::handleCommands(const tstring& uri, std::ostream& outstream, tstring body) {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 	auto parts = texplode(uri, _T('/'));
 	if(parts.size() < 2) { return false; }
@@ -94,11 +94,11 @@ bool WebServiceHandlerPage::handleCommands(const tstring& uri, std::ostream& out
 					vector<tstring> authParts = texplode(parts[3], _T(':'));
 					if(authParts.size() < 2) { return true; }
 
-					pApp->_manager->createUser(authParts[0], authParts[1]);
+					pApp->_instanceManager->createUser(authParts[0], authParts[1]);
 					return true;
 				}
 				else if(parts[2] == _T("delete")) {
-					pApp->_manager->deleteUser(parts[3]);
+					pApp->_instanceManager->deleteUser(parts[3]);
 					return true;
 				}
 			}
@@ -171,7 +171,7 @@ bool WebServiceHandlerPage::handleCommands(const tstring& uri, std::ostream& out
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void WebServiceHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
+void GatewayWebHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 
 	auto uri = request.getURI();
@@ -203,7 +203,7 @@ void WebServiceHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 	}
 
 	File requestPath(pApp->_staticdir + uri);
-	pApp->logger().information(tstring(_T("[WebServiceHandlerPage::handleRequest] File requested: ")) + requestPath.path());
+	pApp->logger().information(tstring(_T("[GatewayWebHandlerPage::handleRequest] File requested: ")) + requestPath.path());
 	if(requestPath.exists() && requestPath.canRead()) {
 		auto extension = Path(requestPath.path()).getExtension();
 		try {
@@ -220,13 +220,13 @@ void WebServiceHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 			response.setContentType(contentType);
 			std::ifstream fileStream(requestPath.path());
 			Poco::StreamCopier::copyStream(fileStream, responseStream);
-			pApp->logger().information(tstring(_T("[WebServiceHandlerPage::handleRequest] File response: ")) + requestPath.path());
+			pApp->logger().information(tstring(_T("[GatewayWebHandlerPage::handleRequest] File response: ")) + requestPath.path());
 		}
 		catch(exception e) {
 			responseStream << _T("<h1>Internal server error</h1>") << endl;
 			responseStream << e.what();
 			response.setStatus(HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
-			pApp->logger().warning(tstring(_T("[WebServiceHandlerPage::handleRequest] File serving error: ")) + e.what());
+			pApp->logger().warning(tstring(_T("[GatewayWebHandlerPage::handleRequest] File serving error: ")) + e.what());
 
 		}
 
@@ -236,13 +236,13 @@ void WebServiceHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 		response.setContentType("text/html");
 		response.setStatus(HTTPResponse::HTTP_NOT_FOUND);
 		responseStream << _T("<h1>Requested file could not be found</h1><br />") << uri << endl;
-		pApp->logger().warning(tstring(_T("[WebServiceHandlerPage::handleRequest] File not found: ")) + requestPath.path());
+		pApp->logger().warning(tstring(_T("[GatewayWebHandlerPage::handleRequest] File not found: ")) + requestPath.path());
 	}
 }
 
 //======================================================================================================================
 
-WebServiceHandlerSocket::WebServiceHandlerSocket(bool shellEnabled)
+GatewayWebHandlerSocket::GatewayWebHandlerSocket(bool shellEnabled)
 	: _shellEnabled(shellEnabled) 
 {
 	_shell = make_shared<PipeShell>(
@@ -259,17 +259,17 @@ WebServiceHandlerSocket::WebServiceHandlerSocket(bool shellEnabled)
 
 //----------------------------------------------------------------------------------------------------------------------
 
-WebServiceHandlerSocket::~WebServiceHandlerSocket() {}
+GatewayWebHandlerSocket::~GatewayWebHandlerSocket() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void WebServiceHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
+void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 
 	try {
 		WebSocket ws(request, response);
 
-		pApp->logger().information(tstring(_T("[WebServiceHandlerSocket::handleRequest] Websocket connection established")));
+		pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket connection established")));
 
 		ws.setBlocking(false);
 		ws.setReceiveTimeout(Poco::Timespan(60 * 60, 0));
@@ -294,7 +294,7 @@ void WebServiceHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 			if(_incoming.size() > 0) {
 				for(auto& message : _incoming) {
 					if(message.empty()) { continue; }
-					pApp->logger().information(tstring(_T("[WebServiceHandlerSocket::handleRequest] Websocket message received")) + message);
+					pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket message received")) + message);
 
 					try {
 						if(_shellEnabled)
@@ -323,14 +323,14 @@ void WebServiceHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 			if(_outgoing.size() > 0) {
 				for(auto& message : _outgoing) {
 					ws.sendFrame(message.data(), message.length());
-					pApp->logger().information(tstring(_T("[WebServiceHandlerSocket::handleRequest] Websocket message sent")) + message);
+					pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket message sent")) + message);
 				}
 				_outgoing.clear();
 			}
 		}
 		while(bytesRead > 0 || (flags & WebSocket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE);
 
-		pApp->logger().information(tstring(_T("[WebServiceHandlerSocket::handleRequest] Websocket connection closed")));
+		pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket connection closed")));
 
 	}
 	catch(WebSocketException& e) {
@@ -345,16 +345,16 @@ void WebServiceHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 				response.send();
 				break;
 		}
-		pApp->logger().warning(tstring(_T("[WebServiceHandlerSocket::handleRequest] Websocket error: ")) + e.displayText());
+		pApp->logger().warning(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket error: ")) + e.displayText());
 
 	}
 
-	pApp->logger().information(tstring(_T("[WebServiceHandlerSocket::handleRequest] Websocket connection lost")));
+	pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket connection lost")));
 }
 
 //======================================================================================================================
 
-WebServiceHandlerFactory::WebServiceHandlerFactory()
+GatewayWebHandlerFactory::GatewayWebHandlerFactory()
 	: _wsToken(_T("/ws"))
 	, _wssToken(_T("/wss"))
 	, _lenWsToken(_wsToken.length())
@@ -363,25 +363,25 @@ WebServiceHandlerFactory::WebServiceHandlerFactory()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-WebServiceHandlerFactory::~WebServiceHandlerFactory() {}
+GatewayWebHandlerFactory::~GatewayWebHandlerFactory() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
-HTTPRequestHandler* WebServiceHandlerFactory::createRequestHandler(const HTTPServerRequest& request) {
+HTTPRequestHandler* GatewayWebHandlerFactory::createRequestHandler(const HTTPServerRequest& request) {
 	tstring uri = request.getURI();
 	size_t lenUri = uri.length();
 
 	if(lenUri >= _lenWssToken && uri.compare(lenUri - _lenWssToken, _lenWssToken, _wssToken) == 0)
-		return new WebServiceHandlerSocket(true);
+		return new GatewayWebHandlerSocket(true);
 	else if(lenUri >= _lenWsToken && uri.compare(lenUri - _lenWsToken, _lenWsToken, _wsToken) == 0)
-		return new WebServiceHandlerSocket(false);
+		return new GatewayWebHandlerSocket(false);
 	else
-		return new WebServiceHandlerPage;
+		return new GatewayWebHandlerPage;
 }
 
 //======================================================================================================================
 
-WebService::WebService() {
+GatewayWeb::GatewayWeb() {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 
 	_socket = make_shared<ServerSocket>(SocketAddress(pApp->_webserverAddress, pApp->_webserverPort));
@@ -389,14 +389,14 @@ WebService::WebService() {
 	HTTPServerParams* pParams = new HTTPServerParams();
 	pParams->setMaxThreads(1000);
 
-	_server = make_shared<HTTPServer>(new WebServiceHandlerFactory(), *_socket, pParams);
+	_server = make_shared<HTTPServer>(new GatewayWebHandlerFactory(), *_socket, pParams);
 
 	_server->start();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-WebService::~WebService() {
+GatewayWeb::~GatewayWeb() {
 	_server->stop();
 }
 

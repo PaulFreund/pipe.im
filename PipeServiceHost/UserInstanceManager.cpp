@@ -16,10 +16,6 @@ using namespace Poco::Net;
 
 //======================================================================================================================
 
-const TCHAR TokenCommand = _T('#');
-
-//======================================================================================================================
-
 const tstring UserInstanceManager::UsersFolderName = _T("users");
 
 //======================================================================================================================
@@ -77,21 +73,21 @@ void UserInstanceConnection::run() {
 				for(auto& message : incoming) {
 					if(message.empty()) { continue; }
 					if(pApp->_debug) { pApp->logger().information(tstring(_T("[UserInstanceConnection::run] Instance Message received: ")) + message); }
-
-					if(message[0] == TokenCommand) {
-						tstring response = message.substr(1);
-						vector<tstring> responseParts = texplode(response, _T('='));
-						if(responseParts.size() < 2) { continue; }
-
-						if(responseParts[0] == _T("account")) {
-							instance = pApp->_manager->instance(responseParts[1]);
-							if(instance.get() != nullptr) { instance->setConnection(this); }
+					try {
+						PipeObjectPtr messageObj = parseObject(message);
+						if((*messageObj)[TokenMessageAddress].string_value() == _T("pipe_host")) {
+							if((*messageObj)[TokenMessageMessage].string_value() == _T("account")) {
+								tstring account = (*messageObj)[TokenMessageData].string_value();
+								instance = pApp->_instanceManager->instance(account);
+								if(instance.get() != nullptr) { instance->setConnection(this); }
+							}
+						}
+						// Add message to instance incoming queue
+						else if(instance.get() != nullptr) {
+							instance->addIncoming(message);
 						}
 					}
-					// Add message to instance incoming queue
-					else if(instance.get() != nullptr) {
-						instance->addIncoming(message);
-					}
+					catch(...) {}
 				}
 
 				incoming.clear();

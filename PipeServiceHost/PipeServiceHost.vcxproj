@@ -96,14 +96,14 @@
     <ClCompile Include="PipeServiceHost.cpp" />
     <ClCompile Include="UserInstance.cpp" />
     <ClCompile Include="UserInstanceManager.cpp" />
-    <ClCompile Include="WebService.cpp" />
+    <ClCompile Include="GatewayWeb.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonHeader.h" />
     <ClInclude Include="PipeServiceHost.h" />
     <ClInclude Include="UserInstance.h" />
     <ClInclude Include="UserInstanceManager.h" />
-    <ClInclude Include="WebService.h" />
+    <ClInclude Include="GatewayWeb.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

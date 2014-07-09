@@ -14,10 +14,6 @@ using namespace Poco::Net;
 
 //======================================================================================================================
 
-const TCHAR TokenCommand = _T('#');
-
-//======================================================================================================================
-
 class PipeServiceInstanceErrorHandler : public ErrorHandler {
 public:
 	PipeServiceInstanceErrorHandler() : ErrorHandler() {}
@@ -86,11 +82,12 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 	vector<tstring> incoming;
 	vector<tstring> outgoing;
 
-	tstring identity;
-	identity += TokenCommand;
-	identity += _T("account=");
-	identity += _account;
-	outgoing.push_back(identity);
+	PipeObject msgAccount;
+	msgAccount[TokenMessageRef] = _T("");
+	msgAccount[TokenMessageAddress] = _T("pipe_host");
+	msgAccount[TokenMessageMessage] = _T("account");
+	msgAccount[TokenMessageData] = _account;
+	outgoing.push_back(PipeJson(msgAccount).dump());
 
 	while(!_shutdown) {
 		try {
@@ -131,12 +128,15 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 				if(incoming.size() > 0) {
 					for(auto& message : incoming) {
 						logger().information(tstring(_T("[PipeServiceInstanceApplication::main] Message received: ")) + message);
-						if(message[0] == TokenCommand) {
-							tstring command = message.substr(1);
-							if(command == _T("exit")) {
-								_shutdown = true; 
+						try {
+							PipeObjectPtr messageObj = parseObject(message);
+							if((*messageObj)[TokenMessageAddress].string_value() == _T("pipe_host")) {
+								if((*messageObj)[TokenMessageCommand].string_value() == _T("exit"))
+									_shutdown = true;
 							}
 						}
+						catch(...) {}
+
 						try {
 							if(!message.empty())
 								LibPipe::push(std::make_shared<PipeArray>(PipeArray { message }));

@@ -554,6 +554,7 @@ private:
 	//------------------------------------------------------------------------------------------------------------------
 	const tstring _greetingText = _T("Welcome to the pipe shell, type help for further assistance");
 	const tstring _abortText = _T("!abortcommand");
+
 private:
 	//------------------------------------------------------------------------------------------------------------------
 	const tstring _identifier;

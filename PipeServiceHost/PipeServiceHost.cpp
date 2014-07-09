@@ -66,8 +66,8 @@ int PipeServiceHost::main(const vector<tstring>& args) {
 
 	if(!_debug) { logger().setLevel(0); }
 
-	_manager = make_shared<UserInstanceManager>();
-	_service = make_shared<WebService>();
+	_instanceManager = make_shared<UserInstanceManager>();
+	_service = make_shared<GatewayWeb>();
 
 	waitForTerminationRequest();
 

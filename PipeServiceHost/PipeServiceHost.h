@@ -7,7 +7,7 @@
 #include "CommonHeader.h"
 
 #include "UserInstanceManager.h"
-#include "WebService.h"
+#include "GatewayWeb.h"
 
 #include <Poco/Util/ServerApplication.h>
 #include <Poco/Util/OptionSet.h>
@@ -32,8 +32,8 @@ public:
 	int _instancePort = 9980;
 	tstring _instanceCommand;
 
-	std::shared_ptr<UserInstanceManager> _manager;
-	std::shared_ptr<WebService> _service;
+	std::shared_ptr<UserInstanceManager> _instanceManager;
+	std::shared_ptr<GatewayWeb> _service;
 
 public:
 	PipeServiceHost();

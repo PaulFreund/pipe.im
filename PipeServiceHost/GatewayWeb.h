@@ -16,7 +16,7 @@
 
 //======================================================================================================================
 
-class WebServiceHandlerPage : public Poco::Net::HTTPRequestHandler {
+class GatewayWebHandlerPage : public Poco::Net::HTTPRequestHandler {
 public:
 	void generateFileObject(const tstring& path, PipeObject& object, bool first = false);
 	void concatFiles(const tstring& path, const tstring& filter, tstring& result);
@@ -26,7 +26,7 @@ public:
 
 //======================================================================================================================
 
-class WebServiceHandlerSocket : public Poco::Net::HTTPRequestHandler {
+class GatewayWebHandlerSocket : public Poco::Net::HTTPRequestHandler {
 private:
 	std::vector<tstring> _incoming;
 	std::vector<tstring> _outgoing;
@@ -35,14 +35,14 @@ private:
 	bool _shellEnabled;
 
 public:
-	WebServiceHandlerSocket(bool shellEnabled = false);
-	~WebServiceHandlerSocket();
+	GatewayWebHandlerSocket(bool shellEnabled = false);
+	~GatewayWebHandlerSocket();
 	void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
 };
 
 //======================================================================================================================
 
-class WebServiceHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory {
+class GatewayWebHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory {
 private:
 	const tstring _wsToken;
 	const tstring _wssToken;
@@ -50,8 +50,8 @@ private:
 	const size_t _lenWssToken;
 
 public:
-	WebServiceHandlerFactory();
-	~WebServiceHandlerFactory();
+	GatewayWebHandlerFactory();
+	~GatewayWebHandlerFactory();
 	
 public:
 	Poco::Net::HTTPRequestHandler* createRequestHandler(const Poco::Net::HTTPServerRequest& request);
@@ -59,14 +59,14 @@ public:
 
 //======================================================================================================================
 
-class WebService {
+class GatewayWeb {
 private:
 	std::shared_ptr<Poco::Net::ServerSocket> _socket;
 	std::shared_ptr<Poco::Net::HTTPServer> _server;
 
 public:
-	WebService();
-	~WebService();
+	GatewayWeb();
+	~GatewayWeb();
 
 };
 
