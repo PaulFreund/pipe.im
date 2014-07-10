@@ -66,8 +66,11 @@ int PipeServiceHost::main(const vector<tstring>& args) {
 
 	if(!_debug) { logger().setLevel(0); }
 
-	_instanceManager = make_shared<UserInstanceManager>();
-	_service = make_shared<GatewayWeb>();
+	_instanceManager = make_shared<InstanceManager>();
+	_accountManager = make_shared<AccountManager>();
+
+	_gatewayWeb = make_shared<GatewayWeb>();
+	_gatewayPipe = make_shared<GatewayPipe>();
 
 	waitForTerminationRequest();
 
@@ -94,7 +97,7 @@ void PipeServiceHost::defineOptions(OptionSet& options) {
 		.argument(_T("[extdir]"))
 	);
 	options.addOption(
-		Option(_T("datadir"), _T("d"), _T("Path to folder where user data will be located"))
+		Option(_T("datadir"), _T("d"), _T("Path to folder where account data will be located"))
 		.required(false)
 		.repeatable(false)
 		.binding(_T("datadir"))

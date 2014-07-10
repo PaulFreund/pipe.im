@@ -82,15 +82,21 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 	vector<tstring> incoming;
 	vector<tstring> outgoing;
 
-	PipeObject msgAccount;
-	msgAccount[TokenMessageRef] = _T("");
-	msgAccount[TokenMessageAddress] = _T("pipe_host");
-	msgAccount[TokenMessageMessage] = _T("account");
-	msgAccount[TokenMessageData] = _account;
-	outgoing.push_back(PipeJson(msgAccount).dump());
-
 	while(!_shutdown) {
 		try {
+			// Clear queues
+			incoming.clear();
+			outgoing.clear();
+
+			// Add identification to outqueue
+			PipeObject msgAccount;
+			msgAccount[TokenMessageRef] = _T("");
+			msgAccount[TokenMessageAddress] = _T("pipe_host");
+			msgAccount[TokenMessageMessage] = _T("account");
+			msgAccount[TokenMessageData] = _account;
+			outgoing.push_back(PipeJson(msgAccount).dump());
+
+			// Open socket
 			StreamSocket ss(SocketAddress(_address, _port));
 			ss.setBlocking(false);
 

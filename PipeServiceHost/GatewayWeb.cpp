@@ -87,6 +87,8 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, std::ostream& out
 	if(parts[0] != _T("rest")) { return false; }
 
 	try {
+		// TODO: REDO!
+
 		// User commands
 		if(parts.size() >= 4) {
 			if(parts[1] == _T("users")) {
@@ -94,11 +96,11 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, std::ostream& out
 					vector<tstring> authParts = texplode(parts[3], _T(':'));
 					if(authParts.size() < 2) { return true; }
 
-					pApp->_instanceManager->createUser(authParts[0], authParts[1]);
+					pApp->_accountManager->createAccount(authParts[0], authParts[1]);
 					return true;
 				}
 				else if(parts[2] == _T("delete")) {
-					pApp->_instanceManager->deleteUser(parts[3]);
+					pApp->_accountManager->deleteAccount(parts[3]);
 					return true;
 				}
 			}

@@ -42,7 +42,7 @@ ServiceRoot::ServiceRoot(const tstring& path, PipeObjectPtr settings)
 	
 	// Load configuration or display error
 	if(!pathObj.exists() || !pathObj.isDirectory() || !pathObj.canRead() || !pathObj.canWrite()) {
-		pushOutgoing(_T(""), _T("error"), _T("Instance path location is invalid. Config can not be loaded or saved"));
+		pushOutgoing(_T(""), _T("error"), _T("InstanceConnection path location is invalid. Config can not be loaded or saved"));
 	}
 	else {
 		loadConfig();
@@ -325,7 +325,7 @@ void ServiceRoot::initServices() {
 	}
 
 	tstring addressServicesInstances = addressServices + TokenAddressSeparator + _T("instances");
-	_serviceServicesInstances = make_shared<PipeServiceNode>(addressServicesInstances, _path, newObject(), _T("service_instances"), _T("Service instance nodes"), _T("Instances"), _T("Instance representations"), _T("service_instances"));
+	_serviceServicesInstances = make_shared<PipeServiceNode>(addressServicesInstances, _path, newObject(), _T("service_instances"), _T("Service instance nodes"), _T("Instances"), _T("InstanceConnection representations"), _T("service_instances"));
 	_serviceServices->addChild(addressServicesInstances, _serviceServicesInstances);
 }
 
@@ -367,7 +367,7 @@ tstring ServiceRoot::createService(const tstring& type, const tstring& name, Pip
 		addChild(addressService, shared_ptr<PipeServiceNode>(service));
 
 		tstring addressInstance = _serviceServicesInstances->_address + TokenAddressSeparator + name;
-		auto instance = make_shared<PipeServiceNode>(addressInstance, _path, newObject(), _T("service_instance"), _T("Instance of a service"), type, _T("A ") + type + _T(" instance"), _T("service_instance_") + type);
+		auto instance = make_shared<PipeServiceNode>(addressInstance, _path, newObject(), _T("service_instance"), _T("InstanceConnection of a service"), type, _T("A ") + type + _T(" instance"), _T("service_instance_") + type);
 		_serviceServicesInstances->addChild(addressInstance, instance);
 
 		// Delete command

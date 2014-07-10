@@ -5,7 +5,7 @@
 //======================================================================================================================
 
 #include "CommonHeader.h"
-#include "UserInstanceManager.h"
+#include "InstanceManager.h"
 
 #include <libpipe/PipeShell.h>
 
@@ -74,9 +74,9 @@ public:
 // Authentication and registration layer
 // Create Administration
 // Configuration of bots
-// Configuration for user management
+// Configuration for account management
 
-// Create user management
+// Create account management
 
 //======================================================================================================================
 

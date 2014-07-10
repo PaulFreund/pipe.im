@@ -44,20 +44,20 @@ struct PipeExtensionFunctions {
 class PipeExtensionServiceInstance : public IPipeExtensionService {
 private:
 	PipeExtensionFunctions _functions;
-	HPipeExtensionService _service;
+	HPipeExtensionService _gatewayWeb;
 
 public:
-	PipeExtensionServiceInstance(const PipeExtensionFunctions& functions, HPipeExtensionService service) : _functions(functions), _service(service) {}
+	PipeExtensionServiceInstance(const PipeExtensionFunctions& functions, HPipeExtensionService service) : _functions(functions), _gatewayWeb(service) {}
 
 	virtual ~PipeExtensionServiceInstance() {
-		_functions.fktPipeExtensionServiceDestroy(_service);
+		_functions.fktPipeExtensionServiceDestroy(_gatewayWeb);
 	}
 
 public:
 	//------------------------------------------------------------------------------------------------------------------
 
 	virtual void push(PipeArrayPtr messages) {
-		_functions.fktPipeExtensionServicePush(_service, dumpArray(messages).c_str());
+		_functions.fktPipeExtensionServicePush(_gatewayWeb, dumpArray(messages).c_str());
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ public:
 	virtual PipeArrayPtr pull() {
 		PipeArrayPtr messages;
 
-		_functions.fktPipeExtensionServicePull(_service, &messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
+		_functions.fktPipeExtensionServicePull(_gatewayWeb, &messages, [](LibPipeCbContext context, LibPipeStr messagesData) {
 			(*static_cast<PipeArrayPtr*>(context)) = parseArray(messagesData);
 		});
 

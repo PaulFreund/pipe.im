@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Instances">
-      <UniqueIdentifier>{ec11d23b-8a95-4b68-9861-ffda2c7c627c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Host">
       <UniqueIdentifier>{3215f087-8926-4bce-a033-70cad5b505c6}</UniqueIdentifier>
     </Filter>
@@ -13,6 +10,12 @@
     <Filter Include="Gateways">
       <UniqueIdentifier>{95e73a4a-0e10-40a3-82a9-1de7805426f8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Accounts">
+      <UniqueIdentifier>{ec11d23b-8a95-4b68-9861-ffda2c7c627c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instances">
+      <UniqueIdentifier>{c4856578-07cf-4c5d-982c-a6dc56df9704}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PipeServiceHost.h">
@@ -21,13 +24,19 @@
     <ClInclude Include="CommonHeader.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="UserInstance.h">
-      <Filter>Instances</Filter>
-    </ClInclude>
-    <ClInclude Include="UserInstanceManager.h">
-      <Filter>Instances</Filter>
-    </ClInclude>
     <ClInclude Include="GatewayWeb.h">
+      <Filter>Gateways</Filter>
+    </ClInclude>
+    <ClInclude Include="Account.h">
+      <Filter>Accounts</Filter>
+    </ClInclude>
+    <ClInclude Include="InstanceManager.h">
+      <Filter>Instances</Filter>
+    </ClInclude>
+    <ClInclude Include="AccountManager.h">
+      <Filter>Accounts</Filter>
+    </ClInclude>
+    <ClInclude Include="GatewayPipe.h">
       <Filter>Gateways</Filter>
     </ClInclude>
   </ItemGroup>
@@ -38,13 +47,19 @@
     <ClCompile Include="CommonHeader.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="UserInstance.cpp">
-      <Filter>Instances</Filter>
-    </ClCompile>
-    <ClCompile Include="UserInstanceManager.cpp">
-      <Filter>Instances</Filter>
-    </ClCompile>
     <ClCompile Include="GatewayWeb.cpp">
+      <Filter>Gateways</Filter>
+    </ClCompile>
+    <ClCompile Include="Account.cpp">
+      <Filter>Accounts</Filter>
+    </ClCompile>
+    <ClCompile Include="InstanceManager.cpp">
+      <Filter>Instances</Filter>
+    </ClCompile>
+    <ClCompile Include="AccountManager.cpp">
+      <Filter>Accounts</Filter>
+    </ClCompile>
+    <ClCompile Include="GatewayPipe.cpp">
       <Filter>Gateways</Filter>
     </ClCompile>
   </ItemGroup>

@@ -174,8 +174,8 @@ private:
 		_nodeLevel = texplode(_currentAddress, TokenAddressSeparator).size();
 		_clientState = None;
 
-		// Instance is complete
-		if(_instanceComplete) { return _T("Instance completed"); }
+		// InstanceConnection is complete
+		if(_instanceComplete) { return _T("InstanceConnection completed"); }
 
 		return queryValue();
 	}

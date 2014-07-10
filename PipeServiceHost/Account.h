@@ -4,46 +4,45 @@
 
 //======================================================================================================================
 
-class UserInstanceClient {
+class AccountSession { // Separated from GatewayWeb session, needs to know the account, needs to be known by the account, will be created by GatewayWeb and GatewayPipe and registered here in account, can be shell or not shell!
 
 };
 
 //======================================================================================================================
 
-class UserInstanceClientShell {
-
-};
-
-//======================================================================================================================
-
-class UserInstanceConnection;
-class UserInstance {
+class InstanceConnection;
+class Account : public InstanceClient {
 public:
-	static const tstring UserFileName;
+	static const tstring AccountFileName;
 
 private:
 	const tstring _path;
 	PipeObjectPtr _config;
-	UserInstanceConnection* _connection;
+	InstanceConnection* _connection;
+
+	std::map <tstring, std::shared_ptr<AccountSession>> _sessions;
 
 	std::vector<tstring> _incoming;
 	std::vector<tstring> _outgoing;
 
 public:
-	UserInstance(const tstring& path);
-	UserInstance(const tstring& path, const tstring& account, const tstring& password);
-	~UserInstance();
+	Account(const tstring& path);
+	Account(const tstring& path, const tstring& account_, const tstring& password);
+	~Account();
 
 public:
 	void addIncoming(const tstring& message);
 	std::vector<tstring> getOutgoing();
+	void setConnection(InstanceConnection* connection);
 
+public:
 	bool authenticate(const tstring& suppliedPassword);
-	void setConnection(UserInstanceConnection* connection);
+
+	void addSession(tstring id, std::shared_ptr<AccountSession> session);
+	void removeSession(tstring id);
 
 private:
-	void loadUser();
-	void createUser(const tstring& account, const tstring& password);
+	void createAccount(const tstring& account, const tstring& password);
 	bool readConfig();
 	void writeConfig();
 
