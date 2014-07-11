@@ -244,20 +244,7 @@ void GatewayWebHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 
 //======================================================================================================================
 
-GatewayWebHandlerSocket::GatewayWebHandlerSocket(bool shellEnabled)
-	: _shellEnabled(shellEnabled) 
-{
-	_shell = make_shared<PipeShell>(
-		_T("terminal"),
-		[&](tstring text) {
-			_outgoing.push_back(text);
-		},
-		[](PipeJson msg) {
-			// LibPipe::push(std::make_shared<PipeArray>(PipeArray { msg })); // TODO
-		},
-		true
-	);
-}
+GatewayWebHandlerSocket::GatewayWebHandlerSocket() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -287,6 +274,7 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 
 			// Receive from client
 			try {
+				// TODO: Find out why this throws in non blocking mode
 				bytesRead = ws.receiveFrame(buffer, sizeof(buffer), flags);
 				_incoming.push_back(tstring(buffer, bytesRead));
 			}
@@ -299,10 +287,13 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 					pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket message received")) + message);
 
 					try {
+						// TODO
+						/*
 						if(_shellEnabled)
 							_shell->inputText(message);
 						else if(!message.empty())
 							LibPipe::push(std::make_shared<PipeArray>(PipeArray { message }));
+						*/
 					}
 					catch(...) {}
 				}
@@ -310,7 +301,9 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 				_incoming.clear();
 			}
 
+			// TODO
 			// Receive from pipe
+			/*
 			auto received = LibPipe::pull();
 			if(_shellEnabled) {
 				_shell->inputMessages(received);
@@ -320,7 +313,7 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 					_outgoing.push_back(ele.dump());
 				}
 			}
-
+			*/
 			// Send to client
 			if(_outgoing.size() > 0) {
 				for(auto& message : _outgoing) {
@@ -356,12 +349,7 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 
 //======================================================================================================================
 
-GatewayWebHandlerFactory::GatewayWebHandlerFactory()
-	: _wsToken(_T("/ws"))
-	, _wssToken(_T("/wss"))
-	, _lenWsToken(_wsToken.length())
-	, _lenWssToken(_wssToken.length()) 
-{}
+GatewayWebHandlerFactory::GatewayWebHandlerFactory() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -373,10 +361,8 @@ HTTPRequestHandler* GatewayWebHandlerFactory::createRequestHandler(const HTTPSer
 	tstring uri = request.getURI();
 	size_t lenUri = uri.length();
 
-	if(lenUri >= _lenWssToken && uri.compare(lenUri - _lenWssToken, _lenWssToken, _wssToken) == 0)
-		return new GatewayWebHandlerSocket(true);
-	else if(lenUri >= _lenWsToken && uri.compare(lenUri - _lenWsToken, _lenWsToken, _wsToken) == 0)
-		return new GatewayWebHandlerSocket(false);
+	if(request.has(_T("Upgrade")) && request[_T("Upgrade")] == _T("websocket"))
+		return new GatewayWebHandlerSocket();
 	else
 		return new GatewayWebHandlerPage;
 }

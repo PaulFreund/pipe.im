@@ -16,7 +16,7 @@ const tstring Account::AccountFileName = _T("account.json");
 
 //======================================================================================================================
 
-AccountSession::AccountSession(const tstring& id, std::shared_ptr<Account> account, std::function<void(tstring)> cbClientOutput, bool enableShell = false)
+AccountSession::AccountSession(const tstring& id, std::shared_ptr<Account> account, std::function<void(tstring)> cbClientOutput, bool enableShell)
 	: _id(id)
 	, _account(account)
 	, _cbClientOutput(cbClientOutput)
@@ -26,9 +26,7 @@ AccountSession::AccountSession(const tstring& id, std::shared_ptr<Account> accou
 		_shell = make_shared<PipeShell>(
 			_id,
 			_cbClientOutput,
-			[&](PipeJson msg) {
-				if(_account.get() != nullptr) { _account->addOutgoing(msg.dump()); }
-			},
+			[&](PipeJson msg) { if(_account.get() != nullptr) { _account->addOutgoing(msg.dump()); } },
 			true
 		);
 	}

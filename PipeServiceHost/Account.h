@@ -4,6 +4,12 @@
 
 //======================================================================================================================
 
+class PipeShell;
+class Account;
+class InstanceConnection;
+
+//======================================================================================================================
+
 class AccountSession { // Separated from GatewayWeb session, needs to know the account, needs to be known by the account, will be created by GatewayWeb and GatewayPipe and registered here in account, can be shell or not shell!
 private:
 	tstring _id;
@@ -23,8 +29,6 @@ public:
 };
 
 //======================================================================================================================
-
-class InstanceConnection;
 
 class Account : public InstanceClient {
 public:

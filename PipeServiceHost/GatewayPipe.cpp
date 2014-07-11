@@ -11,6 +11,7 @@ const tstring GatewayPipe::GatewayPipeAccountName = _T("host_gateway");
 //======================================================================================================================
 
 GatewayPipe::GatewayPipe() {
+	// TODO: Change to be overall path + foldername
 	InstanceManager::spawnInstance(GatewayPipe::GatewayPipeAccountName, GatewayPipe::GatewayPipeFolderName);
 }
 

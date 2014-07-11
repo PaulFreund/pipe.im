@@ -28,14 +28,12 @@ public:
 
 class GatewayWebHandlerSocket : public Poco::Net::HTTPRequestHandler {
 private:
+
 	std::vector<tstring> _incoming;
 	std::vector<tstring> _outgoing;
 
-	std::shared_ptr<PipeShell> _shell;
-	bool _shellEnabled;
-
 public:
-	GatewayWebHandlerSocket(bool shellEnabled = false);
+	GatewayWebHandlerSocket();
 	~GatewayWebHandlerSocket();
 	void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
 };
@@ -43,12 +41,6 @@ public:
 //======================================================================================================================
 
 class GatewayWebHandlerFactory : public Poco::Net::HTTPRequestHandlerFactory {
-private:
-	const tstring _wsToken;
-	const tstring _wssToken;
-	const size_t _lenWsToken;
-	const size_t _lenWssToken;
-
 public:
 	GatewayWebHandlerFactory();
 	~GatewayWebHandlerFactory();
@@ -63,20 +55,13 @@ class GatewayWeb {
 private:
 	std::shared_ptr<Poco::Net::ServerSocket> _socket;
 	std::shared_ptr<Poco::Net::HTTPServer> _server;
+	std::map<tstring, tstring> _webSessions; // TODO
 
 public:
 	GatewayWeb();
 	~GatewayWeb();
 
 };
-
-// todo: 
-// Authentication and registration layer
-// Create Administration
-// Configuration of bots
-// Configuration for account management
-
-// Create account management
 
 //======================================================================================================================
 
