@@ -5,12 +5,27 @@
 //======================================================================================================================
 
 class AccountSession { // Separated from GatewayWeb session, needs to know the account, needs to be known by the account, will be created by GatewayWeb and GatewayPipe and registered here in account, can be shell or not shell!
+private:
+	tstring _id;
+	std::shared_ptr<Account> _account;
+	const std::function<void(tstring)> _cbClientOutput;
 
+	bool _enableShell;
+	std::shared_ptr<PipeShell> _shell;
+
+public:
+	AccountSession(const tstring& id, std::shared_ptr<Account> account, std::function<void(tstring)> cbClientOutput, bool enableShell = false);
+	~AccountSession();
+
+public:
+	void clientInputAdd(const tstring& data);
+	void accountIncomingAdd(const tstring& message);
 };
 
 //======================================================================================================================
 
 class InstanceConnection;
+
 class Account : public InstanceClient {
 public:
 	static const tstring AccountFileName;
@@ -20,8 +35,9 @@ private:
 	PipeObjectPtr _config;
 	InstanceConnection* _connection;
 
-	std::map <tstring, std::shared_ptr<AccountSession>> _sessions;
+	std::map <tstring, AccountSession*> _sessions;
 
+	std::mutex _mutexQueue;
 	std::vector<tstring> _incoming;
 	std::vector<tstring> _outgoing;
 
@@ -31,6 +47,8 @@ public:
 	~Account();
 
 public:
+	void addOutgoing(const tstring& message);
+
 	void addIncoming(const tstring& message);
 	std::vector<tstring> getOutgoing();
 	void setConnection(InstanceConnection* connection);
@@ -38,7 +56,7 @@ public:
 public:
 	bool authenticate(const tstring& suppliedPassword);
 
-	void addSession(tstring id, std::shared_ptr<AccountSession> session);
+	void addSession(tstring id, AccountSession* session);
 	void removeSession(tstring id);
 
 private:
