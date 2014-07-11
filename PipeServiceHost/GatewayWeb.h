@@ -28,7 +28,7 @@ public:
 
 class GatewayWebHandlerSocket : public Poco::Net::HTTPRequestHandler {
 private:
-
+	std::mutex _outgoingMutex;
 	std::vector<tstring> _incoming;
 	std::vector<tstring> _outgoing;
 
@@ -61,6 +61,8 @@ public:
 	GatewayWeb();
 	~GatewayWeb();
 
+public:
+	bool validAuthToken(const tstring& account, const tstring& token);
 };
 
 //======================================================================================================================

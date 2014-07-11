@@ -4,6 +4,7 @@
 #include "GatewayWeb.h"
 
 #include <thread>
+#include <memory>
 
 #include <Poco/DirectoryIterator.h>
 #include <Poco/Net/HTTPServerRequest.h>
@@ -254,6 +255,10 @@ GatewayWebHandlerSocket::~GatewayWebHandlerSocket() {}
 
 void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
+	shared_ptr<Account> account = shared_ptr<Account>(nullptr);
+	shared_ptr<AccountSession> session = shared_ptr<AccountSession>(nullptr);
+	bool associated = false;
+	bool closeSession = false;
 
 	try {
 		WebSocket ws(request, response);
@@ -274,56 +279,66 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 
 			// Receive from client
 			try {
-				// TODO: Find out why this throws in non blocking mode
+				// TODO: Find out why this throws up in non blocking mode
 				bytesRead = ws.receiveFrame(buffer, sizeof(buffer), flags);
 				_incoming.push_back(tstring(buffer, bytesRead));
 			}
-			catch(TimeoutException& ) {} // Not very good but works for the moment
+			catch(TimeoutException&) {} // Not very good but works for the moment
 
 			// Send to pipe
-			if(_incoming.size() > 0) {
-				for(auto& message : _incoming) {
-					if(message.empty()) { continue; }
-					pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket message received")) + message);
+			for(auto& message : _incoming) {
+				pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket message received")) + message);
 
-					try {
-						// TODO
-						/*
-						if(_shellEnabled)
-							_shell->inputText(message);
-						else if(!message.empty())
-							LibPipe::push(std::make_shared<PipeArray>(PipeArray { message }));
-						*/
+				try {
+					if(!associated) {
+						PipeObjectPtr messageObj = parseObject(message);
+						bool tokenFound = false;
+						bool enableShell = false;
+						if((*messageObj)[TokenMessageMessage].string_value() == _T("connection_gui")) {
+							tokenFound = true;
+							enableShell = false;
+						}
+						else if((*messageObj)[TokenMessageMessage].string_value() == _T("connection_shell")) {
+							tokenFound = true;
+							enableShell = true;
+						}
+
+						tstring accountName = (*messageObj)[TokenMessageAddress].string_value();
+						tstring authToken = (*messageObj)[TokenMessageData].string_value();
+						if(!pApp->_gatewayWeb->validAuthToken(accountName, authToken)) { _outgoing.push_back(_T("exit")); } // TODO: think of something better
+
+						account = pApp->_accountManager->account(accountName);
+						session = make_shared<AccountSession>(authToken, account, [&](tstring message) {
+							_outgoingMutex.lock();
+							_outgoing.push_back(message);
+							_outgoingMutex.unlock();
+						}, enableShell);
+
+						account->addSession(authToken, session.get());
 					}
-					catch(...) {}
+					else if(session.get() != nullptr) {
+						session->clientInputAdd(message);
+					}
 				}
+				catch(...) {}
 
 				_incoming.clear();
 			}
 
-			// TODO
-			// Receive from pipe
-			/*
-			auto received = LibPipe::pull();
-			if(_shellEnabled) {
-				_shell->inputMessages(received);
-			}
-			else {
-				for(auto& ele : *received) {
-					_outgoing.push_back(ele.dump());
-				}
-			}
-			*/
-			// Send to client
 			if(_outgoing.size() > 0) {
-				for(auto& message : _outgoing) {
+				// Send to client
+				_outgoingMutex.lock();
+				vector<tstring> currentOutgoing = _outgoing; // TOOD: Slow
+				_outgoing.clear();
+				_outgoingMutex.unlock();
+
+				for(auto& message : currentOutgoing) {
 					ws.sendFrame(message.data(), message.length());
 					pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket message sent")) + message);
 				}
-				_outgoing.clear();
 			}
 		}
-		while(bytesRead > 0 || (flags & WebSocket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE);
+		while((bytesRead > 0 || (flags & WebSocket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE) && !closeSession);
 
 		pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket connection closed")));
 
@@ -386,6 +401,12 @@ GatewayWeb::GatewayWeb() {
 
 GatewayWeb::~GatewayWeb() {
 	_server->stop();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool GatewayWeb::validAuthToken(const tstring& account, const tstring& token) {
+	return true; // TODO: REAL AUTH!!!!
 }
 
 //======================================================================================================================
