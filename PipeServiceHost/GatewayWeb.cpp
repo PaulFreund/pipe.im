@@ -103,6 +103,7 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, ostream& response
 			tstring token = pApp->_gatewayWeb->login((*loginData)[_T("account")].string_value(), (*loginData)[_T("password")].string_value());
 			if(token.empty()) { throw tstring(_T("Invalid login data")); }
 
+			// TODO: This does not seem to work
 			HTTPCookie cookie;
 			cookie.setName(_T("session"));
 			cookie.setValue(token);

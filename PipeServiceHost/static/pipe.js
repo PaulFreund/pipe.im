@@ -25,30 +25,6 @@ function Pipe(basePath) {
     }
 
     //------------------------------------------------------------------------------------------------------------------
-    // Retrieves the children at the pipe address, onSuccess gets the resulting JSON object as parameter
-    self.nodeChildren = function(address, onSuccess, onError) {
-        self.get('rest/' + 'nodeChildren' + '/' + address, onSuccess, onError);
-    };
-
-    //------------------------------------------------------------------------------------------------------------------
-    // Retrieves the command types for the node, onSuccess gets the resulting JSON object as parameter
-    self.nodeCommandTypes = function(address, onSuccess, onError) {
-        self.get('rest/' + 'nodeCommandTypes' + '/' + address, onSuccess, onError);
-    };
-
-    //------------------------------------------------------------------------------------------------------------------
-    // Retrieves the message types for the node, onSuccess gets the resulting JSON object as parameter
-    self.nodeMessageTypes = function(address, onSuccess, onError) {
-        self.get('rest/' + 'nodeMessageTypes' + '/' + address, onSuccess, onError);
-    };
-
-    //------------------------------------------------------------------------------------------------------------------
-    // Retrieves the node information, onSuccess gets the resulting JSON object as parameter
-    self.nodeInfo = function(address, onSuccess, onError) {
-        self.get('rest/' + 'nodeInfo' + '/' + address, onSuccess, onError);
-    };
-
-    //------------------------------------------------------------------------------------------------------------------
     // Internal helper for XHR requests
     self.get = function(uri, onSuccess, onError) {
         var req = new XMLHttpRequest();
