@@ -284,6 +284,7 @@ void PipeServiceInstanceApplication::readOptions() {
 	bool excludedServicesDefined = config().has(_T("excludedServices"));
 	if(includedServicesDefined && excludedServicesDefined) { throw tstring(_T("Included and excluded services can not be specified at the same time")); }
 
+	// TODO: Fix, _resultServices should be real services not string names
 	if(includedServicesDefined) {
 		vector<tstring> includedServices = texplode(config().getString(_T("includedServices"), _T("")), _T(','));
 		for(auto& service : includedServices) {
@@ -291,6 +292,7 @@ void PipeServiceInstanceApplication::readOptions() {
 				_resultServices->push_back(PipeJson(service));
 		}
 	}
+	// TODO: Fix, _resultServices should be real services not string names
 	else if(excludedServicesDefined) {
 		vector<tstring> excludedServices = texplode(config().getString(_T("excludedServices"), _T("")), _T(','));
 		for(auto& service : availableServices) {
@@ -299,9 +301,7 @@ void PipeServiceInstanceApplication::readOptions() {
 		}
 	}
 	else {
-		for(auto& service : availableServices) {
-			_resultServices->push_back(PipeJson(service));
-		}
+		_resultServices = serviceTypes;
 	}
 }
 
@@ -315,6 +315,7 @@ void PipeServiceInstanceApplication::displayHelp(const tstring& name, const tstr
 //======================================================================================================================
 
 int main(int argc, char* argv[]) {
+	Sleep(10000);
 	PipeServiceInstanceApplication self;
 	self.run(argc, argv);
 	return 0;
