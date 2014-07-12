@@ -275,8 +275,9 @@ void PipeServiceInstanceApplication::readOptions() {
 
 	vector<tstring> availableServices;
 	auto serviceTypes = LibPipe::serviceTypes();
+
 	for(auto& type : *serviceTypes) {
-		availableServices.push_back(type.string_value());
+		availableServices.push_back(type[_T("type")].string_value());
 	}
 
 	bool includedServicesDefined = config().has(_T("includedServices"));
@@ -295,6 +296,11 @@ void PipeServiceInstanceApplication::readOptions() {
 		for(auto& service : availableServices) {
 			if(find(begin(excludedServices), end(excludedServices), service) == end(excludedServices))
 				_resultServices->push_back(PipeJson(service));
+		}
+	}
+	else {
+		for(auto& service : availableServices) {
+			_resultServices->push_back(PipeJson(service));
 		}
 	}
 }
