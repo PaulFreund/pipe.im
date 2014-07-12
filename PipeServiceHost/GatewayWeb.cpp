@@ -13,6 +13,7 @@
 #include <Poco/Net/WebSocket.h>
 #include <Poco/Net/NetException.h>
 
+
 using namespace std;
 using namespace Poco;
 using namespace Poco::Util;
@@ -80,94 +81,108 @@ void GatewayWebHandlerPage::concatFiles(const tstring& path, const tstring& filt
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool GatewayWebHandlerPage::handleCommands(const tstring& uri, std::ostream& outstream, tstring body) {
+bool GatewayWebHandlerPage::handleCommands(const tstring& uri, ostream& responseStream, HTTPServerRequest& request, HTTPServerResponse& response) {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 	auto parts = texplode(uri, _T('/'));
 	if(parts.size() < 2) { return false; }
 
 	if(parts[0] != _T("rest")) { return false; }
 
-	try {
-		// TODO: REDO!
+	tstring command = parts[1];
 
-		// User commands
-		if(parts.size() >= 4) {
-			if(parts[1] == _T("users")) {
-				if(parts[2] == _T("create")) {
-					vector<tstring> authParts = texplode(parts[3], _T(':'));
-					if(authParts.size() < 2) { return true; }
+	// TODO: Authentication commands
 
-					pApp->_accountManager->createAccount(authParts[0], authParts[1]);
-					return true;
-				}
-				else if(parts[2] == _T("delete")) {
-					pApp->_accountManager->deleteAccount(parts[3]);
-					return true;
-				}
-			}
+	//------------------------------------------------------------------------------------------------------------------
+	// Users command
+	if(command == _T("users")) {
+		if(parts.size() >= 4) { throw tstring(_T("Invalid arguments")); }
+		if(parts[2] == _T("create")) {
+			vector<tstring> authParts = texplode(parts[3], _T(':'));
+			if(authParts.size() < 2) { return true; }
+
+			pApp->_accountManager->createAccount(authParts[0], authParts[1]);
+			return true;
 		}
-
-		// Commands with parameter
-		else if(parts.size() >= 3) {
-			if(parts[1] == _T("concat")) {
-				auto partsCopy = parts;
-				partsCopy.erase(begin(partsCopy)); // Remove "rest"
-				partsCopy.erase(begin(partsCopy)); // Remove "concat"
-
-				tstring path = pApp->_staticdir;
-				tstring filter = _T("");
-				auto parameter = texplode(timplode(partsCopy, _T('/')), _T('.'));
-				if(parameter.size() >= 1) {
-					filter = parameter[parameter.size() - 1];
-				}
-				if(parameter.size() >= 2) {
-					path += Path::separator();
-					tstring uriPath = pApp->_webserverPath;
-					tstring subPath = _T("/") + parameter[0];
-
-					if(uriPath[uriPath.size() - 1] != _T('/'))
-						uriPath += _T("/");
-
-					if(subPath.compare(0, uriPath.length(), uriPath) == 0)
-						subPath = subPath.substr(uriPath.length() - 1);
-
-					path += subPath;
-				}
-
-				tstring result = _T("");
-				concatFiles(path, filter, result);
-				outstream << result;
-				return true;
-			}
-		}
-		//// Commands without
-		//else if(parts[1] == _T("push")) {
-		//	tstring err;
-		//	PipeJson message = PipeJson::parse(body, err);
-		//	PipeArrayPtr outgoing;
-		//	if(message.is_array())
-		//		outgoing = std::make_shared<PipeArray>(message.array_items());
-		//	else if(message.is_object())
-		//		outgoing = std::make_shared<PipeArray>(PipeArray { message });
-		//	else
-		//		return false;
-
-		//	LibPipe::push(outgoing);
-
-		//	return true;
-		//}
-		//else if(parts[1] == _T("pull")) {
-		//	outstream << PipeJson(*LibPipe::pull()).dump();
-		//	return true;
-		//}
-		else if(parts[1] == _T("files")) {
-			PipeObject files;
-			generateFileObject(pApp->_staticdir, files, true);
-			outstream << PipeJson(files).dump();
+		else if(parts[2] == _T("delete")) {
+			pApp->_accountManager->deleteAccount(parts[3]);
 			return true;
 		}
 	}
-	catch(...) {}
+
+	//------------------------------------------------------------------------------------------------------------------
+	// concat command
+	else if(command == _T("concat")) {
+		if(parts.size() >= 3) { throw tstring(_T("Invalid arguments")); }
+		auto partsCopy = parts;
+		partsCopy.erase(begin(partsCopy)); // Remove "rest"
+		partsCopy.erase(begin(partsCopy)); // Remove "concat"
+
+		tstring path = pApp->_staticdir;
+		tstring filter = _T("");
+		auto parameter = texplode(timplode(partsCopy, _T('/')), _T('.'));
+		if(parameter.size() >= 1) {
+			filter = parameter[parameter.size() - 1];
+		}
+		if(parameter.size() >= 2) {
+			path += Path::separator();
+			tstring uriPath = pApp->_webserverPath;
+			tstring subPath = _T("/") + parameter[0];
+
+			if(uriPath[uriPath.size() - 1] != _T('/'))
+				uriPath += _T("/");
+
+			if(subPath.compare(0, uriPath.length(), uriPath) == 0)
+				subPath = subPath.substr(uriPath.length() - 1);
+
+			path += subPath;
+		}
+
+		tstring result = _T("");
+		concatFiles(path, filter, result);
+		responseStream << result;
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	// files command
+	else if(command == _T("files")) {
+		PipeObject files;
+		generateFileObject(pApp->_staticdir, files, true);
+		responseStream << PipeJson(files).dump();
+		return true;
+	}
+
+	// TODO: OLD COMMANDS
+	/*
+	// Get body if any
+	tstring body = _T("");
+	if(request.getMethod() == HTTPServerRequest::HTTP_POST) {
+		request.stream() >> body;
+	}
+	if(body.empty()) { response.setContentType(_T("application/json")); }
+
+	*/
+
+	//// Commands without
+	//else if(parts[1] == _T("push")) {
+	//	tstring err;
+	//	PipeJson message = PipeJson::parse(body, err);
+	//	PipeArrayPtr outgoing;
+	//	if(message.is_array())
+	//		outgoing = std::make_shared<PipeArray>(message.array_items());
+	//	else if(message.is_object())
+	//		outgoing = std::make_shared<PipeArray>(PipeArray { message });
+	//	else
+	//		return false;
+
+	//	LibPipe::push(outgoing);
+
+	//	return true;
+	//}
+	//else if(parts[1] == _T("pull")) {
+	//	responseStream << PipeJson(*LibPipe::pull()).dump();
+	//	return true;
+	//}
 
 	return false;
 }
@@ -192,19 +207,21 @@ void GatewayWebHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 	response.setChunkedTransferEncoding(true);
 	std::ostream& responseStream = response.send();
 
-	// Get body if any
-	tstring body = _T("");
-	if(request.getMethod() == HTTPServerRequest::HTTP_POST) {
-		request.stream() >> body;
-	}
-
 	// Handle commands
-	if(handleCommands(uri, responseStream, body)) {
-		if(body.empty()) { response.setContentType(_T("application/json")); }
-		response.setStatus(HTTPResponse::HTTP_OK);
+	try {
+		if(handleCommands(uri, responseStream, request, response)) {
+			response.setStatus(HTTPResponse::HTTP_OK);
+			return;
+		}
+	}
+	catch(tstring message) {
+		std::ostream& responseStream = response.send();
+		responseStream << message;
+		response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
 		return;
 	}
 
+	// Serve static files
 	File requestPath(pApp->_staticdir + uri);
 	pApp->logger().information(tstring(_T("[GatewayWebHandlerPage::handleRequest] File requested: ")) + requestPath.path());
 	if(requestPath.exists() && requestPath.canRead()) {
@@ -305,7 +322,7 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 
 						tstring accountName = (*messageObj)[TokenMessageAddress].string_value();
 						tstring authToken = (*messageObj)[TokenMessageData].string_value();
-						if(!pApp->_gatewayWeb->validAuthToken(accountName, authToken)) { _outgoing.push_back(_T("exit")); } // TODO: think of something better
+						if(!pApp->_gatewayWeb->loggedIn(accountName, authToken)) { _outgoing.push_back(_T("exit")); } // TODO: think of something better
 
 						account = pApp->_accountManager->account(accountName);
 						session = make_shared<AccountSession>(authToken, account, [&](tstring message) {
@@ -405,8 +422,29 @@ GatewayWeb::~GatewayWeb() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool GatewayWeb::validAuthToken(const tstring& account, const tstring& token) {
-	return true; // TODO: REAL AUTH!!!!
+tstring GatewayWeb::login(const tstring& account, const tstring& password) {
+	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
+	auto acc = pApp->_accountManager->account(account);
+
+	if(!acc->authenticate(password)) {
+		return _T("");
+	}
+
+	tstring token = _uuidGenerator.createOne().toString();
+	_webSessions[token] = account;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void GatewayWeb::logout(const tstring& account, const tstring& token) {
+	if(_webSessions.count(token) == 1)
+		_webSessions.erase(token);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool GatewayWeb::loggedIn(const tstring& account, const tstring& token) {
+	return (_webSessions.count(token) == 1 && _webSessions[token] == account);
 }
 
 //======================================================================================================================

@@ -13,6 +13,8 @@
 #include <Poco/Net/ServerSocket.h>
 #include <Poco/Net/HTTPRequestHandler.h>
 #include <Poco/Net/HTTPRequestHandlerFactory.h>
+#include <Poco/UUIDGenerator.h>
+#include <Poco/UUID.h>
 
 //======================================================================================================================
 
@@ -20,7 +22,7 @@ class GatewayWebHandlerPage : public Poco::Net::HTTPRequestHandler {
 public:
 	void generateFileObject(const tstring& path, PipeObject& object, bool first = false);
 	void concatFiles(const tstring& path, const tstring& filter, tstring& result);
-	bool handleCommands(const tstring& uri, std::ostream& outstream, tstring body);
+	bool handleCommands(const tstring& uri, std::ostream& responseStream, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
 	void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
 };
 
@@ -55,14 +57,18 @@ class GatewayWeb {
 private:
 	std::shared_ptr<Poco::Net::ServerSocket> _socket;
 	std::shared_ptr<Poco::Net::HTTPServer> _server;
-	std::map<tstring, tstring> _webSessions; // TODO
+	std::map<tstring, tstring> _webSessions;
+	Poco::UUIDGenerator _uuidGenerator;
+
 
 public:
 	GatewayWeb();
 	~GatewayWeb();
 
 public:
-	bool validAuthToken(const tstring& account, const tstring& token);
+	tstring login(const tstring& account, const tstring& password);
+	void logout(const tstring& account, const tstring& token);
+	bool loggedIn(const tstring& account, const tstring& token);
 };
 
 //======================================================================================================================
