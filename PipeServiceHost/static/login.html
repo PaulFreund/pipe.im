@@ -1,0 +1,26 @@
+<html>
+	<head>
+		<title>Pipe.im Login</title>
+		<script type="text/javascript">
+			function doLogin() {
+				
+				document.getElementById('loginform').submit();
+			}
+		</script>
+	</head>
+	<body>
+		 <form name="login" id="loginform" action="/rest/login" method="post" onsubmit="doLogin();">
+			<p>
+				<label for="user_login">Account<br>
+				<input type="text" name="log" id="user_login" class="input" value="" size="20"></label>
+			</p>
+			<p>
+				<label for="user_pass">Password<br>
+				<input type="password" name="pwd" id="user_pass" class="input" value="" size="20"></label>
+			</p>
+			<p class="submit">
+				<input type="submit" name="submit" id="submit" value="Login">
+			</p>
+		</form>
+	</body>
+</html>

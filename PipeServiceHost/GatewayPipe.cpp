@@ -3,6 +3,10 @@
 #include "CommonHeader.h"
 #include "GatewayPipe.h"
 
+using namespace std;
+using namespace Poco;
+using namespace Poco::Util;
+
 //======================================================================================================================
 
 const tstring GatewayPipe::GatewayPipeFolderName = _T("gateway_pipe");
@@ -11,8 +15,8 @@ const tstring GatewayPipe::GatewayPipeAccountName = _T("host_gateway");
 //======================================================================================================================
 
 GatewayPipe::GatewayPipe() {
-	// TODO: Change to be overall path + foldername
-	InstanceManager::spawnInstance(GatewayPipe::GatewayPipeAccountName, GatewayPipe::GatewayPipeFolderName);
+	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
+	InstanceManager::spawnInstance(GatewayPipe::GatewayPipeAccountName, pApp->_datadir + Path::separator() + GatewayPipe::GatewayPipeFolderName);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

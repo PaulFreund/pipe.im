@@ -87,10 +87,47 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, ostream& response
 	if(parts.size() < 2) { return false; }
 
 	if(parts[0] != _T("rest")) { return false; }
-
 	tstring command = parts[1];
 
-	// TODO: Authentication commands
+	//------------------------------------------------------------------------------------------------------------------
+	// Login command
+	if(command == _T("login")) {
+		tstring body = _T("");
+		if(request.getMethod() == HTTPServerRequest::HTTP_POST) {
+			request.stream() >> body;
+		}
+
+		auto loginData = parseObject(body);
+
+		if(loginData->count(_T("account")) == 1 && loginData->count(_T("password")) == 1) {
+			tstring token = pApp->_gatewayWeb->login((*loginData)[_T("account")].string_value(), (*loginData)[_T("password")].string_value());
+			if(token.empty()) { throw tstring(_T("Invalid login data")); }
+
+			HTTPCookie cookie;
+			cookie.setName(_T("session"));
+			cookie.setValue(token);
+			response.addCookie(cookie);
+			return true;
+		}
+
+		throw tstring(_T("No login data supplied"));
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	// Logout command
+	else if(command == _T("logout")) {
+		NameValueCollection cookies;
+		request.getCookies(cookies);
+		if(cookies.has(_T("session")) && cookies.has(_T("account"))) {
+			pApp->_gatewayWeb->logout(cookies[_T("account")], cookies[_T("session")]);
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	// Register command
+	else if(command == _T("register")) {
+		// TODO
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	// Users command
@@ -110,7 +147,7 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, ostream& response
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	// concat command
+	// Concat command
 	else if(command == _T("concat")) {
 		if(parts.size() >= 3) { throw tstring(_T("Invalid arguments")); }
 		auto partsCopy = parts;
@@ -140,15 +177,17 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, ostream& response
 		tstring result = _T("");
 		concatFiles(path, filter, result);
 		responseStream << result;
+		response.setContentType(_T("application/json"));
 		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	// files command
+	// Files command
 	else if(command == _T("files")) {
 		PipeObject files;
 		generateFileObject(pApp->_staticdir, files, true);
 		responseStream << PipeJson(files).dump();
+		response.setContentType(_T("application/json"));
 		return true;
 	}
 
@@ -432,6 +471,7 @@ tstring GatewayWeb::login(const tstring& account, const tstring& password) {
 
 	tstring token = _uuidGenerator.createOne().toString();
 	_webSessions[token] = account;
+	return token;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
