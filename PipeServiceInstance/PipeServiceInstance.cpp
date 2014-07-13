@@ -140,12 +140,10 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 								if((*messageObj)[TokenMessageCommand].string_value() == _T("exit"))
 									_shutdown = true;
 							}
-						}
-						catch(...) {}
 
-						try {
 							if(!message.empty())
-								LibPipe::push(std::make_shared<PipeArray>(PipeArray { message }));
+								LibPipe::push(std::make_shared<PipeArray>(PipeArray { *messageObj }));
+
 						}
 						catch(...) {}
 					}

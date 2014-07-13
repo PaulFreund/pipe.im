@@ -81,7 +81,7 @@ void GatewayWebHandlerPage::concatFiles(const tstring& path, const tstring& filt
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool GatewayWebHandlerPage::handleCommands(const tstring& uri, ostream& responseStream, HTTPServerRequest& request, HTTPServerResponse& response) {
+bool GatewayWebHandlerPage::handleCommands(const tstring& uri, HTTPServerRequest& request, HTTPServerResponse& response) {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 	auto parts = texplode(uri, _T('/'));
 	if(parts.size() < 2) { return false; }
@@ -97,21 +97,30 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, ostream& response
 			request.stream() >> body;
 		}
 
-		auto loginData = parseObject(body);
+		tstring account = _T("");
+		tstring password = _T("");
+		vector<tstring> fields = texplode(body, _T('&'));
+		for(auto& field : fields) {
+			vector<tstring> fieldElements = texplode(field, _T('='));
+			if(fieldElements.size() == 2 && fieldElements[0] == _T("account"))
+				account = HTTPCookie::unescape(fieldElements[1]);
 
-		if(loginData->count(_T("account")) == 1 && loginData->count(_T("password")) == 1) {
-			tstring token = pApp->_gatewayWeb->login((*loginData)[_T("account")].string_value(), (*loginData)[_T("password")].string_value());
-			if(token.empty()) { throw tstring(_T("Invalid login data")); }
-
-			// TODO: This does not seem to work
-			HTTPCookie cookie;
-			cookie.setName(_T("session"));
-			cookie.setValue(token);
-			response.addCookie(cookie);
-			return true;
+			if(fieldElements.size() == 2 && fieldElements[0] == _T("password"))
+				password = HTTPCookie::unescape(fieldElements[1]);
 		}
 
-		throw tstring(_T("No login data supplied"));
+		if(account.empty() || password.empty()) { throw tstring(_T("No login data supplied")); }
+
+		tstring token = pApp->_gatewayWeb->login(account, password);
+		if(token.empty()) { throw tstring(_T("Invalid login data")); }
+
+		HTTPCookie cookie(_T("session"), token);
+		cookie.setMaxAge(86400);
+		cookie.setPath(_T("/"));
+		response.addCookie(cookie);
+		response.setContentType(_T("text/html"));
+		response.send() << _T("Login successfull");
+		return true;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -121,6 +130,16 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, ostream& response
 		request.getCookies(cookies);
 		if(cookies.has(_T("session")) && cookies.has(_T("account"))) {
 			pApp->_gatewayWeb->logout(cookies[_T("account")], cookies[_T("session")]);
+
+			HTTPCookie cookie(_T("session"), _T(""));
+			cookie.setMaxAge(0); // Deletes the cookie
+			cookie.setPath(_T("/"));
+			response.addCookie(cookie);
+			response.setContentType(_T("text/html"));
+			response.send() << _T("Logout successfull");
+		}
+		else {
+			throw tstring(_T("Invalid logout data"));
 		}
 	}
 
@@ -133,7 +152,7 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, ostream& response
 	//------------------------------------------------------------------------------------------------------------------
 	// Users command
 	if(command == _T("users")) {
-		if(parts.size() >= 4) { throw tstring(_T("Invalid arguments")); }
+		if(parts.size() < 4) { throw tstring(_T("Invalid arguments")); }
 		if(parts[2] == _T("create")) {
 			vector<tstring> authParts = texplode(parts[3], _T(':'));
 			if(authParts.size() < 2) { return true; }
@@ -150,7 +169,7 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, ostream& response
 	//------------------------------------------------------------------------------------------------------------------
 	// Concat command
 	else if(command == _T("concat")) {
-		if(parts.size() >= 3) { throw tstring(_T("Invalid arguments")); }
+		if(parts.size() < 3) { throw tstring(_T("Invalid arguments")); }
 		auto partsCopy = parts;
 		partsCopy.erase(begin(partsCopy)); // Remove "rest"
 		partsCopy.erase(begin(partsCopy)); // Remove "concat"
@@ -177,8 +196,8 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, ostream& response
 
 		tstring result = _T("");
 		concatFiles(path, filter, result);
-		responseStream << result;
 		response.setContentType(_T("application/json"));
+		response.send() << result;
 		return true;
 	}
 
@@ -187,8 +206,8 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, ostream& response
 	else if(command == _T("files")) {
 		PipeObject files;
 		generateFileObject(pApp->_staticdir, files, true);
-		responseStream << PipeJson(files).dump();
 		response.setContentType(_T("application/json"));
+		response.send() << PipeJson(files).dump();
 		return true;
 	}
 
@@ -230,6 +249,8 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, ostream& response
 //----------------------------------------------------------------------------------------------------------------------
 
 void GatewayWebHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
+	response.setChunkedTransferEncoding(true);
+
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 
 	auto uri = request.getURI();
@@ -244,20 +265,15 @@ void GatewayWebHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 		uri = _T("/index.html");
 	}
 
-	response.setChunkedTransferEncoding(true);
-	std::ostream& responseStream = response.send();
-
 	// Handle commands
 	try {
-		if(handleCommands(uri, responseStream, request, response)) {
-			response.setStatus(HTTPResponse::HTTP_OK);
+		if(handleCommands(uri, request, response)) {
 			return;
 		}
 	}
 	catch(tstring message) {
-		std::ostream& responseStream = response.send();
-		responseStream << message;
 		response.setStatus(HTTPResponse::HTTP_BAD_REQUEST);
+		response.send() << message;
 		return;
 	}
 
@@ -279,23 +295,22 @@ void GatewayWebHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 
 			response.setContentType(contentType);
 			std::ifstream fileStream(requestPath.path());
-			Poco::StreamCopier::copyStream(fileStream, responseStream);
+			Poco::StreamCopier::copyStream(fileStream, response.send());
 			pApp->logger().information(tstring(_T("[GatewayWebHandlerPage::handleRequest] File response: ")) + requestPath.path());
 		}
 		catch(exception e) {
+			response.setStatus(HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
+			std::ostream& responseStream = response.send();
 			responseStream << _T("<h1>Internal server error</h1>") << endl;
 			responseStream << e.what();
-			response.setStatus(HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
 			pApp->logger().warning(tstring(_T("[GatewayWebHandlerPage::handleRequest] File serving error: ")) + e.what());
 
 		}
-
-		response.setStatus(HTTPResponse::HTTP_OK);
 	}
 	else {
 		response.setContentType("text/html");
 		response.setStatus(HTTPResponse::HTTP_NOT_FOUND);
-		responseStream << _T("<h1>Requested file could not be found</h1><br />") << uri << endl;
+		response.send() << _T("<h1>Requested file could not be found</h1><br />") << uri << endl;
 		pApp->logger().warning(tstring(_T("[GatewayWebHandlerPage::handleRequest] File not found: ")) + requestPath.path());
 	}
 }
@@ -348,30 +363,39 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 
 				try {
 					if(!associated) {
-						PipeObjectPtr messageObj = parseObject(message);
-						bool tokenFound = false;
+						tstring TokenConnectionGui = _T("connection_gui=");
+						tstring TokenConnectionShell = _T("connection_shell=");
+						tstring authToken = _T("");
 						bool enableShell = false;
-						if((*messageObj)[TokenMessageMessage].string_value() == _T("connection_gui")) {
-							tokenFound = true;
+						if(startsWith(message, TokenConnectionGui)) {
 							enableShell = false;
+							authToken = message.substr(TokenConnectionGui.length());
 						}
-						else if((*messageObj)[TokenMessageMessage].string_value() == _T("connection_shell")) {
-							tokenFound = true;
+						else if(startsWith(message, TokenConnectionShell)) {
 							enableShell = true;
+							authToken = message.substr(TokenConnectionShell.length());
 						}
 
-						tstring accountName = (*messageObj)[TokenMessageAddress].string_value();
-						tstring authToken = (*messageObj)[TokenMessageData].string_value();
-						if(!pApp->_gatewayWeb->loggedIn(accountName, authToken)) { _outgoing.push_back(_T("exit")); } // TODO: think of something better
+						tstring accountName = pApp->_gatewayWeb->loggedIn(authToken);
+						if(accountName.empty()) {
+							_outgoing.push_back(_T("invalid_token"));
+						}
+						else {
+							account = pApp->_accountManager->account(accountName);
+							if(account.get() == nullptr) {
+								_outgoing.push_back(_T("exit_error")); // TODO: think of something better
+							}
+							else {
+								session = make_shared<AccountSession>(authToken, account, [&](tstring message) {
+									_outgoingMutex.lock();
+									_outgoing.push_back(message);
+									_outgoingMutex.unlock();
+								}, enableShell);
 
-						account = pApp->_accountManager->account(accountName);
-						session = make_shared<AccountSession>(authToken, account, [&](tstring message) {
-							_outgoingMutex.lock();
-							_outgoing.push_back(message);
-							_outgoingMutex.unlock();
-						}, enableShell);
-
-						account->addSession(authToken, session.get());
+								account->addSession(authToken, session.get());
+								associated = true;
+							}
+						}
 					}
 					else if(session.get() != nullptr) {
 						session->clientInputAdd(message);
@@ -379,8 +403,10 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 				}
 				catch(...) {}
 
-				_incoming.clear();
 			}
+
+			_incoming.clear();
+
 
 			if(_outgoing.size() > 0) {
 				// Send to client
@@ -465,6 +491,7 @@ GatewayWeb::~GatewayWeb() {
 tstring GatewayWeb::login(const tstring& account, const tstring& password) {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 	auto acc = pApp->_accountManager->account(account);
+	if(acc.get() == nullptr) { return _T(""); }
 
 	if(!acc->authenticate(password)) {
 		return _T("");
@@ -484,8 +511,11 @@ void GatewayWeb::logout(const tstring& account, const tstring& token) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool GatewayWeb::loggedIn(const tstring& account, const tstring& token) {
-	return (_webSessions.count(token) == 1 && _webSessions[token] == account);
+tstring GatewayWeb::loggedIn(const tstring& token) {
+	if(_webSessions.count(token) == 1)
+		return _webSessions[token];
+
+	return _T("");
 }
 
 //======================================================================================================================

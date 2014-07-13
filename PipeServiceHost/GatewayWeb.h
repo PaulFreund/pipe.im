@@ -22,7 +22,7 @@ class GatewayWebHandlerPage : public Poco::Net::HTTPRequestHandler {
 public:
 	void generateFileObject(const tstring& path, PipeObject& object, bool first = false);
 	void concatFiles(const tstring& path, const tstring& filter, tstring& result);
-	bool handleCommands(const tstring& uri, std::ostream& responseStream, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
+	bool handleCommands(const tstring& uri, Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
 	void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
 };
 
@@ -68,7 +68,7 @@ public:
 public:
 	tstring login(const tstring& account, const tstring& password);
 	void logout(const tstring& account, const tstring& token);
-	bool loggedIn(const tstring& account, const tstring& token);
+	tstring loggedIn(const tstring& token);
 };
 
 //======================================================================================================================

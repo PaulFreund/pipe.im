@@ -59,7 +59,7 @@ void AccountSession::clientInputAdd(const tstring& data) {
 void AccountSession::accountIncomingAdd(const tstring& message) {
 	if(_enableShell) {
 		PipeObjectPtr messageObject = parseObject(message);
-		_shell->inputMessages(std::make_shared<PipeArray>(PipeArray { message }));
+		_shell->inputMessages(std::make_shared<PipeArray>(PipeArray { *messageObject }));
 	}
 	else {
 		_cbClientOutput(message);

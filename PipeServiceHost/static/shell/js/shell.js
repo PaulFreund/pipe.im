@@ -1,9 +1,22 @@
 $().ready(function () {
-	var pipe = new Pipe(window.location.host + '/pipe');
-	pipe.nodeChildren('pipe.services', function(body) { console.log(body); });
+	var pipe = new Pipe(window.location.host);
+	
+	var getCookie = function(name) {
+	  var value = "; " + document.cookie;
+	  var parts = value.split("; " + name + "=");
+	  if (parts.length == 2) return parts.pop().split(";").shift();
+	}
+	
+	var token = getCookie('session');
+	if(token.length == 0) {
+		alert('Not authenticated');
+		return;
+	}
 	
 	pipe.shellConnect(
 		function(socket) {
+			socket.send('connection_shell=' + token);
+			
 			window.terminal = $('body').terminal(function (command, term) {
 //				if (command !== '') {
 					try {

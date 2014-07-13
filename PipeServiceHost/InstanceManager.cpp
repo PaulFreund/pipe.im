@@ -89,6 +89,7 @@ void InstanceConnection::run() {
 									}
 
 									if(client.get() != nullptr) { client->setConnection(this); }
+									associated = true;
 								}
 							}
 							else {
