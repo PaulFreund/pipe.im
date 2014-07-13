@@ -151,20 +151,20 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, HTTPServerRequest
 
 	//------------------------------------------------------------------------------------------------------------------
 	// Users command
-	if(command == _T("users")) {
-		if(parts.size() < 4) { throw tstring(_T("Invalid arguments")); }
-		if(parts[2] == _T("create")) {
-			vector<tstring> authParts = texplode(parts[3], _T(':'));
-			if(authParts.size() < 2) { return true; }
+	//if(command == _T("users")) {
+	//	if(parts.size() < 4) { throw tstring(_T("Invalid arguments")); }
+	//	if(parts[2] == _T("create")) {
+	//		vector<tstring> authParts = texplode(parts[3], _T(':'));
+	//		if(authParts.size() < 2) { return true; }
 
-			pApp->_accountManager->createAccount(authParts[0], authParts[1]);
-			return true;
-		}
-		else if(parts[2] == _T("delete")) {
-			pApp->_accountManager->deleteAccount(parts[3]);
-			return true;
-		}
-	}
+	//		pApp->_accountManager->createAccount(authParts[0], authParts[1]);
+	//		return true;
+	//	}
+	//	else if(parts[2] == _T("delete")) {
+	//		pApp->_accountManager->deleteAccount(parts[3]);
+	//		return true;
+	//	}
+	//}
 
 	//------------------------------------------------------------------------------------------------------------------
 	// Concat command
