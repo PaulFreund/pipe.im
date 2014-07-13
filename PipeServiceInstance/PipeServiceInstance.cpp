@@ -313,7 +313,6 @@ void PipeServiceInstanceApplication::displayHelp(const tstring& name, const tstr
 //======================================================================================================================
 
 int main(int argc, char* argv[]) {
-	Sleep(10000);
 	PipeServiceInstanceApplication self;
 	self.run(argc, argv);
 	return 0;

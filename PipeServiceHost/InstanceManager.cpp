@@ -93,7 +93,7 @@ void InstanceConnection::run() {
 								}
 							}
 							else {
-								throw new exception(_T("InstanceConnection did not authenticate"));
+								throw tstring(_T("InstanceConnection did not authenticate"));
 							}
 						}
 						// Add message to instance incoming queue
@@ -125,6 +125,9 @@ void InstanceConnection::run() {
 			}
 		}
 		while(bytesRead != 0);	
+	}
+	catch(tstring e) {
+		pApp->logger().warning(tstring(_T("[InstanceConnection::run] Exception: ")) + e);
 	}
 	catch(exception e) {
 		pApp->logger().warning(tstring(_T("[InstanceConnection::run] Exception: ")) + e.what());
