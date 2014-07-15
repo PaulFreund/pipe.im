@@ -67,7 +67,7 @@ public:
 
 public:
 	tstring login(const tstring& account, const tstring& password);
-	void logout(const tstring& account, const tstring& token);
+	void logout(const tstring& token);
 	tstring loggedIn(const tstring& token);
 };
 

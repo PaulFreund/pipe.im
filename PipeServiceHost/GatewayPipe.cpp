@@ -39,6 +39,7 @@ std::vector<tstring> GatewayPipe::getOutgoing() {
 //----------------------------------------------------------------------------------------------------------------------
 
 void GatewayPipe::setConnection(InstanceConnection* connection) {
+	int j = 0;
 	// TODO
 }
 

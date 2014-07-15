@@ -90,8 +90,28 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, HTTPServerRequest
 	tstring command = parts[1];
 
 	//------------------------------------------------------------------------------------------------------------------
+	// Authenticated command
+	if(command == _T("authenticated")) {
+		tstring accountName = _T("");
+		NameValueCollection cookies;
+		request.getCookies(cookies);
+		if(cookies.has(_T("session"))) {
+			accountName = pApp->_gatewayWeb->loggedIn(cookies[_T("session")]);
+		}
+			
+		response.setContentType(_T("text/html"));
+
+		if(!accountName.empty())
+			response.send() << _T("true");
+		else
+			response.send() << _T("false");
+
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
 	// Login command
-	if(command == _T("login")) {
+	else if(command == _T("login")) {
 		tstring body = _T("");
 		if(request.getMethod() == HTTPServerRequest::HTTP_POST) {
 			request.stream() >> body;
@@ -128,15 +148,16 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, HTTPServerRequest
 	else if(command == _T("logout")) {
 		NameValueCollection cookies;
 		request.getCookies(cookies);
-		if(cookies.has(_T("session")) && cookies.has(_T("account"))) {
-			pApp->_gatewayWeb->logout(cookies[_T("account")], cookies[_T("session")]);
+		if(cookies.has(_T("session"))) {
+			pApp->_gatewayWeb->logout(cookies[_T("session")]);
 
-			HTTPCookie cookie(_T("session"), _T(""));
+			HTTPCookie cookie(_T("session"), _T("")); 
 			cookie.setMaxAge(0); // Deletes the cookie
 			cookie.setPath(_T("/"));
 			response.addCookie(cookie);
 			response.setContentType(_T("text/html"));
 			response.send() << _T("Logout successfull");
+			return true;
 		}
 		else {
 			throw tstring(_T("Invalid logout data"));
@@ -504,7 +525,7 @@ tstring GatewayWeb::login(const tstring& account, const tstring& password) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void GatewayWeb::logout(const tstring& account, const tstring& token) {
+void GatewayWeb::logout(const tstring& token) {
 	if(_webSessions.count(token) == 1)
 		_webSessions.erase(token);
 }
