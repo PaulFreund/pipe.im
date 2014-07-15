@@ -12,6 +12,7 @@
 #include <Poco/StreamCopier.h>
 #include <Poco/Net/WebSocket.h>
 #include <Poco/Net/NetException.h>
+#include <Poco/Net/HTTPServerRequestImpl.h>
 
 
 using namespace std;
@@ -350,19 +351,21 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 	shared_ptr<Account> account = shared_ptr<Account>(nullptr);
 	shared_ptr<AccountSession> session = shared_ptr<AccountSession>(nullptr);
+	tstring authToken = _T("");
 	bool associated = false;
 	bool closeSession = false;
 
 	try {
+		HTTPServerRequestImpl& reqImpl = static_cast<HTTPServerRequestImpl&>(request);
+		reqImpl.socket().setBlocking(false);
+
 		WebSocket ws(request, response);
 
 		pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket connection established")));
 
-		ws.setBlocking(false);
-		ws.setReceiveTimeout(Poco::Timespan(60 * 60, 0));
-
 		const int bufferSize = 10240;
 		ws.setReceiveBufferSize(bufferSize);
+		ws.setBlocking(false);
 
 		char buffer[bufferSize];
 		int flags;
@@ -371,12 +374,9 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 			this_thread::sleep_for(chrono::milliseconds(10));
 
 			// Receive from client
-			try {
-				// TODO: Find out why this throws up in non blocking mode
-				bytesRead = ws.receiveFrame(buffer, sizeof(buffer), flags);
+			bytesRead = ws.receiveFrame(buffer, sizeof(buffer), flags);
+			if(bytesRead > 0)
 				_incoming.push_back(tstring(buffer, bytesRead));
-			}
-			catch(TimeoutException&) {} // Not very good but works for the moment
 
 			// Send to pipe
 			for(auto& message : _incoming) {
@@ -386,7 +386,6 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 					if(!associated) {
 						tstring TokenConnectionGui = _T("connection_gui=");
 						tstring TokenConnectionShell = _T("connection_shell=");
-						tstring authToken = _T("");
 						bool enableShell = false;
 						if(startsWith(message, TokenConnectionGui)) {
 							enableShell = false;
@@ -442,7 +441,7 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 				}
 			}
 		}
-		while((bytesRead > 0 || (flags & WebSocket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE) && !closeSession);
+		while((bytesRead != 0 && (flags & WebSocket::FRAME_OP_BITMASK) != WebSocket::FRAME_OP_CLOSE) && !closeSession);
 
 		pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket connection closed")));
 
