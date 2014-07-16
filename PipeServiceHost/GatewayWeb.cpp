@@ -349,9 +349,7 @@ GatewayWebHandlerSocket::~GatewayWebHandlerSocket() {}
 
 void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServerResponse& response) {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
-	shared_ptr<Account> account = shared_ptr<Account>(nullptr);
-	shared_ptr<AccountSession> session = shared_ptr<AccountSession>(nullptr);
-	tstring authToken = _T("");
+	shared_ptr<InstanceSession> session = shared_ptr<InstanceSession>(nullptr);
 	bool associated = false;
 	bool closeSession = false;
 
@@ -386,14 +384,22 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 					if(!associated) {
 						tstring TokenConnectionGui = _T("connection_gui=");
 						tstring TokenConnectionShell = _T("connection_shell=");
+						tstring TokenConnectionShellAdmin = _T("connection_shell_admin=");
+
+						bool admin = false;
 						bool enableShell = false;
+						tstring authToken = _T("");
 						if(startsWith(message, TokenConnectionGui)) {
-							enableShell = false;
 							authToken = message.substr(TokenConnectionGui.length());
 						}
 						else if(startsWith(message, TokenConnectionShell)) {
 							enableShell = true;
 							authToken = message.substr(TokenConnectionShell.length());
+						}
+						else if(startsWith(message, TokenConnectionShellAdmin)) {
+							admin = true;
+							enableShell = true;
+							authToken = message.substr(TokenConnectionShellAdmin.length());
 						}
 
 						tstring accountName = pApp->_gatewayWeb->loggedIn(authToken);
@@ -401,20 +407,37 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 							_outgoing.push_back(_T("invalid_token"));
 						}
 						else {
-							account = pApp->_accountManager->account(accountName);
+							shared_ptr<Account> account = pApp->_accountManager->account(accountName);
 							if(account.get() == nullptr) {
 								_outgoing.push_back(_T("exit_error")); // TODO: think of something better
+								continue;
 							}
-							else {
-								session = make_shared<AccountSession>(authToken, account, [&](tstring message) {
+
+							if(admin) {
+								if(!account->admin()) {
+									_outgoing.push_back(_T("admin_error")); // TODO: think of something better
+									continue;
+								}
+
+								session = make_shared<InstanceSession>(authToken, pApp->_gatewayPipe, [&](tstring message) {
 									_outgoingMutex.lock();
 									_outgoing.push_back(message);
 									_outgoingMutex.unlock();
 								}, enableShell);
 
-								account->addSession(authToken, session.get());
+								pApp->_gatewayPipe->addSession(authToken, session.get());
 								associated = true;
+								continue;
 							}
+
+							session = make_shared<InstanceSession>(authToken, account, [&](tstring message) {
+								_outgoingMutex.lock();
+								_outgoing.push_back(message);
+								_outgoingMutex.unlock();
+							}, enableShell);
+
+							account->addSession(authToken, session.get());
+							associated = true;
 						}
 					}
 					else if(session.get() != nullptr) {

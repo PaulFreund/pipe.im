@@ -15,7 +15,7 @@ class PurpleInterfaceContact;
 
 class PurpleInterfaceAccount : public PipeServiceNode {
 private:
-	PurpleAccount* _account;
+	PurpleAccount* _client;
 	void* _currentRequestHandle;
 
 public:
@@ -24,7 +24,7 @@ public:
 
 public:
 	void init(const tstring& protocol_id);
-	PurpleAccount* accountHandle() { return _account; }
+	PurpleAccount* accountHandle() { return _client; }
 	bool hasRequestHandle(void* requestHandle);
 
 	//void* nextRequestHandle() {

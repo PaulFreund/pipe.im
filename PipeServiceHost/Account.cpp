@@ -16,58 +16,6 @@ const tstring Account::AccountFileName = _T("account.json");
 
 //======================================================================================================================
 
-AccountSession::AccountSession(const tstring& id, std::shared_ptr<Account> account, std::function<void(tstring)> cbClientOutput, bool enableShell)
-	: _id(id)
-	, _account(account)
-	, _cbClientOutput(cbClientOutput)
-	, _enableShell(enableShell)
-{
-	if(_enableShell) {
-		_shell = make_shared<PipeShell>(
-			_id,
-			_cbClientOutput,
-			[&](PipeJson msg) { if(_account.get() != nullptr) { _account->addOutgoing(msg.dump()); } },
-			true
-		);
-	}
-
-	if(_account.get() != nullptr)
-		_account->addSession(_id, this);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-AccountSession::~AccountSession() {
-	if(_account.get() != nullptr)
-		_account->removeSession(_id);
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-void AccountSession::clientInputAdd(const tstring& data) {
-	if(_enableShell) {
-		_shell->inputText(data);
-	}
-	else {
-		if(_account.get() != nullptr)
-			_account->addOutgoing(data);
-	}
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
-void AccountSession::accountIncomingAdd(const tstring& message) {
-	if(_enableShell) {
-		PipeObjectPtr messageObject = parseObject(message);
-		_shell->inputMessages(std::make_shared<PipeArray>(PipeArray { *messageObject }));
-	}
-	else {
-		_cbClientOutput(message);
-	}
-}
-
-//======================================================================================================================
-
 Account::Account(const tstring& path) 
 	: _path(path)
 	, _config(newObject())
@@ -95,16 +43,7 @@ Account::~Account() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Account::addOutgoing(const tstring& message) {
-	_mutexQueue.lock();
-	_outgoing.push_back(message);
-	_mutexQueue.unlock();
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-
 void Account::addIncoming(const tstring& message) {
-
 	if(_sessions.empty()) {
 		_mutexQueue.lock();
 		_incoming.push_back(message);
@@ -135,17 +74,19 @@ void Account::setConnection(InstanceConnection* connection) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-bool Account::authenticate(const tstring& suppliedPassword) {
-	return (password() == suppliedPassword);
+void Account::addOutgoing(const tstring& message) {
+	_mutexQueue.lock();
+	_outgoing.push_back(message);
+	_mutexQueue.unlock();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void Account::addSession(tstring id, AccountSession* session) {
+void Account::addSession(tstring id, InstanceSession* session) {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 
 	if(_sessions.count(id) != 0) {
-		pApp->logger().warning(tstring(_T("[Account::addSession] AccountSession already exists: ")) + id);
+		pApp->logger().warning(tstring(_T("[Account::addSession] InstanceSession already exists: ")) + id);
 		return;
 	}
 
@@ -167,7 +108,7 @@ void Account::removeSession(tstring id) {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 
 	if(_sessions.count(id) == 0) {
-		pApp->logger().warning(tstring(_T("[Account::removeSession] AccountSession could not be removed: ")) + id);
+		pApp->logger().warning(tstring(_T("[Account::removeSession] InstanceSession could not be removed: ")) + id);
 		return;
 	}
 
@@ -176,9 +117,25 @@ void Account::removeSession(tstring id) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+bool Account::authenticate(const tstring& suppliedPassword) {
+	return (password() == suppliedPassword);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+bool Account::admin() {
+	if(_config->count(_T("admin")) == 1)
+		return (*_config)[_T("admin")].bool_value();
+
+	return false;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void Account::createAccount(const tstring& account, const tstring& password) {
 	(*_config)[_T("account")] = account;
 	(*_config)[_T("password")] = password;
+	(*_config)[_T("admin")] = false;
 	writeConfig();
 }
 

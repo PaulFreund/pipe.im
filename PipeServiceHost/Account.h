@@ -7,26 +7,7 @@
 class PipeShell;
 class Account;
 class InstanceConnection;
-
-//======================================================================================================================
-
-class AccountSession { // Separated from GatewayWeb session, needs to know the account, needs to be known by the account, will be created by GatewayWeb and GatewayPipe and registered here in account, can be shell or not shell!
-private:
-	tstring _id;
-	std::shared_ptr<Account> _account;
-	const std::function<void(tstring)> _cbClientOutput;
-
-	bool _enableShell;
-	std::shared_ptr<PipeShell> _shell;
-
-public:
-	AccountSession(const tstring& id, std::shared_ptr<Account> account, std::function<void(tstring)> cbClientOutput, bool enableShell = false);
-	~AccountSession();
-
-public:
-	void clientInputAdd(const tstring& data);
-	void accountIncomingAdd(const tstring& message);
-};
+class InstanceSession;
 
 //======================================================================================================================
 
@@ -39,7 +20,7 @@ private:
 	PipeObjectPtr _config;
 	InstanceConnection* _connection;
 
-	std::map <tstring, AccountSession*> _sessions;
+	std::map <tstring, InstanceSession*> _sessions;
 
 	std::mutex _mutexQueue;
 	std::vector<tstring> _incoming;
@@ -51,17 +32,19 @@ public:
 	~Account();
 
 public:
-	void addOutgoing(const tstring& message);
+	virtual void addIncoming(const tstring& message);
+	virtual std::vector<tstring> getOutgoing();
+	virtual void setConnection(InstanceConnection* connection);
 
-	void addIncoming(const tstring& message);
-	std::vector<tstring> getOutgoing();
-	void setConnection(InstanceConnection* connection);
+	virtual void addOutgoing(const tstring& message);
+
+public:
+	virtual void addSession(tstring id, InstanceSession* session);
+	virtual void removeSession(tstring id);
 
 public:
 	bool authenticate(const tstring& suppliedPassword);
-
-	void addSession(tstring id, AccountSession* session);
-	void removeSession(tstring id);
+	bool admin();
 
 private:
 	void createAccount(const tstring& account, const tstring& password);
@@ -73,13 +56,3 @@ private:
 };
 
 //======================================================================================================================
-
-/*
-	* Gatewaydefinitionen statisch in config
-		* Host bekommt starre host.json oder so
-			* Ip adressen, gateways(bots) etc.
-	* Rest API fuer Anmelden, Registrieren, PW Vergessen, Leistungsumfang, User management, Account Management (PW change, contact fuer bots etc)
-		* Rest funktionen /rest/login, /rest/register mit POST daten, set-cookie im response header. Session objekt mit beziehung zu User-Object im client storen und bei jedem request mitgeben und aktiv bei websocket als erstes schicken. Evtl. koennte ich session=type oder so schicken fuer plain oder shell oder so :)
-		* Bei Web erst auf seite (rest) und session token wird dann ueber websocket als erstes gesendet  zum auth und zur user assoziazion
-		* Bei Bots gilt eintragen des controllers und gegenseitiges autorisieren als langzeitanmeldung
-*/

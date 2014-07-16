@@ -93,7 +93,7 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 			msgAccount[TokenMessageRef] = _T("");
 			msgAccount[TokenMessageAddress] = _T("pipe_host");
 			msgAccount[TokenMessageMessage] = _T("account");
-			msgAccount[TokenMessageData] = _account;
+			msgAccount[TokenMessageData] = _client;
 			outgoing.push_back(PipeJson(msgAccount).dump());
 
 			// Open socket
@@ -257,7 +257,7 @@ void PipeServiceInstanceApplication::defineOptions(OptionSet& options) {
 void PipeServiceInstanceApplication::readOptions() {
 	_debug = config().has(_T("debug"));
 
-	_account = config().getString(_T("account"), _T(""));
+	_client = config().getString(_T("account"), _T(""));
 
 	_address = config().getString(_T("address"), _T("127.0.0.1"));
 	_port = config().getInt(_T("port"), 9980);

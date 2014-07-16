@@ -18,6 +18,57 @@ using namespace Poco::Net;
 
 //======================================================================================================================
 
+InstanceSession::InstanceSession(const tstring& id, std::shared_ptr<InstanceClient> client, std::function<void(tstring)> cbClientOutput, bool enableShell)
+	: _id(id)
+	, _client(client)
+	, _cbClientOutput(cbClientOutput)
+	, _enableShell(enableShell) {
+	if(_enableShell) {
+		_shell = make_shared<PipeShell>(
+			_id,
+			_cbClientOutput,
+			[&](PipeJson msg) { if(_client.get() != nullptr) { _client->addOutgoing(msg.dump()); } },
+			true
+			);
+	}
+
+	if(_client.get() != nullptr)
+		_client->addSession(_id, this);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+InstanceSession::~InstanceSession() {
+	if(_client.get() != nullptr)
+		_client->removeSession(_id);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void InstanceSession::clientInputAdd(const tstring& data) {
+	if(_enableShell) {
+		_shell->inputText(data);
+	}
+	else {
+		if(_client.get() != nullptr)
+			_client->addOutgoing(data);
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void InstanceSession::accountIncomingAdd(const tstring& message) {
+	if(_enableShell) {
+		PipeObjectPtr messageObject = parseObject(message);
+		_shell->inputMessages(std::make_shared<PipeArray>(PipeArray { *messageObject }));
+	}
+	else {
+		_cbClientOutput(message);
+	}
+}
+
+//======================================================================================================================
+
 InstanceConnection::InstanceConnection(const StreamSocket& socket) : TCPServerConnection(socket) {}
 
 //----------------------------------------------------------------------------------------------------------------------

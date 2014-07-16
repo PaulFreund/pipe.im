@@ -17,7 +17,7 @@ public:
 
 private:
 	bool _help;
-	tstring _account;
+	tstring _client;
 	tstring _address;
 	int _port;
 	tstring _extdir;

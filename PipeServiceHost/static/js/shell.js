@@ -116,7 +116,10 @@ window.startShell = function () {
 		        }
 		    };
 
-		    socket.send('connection_shell=' + token);
+            if(window.admin === true)
+                socket.send('connection_shell_admin=' + token);
+            else
+                socket.send('connection_shell=' + token);
 
 		    var currentAddress = 'pipe> ';
 

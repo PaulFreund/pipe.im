@@ -23,12 +23,41 @@ public:
 
 //======================================================================================================================
 
+class InstanceSession;
 class InstanceClient {
 public:
 	virtual void addIncoming(const tstring& message) = 0;
 	virtual std::vector<tstring> getOutgoing() = 0;
 	virtual void setConnection(InstanceConnection* connection) = 0;
+	
+	virtual void addOutgoing(const tstring& message) = 0;
+	
+public:
+	virtual void addSession(tstring id, InstanceSession* session) = 0;
+	virtual void removeSession(tstring id) = 0;
 };
+
+//======================================================================================================================
+
+class PipeShell;
+class InstanceSession {
+private:
+	tstring _id;
+	std::shared_ptr<InstanceClient> _client;
+	const std::function<void(tstring)> _cbClientOutput;
+
+	bool _enableShell;
+	std::shared_ptr<PipeShell> _shell;
+
+public:
+	InstanceSession(const tstring& id, std::shared_ptr<InstanceClient> client, std::function<void(tstring)> cbClientOutput, bool enableShell = false);
+	~InstanceSession();
+
+public:
+	void clientInputAdd(const tstring& data);
+	void accountIncomingAdd(const tstring& message);
+};
+
 
 //======================================================================================================================
 

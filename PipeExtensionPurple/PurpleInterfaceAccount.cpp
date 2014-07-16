@@ -21,7 +21,7 @@ PurpleInterfaceAccount::PurpleInterfaceAccount(const tstring& address, const tst
 
 		tstring channel = message[_T("data")].string_value();
 
-		PurpleConnection* connection = purple_account_get_connection(_account);
+		PurpleConnection* connection = purple_account_get_connection(_client);
 		PurplePluginProtocolInfo* info = PURPLE_PLUGIN_PROTOCOL_INFO(purple_connection_get_prpl(connection));
 		//// TODO: This should be a command type later
 		//for(GList* comp = info->chat_info(connection); comp; comp = comp->next) {
@@ -30,7 +30,7 @@ PurpleInterfaceAccount::PurpleInterfaceAccount(const tstring& address, const tst
 
 		GHashTable* components = info->chat_info_defaults(connection, channel.c_str());
 
-		PurpleChat* channelBuddy = purple_chat_new(_account, channel.c_str(), components);
+		PurpleChat* channelBuddy = purple_chat_new(_client, channel.c_str(), components);
 
 		tstring channelAddressName = timplode(texplode(channel, TokenAddressSeparator), _T('_'));
 		tstring channelAddress = _address + TokenAddressSeparator + channelAddressName;
@@ -45,37 +45,37 @@ PurpleInterfaceAccount::PurpleInterfaceAccount(const tstring& address, const tst
 //----------------------------------------------------------------------------------------------------------------------
 
 PurpleInterfaceAccount::~PurpleInterfaceAccount() {
-	if(_account != nullptr)
-		purple_account_destroy(_account);
+	if(_client != nullptr)
+		purple_account_destroy(_client);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void PurpleInterfaceAccount::init(const tstring& protocol_id) {
-	_account = purple_account_new(_T(""), protocol_id.c_str());
-	if(_account == nullptr) {
+	_client = purple_account_new(_T(""), protocol_id.c_str());
+	if(_client == nullptr) {
 		pushOutgoing(_T(""), _T("error"), _T("Account could not be created"));
 		return;
 	}
 
 	for(auto& setting : *_settings) {
 		if(setting.first == _T("base_user")) {
-			purple_account_set_username(_account, setting.second.string_value().c_str());
+			purple_account_set_username(_client, setting.second.string_value().c_str());
 		}
 		else if(setting.first == _T("base_password")) {
-			purple_account_set_password(_account, setting.second.string_value().c_str());
+			purple_account_set_password(_client, setting.second.string_value().c_str());
 		}
 		else {
 			if(setting.second.is_string())
-				purple_account_set_string(_account, setting.first.c_str(), setting.second.string_value().c_str());
+				purple_account_set_string(_client, setting.first.c_str(), setting.second.string_value().c_str());
 			else if(setting.second.is_bool())
-				purple_account_set_bool(_account, setting.first.c_str(), setting.second.bool_value());
+				purple_account_set_bool(_client, setting.first.c_str(), setting.second.bool_value());
 			else if(setting.second.is_integer())
-				purple_account_set_int(_account, setting.first.c_str(), setting.second.int_value());
+				purple_account_set_int(_client, setting.first.c_str(), setting.second.int_value());
 		}
 	}
 
-	purple_account_set_enabled(_account, PurpleInterface::InterfaceID.c_str(), true);
+	purple_account_set_enabled(_client, PurpleInterface::InterfaceID.c_str(), true);
 
 	// TODO: Error handling
 }
