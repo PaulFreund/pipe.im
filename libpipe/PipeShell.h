@@ -362,10 +362,21 @@ private:
 					int max = schemaMessageNode.maxLength();
 					if(max != 0) { if(data.length() > max) { return _T("Error! String must not be longer than ") + to_tstring(max) + _T(" characters."); } }
 
-					tstring pattern = schemaMessageNode.pattern();
+					tstring pattern;
+					try {
+						pattern = schemaMessageNode.pattern();
+					}
+					catch(...) {
+						return _T("Compiling pattern failed");
+					}
 					if(!pattern.empty()) {
-						if(!std::regex_match(data, std::regex(pattern)))
-							return _T("Error! String does not match pattern (") + pattern + _T(").");
+						try {
+							if(!std::regex_match(data, std::regex(pattern)))
+								return _T("Error! String does not match pattern (") + pattern + _T(").");
+						}
+						catch(...) {
+							return _T("Matching pattern failed");
+						}
 					}
 
 					valueMessageNode = PipeJson(data);
