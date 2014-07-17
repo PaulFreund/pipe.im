@@ -38,7 +38,7 @@ void GatewayPipe::addIncoming(const tstring& message) {
 		}
 	}
 
-	PipeObjectPtr& msg = parseObject(message);
+	PipeObjectPtr msg = parseObject(message);
 	tstring address = (*msg)[TokenMessageAddress].string_value();
 	if(!startsWith(address, GatewayAddressIdentifier)) { return; }
 
