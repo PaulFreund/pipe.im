@@ -362,21 +362,10 @@ private:
 					int max = schemaMessageNode.maxLength();
 					if(max != 0) { if(data.length() > max) { return _T("Error! String must not be longer than ") + to_tstring(max) + _T(" characters."); } }
 
-					tstring pattern;
-					try {
-						pattern = schemaMessageNode.pattern();
-					}
-					catch(...) {
-						return _T("Compiling pattern failed");
-					}
+					tstring pattern = schemaMessageNode.pattern();
 					if(!pattern.empty()) {
-						try {
-							if(!std::regex_match(data, std::regex(pattern)))
-								return _T("Error! String does not match pattern (") + pattern + _T(").");
-						}
-						catch(...) {
-							return _T("Matching pattern failed");
-						}
+						if(!std::regex_match(data, std::regex(pattern)))
+							return _T("Error! String does not match pattern (") + pattern + _T(").");
 					}
 
 					valueMessageNode = PipeJson(data);
@@ -395,11 +384,8 @@ private:
 			}
 			return _T("");
 		}
-		catch(std::exception ex) {
-			return tstring(_T("Error! unexpected value (")) + ex.what() + tstring(_T(")"));
-		}
 		catch(...) {
-			return _T("Error! unexpected value");
+			return _T("Error! Interpreting value failed");
 		}
 	}
 
