@@ -384,6 +384,9 @@ private:
 			}
 			return _T("");
 		}
+		catch(std::exception ex) {
+			return tstring(_T("Error! unexpected value (")) + ex.what() + tstring(_T(")"));
+		}
 		catch(...) {
 			return _T("Error! unexpected value");
 		}
