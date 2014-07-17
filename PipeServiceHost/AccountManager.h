@@ -25,6 +25,7 @@ public:
 
 public:
 	std::shared_ptr<Account> account(const tstring& account);
+	const std::map<tstring, std::shared_ptr<Account>>& accounts();
 
 	void loadAccounts();
 	void createAccount(const tstring& account, const tstring& password);

@@ -19,6 +19,9 @@ GatewayPipe::GatewayPipe()
 {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 	InstanceManager::spawnInstance(GatewayPipe::GatewayPipeAccountName, pApp->_datadir + Path::separator() + GatewayPipe::GatewayPipeFolderName);
+
+
+	// TODO: Iterate over all accounts and create gateway instances according to gateways
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -28,16 +31,30 @@ GatewayPipe::~GatewayPipe() {}
 //----------------------------------------------------------------------------------------------------------------------
 
 void GatewayPipe::addIncoming(const tstring& message) {
-	if(_sessions.empty()) {
-		_mutexQueue.lock();
-		_incoming.push_back(message);
-		_mutexQueue.unlock();
-	}
-	else {
+	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
+
+	if(!_sessions.empty()) {
 		for(auto& session : _sessions) {
 			session.second->accountIncomingAdd(message);
 		}
 	}
+
+	//PipeObject& msg = *parseObject(message);
+	//tstring address = msg[TokenMessageAddress].string_value();
+
+	//// TODO: Split address
+
+	//// Add new gateways
+	//if(msg[TokenMessageMessage].string_value() == _T("signed_on")) {
+	//	for(auto& account : pApp->_accountManager->accounts()) {
+
+	//	}
+	//}
+	// Check if this is a new gateway
+	/*
+
+	*/
+	// TODO: Process messages
 }
 
 //----------------------------------------------------------------------------------------------------------------------

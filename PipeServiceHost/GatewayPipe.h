@@ -10,8 +10,9 @@ private:
 	std::map <tstring, InstanceSession*> _sessions;
 
 	std::mutex _mutexQueue;
-	std::vector<tstring> _incoming;
 	std::vector<tstring> _outgoing;
+
+	std::map<tstring, InstanceSession> _accountSessions;
 
 public:
 	static const tstring GatewayPipeFolderName;

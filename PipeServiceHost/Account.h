@@ -46,6 +46,11 @@ public:
 	bool authenticate(const tstring& suppliedPassword);
 	bool admin();
 
+public:
+	tstring getGatewayHandle(const tstring& gateway);
+	void setGatewayHandle(const tstring& gateway, const tstring& handle);
+	void removeGatewayHandle(const tstring& gateway);
+
 private:
 	void createAccount(const tstring& account, const tstring& password);
 	bool readConfig();

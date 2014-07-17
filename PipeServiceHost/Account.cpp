@@ -132,6 +132,37 @@ bool Account::admin() {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+tstring Account::getGatewayHandle(const tstring& gateway) {
+	auto& handles = (*_config)[_T("gatewayHandles")].object_items();
+	if(handles.count(gateway) == 1)
+		return handles[gateway].string_value();
+
+	return _T("");
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void Account::setGatewayHandle(const tstring& gateway, const tstring& handle) {
+	auto& handles = (*_config)[_T("gatewayHandles")].object_items();
+	handles[gateway] = handle;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void Account::removeGatewayHandle(const tstring& gateway) {
+	auto& handles = (*_config)[_T("gatewayHandles")].object_items();
+	if(handles.count(gateway) == 1) {
+		for(auto it = begin(handles); it != end(handles); it++) {
+			if(it->first == gateway) {
+				handles.erase(it);
+				break;
+			}
+		}
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void Account::createAccount(const tstring& account, const tstring& password) {
 	(*_config)[_T("account")] = account;
 	(*_config)[_T("password")] = password;

@@ -171,6 +171,17 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, HTTPServerRequest
 		// TODO
 	}
 
+	// TODO:
+	/*
+		- List user gateway accounts
+		- Add user gateway account
+		- List gateways
+		- Service management
+		
+		- Rest Pull
+		- Rest Push
+	*/
+
 	//------------------------------------------------------------------------------------------------------------------
 	// Users command
 	//if(command == _T("users")) {
@@ -232,38 +243,6 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, HTTPServerRequest
 		response.send() << PipeJson(files).dump();
 		return true;
 	}
-
-	// TODO: OLD COMMANDS
-	/*
-	// Get body if any
-	tstring body = _T("");
-	if(request.getMethod() == HTTPServerRequest::HTTP_POST) {
-		request.stream() >> body;
-	}
-	if(body.empty()) { response.setContentType(_T("application/json")); }
-
-	*/
-
-	//// Commands without
-	//else if(parts[1] == _T("push")) {
-	//	tstring err;
-	//	PipeJson message = PipeJson::parse(body, err);
-	//	PipeArrayPtr outgoing;
-	//	if(message.is_array())
-	//		outgoing = std::make_shared<PipeArray>(message.array_items());
-	//	else if(message.is_object())
-	//		outgoing = std::make_shared<PipeArray>(PipeArray { message });
-	//	else
-	//		return false;
-
-	//	LibPipe::push(outgoing);
-
-	//	return true;
-	//}
-	//else if(parts[1] == _T("pull")) {
-	//	responseStream << PipeJson(*LibPipe::pull()).dump();
-	//	return true;
-	//}
 
 	return false;
 }
@@ -415,7 +394,7 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 
 							if(admin) {
 								if(!account->admin()) {
-									_outgoing.push_back(_T("admin_error")); // TODO: think of something better
+									_outgoing.push_back(_T("no_admin_error")); // TODO: think of something better
 									continue;
 								}
 

@@ -41,6 +41,12 @@ shared_ptr<Account> AccountManager::account(const tstring& account) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+const map<tstring, shared_ptr<Account>>& AccountManager::accounts() {
+	return _accounts;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void AccountManager::loadAccounts() {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 
