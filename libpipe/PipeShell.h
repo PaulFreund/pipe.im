@@ -174,8 +174,8 @@ private:
 		_nodeLevel = texplode(_currentAddress, TokenAddressSeparator).size();
 		_clientState = None;
 
-		// InstanceConnection is complete
-		if(_instanceComplete) { return _T("InstanceConnection completed"); }
+		// Instance is complete
+		if(_instanceComplete) { return _T("Instance completed"); }
 
 		return queryValue();
 	}
@@ -553,7 +553,8 @@ class PipeShell {
 private:
 	//------------------------------------------------------------------------------------------------------------------
 	const tstring _greetingText = _T("Welcome to the pipe shell, type help for further assistance");
-	const tstring _abortText = _T("!abortcommand");
+	const tstring _abortText = _T("!abort");
+	const tstring _emptyText = _T("!empty");
 
 private:
 	//------------------------------------------------------------------------------------------------------------------
@@ -603,8 +604,9 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 
 	void inputText(const tstring& input) {
+		tstring inputValue = input;
 		// Abort command
-		if(input == _abortText) {
+		if(inputValue == _abortText) {
 			_sendBuffer.data.clear();
 			_helpInvoked = false;
 			_nextCommandStart = _T("");
@@ -612,10 +614,19 @@ public:
 			_cbOutputText(_T("Aborted command."));
 			return;
 		}
+		else if(inputValue == _emptyText) {
+			inputValue = _T("");
+		}
+		else if(input[0] == _T('\\')) {
+			if(input.substr(1) == _abortText)
+				inputValue = _abortText;
+			else if(input.substr(1) == _emptyText)
+				inputValue = _emptyText;
+		}
 
 		// New command
 		if(_sendBuffer.data.empty()) {
-			auto&& fragments = texplode(input, _T(' '));
+			auto&& fragments = texplode(inputValue, _T(' '));
 			if(fragments.size() <= 0) { return; }
 
 			// Extract possible address
@@ -637,7 +648,7 @@ public:
 		}
 		// This message has already been started
 		else {
-			tstring result = _sendBuffer.data.add(input);
+			tstring result = _sendBuffer.data.add(inputValue);
 			if(!result.empty())
 				_cbOutputText(result);
 
@@ -896,6 +907,9 @@ private:
 			outputBuffer << IndentSymbol << _T("[<address>] <command> <parameter>") << std::endl;
 			outputBuffer << std::endl;
 			outputBuffer << _T("You can abort a command at any time by sending \"") + _abortText + _T("\".") << std::endl;
+			outputBuffer << _T("You can set an empty value by sending \"") + _emptyText + _T("\".") << std::endl;
+			outputBuffer << std::endl;
+			outputBuffer << _T("If you need to supply one of these modifiers as a value prepend '\'") << std::endl;
 			_cbOutputText(outputBuffer.str());
 		}
 

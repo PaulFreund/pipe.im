@@ -12,12 +12,14 @@ private:
 	std::mutex _mutexQueue;
 	std::vector<tstring> _outgoing;
 
-	std::map<tstring, InstanceSession> _accountSessions;
+	std::map<tstring, tstring> _gateways;
+	std::map < tstring, std::map < tstring, std::shared_ptr < InstanceSession > > > _accountSessions;
 
 public:
 	static const tstring GatewayPipeFolderName;
 	static const tstring GatewayPipeAccountName;
-
+	static const tstring GatewayAddressIdentifier;
+	
 public:
 	GatewayPipe();
 	~GatewayPipe();
@@ -32,6 +34,13 @@ public:
 public:
 	virtual void addSession(tstring id, InstanceSession* session);
 	virtual void removeSession(tstring id);
+
+public:
+	const std::map<tstring, tstring>& gateways();
+
+private:
+	void addGateway(const tstring& name, const tstring& description);
+	void removeGateway(const tstring& name);
 };
 
 //======================================================================================================================

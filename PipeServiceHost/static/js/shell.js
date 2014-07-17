@@ -111,8 +111,8 @@ window.startShell = function () {
                         window.terminal.echo('Logout failed');
                     });
 		        }
-		        else {
-		            socket.send(input);
+		        else if(input.length > 0) {
+	                socket.send(input);
 		        }
 		    };
 

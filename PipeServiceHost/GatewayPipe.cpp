@@ -11,6 +11,7 @@ using namespace Poco::Util;
 
 const tstring GatewayPipe::GatewayPipeFolderName = _T("gateway_pipe");
 const tstring GatewayPipe::GatewayPipeAccountName = _T("host_gateway");
+const tstring GatewayPipe::GatewayAddressIdentifier = _T("pipe.gateway_");
 
 //======================================================================================================================
 
@@ -31,30 +32,44 @@ GatewayPipe::~GatewayPipe() {}
 //----------------------------------------------------------------------------------------------------------------------
 
 void GatewayPipe::addIncoming(const tstring& message) {
-	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
-
 	if(!_sessions.empty()) {
 		for(auto& session : _sessions) {
 			session.second->accountIncomingAdd(message);
 		}
 	}
 
-	//PipeObject& msg = *parseObject(message);
-	//tstring address = msg[TokenMessageAddress].string_value();
+	PipeObjectPtr& msg = parseObject(message);
+	tstring address = (*msg)[TokenMessageAddress].string_value();
+	if(!startsWith(address, GatewayAddressIdentifier)) { return; }
 
-	//// TODO: Split address
+	vector<tstring> addressParts = texplode(address.substr(GatewayAddressIdentifier.size()), TokenAddressSeparator);
+	if(addressParts.empty()) { return; }
 
-	//// Add new gateways
-	//if(msg[TokenMessageMessage].string_value() == _T("signed_on")) {
-	//	for(auto& account : pApp->_accountManager->accounts()) {
-
-	//	}
-	//}
-	// Check if this is a new gateway
-	/*
-
-	*/
-	// TODO: Process messages
+	tstring gatewayName = addressParts[0];
+	tstring msgType = (*msg)[TokenMessageMessage].string_value();
+	// Add new gateways
+	if(addressParts.size() == 1) {
+		if(msgType == _T("signed_on")) {
+			addGateway(gatewayName, _T("TODO: Add description"));
+		}
+		else if(msgType == _T("signed_off")) {
+			removeGateway(gatewayName);
+		}
+	}
+	else if(addressParts.size() >= 2) {
+		auto& gatewaySessions = _accountSessions[gatewayName];
+		if(gatewaySessions.empty()) { return; }
+		if(msgType == _T("message")) {
+			if(gatewaySessions.count(addressParts[1]) == 1) {
+				if(msg->count(TokenMessageData) && (*msg)[TokenMessageData].is_string()) { 
+					// TODO: Implement properly after purple plugin is done
+					tstring data = (*msg)[TokenMessageData].string_value();
+					data = data.substr(addressParts[1].size() + 2);
+					gatewaySessions[addressParts[1]]->clientInputAdd(data);
+				}
+			}
+		}
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -105,6 +120,48 @@ void GatewayPipe::removeSession(tstring id) {
 	}
 
 	_sessions.erase(id);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+const map<tstring, tstring>& GatewayPipe::gateways() {
+	return _gateways;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void GatewayPipe::addGateway(const tstring& name, const tstring& description) {
+	_gateways[name] = description;
+	auto& gatewaySessions = _accountSessions[name];
+
+	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
+
+	for(auto& account : pApp->_accountManager->accounts()) {
+		tstring handle = account.second->getGatewayHandle(name);
+		if(handle.empty()) { continue; }
+
+		tstring handleName = timplode(texplode(handle, TokenAddressSeparator), _T('_'));
+		tstring handleAddress = GatewayPipe::GatewayAddressIdentifier + name + TokenAddressSeparator + handleName;
+		gatewaySessions[handleName] = make_shared<InstanceSession>(handleName, account.second, [handleAddress, this](tstring output) {
+			PipeJson msg = PipeJson(PipeObject());
+			PipeObject& msgObj = msg.object_items();
+			msgObj[TokenMessageRef] = GatewayPipe::GatewayPipeAccountName;
+			msgObj[TokenMessageAddress] = handleAddress;
+			msgObj[TokenMessageCommand] = _T("say");
+			msgObj[TokenMessageData] = output;
+			addOutgoing(msg.dump());
+		}, true);
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void GatewayPipe::removeGateway(const tstring& name) {
+	if(_gateways.count(name) == 1)
+		_gateways.erase(name);
+
+	if(_accountSessions.count(name) == 1)
+		_accountSessions.erase(name);
 }
 
 //======================================================================================================================
