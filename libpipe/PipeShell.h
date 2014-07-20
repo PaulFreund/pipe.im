@@ -633,7 +633,7 @@ public:
 			auto address = _address;
 			if(fragments.size() >= 2) {
 				if(fragments[0] == TokenPipe || fragments[0].find_first_of(TokenAddressSeparator) != tstring::npos) {
-					address = fragments[0];
+					address = getAbsoluteAddress(fragments[0]);
 					fragments.erase(begin(fragments));
 				}
 			}
@@ -1045,8 +1045,11 @@ private:
 		else if(address == _T(".")) {
 			return _address;
 		}
+		else if(address[0] == TokenAddressSeparator && address.size() > 1) {
+			absolute = _address + address;
+		}
 		else if(!startsWith(address, TokenPipe)) {
-			absolute = _address + _T(".") + address;
+			absolute = _address + TokenAddressSeparator + address;
 		}
 
 		return absolute;
