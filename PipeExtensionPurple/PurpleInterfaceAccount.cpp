@@ -313,7 +313,8 @@ void PurpleInterfaceAccount::createCommandTypes() {
 //----------------------------------------------------------------------------------------------------------------------
 
 void PurpleInterfaceAccount::createMessageTypes() {
-	addMessageType(_T("connecting"), _T("The account is trying to connect"), PipeObject());
+	PipeObject emptyObject;
+	addMessageType(_T("connecting"), _T("The account is trying to connect"), emptyObject);
 
 	/*
 	void onConnecting();
