@@ -11,6 +11,9 @@ using namespace std;
 PurpleInterfaceAccount::PurpleInterfaceAccount(const tstring& address, const tstring& path, PipeObjectPtr settings, const tstring& instance_name, const tstring& instance_description)
 	: PipeServiceNode(address, path, settings, _T("purple_account"), _T("A purple chat account"), instance_name, instance_description, _T("purple_account")) {
 
+	createMessageTypes();
+	createCommandTypes();
+
 	auto cmdJoin = PipeSchema::Create(PipeSchemaTypeString).title(_T("Channel")).description(_T("Channel name"));
 	addCommand(_T("join"), _T("Test"), cmdJoin, [&](PipeObject& message) {
 		auto ref = message[_T("ref")].string_value();
@@ -115,7 +118,6 @@ PurpleInterfaceContact* PurpleInterfaceAccount::contactService(tstring name) {
 //----------------------------------------------------------------------------------------------------------------------
 
 void PurpleInterfaceAccount::onConnecting() {
-	// TODO
 	pushOutgoing(_T(""), _T("connecting"), _T(""));
 }
 
@@ -300,6 +302,54 @@ void* PurpleInterfaceAccount::onRequestFolder(PurpleConversation* conversation, 
 	// TODO
 	pushOutgoing(_T(""), _T("request_folder"), _T(""));
 	return nullptr; // TODO: Return made-up handle
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void PurpleInterfaceAccount::createCommandTypes() {
+
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+void PurpleInterfaceAccount::createMessageTypes() {
+	addMessageType(_T("connecting"), _T("The account is trying to connect"), PipeObject());
+
+	/*
+	void onConnecting();
+	void onDisabled();
+	void onEnabled();
+
+	void onAuthRequest(tstring user, tstring message = _T(""));
+	void onAuthDenied(tstring user);
+	void onAuthGranted(tstring user);
+
+	void onSignedOn();
+	void onSignedOff();
+
+	void onStatusChanged();
+	void onActionsChanged();
+
+	void onErrorChanged(tstring oldError, tstring newError);
+	void onConnectionError(tstring error, tstring description = _T(""));
+
+	void onContactAdded(PurpleBlistNode* contact);
+	void onContactRemoved(PurpleBlistNode* contact);
+
+	void onMessageUnknownSender(tstring sender, tstring message);
+	void onInvited(tstring who, tstring where, tstring message, GHashTable* joinData);
+
+	void onFileRecvUpdate(PurpleXfer *xfer);
+	void onFileSendUpdate(PurpleXfer *xfer);
+
+	void onCloseRequest(void* requestHandle);
+	void* onRequestInput(PurpleConversation* conversation, PurpleInterfaceRequestInputCb ok_cb, PurpleInterfaceRequestCancelCb cancel_cb, void* user_data, tstring who, tstring title, tstring ok_text, tstring cancel_text, tstring primary, tstring secondary, tstring default_value, tstring hint, bool multiline, bool masked);
+	void* onRequestChoice(PurpleConversation* conversation, PurpleInterfaceRequestChoiceCb ok_cb, PurpleInterfaceRequestCancelCb cancel_cb, void* user_data, tstring who, tstring title, tstring ok_text, tstring cancel_text, tstring primary, tstring secondary, int default_value, std::map<int, tstring> choices);
+	void* onRequestAction(PurpleConversation* conversation, void* user_data, tstring who, tstring title, tstring primary, tstring secondary, int default_action, std::map<int, std::pair<tstring, PurpleInterfaceRequestActionCb>> actions);
+	void* onRequestFile(PurpleConversation* conversation, PurpleInterfaceRequestFileCb ok_cb, PurpleInterfaceRequestCancelCb cancel_cb, void* user_data, tstring who, tstring title, tstring filanem, bool savedialog);
+	void* onRequestFolder(PurpleConversation* conversation, PurpleInterfaceRequestFolderCb ok_cb, PurpleInterfaceRequestCancelCb cancel_cb, void* user_data, tstring who, tstring title, tstring dirname);
+	
+	*/
 }
 
 //======================================================================================================================

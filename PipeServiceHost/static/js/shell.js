@@ -185,7 +185,7 @@ window.startShell = function () {
 
 		},
 		function (error) {
-		    term.error(new String(error));
+		    window.terminal.error(new String(error));
 		    window.authenticated = false;
 		    window.authenticate();
 		}
