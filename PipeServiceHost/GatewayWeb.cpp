@@ -279,6 +279,7 @@ void GatewayWebHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 	}
 
 	// Serve static files
+	uri = texplode(uri, _T('?'))[0];
 	File requestPath(pApp->_staticdir + uri);
 	pApp->logger().information(tstring(_T("[GatewayWebHandlerPage::handleRequest] File requested: ")) + requestPath.path());
 	if(requestPath.exists() && requestPath.canRead()) {
@@ -291,8 +292,10 @@ void GatewayWebHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 				contentType = _T("text/javascript");
 			else if(extension == _T("css"))
 				contentType = _T("text/css");
+			else if(extension == _T("json"))
+				contentType = _T("application/json");
 			else
-				throw _T("File type unknown");
+				contentType = _T("");
 
 			response.setContentType(contentType);
 			std::ifstream fileStream(requestPath.path());
