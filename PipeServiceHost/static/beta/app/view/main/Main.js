@@ -1,13 +1,14 @@
-Ext.define('PipeUI.view.Viewport', {
+Ext.define('PipeUI.view.main.Main', {
     extend: 'Ext.container.Viewport',
+	xtype: 'pipe-main-main',
 	
     layout: 'fit',
 	
 	requires: [
         'Ext.layout.container.Border',
-		'PipeUI.view.Status',
-		'PipeUI.view.Browser',
-		'PipeUI.view.Conversations'
+		'PipeUI.view.main.Status',
+		'PipeUI.view.main.Browser',
+		'PipeUI.view.main.Conversations'
     ],
 	
     items: [{
@@ -25,7 +26,7 @@ Ext.define('PipeUI.view.Viewport', {
 				height: 50,
 				minHeight: 50,
 				maxHeight: 50,
-				xtype: 'pipe-status'
+				xtype: 'pipe-main-status'
 			},
 			{
 				region:'west',
@@ -35,12 +36,12 @@ Ext.define('PipeUI.view.Viewport', {
 				width: 300,
 				minWidth: 150,
 				maxWidth: 300,
-				xtype: 'pipe-browser'
+				xtype: 'pipe-main-browser'
 			},
 			{
 				collapsible: false,
 				region: 'center',
-				xtype: 'pipe-conversations',
+				xtype: 'pipe-main-conversations',
 				bodyPadding: 10
 			}
 		]

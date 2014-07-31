@@ -1,6 +1,6 @@
-Ext.define('PipeUI.view.Conversations', {
+Ext.define('PipeUI.view.main.Conversations', {
     extend: 'Ext.tab.Panel',
-	xtype: 'pipe-conversations',
+	xtype: 'pipe-main-conversations',
 
 	requires: [
 	],
