@@ -1,37 +1,48 @@
 Ext.define('PipeUI.controller.Main', {
-    extend: 'Ext.app.Controller',
+	extend: 'Ext.app.Controller',
 
 	requires: [
-    'PipeUI.view.main.Main',
-    'PipeUI.view.login.LoginWindow'
+		'PipeUI.view.main.Main',
+		'PipeUI.view.login.LoginWindow'
 	],
 
 	onLaunch: function () {
-        this.login = new PipeUI.view.login.LoginWindow({
-        //    session: session,
-            autoShow: true,
-            listeners: {
-                scope: this,
-                close: 'onLogin' // TODO: Change to login
-            }
-        });
-    },
+		this.isAuthenticated();
+	},
 
-	onLogin: function () {
-        this.login.destroy();
+	isAuthenticated: function() {
+		var self = this;
+		Ext.Ajax.request({
+			url: '/rest/authenticated',
+			disableCaching: false,
+			success: function (response) {
+				if (response.responseText === 'true')
+					self.onAuthenticated();
+				else
+					self.onUnauthenticated();
+			},
+			failure: function (response, opts) {
+				self.onUnauthenticated();
+			}
+		});
+	},
 
-        //this.loginManager = loginManager;
-        //this.organization = organization;
-        //this.user = user;
+	onUnauthenticated: function () {
+		if (this.viewport) { this.viewport.destroy(); }
 
-        this.viewport = new PipeUI.view.main.Main({
-            session: this.session,
-            viewModel: {
-                data: {
-                    currentOrg: this.organization,
-                    currentUser: this.user
-                }
-            }
-        });
-    },
+		this.loginWindow = new PipeUI.view.login.LoginWindow({
+			autoShow: true,
+			listeners: {
+				scope: this,
+				loginComplete: function () {
+					this.isAuthenticated();
+				}
+			}
+		});
+	},
+
+	onAuthenticated: function () {
+		if (this.loginWindow) { this.loginWindow.destroy(); }
+		this.viewport = new PipeUI.view.main.Main();
+	},
 });

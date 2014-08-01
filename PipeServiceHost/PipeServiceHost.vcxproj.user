@@ -10,4 +10,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerCommandArguments>--extdir=$(SolutionDir)$(Configuration) --datadir=$(SolutionDir)$(Configuration)\PipeServiceHostData  --staticdir=$(SolutionDir)PipeServiceHost\static --instanceCommand=$(SolutionDir)$(Configuration)\PipeServiceInstance.exe --debug</LocalDebuggerCommandArguments>
   </PropertyGroup>
+  <PropertyGroup>
+    <ShowAllFiles>true</ShowAllFiles>
+  </PropertyGroup>
 </Project>

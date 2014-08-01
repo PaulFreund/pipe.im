@@ -140,7 +140,7 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, HTTPServerRequest
 		cookie.setPath(_T("/"));
 		response.addCookie(cookie);
 		response.setContentType(_T("text/html"));
-		response.send() << _T("Login successfull");
+		response.send() << _T("{\"success\": true, \"msg\": \"Login successfull\"}");
 		return true;
 	}
 
@@ -157,7 +157,7 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, HTTPServerRequest
 			cookie.setPath(_T("/"));
 			response.addCookie(cookie);
 			response.setContentType(_T("text/html"));
-			response.send() << _T("Logout successfull");
+			response.send() << _T("{\"success\": true, \"msg\": \"Logout successfull\"}");
 			return true;
 		}
 		else {
