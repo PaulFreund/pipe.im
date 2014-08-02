@@ -46,7 +46,7 @@ function Pipe(basePath) {
 
     //------------------------------------------------------------------------------------------------------------------
     // Internal helper for websocket connections
-    self.connect = function (uri, onSuccess, onError) {
+    self.connect = function (uri, onSuccess, onError, onClose) {
         var socket = new WebSocket('ws://' + self._basePath + '/' + uri);
         socket.onopen = function () {
             if (onSuccess !== undefined)
@@ -57,6 +57,10 @@ function Pipe(basePath) {
         socket.onerror = function (error) {
             if (onError !== undefined)
                 onError(error);
+        }
+        socket.onclose = function (code, reason, wasClean) {
+        	if (onClose !== undefined)
+        		onClose(code, reason, wasClean);
         }
     }
 

@@ -46,6 +46,8 @@ Ext.define('PipeUI.view.login.LoginWindow', {
 	title: 'Login',
 	closable: false,
 	resizable: false,
+	draggable: false,
+	modal: true,
 
 	bodyPadding: 10,
 
@@ -57,7 +59,6 @@ Ext.define('PipeUI.view.login.LoginWindow', {
 
 		items: [{
 			name: 'account',
-			bind: '{account}',
 			fieldLabel: 'Account',
 			allowBlank: false,
 			enableKeyEvents: true,

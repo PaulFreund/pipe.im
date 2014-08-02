@@ -54,6 +54,7 @@ public:
 	~InstanceSession();
 
 public:
+	const tstring& id() { return _id; }
 	void clientInputAdd(const tstring& data);
 	void accountIncomingAdd(const tstring& message);
 };

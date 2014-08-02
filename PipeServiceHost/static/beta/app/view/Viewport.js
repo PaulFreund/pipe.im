@@ -1,4 +1,4 @@
-Ext.define('PipeUI.view.main.Main', {
+Ext.define('PipeUI.view.Viewport', {
 	extend: 'Ext.container.Viewport',
 	xtype: 'pipe-main-main',
 

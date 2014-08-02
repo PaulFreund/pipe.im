@@ -63,4 +63,7 @@
       <Filter>Gateways</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="static\beta\app\controller\Connection.js" />
+  </ItemGroup>
 </Project>

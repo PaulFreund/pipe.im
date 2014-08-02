@@ -50,8 +50,23 @@ void Account::addIncoming(const tstring& message) {
 		_mutexQueue.unlock();
 	}
 	else {
-		for(auto& session : _sessions) {
-			session.second->accountIncomingAdd(message);
+		// Only send to referenced receipients
+		vector<tstring> referenced;
+		auto messageData = parseObject(message);
+
+		if(messageData->count(TokenMessageRef) == 1) {
+			referenced = texplode((*messageData)[TokenMessageRef].string_value(), _T(';'));
+		}
+
+		if(referenced.empty()) {
+			for(auto& session : _sessions) {
+				session.second->accountIncomingAdd(message);
+			}
+		}
+		else {
+			for(auto& ref : referenced) {
+				if(_sessions.count(ref) == 1) { _sessions[ref]->accountIncomingAdd(message); }
+			}
 		}
 	}
 }

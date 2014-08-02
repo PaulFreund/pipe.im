@@ -1,16 +1,20 @@
-Ext.define('PipeUI.controller.Main', {
+Ext.define('PipeUI.controller.Session', {
 	extend: 'Ext.app.Controller',
 
 	requires: [
-		'PipeUI.view.main.Main',
 		'PipeUI.view.login.LoginWindow'
 	],
+
+	init: function () {
+		this.application.on('isAuthenticated', this.isAuthenticated);
+	},
 
 	onLaunch: function () {
 		this.isAuthenticated();
 	},
 
 	isAuthenticated: function() {
+		Ext.log({ level: 'debug' }, '[Session::isAuthenticated]');
 		var self = this;
 		Ext.Ajax.request({
 			url: '/rest/authenticated',
@@ -28,8 +32,8 @@ Ext.define('PipeUI.controller.Main', {
 	},
 
 	onUnauthenticated: function () {
-		if (this.viewport) { this.viewport.destroy(); }
-
+		Ext.log({ level: 'debug' }, '[Session::onUnauthenticated]');
+		this.application.fireEvent('unauthenticated');
 		this.loginWindow = new PipeUI.view.login.LoginWindow({
 			autoShow: true,
 			listeners: {
@@ -42,7 +46,8 @@ Ext.define('PipeUI.controller.Main', {
 	},
 
 	onAuthenticated: function () {
+		Ext.log({ level: 'debug' }, '[Session::onAuthenticated]');
 		if (this.loginWindow) { this.loginWindow.destroy(); }
-		this.viewport = new PipeUI.view.main.Main();
+		this.application.fireEvent('authenticated');
 	},
 });

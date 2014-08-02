@@ -140,9 +140,11 @@ void GatewayPipe::addGateway(const tstring& name, const tstring& description) {
 		tstring handle = account.second->getGatewayHandle(name);
 		if(handle.empty()) { continue; }
 
+		tstring sessionId = pApp->generateUUID();
+
 		tstring handleName = timplode(texplode(handle, TokenAddressSeparator), _T('_'));
 		tstring handleAddress = GatewayPipe::GatewayAddressIdentifier + name + TokenAddressSeparator + handleName;
-		gatewaySessions[handleName] = make_shared<InstanceSession>(handleName, account.second, [handleAddress, this](tstring output) {
+		gatewaySessions[handleName] = make_shared<InstanceSession>(sessionId, account.second, [handleAddress, this](tstring output) {
 			PipeJson msg = PipeJson(PipeObject());
 			PipeObject& msgObj = msg.object_items();
 			msgObj[TokenMessageRef] = GatewayPipe::GatewayPipeAccountName;

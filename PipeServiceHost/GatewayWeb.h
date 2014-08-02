@@ -13,8 +13,6 @@
 #include <Poco/Net/ServerSocket.h>
 #include <Poco/Net/HTTPRequestHandler.h>
 #include <Poco/Net/HTTPRequestHandlerFactory.h>
-#include <Poco/UUIDGenerator.h>
-#include <Poco/UUID.h>
 
 //======================================================================================================================
 
@@ -58,8 +56,6 @@ private:
 	std::shared_ptr<Poco::Net::ServerSocket> _socket;
 	std::shared_ptr<Poco::Net::HTTPServer> _server;
 	std::map<tstring, tstring> _webSessions;
-	Poco::UUIDGenerator _uuidGenerator;
-
 
 public:
 	GatewayWeb();

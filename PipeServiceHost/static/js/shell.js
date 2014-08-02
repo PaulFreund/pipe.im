@@ -90,7 +90,7 @@ window.authenticate = function () {
 window.startShell = function () {
     window.terminal.set_mask(false);
 
-    var token = window.getCookie('session');
+    var token = window.getCookie('authToken');
     if (token == undefined || token.length == 0) {
         window.authenticated = false;
         authenticate();
@@ -116,13 +116,11 @@ window.startShell = function () {
 		        }
 		    };
 
-            if(window.admin === true)
-                socket.send('connection_shell_admin=' + token);
-            else
-                socket.send('connection_shell=' + token);
+		    socket.send(JSON.stringify({ request: 'login', admin: (window.admin === true), shell: true, authToken: token }));
 
 		    var currentAddress = 'pipe> ';
 
+		    var tokenLoginSuccess = '{"success":';
 		    var tokenNewAddress = 'New address: ';
 		    var tokenQueryOptional = 'Do you want to add ';
 		    var tokenQueryDefault = 'Do you want to use the default value ';
@@ -132,11 +130,14 @@ window.startShell = function () {
 		    var tokenCommandAborted = 'Aborted command'
 
 		    socket.onmessage = function (message) {
-		        var messagesText = message.data.toString();
+		    	var messagesText = message.data.toString();
+
 		        var messages = messagesText.split('\n');
 		        for (var message in messages) {
 		            var messageText = messages[message];
-		            // New address
+		            if (messageText.indexOf(tokenLoginSuccess) == 0) { continue; }
+
+		        	// New address
 		            if (messageText.indexOf(tokenNewAddress) == 0) {
 		                var newAddress = messageText.substr(tokenNewAddress.length).trim();
 		                currentAddress = newAddress + '> ';
@@ -188,6 +189,10 @@ window.startShell = function () {
 		    window.terminal.error(new String(error));
 		    window.authenticated = false;
 		    window.authenticate();
+		},
+		function (code, reason, wasClean) {
+			window.authenticated = false;
+			window.authenticate();
 		}
 	);
 };

@@ -14,6 +14,9 @@
 #include <Poco/Util/ServerApplication.h>
 #include <Poco/Util/OptionSet.h>
 
+#include <Poco/UUIDGenerator.h>
+#include <Poco/UUID.h>
+
 //======================================================================================================================
 
 class PipeServiceHost : public Poco::Util::ServerApplication {
@@ -34,6 +37,8 @@ public:
 	int _instancePort = 9980;
 	tstring _instanceCommand;
 
+	Poco::UUIDGenerator _uuidGenerator;
+
 	std::shared_ptr<InstanceManager> _instanceManager;
 	std::shared_ptr<AccountManager> _accountManager;
 
@@ -51,6 +56,8 @@ public:
 	void readOptions();
 
 	void displayHelp(const tstring& name, const tstring& value);
+
+	tstring generateUUID();
 };
 
 //======================================================================================================================

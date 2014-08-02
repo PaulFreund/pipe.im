@@ -109,6 +109,9 @@
     <ClInclude Include="InstanceManager.h" />
     <ClInclude Include="GatewayWeb.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="static\beta\app\controller\Connection.js" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

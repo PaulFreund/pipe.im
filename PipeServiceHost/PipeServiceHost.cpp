@@ -176,6 +176,9 @@ void PipeServiceHost::readOptions() {
 	if(_webserverPath[0] != _T('/'))
 		_webserverPath = _T("/") + _webserverPath;
 
+	if(_webserverPath[_webserverPath.size() - 1] != _T('/'))
+		_webserverPath += _T("/");
+
 	_instanceAddress = config().getString(_T("instanceAddress"), _T("127.0.0.1"));
 	_instancePort = config().getInt(_T("instancePort"), 9991);
 	_instanceCommand = config().getString(_T("instanceCommand"), _T("PipeServiceInstance"));
@@ -186,6 +189,12 @@ void PipeServiceHost::readOptions() {
 void PipeServiceHost::displayHelp(const tstring& name, const tstring& value) {
 	_help = true;
 	stopOptionsProcessing();
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+tstring PipeServiceHost::generateUUID() {
+	return _uuidGenerator.createOne().toString();
 }
 
 //======================================================================================================================

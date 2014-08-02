@@ -96,8 +96,8 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, HTTPServerRequest
 		tstring accountName = _T("");
 		NameValueCollection cookies;
 		request.getCookies(cookies);
-		if(cookies.has(_T("session"))) {
-			accountName = pApp->_gatewayWeb->loggedIn(cookies[_T("session")]);
+		if(cookies.has(_T("authToken"))) {
+			accountName = pApp->_gatewayWeb->loggedIn(cookies[_T("authToken")]);
 		}
 			
 		response.setContentType(_T("text/html"));
@@ -135,7 +135,7 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, HTTPServerRequest
 		tstring token = pApp->_gatewayWeb->login(account, password);
 		if(token.empty()) { throw tstring(_T("Invalid login data")); }
 
-		HTTPCookie cookie(_T("session"), token);
+		HTTPCookie cookie(_T("authToken"), token);
 		cookie.setMaxAge(86400);
 		cookie.setPath(_T("/"));
 		response.addCookie(cookie);
@@ -149,10 +149,10 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, HTTPServerRequest
 	else if(command == _T("logout")) {
 		NameValueCollection cookies;
 		request.getCookies(cookies);
-		if(cookies.has(_T("session"))) {
-			pApp->_gatewayWeb->logout(cookies[_T("session")]);
+		if(cookies.has(_T("authToken"))) {
+			pApp->_gatewayWeb->logout(cookies[_T("authToken")]);
 
-			HTTPCookie cookie(_T("session"), _T("")); 
+			HTTPCookie cookie(_T("authToken"), _T("")); 
 			cookie.setMaxAge(0); // Deletes the cookie
 			cookie.setPath(_T("/"));
 			response.addCookie(cookie);
@@ -215,14 +215,10 @@ bool GatewayWebHandlerPage::handleCommands(const tstring& uri, HTTPServerRequest
 		}
 		if(parameter.size() >= 2) {
 			path += Path::separator();
-			tstring uriPath = pApp->_webserverPath;
 			tstring subPath = _T("/") + parameter[0];
 
-			if(uriPath[uriPath.size() - 1] != _T('/'))
-				uriPath += _T("/");
-
-			if(subPath.compare(0, uriPath.length(), uriPath) == 0)
-				subPath = subPath.substr(uriPath.length() - 1);
+			if(subPath.compare(0, pApp->_webserverPath.length(), pApp->_webserverPath) == 0)
+				subPath = subPath.substr(pApp->_webserverPath.length() - 1);
 
 			path += subPath;
 		}
@@ -255,16 +251,9 @@ void GatewayWebHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 
 	auto uri = request.getURI();
-	auto uriPath = pApp->_webserverPath;
-	if(uriPath[uriPath.size() - 1] != _T('/'))
-		uriPath += _T("/");
 
-	if(uri.compare(0, uriPath.length(), uriPath) == 0)
-		uri = uri.substr(uriPath.length() - 1);
-
-	if(uri.length() == 0 || uri == _T("/")) {
-		uri = _T("/index.html");
-	}
+	if(uri.compare(0, pApp->_webserverPath.length(), pApp->_webserverPath) == 0)
+		uri = uri.substr(pApp->_webserverPath.length() - 1);
 
 	// Handle commands
 	try {
@@ -278,8 +267,13 @@ void GatewayWebHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 		return;
 	}
 
-	// Serve static files
+	//// Serve static files
+	// Remove any options from URI
 	uri = texplode(uri, _T('?'))[0];
+
+	if(uri[uri.size() - 1] == _T('/'))
+		uri += _T("index.html");
+
 	File requestPath(pApp->_staticdir + uri);
 	pApp->logger().information(tstring(_T("[GatewayWebHandlerPage::handleRequest] File requested: ")) + requestPath.path());
 	if(requestPath.exists() && requestPath.canRead()) {
@@ -364,61 +358,65 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 
 				try {
 					if(!associated) {
-						tstring TokenConnectionGui = _T("connection_gui=");
-						tstring TokenConnectionShell = _T("connection_shell=");
-						tstring TokenConnectionShellAdmin = _T("connection_shell_admin=");
+						auto request = parseObject(message);
+						if(request->count(_T("request")) != 1 || request->count(_T("authToken")) != 1) {
+							_outgoing.push_back(_T("{\"success\": false, \"msg\": \"Invalid request\"}"));
+							continue;
+						}
+
+						tstring action = (*request)[_T("request")].string_value();
+						if(action != _T("login")) {
+							_outgoing.push_back(_T("{\"success\": false, \"msg\": \"Unknown request\"}"));
+							continue;
+						}
+
+						tstring authToken = (*request)[_T("authToken")].string_value();;
 
 						bool admin = false;
 						bool enableShell = false;
-						tstring authToken = _T("");
-						if(startsWith(message, TokenConnectionGui)) {
-							authToken = message.substr(TokenConnectionGui.length());
-						}
-						else if(startsWith(message, TokenConnectionShell)) {
-							enableShell = true;
-							authToken = message.substr(TokenConnectionShell.length());
-						}
-						else if(startsWith(message, TokenConnectionShellAdmin)) {
+
+						if(request->count(_T("admin")) == 1 && (*request)[_T("admin")].bool_value())
 							admin = true;
+
+						if(request->count(_T("shell")) == 1 && (*request)[_T("shell")].bool_value())
 							enableShell = true;
-							authToken = message.substr(TokenConnectionShellAdmin.length());
-						}
 
 						tstring accountName = pApp->_gatewayWeb->loggedIn(authToken);
 						if(accountName.empty()) {
-							_outgoing.push_back(_T("invalid_token"));
+							_outgoing.push_back(_T("{\"success\": false, \"msg\": \"Invalid authToken\"}"));
 						}
 						else {
 							shared_ptr<Account> account = pApp->_accountManager->account(accountName);
 							if(account.get() == nullptr) {
-								_outgoing.push_back(_T("exit_error")); // TODO: think of something better
+								_outgoing.push_back(_T("{\"success\": false, \"msg\": \"Could not find account\"}"));
 								continue;
 							}
 
+							tstring sessionId = pApp->generateUUID();
+
 							if(admin) {
 								if(!account->admin()) {
-									_outgoing.push_back(_T("no_admin_error")); // TODO: think of something better
+									_outgoing.push_back(_T("{\"success\": false, \"msg\": \"Missing administration priviliges\"}"));
 									continue;
 								}
 
-								session = make_shared<InstanceSession>(authToken, pApp->_gatewayPipe, [&](tstring message) {
+								session = make_shared<InstanceSession>(sessionId, pApp->_gatewayPipe, [&](tstring message) {
 									_outgoingMutex.lock();
 									_outgoing.push_back(message);
 									_outgoingMutex.unlock();
 								}, enableShell);
 
-								pApp->_gatewayPipe->addSession(authToken, session.get());
 								associated = true;
 								continue;
 							}
 
-							session = make_shared<InstanceSession>(authToken, account, [&](tstring message) {
+							session = make_shared<InstanceSession>(sessionId, account, [&](tstring message) {
 								_outgoingMutex.lock();
 								_outgoing.push_back(message);
 								_outgoingMutex.unlock();
 							}, enableShell);
 
-							account->addSession(authToken, session.get());
+							_outgoing.push_back(tstring(_T("{\"success\": true, \"session\": \"")) + sessionId + tstring(_T("\"}")));
 							associated = true;
 						}
 					}
@@ -522,7 +520,7 @@ tstring GatewayWeb::login(const tstring& account, const tstring& password) {
 		return _T("");
 	}
 
-	tstring token = _uuidGenerator.createOne().toString();
+	tstring token = pApp->generateUUID();
 	_webSessions[token] = account;
 	return token;
 }
