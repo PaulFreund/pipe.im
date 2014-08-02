@@ -27,26 +27,46 @@ Ext.define('PipeUI.controller.Connection', {
 	},
 
 	onConnected: function() {
-		Ext.log({ level: 'debug' }, '[Connection::onConnected]');	
+		Ext.log({ level: 'debug' }, '[Connection::onConnected]');
+		this.sessionRequested = true;
 		this.socket.send(JSON.stringify({request: 'login', admin: false, shell: false, authToken: Ext.util.Cookies.get('authToken')}));
 	},
 
 	onConnectionError: function () {
 		Ext.log({ level: 'debug' }, '[Connection::onConnectionError]');
-		this.onDisconnected();
+		this.cleanup()
 	},
 
 	onDisconnected: function (code, reason, wasClean) {
 		Ext.log({ level: 'debug' }, '[Connection::onDisconnected] ' + reason);
-		try {
-			this.socket.close();
-		}
-		catch (e) {}
-		this.socket = null;
+		this.cleanup()
 	},
 
 	onMessage: function (message) {
-		Ext.log({ level: 'debug' }, '[Connection::onMessage] ' + message.data.toString());
+		var messageText = message.data.toString();
+		Ext.log({ level: 'debug' }, '[Connection::onMessage] ' + messageText);
+		var data = JSON.parse(messageText);
+		if (this.sessionRequested) {
+			if (data.success && data.session !== undefined) {
+				Ext.log({ level: 'debug' }, '[Connection::onMessage] Got session: ' + data.session);
+				this.session = data.session;
+				this.sessionRequested = false;
+				this.onReady();
+			}
+		}
+	},
+
+	cleanup: function () {
+		if(this.socket !== undefined) {
+			try {
+				this.socket.close();
+			}
+			catch (e) { }
+		}
+
+		this.session = undefined;
+		this.sessionRequested = false;
+		this.socket = undefined;
 	}
 });
 
