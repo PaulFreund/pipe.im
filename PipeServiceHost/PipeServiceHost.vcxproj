@@ -111,6 +111,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="static\beta\app\controller\Connection.js" />
+    <None Include="static\beta\app\model\ServiceNode.js" />
+    <None Include="static\beta\app\store\Services.js" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

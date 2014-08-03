@@ -20,13 +20,17 @@
 		<script type="text/javascript">
 			Ext.application({
 				name: 'PipeUI',
-				
+
+				models: ['ServiceNode'],
+
+				stores: ['Services'],
+
 				controllers: [
-					'Session',
-					'Connection'
+					'Connection',
+					'Session'
 				],
 
-				autoCreateViewport: true
+				autoCreateViewport: true,
 			});
 		</script>
 

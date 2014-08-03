@@ -1,30 +1,15 @@
 //======================================================================================================================
 
-Ext.define('PipeUI.view.main.Conversations', {
+Ext.define('PipeUI.store.Services', {
 	//------------------------------------------------------------------------------------------------------------------
 
-	extend: 'Ext.tab.Panel',
-	xtype: 'pipe-main-conversations',
-
-	requires: [
-	],
+	extend: 'Ext.data.TreeStore',
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	defaults: {
-		closable: true
-	},
-
-	items: [{
-		title: 'Active Tab',
-		html: "Hi"
-	}, {
-		title: 'Inactive Tab',
-		html: "There"
-	}, {
-		title: 'Disabled Tab',
-		disabled: true
-	}],
+	model: 'PipeUI.model.ServiceNode',
+	autoLoad: false,
+	autoSync: false
 
 	//------------------------------------------------------------------------------------------------------------------
 });

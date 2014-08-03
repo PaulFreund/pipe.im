@@ -1,30 +1,18 @@
 //======================================================================================================================
 
-Ext.define('PipeUI.view.main.Conversations', {
+Ext.define('PipeUI.model.ServiceNode', {
 	//------------------------------------------------------------------------------------------------------------------
 
-	extend: 'Ext.tab.Panel',
-	xtype: 'pipe-main-conversations',
+	extend: 'Ext.data.TreeModel',
 
-	requires: [
+	//------------------------------------------------------------------------------------------------------------------
+
+	idProperty: 'address',
+//	childType: 'ServiceNode',
+	fields: [
+		{ name: 'address', type: 'string' },
+		{ name: 'data', type: 'auto' }
 	],
-
-	//------------------------------------------------------------------------------------------------------------------
-
-	defaults: {
-		closable: true
-	},
-
-	items: [{
-		title: 'Active Tab',
-		html: "Hi"
-	}, {
-		title: 'Inactive Tab',
-		html: "There"
-	}, {
-		title: 'Disabled Tab',
-		disabled: true
-	}],
 
 	//------------------------------------------------------------------------------------------------------------------
 });
