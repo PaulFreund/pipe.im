@@ -6,9 +6,9 @@ Ext.define('PipeUI.controller.Session', {
 	extend: 'Ext.app.Controller',
 
 	views: [
-		'main.Status',
-		'main.Browser',
-		'main.Conversations'
+		'status.Status',
+		'browser.Browser',
+		'conversations.Conversations'
 	],
 
 	stores: ['Services'],
@@ -50,6 +50,22 @@ Ext.define('PipeUI.controller.Session', {
 			node.set('text', msg.data.instance_name);
 			node.set('info', msg.data);
 		}
+		else if(msg.message === 'node_added') {
+			var node = this.getServiceNode(msg.data);
+			this.send({ address: msg.data, command: 'info' });
+		}
+		else if(msg.message === 'node_removed') {
+			var node = this.getServiceNode(msg.data);
+			// TODO: Debug
+			node.erase();
+		}
+		else if(msg.message === 'node_info_updated') {
+			this.send({ address: msg.data, command: 'info' });
+		}
+		else {
+
+		}
+
 	},
 
 	//------------------------------------------------------------------------------------------------------------------
