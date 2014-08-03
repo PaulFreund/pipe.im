@@ -120,7 +120,6 @@ Ext.define('PipeUI.controller.Connection', {
 			return;
 		}
 
-		console.log(data);
 		this.socket.send(JSON.stringify(data));
 	},
 

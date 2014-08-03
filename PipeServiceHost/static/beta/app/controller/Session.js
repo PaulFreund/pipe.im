@@ -36,8 +36,8 @@ Ext.define('PipeUI.controller.Session', {
 	},
 
 	onMessage: function (msg) {
-		if (msg.message === 'children') {
-			if (msg.data && msg.data.length > 0) {
+		if(msg.message === 'children') {
+			if(msg.data && msg.data.length > 0) {
 				Ext.Array.forEach(msg.data, function (child) {
 					var node = this.getServiceNode(child);
 					this.send({ address: child, command: 'children' });
@@ -45,7 +45,7 @@ Ext.define('PipeUI.controller.Session', {
 				}, this);
 			}
 		}
-		else if (msg.message === 'info') {
+		else if(msg.message === 'info') {
 			var node = this.getServiceNode(msg.data.address);
 			node.set('text', msg.data.instance_name);
 			node.set('info', msg.data);
@@ -62,25 +62,25 @@ Ext.define('PipeUI.controller.Session', {
 	getServiceNode: function (address) {
 		var store = this.getServicesStore();
 		var root = store.getRoot();
-		if (address == 'pipe') { return root; }
+		if(address == 'pipe') { return root; }
 
-		var child = root.findChild('address', address);
+		var child = root.findChild('address', address, true);
 
-		if (child != null) { return child; }
+		if(child != null) { return child; }
 		var parent = root;
 
 		// Ensure creation of parents
 		var path = address.split('.');
-		if (path.length > 1) {
+		if(path.length > 1) {
 			path.splice(-1, 1);
 			parent = this.getServiceNode(path.join('.'));
 		}
 
-		if (!parent.data.expandable)
+		if(!parent.data.expandable)
 			parent.set('expandable', true);
 
 		// Create new child node
-		var newChild = root.createNode({
+		var newChild = parent.createNode({
 			address: address,
 			text: address,
 			expandable: false,
