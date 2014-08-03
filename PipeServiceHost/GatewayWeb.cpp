@@ -421,7 +421,13 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 						}
 					}
 					else if(session.get() != nullptr) {
-						session->clientInputAdd(message);
+						// I don't know why yet but chrome sends this when the tab is reloaded
+						if(message.length() == 2 && message[0] == static_cast<TCHAR>(0x03) && message[1] == static_cast<TCHAR>(0xE9)) {
+							pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Strange token received")) + message);
+						}
+						else {
+							session->clientInputAdd(message);
+						}
 					}
 				}
 				catch(...) {}

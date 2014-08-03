@@ -40,8 +40,6 @@ Ext.define('PipeUI.view.Viewport', {
 				split: true,
 				collapsible: true,
 				width: 300,
-				minWidth: 150,
-				maxWidth: 300,
 				xtype: 'pipe-main-browser'
 			},
 			{

@@ -27,35 +27,6 @@ Ext.define('PipeUI.controller.Session', {
 		this.session = session;
 
 		this.send({ address: 'pipe', command: 'children' });
-		this.send({ address: 'pipe', command: 'info' });
-
-		var store = this.getServicesStore();
-
-		store.add(PipeUI.model.ServiceNode.create({
-			id: 'pipe',
-			address: 'pipe',
-			text: "Pipe",
-			leaf: true,
-			data: {}
-		}));
-
-		store.add(PipeUI.model.ServiceNode.create({
-			id: 'pipe.test',
-			address: 'pipe.test',
-			text: "Test",
-			leaf: true,
-			data: {}
-		}));
-
-		debugger;
-
-		store.getNodeById('pipe').add(PipeUI.model.ServiceNode.create({
-			id: 'pipe.blarg',
-			text: "Blarg",
-			leaf: true,
-			data: {}
-		}));
-
 	},
 
 	onDisconnected: function () {
@@ -68,17 +39,16 @@ Ext.define('PipeUI.controller.Session', {
 		if (msg.message === 'children') {
 			if (msg.data && msg.data.length > 0) {
 				Ext.Array.forEach(msg.data, function (child) {
-					//var node = this.getServiceNode(child);
-					//node.text = child;
+					var node = this.getServiceNode(child);
 					this.send({ address: child, command: 'children' });
 					this.send({ address: child, command: 'info' });
 				}, this);
 			}
 		}
 		else if (msg.message === 'info') {
-			//var node = this.getServiceNode(child);
-			//node.text = msg.data.instance_name;
-			//node.data = msg.data;
+			var node = this.getServiceNode(msg.data.address);
+			node.set('text', msg.data.instance_name);
+			node.set('info', msg.data);
 		}
 	},
 
@@ -89,28 +59,36 @@ Ext.define('PipeUI.controller.Session', {
 		this.application.fireEvent('send', data);
 	},
 
-	getServiceNode: function(address) {
+	getServiceNode: function (address) {
 		var store = this.getServicesStore();
+		var root = store.getRoot();
+		if (address == 'pipe') { return root; }
 
+		var child = root.findChild('address', address);
 
+		if (child != null) { return child; }
+		var parent = root;
+
+		// Ensure creation of parents
 		var path = address.split('.');
-		debugger;
-		var currentNode = store.getRoot();
-		for (seg in path) {
-			/*
-			if (!path.hasOwnProperty(seg)) { continue; }
-			var node = currentNode.getNodeById(path[seg]);
-			if(!node) { currentNode.add(); }
-			currentNode = 
-			*/
+		if (path.length > 1) {
+			path.splice(-1, 1);
+			parent = this.getServiceNode(path.join('.'));
 		}
-		store.getNodeById()
 
-		store.add(PipeUI.model.ServiceNode.create({
-			id: address,
+		if (!parent.data.expandable)
+			parent.set('expandable', true);
+
+		// Create new child node
+		var newChild = root.createNode({
+			address: address,
 			text: address,
-			data: {}
-		}));
+			expandable: false,
+			info: {}
+		});
+
+		parent.appendChild(newChild);
+		return newChild;
 	}
 });
 
