@@ -114,7 +114,6 @@
     <None Include="static\client\app\model\ServiceNode.js" />
     <None Include="static\client\app\store\Services.js" />
     <None Include="static\client\app\view\conversations\Conversation.js" />
-    <None Include="static\client\app\view\conversations\ConversationController.js" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

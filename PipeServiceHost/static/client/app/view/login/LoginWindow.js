@@ -4,7 +4,7 @@ Ext.define('PipeUI.view.login.LoginWindowController', {
 	//------------------------------------------------------------------------------------------------------------------
 
 	extend: 'Ext.app.ViewController',
-	alias: 'controller.loginController',
+	alias: 'controller.LoginWindowController',
 
 	//------------------------------------------------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ Ext.define('PipeUI.view.login.LoginWindow', {
 
 	extend: 'Ext.window.Window',
 	xtype: 'pipe-login-loginwindow',
-	controller: 'loginController',
+	controller: 'LoginWindowController',
 
 	//------------------------------------------------------------------------------------------------------------------
 

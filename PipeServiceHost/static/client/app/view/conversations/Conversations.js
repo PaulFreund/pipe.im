@@ -6,8 +6,9 @@ Ext.define('PipeUI.view.conversations.Conversations', {
 	extend: 'Ext.tab.Panel',
 	xtype: 'pipe-conversations-conversations',
 
-	requires: [
-	],
+	//------------------------------------------------------------------------------------------------------------------
+
+	controller: 'ConversationsController',
 
 	//------------------------------------------------------------------------------------------------------------------
 
@@ -27,6 +28,38 @@ Ext.define('PipeUI.view.conversations.Conversations', {
 	}],
 
 	//------------------------------------------------------------------------------------------------------------------
+});
+
+//======================================================================================================================
+
+Ext.define('PipeUI.view.conversations.ConversationsController', {
+	extend: 'Ext.app.ViewController',
+	alias: 'controller.ConversationsController',
+
+	config: {
+		listen: {
+			global: {
+				session: 'onSession',
+				disconnected: 'onDisconnected',
+				message: 'onMessage',
+			}
+		}
+	},
+
+	onSession: function (session) {
+		this.session = session;
+	},
+
+	onDisconnected: function () {
+		this.session = undefined;
+	},
+
+	onMessage: function (msg) {
+	},
+
+	send: function (data) {
+		Ext.GlobalEvents.fireEvent('send', data);
+	}
 });
 
 //======================================================================================================================
