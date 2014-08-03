@@ -10,7 +10,7 @@ Ext.define('PipeUI.view.Viewport', {
 		'Ext.layout.container.Border',
 		'PipeUI.view.status.Status',
 		'PipeUI.view.browser.Browser',
-		'PipeUI.view.conversations.Conversations'
+		'PipeUI.view.conversations.ConversationHost'
 	],
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ Ext.define('PipeUI.view.Viewport', {
 			{
 				collapsible: false,
 				region: 'center',
-				xtype: 'pipe-conversations-conversations',
+				xtype: 'pipe-conversation-conversation-host',
 				bodyPadding: 10
 			}
 		]

@@ -12,9 +12,9 @@ Ext.define('PipeUI.controller.Connection', {
 	config: {
 		listen: {
 			global: {
-				connect: 'connect',
-				disconnect: 'disconnect',
-				send: 'send',
+				connection_connect: 'connect',
+				connection_disconnect: 'disconnect',
+				connection_send: 'send',
 			}
 		}
 	},
@@ -28,7 +28,7 @@ Ext.define('PipeUI.controller.Connection', {
 
 	onUnauthenticated: function () {
 		Ext.log({ level: 'debug' }, '[Connection::onUnauthenticated]');
-		Ext.GlobalEvents.fireEvent('unauthenticated');
+		Ext.GlobalEvents.fireEvent('connection_unauthenticated');
 		this.loginWindow = new PipeUI.view.login.LoginWindow({
 			autoShow: true,
 			listeners: {
@@ -43,7 +43,7 @@ Ext.define('PipeUI.controller.Connection', {
 	onAuthenticated: function () {
 		Ext.log({ level: 'debug' }, '[Session::onAuthenticated]');
 		if (this.loginWindow) { this.loginWindow.destroy(); }
-		Ext.GlobalEvents.fireEvent('authenticated');
+		Ext.GlobalEvents.fireEvent('connection_authenticated');
 		this.connect();
 	},
 
@@ -51,18 +51,18 @@ Ext.define('PipeUI.controller.Connection', {
 		Ext.log({ level: 'debug' }, '[Connection::onConnected]');
 		this.sessionRequested = true;
 		this.socket.send(JSON.stringify({ request: 'login', admin: false, shell: false, authToken: Ext.util.Cookies.get('authToken') }));
-		Ext.GlobalEvents.fireEvent('connected');
+		Ext.GlobalEvents.fireEvent('connection_connected');
 	},
 
 	onConnectionError: function () {
 		Ext.log({ level: 'debug' }, '[Connection::onConnectionError]');
-		Ext.GlobalEvents.fireEvent('connectionError');
+		Ext.GlobalEvents.fireEvent('connection_connectionError');
 		this.onDisconnected();
 	},
 
 	onDisconnected: function (code, reason, wasClean) {
 		Ext.log({ level: 'debug' }, '[Connection::onDisconnected] ' + reason);
-		Ext.GlobalEvents.fireEvent('disconnected');
+		Ext.GlobalEvents.fireEvent('connection_disconnected');
 		this.cleanup()
 	},
 
@@ -75,12 +75,12 @@ Ext.define('PipeUI.controller.Connection', {
 				Ext.log({ level: 'debug' }, '[Connection::onMessage] Got session: ' + data.session);
 				this.session = data.session;
 				this.sessionRequested = false;
-				Ext.GlobalEvents.fireEvent('session', this.session);
+				Ext.GlobalEvents.fireEvent('connection_session', this.session);
 				return;
 			}
 		}
 
-		Ext.GlobalEvents.fireEvent('message', data);
+		Ext.GlobalEvents.fireEvent('connection_message', data);
 	},
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -118,9 +118,9 @@ Ext.define('PipeUI.controller.Connection', {
 		this.socket.onmessage = function (message) { myself.onMessage.call(myself, message); }
 	},
 
-	send: function(msg) {
+	send: function (msg) {
 		if(!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-			Ext.GlobalEvents.fireEvent('error', 'Sending failed');
+			Ext.GlobalEvents.fireEvent('connection_error', 'Sending failed');
 			return;
 		}
 

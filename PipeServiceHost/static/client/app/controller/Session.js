@@ -5,20 +5,14 @@ Ext.define('PipeUI.controller.Session', {
 
 	extend: 'Ext.app.Controller',
 
-	views: [
-		'status.Status',
-		'browser.Browser',
-		'conversations.Conversations'
-	],
-
 	//------------------------------------------------------------------------------------------------------------------
 
 	config: {
 		listen: {
 			global: {
-				session: 'onSession',
-				disconnected: 'onDisconnected',
-				message: 'onMessage',
+				connection_session: 'onSession',
+				connection_disconnected: 'onDisconnected',
+				connection_message: 'onMessage',
 			}
 		}
 	},
@@ -39,7 +33,7 @@ Ext.define('PipeUI.controller.Session', {
 	//------------------------------------------------------------------------------------------------------------------
 
 	send: function (data) {
-		Ext.GlobalEvents.fireEvent('send', data);
+		Ext.GlobalEvents.fireEvent('connection_send', data);
 	},
 });
 
