@@ -43,21 +43,21 @@ Ext.define('PipeUI.view.conversations.ConversationController', {
 	},
 
 	onMessage: function (msg) {
+		var view = this.getView();
+
+		if(msg.address != view.address) { return; }
+		debugger;
 		switch(msg.message) {
 			// Ignore these
 			case 'children':
 			case 'node_added':
 			case 'node_info_updated':
 			case 'info':
+			case 'node_removed':
 				break;
 
-			case 'node_removed':
-				//var conversation = this.findTab(info.address);
-				//if(conversation) { conversation.close(); }
-				//debugger;
-				break;
+
 		}
-		var view = this.getView();
 		//debugger;
 	},
 

@@ -9,7 +9,6 @@ Ext.define('PipeUI.view.conversations.ConversationHost', {
 	//------------------------------------------------------------------------------------------------------------------
 
 	controller: 'ConversationHostController',
-	store: 'Services',
 
 	//------------------------------------------------------------------------------------------------------------------
 
@@ -66,7 +65,9 @@ Ext.define('PipeUI.view.conversations.ConversationHostController', {
 	},
 
 	onDisconnected: function () {
-		Ext.Array.forEach(this.getView.items, function (item) {
+		var view = this.getView();
+		if(!view.items || view.items.length > 0)
+		Ext.Array.forEach(view.items, function (item) {
 			item.close();
 		}, this);
 		this.session = undefined;
@@ -87,10 +88,28 @@ Ext.define('PipeUI.view.conversations.ConversationHostController', {
 				break;
 
 			default:
-				//var tab = this.findTab(msg.address);
-				//if(tab) { return; }
-				//var store = this.getView().getStore();
-				//debugger;
+				var conversation = this.findTab(msg.address);
+				if(!conversation) {
+
+					var node = this.findNode(msg.address);
+					if(!node) { return; }
+
+					var view = this.getView();
+					conversation = view.add({
+						xtype: 'pipe-conversations-conversation',
+						tabConfig: {
+							title: node.data.info.instance_name,
+							tooltip: node.data.info.instance_description
+						},
+						address: node.data.info.address
+					});
+
+					// TODO: Send Conversation the initial message
+				}
+
+				// TODO: Find something to highlight the tab
+				//view.setActiveTab(conversation);
+
 				break;
 		}
 	},
@@ -104,6 +123,16 @@ Ext.define('PipeUI.view.conversations.ConversationHostController', {
 		return view.items.findBy(function (item, key) {
 			return item.address == address;
 		}, this);
+	},
+
+	findNode: function (address) {
+		var store = Ext.StoreManager.lookup('Services');
+		if(!store) { return null; }
+
+		var root = store.getRoot();
+		if(!root) { return null; }
+
+		return root.findChild('address', address, true);
 	}
 });
 
