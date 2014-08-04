@@ -34,6 +34,14 @@ Ext.define('PipeUI.view.conversations.ConversationController', {
 		}
 	},
 
+	init: function () {
+		var view = this.getView();
+		if(view.initialMessage) {
+			this.onMessage(view.initialMessage);
+			view.initialMessage = null;
+		}
+	},
+
 	onSession: function (session) {
 		this.session = session;
 	},
@@ -44,11 +52,9 @@ Ext.define('PipeUI.view.conversations.ConversationController', {
 
 	onMessage: function (msg) {
 		var view = this.getView();
-
 		if(msg.address != view.address) { return; }
-		debugger;
+
 		switch(msg.message) {
-			// Ignore these
 			case 'children':
 			case 'node_added':
 			case 'node_info_updated':
@@ -56,9 +62,13 @@ Ext.define('PipeUI.view.conversations.ConversationController', {
 			case 'node_removed':
 				break;
 
-
+			default:
+				if(!view.body)
+					view.html = JSON.stringify(msg);
+				else
+					view.body += '<br>' + JSON.stringify(msg);
+				break;
 		}
-		//debugger;
 	},
 
 	send: function (data) {

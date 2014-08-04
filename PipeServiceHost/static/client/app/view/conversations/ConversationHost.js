@@ -101,10 +101,9 @@ Ext.define('PipeUI.view.conversations.ConversationHostController', {
 							title: node.data.info.instance_name,
 							tooltip: node.data.info.instance_description
 						},
-						address: node.data.info.address
+						address: node.data.info.address,
+						initialMessage: msg
 					});
-
-					// TODO: Send Conversation the initial message
 				}
 
 				// TODO: Find something to highlight the tab
