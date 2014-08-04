@@ -87,10 +87,10 @@ Ext.define('PipeUI.view.conversations.ConversationHostController', {
 				break;
 
 			default:
-				var tab = this.findTab(msg.address);
-				if(tab) { return; }
-				var store = this.getView().getStore();
-				debugger;
+				//var tab = this.findTab(msg.address);
+				//if(tab) { return; }
+				//var store = this.getView().getStore();
+				//debugger;
 				break;
 		}
 	},

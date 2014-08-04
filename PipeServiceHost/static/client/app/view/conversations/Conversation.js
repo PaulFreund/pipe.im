@@ -52,9 +52,9 @@ Ext.define('PipeUI.view.conversations.ConversationController', {
 				break;
 
 			case 'node_removed':
-				var conversation = this.findTab(info.address);
-				if(conversation) { conversation.close(); }
-				debugger;
+				//var conversation = this.findTab(info.address);
+				//if(conversation) { conversation.close(); }
+				//debugger;
 				break;
 		}
 		var view = this.getView();

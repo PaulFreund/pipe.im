@@ -49,6 +49,7 @@ Ext.define('PipeManagerUI.view.Viewport', {
 						scale: 'large',
 						flex: 1,
 						margin: '80%',
+						hrefTarget: '_self'
 					},
 					items: [
 						{
