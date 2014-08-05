@@ -27,7 +27,7 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 			columnLines: false,
 			enableColumnResize: false,
 			rowLines: false,
-			flex: true,
+			flex: 1000,
 			store: {
 				fields: [
 					{ name: 'timestamp' },
@@ -92,6 +92,18 @@ Ext.define('PipeUI.view.conversation.purple_contactController', {
 	extend: 'PipeUI.view.conversation.BaseController',
 	alias: 'controller.purple_contactController',
 
+	onActivate: function () {
+		var view = this.getView();
+		if(view && view.tab) {
+			try {
+				view.tab.setGlyph(0);
+			}
+			catch(e) { }
+		}
+		
+		// TODO: Scroll to bottom
+	},
+
 	onInfo: function (info) {
 
 	},
@@ -104,27 +116,12 @@ Ext.define('PipeUI.view.conversation.purple_contactController', {
 		var message = msg.data.substr(sep+1);
 
 		this.addMessage(nick, message);
-
-		var view = this.getView();
-		if(!view.isVisible() && view.tab) { view.tab.setGlyph(99); }// TODO: Changes when visible
 	},
 
 	onSpecialKey: function (field, e) {
 		if(e.getKey() === e.ENTER) {
 			this.onSend();
 		}
-	},
-
-	onActivate: function() {
-		var view = this.getView(); 
-		try {
-			view.tab.setGlyph(0);
-		}
-		catch(e) { }
-
-		//var grid = this.lookupReference('messages');
-		//if(!grid || !grid.isVisible()) { return null; }
-		//grid.scrollBy(0, 999999, true); // TODO: Fix
 	},
 
 	addMessage: function(nick, message) {
@@ -137,9 +134,10 @@ Ext.define('PipeUI.view.conversation.purple_contactController', {
 			message: message
 		});
 
-		var grid = this.lookupReference('messages');
-		if(!grid || !grid.isVisible()) { return null; }
-		grid.focus(newItem);
+		// TODO: Scroll to bottom
+		//var grid = this.lookupReference('messages');
+		//if(!grid || !grid.active) { return null; }
+		//grid.scrollBy(0, 999999, true); // TODO: Fix
 	},
 
 	onSend: function () {

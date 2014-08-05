@@ -3,14 +3,6 @@
 Ext.define('PipeUI.view.conversation.BaseController', {
 	extend: 'PipeUI.view.BaseController',
 
-	init: function () {
-		var view = this.getView();
-		if(view.initialMessage) {
-			this.onMessage(view.initialMessage);
-			view.initialMessage = null;
-		}
-	},
-
 	onSession: function (session) {
 		this.session = session;
 	},
@@ -37,7 +29,23 @@ Ext.define('PipeUI.view.conversation.BaseController', {
 
 			default:
 				if(this.onReceived) { this.onReceived(msg); }
+
+				var view = this.getView();
+				if(view && view.tab && !view.tab.active) {
+					view.tab.setGlyph(126);
+				}
+
 				break;
+		}
+	},
+
+	onActivate: function () {
+		var view = this.getView();
+		if(view && view.tab) {
+			try {
+				view.tab.setGlyph(0);
+			}
+			catch(e) { }
 		}
 	}
 });

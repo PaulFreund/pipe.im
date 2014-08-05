@@ -11,6 +11,7 @@ Ext.define('PipeUI.view.conversation.server', {
 	controller: 'serverController',
 
 	//------------------------------------------------------------------------------------------------------------------
+	layout: 'fit',
 
 	items: [
 		{
@@ -42,7 +43,12 @@ Ext.define('PipeUI.view.conversation.server', {
 				}
 			],
 		}
-	]
+	],
+
+	listeners: {
+		scope: 'controller',
+		activate: 'onActivate'
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 });

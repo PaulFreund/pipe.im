@@ -89,8 +89,6 @@ Ext.define('PipeUI.view.ConversationHostController', {
 					Ext.GlobalEvents.fireEvent('server_message', msg);
 					return;
 				}
-				// TODO: Temporary
-				conv.tab.setGlyph(99);
 
 				break;
 
@@ -123,17 +121,25 @@ Ext.define('PipeUI.view.ConversationHostController', {
 			viewType = svc.type_name;
 		}
 
-		var newView = new PipeUI.view.conversation[viewType]({
+		// Create new conversation
+		var view = this.getView();
+		var newView = view.add(new PipeUI.view.conversation[viewType]({
 			tabConfig: {
 				title: svc.instance_name,
 				tooltip: svc.instance_description
 			},
-			address: svc.address,
-			initialMessage: initialMessage
-		});
+			address: svc.address
+		}));
 
-		// Create new conversation
-		return this.getView().add(newView);
+		// Send initial message if any
+		if(initialMessage !== undefined) {
+			var controller = newView.getController();
+			if(controller) {
+				controller.onMessage(initialMessage);
+			}
+		}
+
+		return newView;
 	},
 
 	//------------------------------------------------------------------------------------------------------------------
