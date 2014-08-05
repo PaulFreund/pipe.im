@@ -1,7 +1,7 @@
 //======================================================================================================================
 
-Ext.define('PipeUI.view.conversation.ConversationControllerBase', {
-	extend: 'PipeUI.view.ViewControllerBase',
+Ext.define('PipeUI.view.conversation.BaseController', {
+	extend: 'PipeUI.view.BaseController',
 
 	init: function () {
 		var view = this.getView();
@@ -21,6 +21,7 @@ Ext.define('PipeUI.view.conversation.ConversationControllerBase', {
 
 	onMessage: function (msg) {
 		var view = this.getView();
+		if(!view.address) { debugger; }
 		if(msg.address != view.address) { return; }
 
 		switch(msg.message) {
@@ -31,8 +32,7 @@ Ext.define('PipeUI.view.conversation.ConversationControllerBase', {
 				break;
 
 			case 'info':
-				//view.tabInfo.title = 
-				// TODO: Update info
+				if(this.onInfo) { this.onInfo(msg.data); }
 				break;
 
 			default:

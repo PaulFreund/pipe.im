@@ -27,7 +27,7 @@ Ext.define('PipeUI.view.Browser', {
 //======================================================================================================================
 
 Ext.define('PipeUI.view.BrowserController', {
-	extend: 'PipeUI.view.ViewControllerBase',
+	extend: 'PipeUI.view.BaseController',
 	alias: 'controller.BrowserController',
 
 	onServiceSelect: function (row, record, index, opts) {

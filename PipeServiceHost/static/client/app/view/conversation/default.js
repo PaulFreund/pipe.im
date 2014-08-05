@@ -1,7 +1,5 @@
 //======================================================================================================================
 
-//======================================================================================================================
-
 Ext.define('PipeUI.view.conversation.default', {
 	//------------------------------------------------------------------------------------------------------------------
 
@@ -21,11 +19,14 @@ Ext.define('PipeUI.view.conversation.default', {
 //======================================================================================================================
 
 Ext.define('PipeUI.view.conversation.defaultController', {
-	extend: 'PipeUI.view.conversation.ConversationControllerBase',
+	extend: 'PipeUI.view.conversation.BaseController',
 	alias: 'controller.defaultController',
 
+	onInfo: function(info) {
+
+	},
+
 	onReceived: function (msg) {
-		debugger;
 		var view = this.getView();
 
 		if(!view.body)

@@ -20,7 +20,7 @@ Ext.define('PipeUI.view.Status', {
 //======================================================================================================================
 
 Ext.define('PipeUI.view.StatusController', {
-	extend: 'PipeUI.view.ViewControllerBase',
+	extend: 'PipeUI.view.BaseController',
 	alias: 'controller.StatusController',
 
 	onSession: function (session) {

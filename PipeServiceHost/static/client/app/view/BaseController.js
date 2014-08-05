@@ -1,6 +1,6 @@
 //======================================================================================================================
 
-Ext.define('PipeUI.view.ViewControllerBase', {
+Ext.define('PipeUI.view.BaseController', {
 	extend: 'Ext.app.ViewController',
 
 	config: {
@@ -9,7 +9,8 @@ Ext.define('PipeUI.view.ViewControllerBase', {
 				connection_session: 'onSession',
 				connection_disconnected: 'onDisconnected',
 				connection_message: 'onMessage',
-				browser_service_selected: 'onServiceSelected'
+				browser_service_selected: 'onServiceSelected',
+				server_message: 'onServerMessage'
 			}
 		}
 	},

@@ -14,7 +14,19 @@ Ext.define('PipeUI.view.ConversationHost', {
 
 	defaults: {
 		closable: true
-	}
+	},
+
+	items: [
+		{
+			xtype: 'pipe-conversation-server',
+			closable: false,
+			tabConfig: {
+				title: 'Server',
+				tooltip: 'All unassigned messages'
+			},
+			address: 'pipe'
+		}
+	]
 
 	//------------------------------------------------------------------------------------------------------------------
 });
@@ -22,7 +34,7 @@ Ext.define('PipeUI.view.ConversationHost', {
 //======================================================================================================================
 
 Ext.define('PipeUI.view.ConversationHostController', {
-	extend: 'PipeUI.view.ViewControllerBase',
+	extend: 'PipeUI.view.BaseController',
 	alias: 'controller.ConversationHostController',
 
 	onServiceSelected: function (address) {
@@ -42,7 +54,8 @@ Ext.define('PipeUI.view.ConversationHostController', {
 		var view = this.getView();
 		if(!view.items || view.items.length > 0) {
 			Ext.Array.forEach(view.items, function (item) {
-				item.close();
+				if(item.closable)
+					item.close();
 			}, this);
 		}
 		this.session = undefined;
@@ -52,8 +65,14 @@ Ext.define('PipeUI.view.ConversationHostController', {
 		switch(msg.message) {
 			case 'children':
 			case 'node_added':
-			case 'node_info_updated':
+				break;
+
 			case 'info':
+				var conv = this.getConversation(msg.address);
+				if(!conv) { return; }
+				debugger;
+				conv.title = msg.data.instance_name;
+				conv.tooltip = msg.data.instance_description;
 				break;
 
 			case 'node_removed':
@@ -61,15 +80,24 @@ Ext.define('PipeUI.view.ConversationHostController', {
 				if(conv) { conv.close(); }
 				break;
 
-			default:
+			// TODO: this is a test setting
+			//default:
+			case 'message':
 				var view = this.getView();
 				var conv = this.ensureConversation(msg.address, msg);
-				if(!conv) { return; }
-
-				// TODO: Find something to highlight the tab
-				//view.setActiveTab(conversation);
+				if(!conv) {
+					Ext.GlobalEvents.fireEvent('server_message', msg);
+					return;
+				}
+				// TODO: Temporary
+				conv.tab.setGlyph(99);
 
 				break;
+
+			default:
+				Ext.GlobalEvents.fireEvent('server_message', msg);
+				// TODO: Find something to highlight the tab
+				//view.setActiveTab(conversation);
 		}
 	},
 
@@ -87,11 +115,7 @@ Ext.define('PipeUI.view.ConversationHostController', {
 
 		// Get Service
 		var svc = this.getService(address);
-		if(!svc) {
-			// TODO: What to do in this case, we don't know the type of the node yet and thus can't create the correct one
-			debugger;
-			return null;
-		}
+		if(!svc) { return null; }
 
 		// Get xtype
 		var viewType = 'default'; 
