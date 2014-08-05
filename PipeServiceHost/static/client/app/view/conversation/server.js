@@ -59,6 +59,18 @@ Ext.define('PipeUI.view.conversation.serverController', {
 	extend: 'PipeUI.view.conversation.BaseController',
 	alias: 'controller.serverController',
 
+	onActivate: function () {
+		var view = this.getView();
+		if(view && view.tab) {
+			try {
+				view.tab.setGlyph(0);
+			}
+			catch(e) { }
+		}
+
+		this.scrollToBottom();
+	},
+
 	onInfo: function (info) {
 
 	},
@@ -89,12 +101,26 @@ Ext.define('PipeUI.view.conversation.serverController', {
 			timestamp: Ext.Date.format(new Date(), 'H:i'),
 			message: message
 		});
+
+		this.scrollToBottom();
 	},
 
 	getMessages: function () {
 		var grid = this.lookupReference('messages');
 		if(!grid) { return null; }
 		return grid.getStore();
+	},
+
+	scrollToBottom: function () {
+		var grid = this.lookupReference('messages');
+		if(!grid) { return; }
+		var gridView = grid.getView();
+		if(!gridView) { return; }
+
+		try {
+			gridView.scrollBy(0, 999999, true);
+		}
+		catch(e) { }
 	}
 });
 

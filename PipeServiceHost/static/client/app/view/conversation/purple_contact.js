@@ -27,7 +27,7 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 			columnLines: false,
 			enableColumnResize: false,
 			rowLines: false,
-			flex: 1000,
+			flex: 1,
 			store: {
 				fields: [
 					{ name: 'timestamp' },
@@ -101,7 +101,7 @@ Ext.define('PipeUI.view.conversation.purple_contactController', {
 			catch(e) { }
 		}
 		
-		// TODO: Scroll to bottom
+		this.scrollToBottom();
 	},
 
 	onInfo: function (info) {
@@ -128,16 +128,13 @@ Ext.define('PipeUI.view.conversation.purple_contactController', {
 		var store = this.getMessages();
 		if(!store) { return; }
 
-		var newItem = store.add({
+		store.add({
 			timestamp: Ext.Date.format(new Date(), 'H:i'),
 			nick: '&lt;' + nick + '&gt;',
 			message: message
 		});
 
-		// TODO: Scroll to bottom
-		//var grid = this.lookupReference('messages');
-		//if(!grid || !grid.active) { return null; }
-		//grid.scrollBy(0, 999999, true); // TODO: Fix
+		this.scrollToBottom();
 	},
 
 	onSend: function () {
@@ -155,6 +152,18 @@ Ext.define('PipeUI.view.conversation.purple_contactController', {
 		var grid = this.lookupReference('messages');
 		if(!grid) { return null; }
 		return grid.getStore();
+	},
+
+	scrollToBottom: function () {
+		var grid = this.lookupReference('messages');
+		if(!grid) { return; }
+		var gridView = grid.getView();
+		if(!gridView) { return; }
+
+		try {
+			gridView.scrollBy(0, 999999, true);
+		}
+		catch(e) { }
 	}
 });
 
