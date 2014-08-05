@@ -1,10 +1,10 @@
 //======================================================================================================================
 
-Ext.define('PipeUI.view.browser.Browser', {
+Ext.define('PipeUI.view.Browser', {
 	//------------------------------------------------------------------------------------------------------------------
 
 	extend: 'Ext.tree.Panel',
-	xtype: 'pipe-browser-browser',
+	xtype: 'pipe-browser',
 
 	//------------------------------------------------------------------------------------------------------------------
 
@@ -26,22 +26,12 @@ Ext.define('PipeUI.view.browser.Browser', {
 
 //======================================================================================================================
 
-Ext.define('PipeUI.view.browser.BrowserController', {
-	extend: 'Ext.app.ViewController',
+Ext.define('PipeUI.view.BrowserController', {
+	extend: 'PipeUI.view.ViewControllerBase',
 	alias: 'controller.BrowserController',
 
-	config: {
-		listen: {
-			global: {
-				connection_session: 'onSession',
-				connection_disconnected: 'onDisconnected',
-				connection_message: 'onMessage',
-			}
-		}
-	},
-
 	onServiceSelect: function (row, record, index, opts) {
-		Ext.GlobalEvents.fireEvent('browser_service_selected', record.data.info);
+		Ext.GlobalEvents.fireEvent('browser_service_selected', record.data.info.address);
 	},
 
 	onSession: function (session) {
@@ -60,7 +50,7 @@ Ext.define('PipeUI.view.browser.BrowserController', {
 			case 'children':
 				if(msg.data && msg.data.length > 0) {
 					Ext.Array.forEach(msg.data, function (child) {
-						var node = this.getServiceNode(child);
+						var node = this.ensureService(child);
 						this.send({ address: child, command: 'children' });
 						this.send({ address: child, command: 'info' });
 					}, this);
@@ -68,18 +58,18 @@ Ext.define('PipeUI.view.browser.BrowserController', {
 				break;
 
 			case 'info':
-				var node = this.getServiceNode(msg.data.address);
+				var node = this.ensureService(msg.data.address);
 				node.set('text', msg.data.instance_name);
 				node.set('info', msg.data);
 				break;
 
 			case 'node_added':
-				var node = this.getServiceNode(msg.data);
+				var node = this.ensureService(msg.data);
 				this.send({ address: msg.data, command: 'info' });
 				break;
 
 			case 'node_removed':
-				var node = this.getServiceNode(msg.data);
+				var node = this.ensureService(msg.data);
 				// TODO: Debug
 				node.erase();
 				break;
@@ -90,11 +80,7 @@ Ext.define('PipeUI.view.browser.BrowserController', {
 		}
 	},
 
-	send: function (data) {
-		Ext.GlobalEvents.fireEvent('connection_send', data);
-	},
-
-	getServiceNode: function (address) {
+	ensureService: function (address) {
 		var store = this.getView().getStore();
 		var root = store.getRoot();
 		if(address == 'pipe') { return root; }
@@ -108,7 +94,7 @@ Ext.define('PipeUI.view.browser.BrowserController', {
 		var path = address.split('.');
 		if(path.length > 1) {
 			path.splice(-1, 1);
-			parent = this.getServiceNode(path.join('.'));
+			parent = this.ensureService(path.join('.'));
 		}
 
 		if(!parent.data.expandable)

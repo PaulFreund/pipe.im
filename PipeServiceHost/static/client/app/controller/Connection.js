@@ -6,7 +6,7 @@ Ext.define('PipeUI.controller.Connection', {
 	extend: 'Ext.app.Controller',
 
 	requires: [
-		'PipeUI.view.login.LoginWindow'
+		'PipeUI.view.Login'
 	],
 
 	config: {
@@ -29,7 +29,7 @@ Ext.define('PipeUI.controller.Connection', {
 	onUnauthenticated: function () {
 		Ext.log({ level: 'debug' }, '[Connection::onUnauthenticated]');
 		Ext.GlobalEvents.fireEvent('connection_unauthenticated');
-		this.loginWindow = new PipeUI.view.login.LoginWindow({
+		this.loginWindow = new PipeUI.view.Login({
 			autoShow: true,
 			listeners: {
 				scope: this,

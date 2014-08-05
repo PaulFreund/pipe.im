@@ -4,14 +4,6 @@ Ext.define('PipeUI.view.Viewport', {
 	//------------------------------------------------------------------------------------------------------------------
 
 	extend: 'Ext.container.Viewport',
-	xtype: 'pipe-main-main',
-
-	requires: [
-		'Ext.layout.container.Border',
-		'PipeUI.view.status.Status',
-		'PipeUI.view.browser.Browser',
-		'PipeUI.view.conversations.ConversationHost'
-	],
 
 	//------------------------------------------------------------------------------------------------------------------
 
@@ -32,7 +24,7 @@ Ext.define('PipeUI.view.Viewport', {
 				height: 50,
 				minHeight: 50,
 				maxHeight: 50,
-				xtype: 'pipe-status-status'
+				xtype: 'pipe-status'
 			},
 			{
 				region: 'west',
@@ -40,12 +32,12 @@ Ext.define('PipeUI.view.Viewport', {
 				split: true,
 				collapsible: true,
 				width: 300,
-				xtype: 'pipe-browser-browser'
+				xtype: 'pipe-browser'
 			},
 			{
 				collapsible: false,
 				region: 'center',
-				xtype: 'pipe-conversation-conversation-host',
+				xtype: 'pipe-conversationhost',
 				bodyPadding: 10
 			}
 		]

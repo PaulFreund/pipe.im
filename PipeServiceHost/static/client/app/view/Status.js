@@ -1,10 +1,10 @@
 //======================================================================================================================
 
-Ext.define('PipeUI.view.status.Status', {
+Ext.define('PipeUI.view.Status', {
 	//------------------------------------------------------------------------------------------------------------------
 
 	extend: 'Ext.toolbar.Toolbar',
-	xtype: 'pipe-status-status',
+	xtype: 'pipe-status',
 
 	//------------------------------------------------------------------------------------------------------------------
 
@@ -19,19 +19,9 @@ Ext.define('PipeUI.view.status.Status', {
 
 //======================================================================================================================
 
-Ext.define('PipeUI.view.status.StatusController', {
-	extend: 'Ext.app.ViewController',
+Ext.define('PipeUI.view.StatusController', {
+	extend: 'PipeUI.view.ViewControllerBase',
 	alias: 'controller.StatusController',
-
-	config: {
-		listen: {
-			global: {
-				connection_session: 'onSession',
-				connection_disconnected: 'onDisconnected',
-				connection_message: 'onMessage',
-			}
-		}
-	},
 
 	onSession: function (session) {
 		this.session = session;
@@ -43,9 +33,5 @@ Ext.define('PipeUI.view.status.StatusController', {
 
 	onMessage: function (msg) {
 	},
-
-	send: function (data) {
-		Ext.GlobalEvents.fireEvent('connection_send', data);
-	}
 });
 //======================================================================================================================
