@@ -3,12 +3,85 @@
 Ext.define('PipeUI.view.conversation.purple_contact', {
 	//------------------------------------------------------------------------------------------------------------------
 
-	extend: 'Ext.Container',
+	extend: 'PipeUI.view.conversation.BaseView',
 	xtype: 'pipe-conversation-purple_contact',
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	controller: 'purple_contactController',
+	controller: {
+		onActivate: function () {
+			if(this.tab) {
+				try {
+					this.tab.setGlyph(0);
+				}
+				catch(e) { }
+			}
+
+			this.scrollToBottom();
+		},
+
+		onInfo: function (info) {
+
+		},
+
+		onReceived: function (msg) {
+			if(msg.message !== 'message') { return; }
+
+			var sep = msg.data.indexOf(':');
+			var nick = msg.data.substr(0, sep);
+			var message = msg.data.substr(sep + 1);
+
+			this.addMessage(nick, message);
+			this.highlight();
+		},
+
+		onSpecialKey: function (field, e) {
+			if(e.getKey() === e.ENTER) {
+				this.onSend();
+			}
+		},
+
+		onSend: function () {
+			var textBox = this.lookupReference('sendText');
+			var outgoing = textBox.value;
+			textBox.reset();
+
+			this.send({ address: this.view.address, command: 'say', data: outgoing });
+
+			this.addMessage('Me', outgoing);
+		},
+
+		addMessage: function (nick, message) {
+			var store = this.getMessages();
+			if(!store) { return; }
+
+			store.add({
+				timestamp: Ext.Date.format(new Date(), 'H:i'),
+				nick: '&lt;' + nick + '&gt;',
+				message: message
+			});
+
+			this.scrollToBottom();
+		},
+
+		getMessages: function () {
+			var grid = this.lookupReference('messages');
+			if(!grid) { return null; }
+			return grid.getStore();
+		},
+
+		scrollToBottom: function () {
+			var grid = this.lookupReference('messages');
+			if(!grid) { return; }
+			var gridView = grid.getView();
+			if(!gridView) { return; }
+
+			try {
+				gridView.scrollBy(0, 999999, true);
+			}
+			catch(e) { }
+		}
+	},
 
 	//------------------------------------------------------------------------------------------------------------------
 	
@@ -78,93 +151,7 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 		}
 	],
 
-	listeners: {
-		scope: 'controller',
-		activate: 'onActivate'
-	}
-
 	//------------------------------------------------------------------------------------------------------------------
-});
-
-//======================================================================================================================
-
-Ext.define('PipeUI.view.conversation.purple_contactController', {
-	extend: 'PipeUI.view.conversation.BaseController',
-	alias: 'controller.purple_contactController',
-
-	onActivate: function () {
-		var view = this.getView();
-		if(view && view.tab) {
-			try {
-				view.tab.setGlyph(0);
-			}
-			catch(e) { }
-		}
-		
-		this.scrollToBottom();
-	},
-
-	onInfo: function (info) {
-
-	},
-
-	onReceived: function (msg) {
-		if(msg.message !== 'message') { return; }
-
-		var sep = msg.data.indexOf(':');
-		var nick = msg.data.substr(0, sep);
-		var message = msg.data.substr(sep+1);
-
-		this.addMessage(nick, message);
-	},
-
-	onSpecialKey: function (field, e) {
-		if(e.getKey() === e.ENTER) {
-			this.onSend();
-		}
-	},
-
-	addMessage: function(nick, message) {
-		var store = this.getMessages();
-		if(!store) { return; }
-
-		store.add({
-			timestamp: Ext.Date.format(new Date(), 'H:i'),
-			nick: '&lt;' + nick + '&gt;',
-			message: message
-		});
-
-		this.scrollToBottom();
-	},
-
-	onSend: function () {
-		var textBox = this.lookupReference('sendText');
-		var outgoing = textBox.value;
-		textBox.reset();
-
-		var view = this.getView();
-		this.send({ address: view.address, command: 'say', data: outgoing });
-
-		this.addMessage('Me', outgoing);
-	},
-
-	getMessages: function () {
-		var grid = this.lookupReference('messages');
-		if(!grid) { return null; }
-		return grid.getStore();
-	},
-
-	scrollToBottom: function () {
-		var grid = this.lookupReference('messages');
-		if(!grid) { return; }
-		var gridView = grid.getView();
-		if(!gridView) { return; }
-
-		try {
-			gridView.scrollBy(0, 999999, true);
-		}
-		catch(e) { }
-	}
 });
 
 //======================================================================================================================

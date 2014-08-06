@@ -3,16 +3,78 @@
 Ext.define('PipeUI.view.conversation.server', {
 	//------------------------------------------------------------------------------------------------------------------
 
-	extend: 'Ext.Container',
+	extend: 'PipeUI.view.conversation.BaseView',
 	xtype: 'pipe-conversation-server',
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	controller: 'serverController',
+	controller: {
+		onActivate: function () {
+			if(this.view && this.view.tab) {
+				try {
+					this.view.tab.setGlyph(0);
+				}
+				catch(e) { }
+			}
+
+			this.scrollToBottom();
+			this.highlight();
+		},
+
+		onInfo: function (info) {
+
+		},
+
+		onSession: function () {
+			this.onReceived('Got Session');
+		},
+
+		onDisconnected: function () {
+			this.onReceived('Disconnected');
+			Ext.GlobalEvents.fireEvent('connection_connect');
+		},
+
+		onReceived: function (msg) {
+			this.addMessage(JSON.stringify(msg));
+		},
+
+		onServerMessage: function (msg) {
+			this.onReceived(msg);
+		},
+
+		addMessage: function (message) {
+			var store = this.getMessages();
+			if(!store) { return; }
+
+			store.add({
+				timestamp: Ext.Date.format(new Date(), 'H:i'),
+				message: message
+			});
+
+			this.scrollToBottom();
+		},
+
+		getMessages: function () {
+			var grid = this.lookupReference('messages');
+			if(!grid) { return null; }
+			return grid.getStore();
+		},
+
+		scrollToBottom: function () {
+			var grid = this.lookupReference('messages');
+			if(!grid) { return; }
+			var gridView = grid.getView();
+			if(!gridView) { return; }
+
+			try {
+				gridView.scrollBy(0, 999999, true);
+			}
+			catch(e) { }
+		}
+	},
 
 	//------------------------------------------------------------------------------------------------------------------
-	layout: 'fit',
-
+	
 	items: [
 		{
 			xtype: 'grid',
@@ -43,85 +105,9 @@ Ext.define('PipeUI.view.conversation.server', {
 				}
 			],
 		}
-	],
-
-	listeners: {
-		scope: 'controller',
-		activate: 'onActivate'
-	}
+	]
 
 	//------------------------------------------------------------------------------------------------------------------
-});
-
-//======================================================================================================================
-
-Ext.define('PipeUI.view.conversation.serverController', {
-	extend: 'PipeUI.view.conversation.BaseController',
-	alias: 'controller.serverController',
-
-	onActivate: function () {
-		var view = this.getView();
-		if(view && view.tab) {
-			try {
-				view.tab.setGlyph(0);
-			}
-			catch(e) { }
-		}
-
-		this.scrollToBottom();
-	},
-
-	onInfo: function (info) {
-
-	},
-
-	onSession: function () {
-		this.onReceived('Got Session');
-	},
-
-	onDisconnected: function() {
-		this.onReceived('Disconnected');
-		Ext.GlobalEvents.fireEvent('connection_connect');
-	},
-
-	onReceived: function (msg) {
-		this.addMessage(JSON.stringify(msg));
-	},
-
-	onServerMessage: function (msg) {
-		this.onReceived(msg);
-	},
-
-
-	addMessage: function (message) {
-		var store = this.getMessages();
-		if(!store) { return; }
-
-		store.add({
-			timestamp: Ext.Date.format(new Date(), 'H:i'),
-			message: message
-		});
-
-		this.scrollToBottom();
-	},
-
-	getMessages: function () {
-		var grid = this.lookupReference('messages');
-		if(!grid) { return null; }
-		return grid.getStore();
-	},
-
-	scrollToBottom: function () {
-		var grid = this.lookupReference('messages');
-		if(!grid) { return; }
-		var gridView = grid.getView();
-		if(!gridView) { return; }
-
-		try {
-			gridView.scrollBy(0, 999999, true);
-		}
-		catch(e) { }
-	}
 });
 
 //======================================================================================================================

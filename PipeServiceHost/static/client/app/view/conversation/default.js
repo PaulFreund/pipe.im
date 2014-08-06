@@ -3,34 +3,20 @@
 Ext.define('PipeUI.view.conversation.default', {
 	//------------------------------------------------------------------------------------------------------------------
 
-	extend: 'Ext.Container',
+	extend: 'PipeUI.view.conversation.BaseView',
 	xtype: 'pipe-conversation-default',
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	controller: 'defaultController',
+	controller: {
+		onInfo: function (info) {
+		},
 
-	//------------------------------------------------------------------------------------------------------------------
-
-	listeners: {
-		scope: 'controller',
-		activate: 'onActivate'
+		onReceived: function (msg) {
+		}
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-});
-
-//======================================================================================================================
-
-Ext.define('PipeUI.view.conversation.defaultController', {
-	extend: 'PipeUI.view.conversation.BaseController',
-	alias: 'controller.defaultController',
-
-	onInfo: function(info) {
-	},
-
-	onReceived: function (msg) {
-	}
 });
 
 //======================================================================================================================

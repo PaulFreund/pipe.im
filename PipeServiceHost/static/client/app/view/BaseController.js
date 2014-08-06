@@ -1,7 +1,16 @@
 //======================================================================================================================
 
 Ext.define('PipeUI.view.BaseController', {
+	//------------------------------------------------------------------------------------------------------------------
+
 	extend: 'Ext.app.ViewController',
+	alias: 'controller.baseController',
+
+	init: function () {
+		console.log(this._id);
+	},
+
+	//------------------------------------------------------------------------------------------------------------------
 
 	config: {
 		listen: {
@@ -14,6 +23,8 @@ Ext.define('PipeUI.view.BaseController', {
 			}
 		}
 	},
+
+	//------------------------------------------------------------------------------------------------------------------
 
 	send: function (data) {
 		Ext.GlobalEvents.fireEvent('connection_send', data);
@@ -31,9 +42,16 @@ Ext.define('PipeUI.view.BaseController', {
 		if(!root) { return null; }
 
 		var node = root.findChild('address', address, true);
-		if(!node || !node.data || !node.data.info) { return null; }
+		if(!node || !node.data || !node.data.info || !node.data.info.address) { return null; }
 		return node.data.info;
-	}
+	},
+
+	onBeforeDestroy: function (obj, opts) {
+		console.log('destroy: ' + this._id);
+		this.destroy();
+	},
+
+	//------------------------------------------------------------------------------------------------------------------
 });
 
 //======================================================================================================================
