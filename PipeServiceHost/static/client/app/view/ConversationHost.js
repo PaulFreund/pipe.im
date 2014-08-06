@@ -39,14 +39,13 @@ Ext.define('PipeUI.view.ConversationHostController', {
 
 	onServiceSelected: function (address) {
 		if(!address) { return; }
-		var conv = this.ensureConversation(address);
-		if(!conv) { return; }
-
-		var view = this.getView();
-		view.setActiveTab(conv);
+		this.openConversation(address, true);
 	},
 
+	pending: {},
+
 	onSession: function (session) {
+		this.pending = {};
 		this.session = session;
 	},
 
@@ -59,6 +58,7 @@ Ext.define('PipeUI.view.ConversationHostController', {
 			}, this);
 		}
 		this.session = undefined;
+		this.pending = {};
 	},
 
 	onMessage: function (msg) {
@@ -68,11 +68,11 @@ Ext.define('PipeUI.view.ConversationHostController', {
 				break;
 
 			case 'info':
-				var conv = this.getConversation(msg.address);
-				if(!conv) { return; }
-				debugger;
-				conv.title = msg.data.instance_name;
-				conv.tooltip = msg.data.instance_description;
+				// open if pending
+				if(this.pending[msg.address]) {
+					this.openConversation(msg.address, false, msg);
+					break;
+				}
 				break;
 
 			case 'node_removed':
@@ -80,22 +80,11 @@ Ext.define('PipeUI.view.ConversationHostController', {
 				if(conv) { conv.close(); }
 				break;
 
-			// TODO: this is a test setting
-			//default:
-			case 'message':
-				var view = this.getView();
-				var conv = this.ensureConversation(msg.address, msg);
-				if(!conv) {
-					Ext.GlobalEvents.fireEvent('server_message', msg);
-					return;
-				}
-
+			// Dispatch messages
+			default:
+				this.openConversation(msg.address, false, msg);
 				break;
 
-			default:
-				Ext.GlobalEvents.fireEvent('server_message', msg);
-				// TODO: Find something to highlight the tab
-				//view.setActiveTab(conversation);
 		}
 	},
 
@@ -106,41 +95,70 @@ Ext.define('PipeUI.view.ConversationHostController', {
 		}, this);
 	},
 
-	ensureConversation: function (address, initialMessage) {
-		// Check if conversation exists
+	openConversation: function (address, activate, message) {
+		// Get probably existing conversation
 		var conv = this.getConversation(address);
-		if(conv) { return conv; }
 
-		// Get Service
-		var svc = this.getService(address);
-		if(!svc) { return null; }
+		// Try to create new
+		if(!conv) {
+			// Get service for address if possible, add to pendig if not
+			var service = this.getService(address);
+			if(!service) {
+				if(!this.pending[address]) {
+					this.pending[address] = {
+						activate: activate,
+						messages: [message]
+					};
+				}
+				else {
+					this.pending[address].messages.push(message);
+				}
 
-		// Get xtype
-		var viewType = 'default'; 
-		if(svc.type_name && svc.type_name.length > 0 && PipeUI.view.conversation[svc.type_name]) {
-			viewType = svc.type_name;
-		}
+				return;
+			}
+			else {
+				// Create conversation with service
+				conv = this.createConversation(service);
+				if(!conv) { debugger; }
+			}
 
-		// Create new conversation
-		var view = this.getView();
-		var newView = view.add(new PipeUI.view.conversation[viewType]({
-			tabConfig: {
-				title: svc.instance_name,
-				tooltip: svc.instance_description
-			},
-			address: svc.address
-		}));
+			// Messages to be added to new view
+			var messages = message ? [message] : [];
 
-		// Send initial message if any
-		if(initialMessage !== undefined) {
-			var controller = newView.getController();
+			// Add pending information
+			if(this.pending[address]) {
+				if(this.pending[address].activate) { activate = true; }
+				if(this.pending[address].messages) { messages = messages.concat(this.pending[address].messages); }
+				delete this.pending[address];
+			}
+
+			// Add messages if any
+			var controller = conv.getController();
 			if(controller) {
-				controller.onMessage(initialMessage);
+				for(var idx in messages) { controller.onMessage(messages[idx]); }
 			}
 		}
 
-		return newView;
+		// Activate if requested
+		if(activate) { this.getView().setActiveTab(conv);}
 	},
+
+	createConversation: function(service) {
+		// Get xtype
+		var viewType = 'default';
+		if(service.type_name && service.type_name.length > 0 && PipeUI.view.conversation[service.type_name]) {
+			viewType = service.type_name;
+		}
+
+		// Create new conversation
+		return this.getView().add(new PipeUI.view.conversation[viewType]({
+			tabConfig: {
+				title: service.instance_name,
+				tooltip: service.instance_description
+			},
+			address: service.address
+		}));
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 });

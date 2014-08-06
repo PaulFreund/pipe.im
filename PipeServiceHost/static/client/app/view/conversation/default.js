@@ -27,16 +27,9 @@ Ext.define('PipeUI.view.conversation.defaultController', {
 	alias: 'controller.defaultController',
 
 	onInfo: function(info) {
-
 	},
 
 	onReceived: function (msg) {
-		var view = this.getView();
-
-		if(!view.body)
-			view.html = JSON.stringify(msg);
-		else
-			view.body += '<br>' + JSON.stringify(msg);
 	}
 });
 

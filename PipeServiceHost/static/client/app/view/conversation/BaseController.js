@@ -24,13 +24,17 @@ Ext.define('PipeUI.view.conversation.BaseController', {
 				break;
 
 			case 'info':
+				if(view && view.tab) {
+					view.tab.setText(msg.data.instance_name);
+					view.tab.setTooltip(msg.data.instance_description);
+				}
+
 				if(this.onInfo) { this.onInfo(msg.data); }
 				break;
 
 			default:
 				if(this.onReceived) { this.onReceived(msg); }
 
-				var view = this.getView();
 				if(view && view.tab && !view.tab.active) {
 					view.tab.setGlyph(126);
 				}

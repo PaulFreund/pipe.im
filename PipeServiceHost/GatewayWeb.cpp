@@ -360,13 +360,13 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 					if(!associated) {
 						auto request = parseObject(message);
 						if(request->count(_T("request")) != 1 || request->count(_T("authToken")) != 1) {
-							_outgoing.push_back(_T("{\"success\": false, \"msg\": \"Invalid request\"}"));
+							pushOutgoing(_T("{\"success\": false, \"msg\": \"Invalid request\"}"));
 							continue;
 						}
 
 						tstring action = (*request)[_T("request")].string_value();
 						if(action != _T("login")) {
-							_outgoing.push_back(_T("{\"success\": false, \"msg\": \"Unknown request\"}"));
+							pushOutgoing(_T("{\"success\": false, \"msg\": \"Unknown request\"}"));
 							continue;
 						}
 
@@ -383,12 +383,12 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 
 						tstring accountName = pApp->_gatewayWeb->loggedIn(authToken);
 						if(accountName.empty()) {
-							_outgoing.push_back(_T("{\"success\": false, \"msg\": \"Invalid authToken\"}"));
+							pushOutgoing(_T("{\"success\": false, \"msg\": \"Invalid authToken\"}"));
 						}
 						else {
 							shared_ptr<Account> account = pApp->_accountManager->account(accountName);
 							if(account.get() == nullptr) {
-								_outgoing.push_back(_T("{\"success\": false, \"msg\": \"Could not find account\"}"));
+								pushOutgoing(_T("{\"success\": false, \"msg\": \"Could not find account\"}"));
 								continue;
 							}
 
@@ -396,28 +396,26 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 
 							if(admin) {
 								if(!account->admin()) {
-									_outgoing.push_back(_T("{\"success\": false, \"msg\": \"Missing administration priviliges\"}"));
+									pushOutgoing(_T("{\"success\": false, \"msg\": \"Missing administration priviliges\"}"));
 									continue;
 								}
 
-								session = make_shared<InstanceSession>(sessionId, pApp->_gatewayPipe, [&](tstring message) {
-									_outgoingMutex.lock();
-									_outgoing.push_back(message);
-									_outgoingMutex.unlock();
-								}, enableShell);
-
+								pushOutgoing(tstring(_T("{\"success\": true, \"session\": \"")) + sessionId + tstring(_T("\"}")));
 								associated = true;
-								continue;
+
+								session = make_shared<InstanceSession>(sessionId, pApp->_gatewayPipe, [&](tstring message) {
+									pushOutgoing(message);
+								}, enableShell);
 							}
+							else {
 
-							session = make_shared<InstanceSession>(sessionId, account, [&](tstring message) {
-								_outgoingMutex.lock();
-								_outgoing.push_back(message);
-								_outgoingMutex.unlock();
-							}, enableShell);
+								pushOutgoing(tstring(_T("{\"success\": true, \"session\": \"")) + sessionId + tstring(_T("\"}")));
+								associated = true;
 
-							_outgoing.push_back(tstring(_T("{\"success\": true, \"session\": \"")) + sessionId + tstring(_T("\"}")));
-							associated = true;
+								session = make_shared<InstanceSession>(sessionId, account, [&](tstring message) {
+									pushOutgoing(message);
+								}, enableShell);
+							}
 						}
 					}
 					else if(session.get() != nullptr) {

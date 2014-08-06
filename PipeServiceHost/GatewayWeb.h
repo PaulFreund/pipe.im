@@ -36,6 +36,12 @@ public:
 	GatewayWebHandlerSocket();
 	~GatewayWebHandlerSocket();
 	void handleRequest(Poco::Net::HTTPServerRequest& request, Poco::Net::HTTPServerResponse& response);
+
+	void pushOutgoing(const tstring& message) {
+		_outgoingMutex.lock();
+		_outgoing.push_back(message);
+		_outgoingMutex.unlock();
+	}
 };
 
 //======================================================================================================================
