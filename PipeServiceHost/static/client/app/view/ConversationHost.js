@@ -26,7 +26,9 @@ Ext.define('PipeUI.view.ConversationHost', {
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	controller: Ext.create('PipeUI.view.BaseController', {
+	controller: {
+		type: 'baseController',
+
 		onServiceSelected: function (address) {
 			if(!address) { return; }
 			this.openConversation(address, true);
@@ -149,7 +151,7 @@ Ext.define('PipeUI.view.ConversationHost', {
 				address: service.address
 			}));
 		}
-	})
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 });

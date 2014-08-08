@@ -17,7 +17,9 @@ Ext.define('PipeUI.view.Browser', {
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	controller: Ext.create('PipeUI.view.BaseController', {
+	controller: {
+		type: 'baseController',
+
 		onInit: function () {
 			this.view.on('select', this.onServiceSelect, this);
 		},
@@ -103,7 +105,7 @@ Ext.define('PipeUI.view.Browser', {
 			parent.appendChild(newChild);
 			return newChild;
 		}
-	})
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 });

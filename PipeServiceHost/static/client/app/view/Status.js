@@ -13,7 +13,9 @@ Ext.define('PipeUI.view.Status', {
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	controller: Ext.create('PipeUI.view.BaseController', {
+	controller: {
+		type: 'baseController',
+
 		onSession: function (session) {
 			this.session = session;
 		},
@@ -24,7 +26,7 @@ Ext.define('PipeUI.view.Status', {
 
 		onMessage: function (msg) {
 		},
-	})
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 });

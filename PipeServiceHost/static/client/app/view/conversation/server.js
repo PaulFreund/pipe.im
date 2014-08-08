@@ -42,7 +42,9 @@ Ext.define('PipeUI.view.conversation.server', {
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	controller: Ext.create('PipeUI.view.conversation.BaseController', {
+	controller: {
+		type: 'conversation.baseController',
+
 		onActivate: function () {
 			if(this.view && this.view.tab) {
 				try {
@@ -105,7 +107,7 @@ Ext.define('PipeUI.view.conversation.server', {
 			}
 			catch(e) { }
 		}
-	})
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 });

@@ -4,12 +4,13 @@ Ext.define('PipeUI.view.conversation.BaseController', {
 	//------------------------------------------------------------------------------------------------------------------
 
 	extend: 'PipeUI.view.BaseController',
+	alias: 'controller.conversation.baseController',
 
 	//------------------------------------------------------------------------------------------------------------------
 
 	init: function () {
-		this.view.on('activate', this.onActivate, this);
 		this.callParent(arguments);
+		this.view.on('activate', this.onActivate, this);
 	},
 
 	//------------------------------------------------------------------------------------------------------------------

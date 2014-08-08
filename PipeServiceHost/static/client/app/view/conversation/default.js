@@ -7,14 +7,16 @@ Ext.define('PipeUI.view.conversation.default', {
 	xtype: 'pipe-conversation-default',
 
 	//------------------------------------------------------------------------------------------------------------------
+	
+	controller: {
+		type: 'conversation.baseController',
 
-	controller: Ext.create('PipeUI.view.conversation.BaseController', {
 		onInfo: function (info) {
 		},
 
 		onReceived: function (msg) {
 		}
-	})
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 });

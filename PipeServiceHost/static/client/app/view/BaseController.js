@@ -16,13 +16,26 @@ Ext.define('PipeUI.view.BaseController', {
 		this.register('server_message', this.onSession);
 		this.register('connection_session', this.onServerMessage);
 		if(this.onInit) { this.onInit(); }
+
+		this.view.on('beforedestroy', this.unregister, this);
+
 	},
 
 	//------------------------------------------------------------------------------------------------------------------
 
+	registered: [],
+
 	register: function(event, fn) {
 		if(fn) {
 			Ext.on(event, fn, this);
+			this.registered[event] = fn;
+		}
+	},
+
+	unregister: function () {
+		for(var handler in this.registered) {
+			if(!this.registered.hasOwnProperty(handler)) { continue; }
+			Ext.un(handler, this.registered[handler], this);
 		}
 	},
 

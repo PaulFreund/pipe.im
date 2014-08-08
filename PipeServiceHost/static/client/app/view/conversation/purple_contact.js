@@ -76,7 +76,9 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	controller: Ext.create('PipeUI.view.conversation.BaseController', {
+	controller: {
+		type: 'conversation.baseController',
+
 		onActivate: function () {
 			if(this.view && this.view.tab) {
 				try { this.view.tab.setGlyph(0); } catch(e) { }
@@ -146,7 +148,7 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 			}
 			catch(e) { }
 		}
-	})
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 });
