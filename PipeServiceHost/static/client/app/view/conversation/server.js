@@ -3,12 +3,46 @@
 Ext.define('PipeUI.view.conversation.server', {
 	//------------------------------------------------------------------------------------------------------------------
 
-	extend: 'PipeUI.view.conversation.BaseView',
+	extend: 'Ext.panel.Panel',
 	xtype: 'pipe-conversation-server',
 
 	//------------------------------------------------------------------------------------------------------------------
+	
+	items: [
+		{
+			xtype: 'grid',
+			reference: 'messages',
+			hideHeaders: true,
+			autoScroll: true,
+			border: false,
+			columnLines: false,
+			enableColumnResize: false,
+			rowLines: false,
+			flex: true,
+			store: {
+				fields: [
+					{ name: 'timestamp' },
+					{ name: 'message' },
+				]
+			},
+			columns: [
+				{
+					text: 'Timestamp',
+					dataIndex: 'timestamp',
+					flex: 2
+				},
+				{
+					text: 'Message',
+					dataIndex: 'message',
+					flex: 20
+				}
+			],
+		}
+	],
 
-	controller: {
+	//------------------------------------------------------------------------------------------------------------------
+
+	controller: Ext.create('PipeUI.view.conversation.BaseController', {
 		onActivate: function () {
 			if(this.view && this.view.tab) {
 				try {
@@ -71,41 +105,7 @@ Ext.define('PipeUI.view.conversation.server', {
 			}
 			catch(e) { }
 		}
-	},
-
-	//------------------------------------------------------------------------------------------------------------------
-	
-	items: [
-		{
-			xtype: 'grid',
-			reference: 'messages',
-			hideHeaders: true,
-			autoScroll: true,
-			border: false,
-			columnLines: false,
-			enableColumnResize: false,
-			rowLines: false,
-			flex: true,
-			store: {
-				fields: [
-					{ name: 'timestamp' },
-					{ name: 'message' },
-				]
-			},
-			columns: [
-				{
-					text: 'Timestamp',
-					dataIndex: 'timestamp',
-					flex: 2
-				},
-				{
-					text: 'Message',
-					dataIndex: 'message',
-					flex: 20
-				}
-			],
-		}
-	]
+	})
 
 	//------------------------------------------------------------------------------------------------------------------
 });

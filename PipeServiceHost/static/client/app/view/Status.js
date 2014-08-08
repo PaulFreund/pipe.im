@@ -6,32 +6,27 @@ Ext.define('PipeUI.view.Status', {
 	extend: 'Ext.toolbar.Toolbar',
 	xtype: 'pipe-status',
 
-	//------------------------------------------------------------------------------------------------------------------
-
-	controller: 'StatusController',
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	style: 'background-color: #333;'
+	style: 'background-color: #333;',
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	controller: Ext.create('PipeUI.view.BaseController', {
+		onSession: function (session) {
+			this.session = session;
+		},
+
+		onDisconnected: function () {
+			this.session = undefined;
+		},
+
+		onMessage: function (msg) {
+		},
+	})
 
 	//------------------------------------------------------------------------------------------------------------------
 });
 
-//======================================================================================================================
-
-Ext.define('PipeUI.view.StatusController', {
-	extend: 'PipeUI.view.BaseController',
-	alias: 'controller.StatusController',
-
-	onSession: function (session) {
-		this.session = session;
-	},
-
-	onDisconnected: function () {
-		this.session = undefined;
-	},
-
-	onMessage: function (msg) {
-	},
-});
 //======================================================================================================================
