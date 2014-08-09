@@ -94,7 +94,7 @@ Ext.define('PipeUI.view.ConversationHost', {
 			// Try to create new
 			if(!conv) {
 				// Get service for address if possible, add to pendig if not
-				var service = this.getService(address);
+				var service = this.getService(address).data;
 				if(!service) {
 					if(!this.pending[address]) {
 						this.pending[address] = {
@@ -138,8 +138,8 @@ Ext.define('PipeUI.view.ConversationHost', {
 		createConversation: function (service) {
 			// Get xtype
 			var viewType = 'default';
-			if(service.type && service.type.length > 0 && PipeUI.view.conversation[service.type]) {
-				viewType = service.type;
+			if(service.typeName && service.typeName.length > 0 && PipeUI.view.conversation[service.typeName]) {
+				viewType = service.typeName;
 			}
 
 			// Create new conversation

@@ -68,7 +68,7 @@ Ext.define('PipeUI.controller.Connection', {
 
 	onMessage: function (message) {
 		var messageText = message.data.toString();
-		//Ext.log({ level: 'debug' }, '[Connection::onMessage] ' + messageText);
+		Ext.log({ level: 'debug' }, '[Connection::onMessage] ' + messageText);
 		var data = JSON.parse(messageText);
 		if (this.sessionRequested) {
 			if (data.success && data.session !== undefined) {

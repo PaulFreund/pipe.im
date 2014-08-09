@@ -643,7 +643,8 @@ public:
 			PipeObject& msgObj = msg.object_items();
 			msgObj[TokenMessageRef] = _identifier;
 			msgObj[TokenMessageAddress] = address;
-			msgObj[TokenMessageCommand] = _T("commands");
+			msgObj[TokenMessageCommand] = _T("command_schema");
+			msgObj[TokenMessageData] = _nextCommandStart;
 			_cbOutputMessage(msgObj);
 		}
 		// This message has already been started
@@ -675,18 +676,16 @@ public:
 				return;
 			}
 
-			if(obj[TokenMessageMessage].string_value() == _T("commands")) {
-				if(_helpInvoked) {
-					displayHelp(obj);
-					_helpInvoked = false;
-					return;
-				}
+			if(_helpInvoked && obj[TokenMessageMessage].string_value() == _T("commands")) {
+				displayHelp(obj);
+				_helpInvoked = false;
+				return;
+			}
 
-				if(!_nextCommandStart.empty()) {
-					newCommand(obj, _nextCommandStart);
-					_nextCommandStart = _T("");
-					return;
-				}
+			if(!_nextCommandStart.empty() && obj[TokenMessageMessage].string_value() == _T("command_schema")) {
+				newCommand(obj, _nextCommandStart);
+				_nextCommandStart = _T("");
+				return;
 			}
 
 			tstringstream output;

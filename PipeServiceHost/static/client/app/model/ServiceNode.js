@@ -10,7 +10,7 @@ Ext.define('PipeUI.model.ServiceNode', {
 	idProperty: 'address',
 	fields: [
 		{ name: 'address', type: 'string' },
-		{ name: 'type', type: 'string' },
+		{ name: 'typeName', type: 'string' },
 		{ name: 'description', type: 'string' },
 		{ name: 'state', type: 'auto' },
 		{ name: 'commands', type: 'auto' },
