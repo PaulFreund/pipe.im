@@ -25,7 +25,7 @@ Ext.define('PipeUI.view.Browser', {
 		},
 
 		onServiceSelect: function (row, record, index, opts) {
-			Ext.GlobalEvents.fireEvent('browser_service_selected', record.data.info.address);
+			Ext.GlobalEvents.fireEvent('browser_service_selected', record.data.address);
 		},
 
 		onSession: function (session) {
@@ -44,7 +44,6 @@ Ext.define('PipeUI.view.Browser', {
 				case 'children':
 					if(msg.data && msg.data.length > 0) {
 						Ext.Array.forEach(msg.data, function (child) {
-							var node = this.ensureService(child);
 							this.send({ address: child, command: 'children' });
 							this.send({ address: child, command: 'info' });
 						}, this);
@@ -52,29 +51,33 @@ Ext.define('PipeUI.view.Browser', {
 					break;
 
 				case 'info':
-					var node = this.ensureService(msg.data.address);
-					node.set('text', msg.data.instance_name);
-					node.set('info', msg.data);
+					var node = this.createService(msg.address);
+					node.set('text', msg.data.state.name);
+					node.set('type', msg.data.type);
+					node.set('description', msg.data.description);
+					node.set('state', msg.data.state);
+					node.set('commands', msg.data.commands);
+					node.set('messages', msg.data.messages);
 					break;
 
 				case 'node_added':
-					var node = this.ensureService(msg.data);
-					this.send({ address: msg.data, command: 'info' });
+					this.send({ address: msg.address, command: 'info' });
 					break;
 
 				case 'node_removed':
-					var node = this.ensureService(msg.data);
-					// TODO: Debug
-					node.erase();
+					var node = this.getService(msg.address);
+					if(node) { node.erase(); }
 					break;
 
-				case 'node_info_updated':
-					this.send({ address: msg.data, command: 'info' });
+				case 'state':
+				case 'state_updated':
+					var node = this.getService(msg.address);
+					if(node) { node.set('state', msg.data); }
 					break;
 			}
 		},
 
-		ensureService: function (address) {
+		createService: function (address) {
 			var store = this.getView().getStore();
 			var root = store.getRoot();
 			if(address == 'pipe') { return root; }
@@ -88,7 +91,7 @@ Ext.define('PipeUI.view.Browser', {
 			var path = address.split('.');
 			if(path.length > 1) {
 				path.splice(-1, 1);
-				parent = this.ensureService(path.join('.'));
+				parent = this.createService(path.join('.'));
 			}
 
 			if(!parent.data.expandable)
@@ -99,7 +102,6 @@ Ext.define('PipeUI.view.Browser', {
 				address: address,
 				text: address,
 				expandable: false,
-				info: {}
 			});
 
 			parent.appendChild(newChild);

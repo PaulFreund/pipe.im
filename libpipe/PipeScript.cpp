@@ -105,113 +105,113 @@ shared_ptr<PipeScript> PipeScript::create(ServiceRoot* serviceRoot, const tstrin
 	// Add the "pipe" object to the stack
 	duk_push_object(ctx);
 
-	// Add children function to the stack
-	{
-		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
-			// Get parameter
-			auto addressPtr = duk_get_string(fctx, -1); // Value stack: [string?]
-			if(addressPtr == NULL) { return 0; }
+	//// Add children function to the stack
+	//{
+	//	duk_push_c_function(ctx, [](duk_context* fctx) -> int {
+	//		// Get parameter
+	//		auto addressPtr = duk_get_string(fctx, -1); // Value stack: [string?]
+	//		if(addressPtr == NULL) { return 0; }
 
-			tstring address = tstring(addressPtr);
-			duk_pop(fctx); // Value stack: 
+	//		tstring address = tstring(addressPtr);
+	//		duk_pop(fctx); // Value stack: 
 
-			// Get Context
-			auto pContext = getContextPtr(fctx);
-			if(pContext == nullptr) { return 0; }
+	//		// Get Context
+	//		auto pContext = getContextPtr(fctx);
+	//		if(pContext == nullptr) { return 0; }
 
-			tstring result = PipeJson(*pContext->nodeChildren(address)).dump();
+	//		tstring result = PipeJson(*pContext->nodeChildren(address)).dump();
 
-			duk_push_string(fctx, result.c_str()); // Value stack: [string]
-			duk_json_decode(fctx, -1); // Value stack: [json]
+	//		duk_push_string(fctx, result.c_str()); // Value stack: [string]
+	//		duk_json_decode(fctx, -1); // Value stack: [json]
 
-			return 1;
-		}, 1); // One argument, Value stack: [global][object][function]
+	//		return 1;
+	//	}, 1); // One argument, Value stack: [global][object][function]
 
-		if(duk_put_prop_string(ctx, -2, _T("children")) == 0) { // Value stack: [global][object]
-			throw tstring(_T("Could not add children function to scripting context"));
-		}
-	}
+	//	if(duk_put_prop_string(ctx, -2, _T("children")) == 0) { // Value stack: [global][object]
+	//		throw tstring(_T("Could not add children function to scripting context"));
+	//	}
+	//}
 
-	// Add commands function to the stack
-	{
-		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
-			// Get parameter
-			auto addressPtr = duk_get_string(fctx, -1); // Value stack: [string?]
-			if(addressPtr == NULL) { return 0; }
+	//// Add commands function to the stack
+	//{
+	//	duk_push_c_function(ctx, [](duk_context* fctx) -> int {
+	//		// Get parameter
+	//		auto addressPtr = duk_get_string(fctx, -1); // Value stack: [string?]
+	//		if(addressPtr == NULL) { return 0; }
 
-			tstring address = tstring(addressPtr);
-			duk_pop(fctx); // Value stack: 
+	//		tstring address = tstring(addressPtr);
+	//		duk_pop(fctx); // Value stack: 
 
-			// Get Context
-			auto pContext = getContextPtr(fctx);
-			if(pContext == nullptr) { return 0; }
+	//		// Get Context
+	//		auto pContext = getContextPtr(fctx);
+	//		if(pContext == nullptr) { return 0; }
 
-			tstring result = PipeJson(*pContext->nodeCommandTypes(address)).dump();
+	//		tstring result = PipeJson(*pContext->nodeCommandTypes(address)).dump();
 
-			duk_push_string(fctx, result.c_str()); // Value stack: [string]
-			duk_json_decode(fctx, -1); // Value stack: [json]
+	//		duk_push_string(fctx, result.c_str()); // Value stack: [string]
+	//		duk_json_decode(fctx, -1); // Value stack: [json]
 
-			return 1;
-		}, 1); // One argument, Value stack: [global][object][function]
+	//		return 1;
+	//	}, 1); // One argument, Value stack: [global][object][function]
 
-		if(duk_put_prop_string(ctx, -2, _T("commands")) == 0) { // Value stack: [global][object]
-			throw tstring(_T("Could not add commands function to scripting context"));
-		}
-	}
+	//	if(duk_put_prop_string(ctx, -2, _T("commands")) == 0) { // Value stack: [global][object]
+	//		throw tstring(_T("Could not add commands function to scripting context"));
+	//	}
+	//}
 
-	// Add messages function to the stack
-	{
-		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
-			// Get parameter
-			auto addressPtr = duk_get_string(fctx, -1); // Value stack: [string?]
-			if(addressPtr == NULL) { return 0; }
+	//// Add messages function to the stack
+	//{
+	//	duk_push_c_function(ctx, [](duk_context* fctx) -> int {
+	//		// Get parameter
+	//		auto addressPtr = duk_get_string(fctx, -1); // Value stack: [string?]
+	//		if(addressPtr == NULL) { return 0; }
 
-			tstring address = tstring(addressPtr);
-			duk_pop(fctx); // Value stack: 
+	//		tstring address = tstring(addressPtr);
+	//		duk_pop(fctx); // Value stack: 
 
-			// Get Context
-			auto pContext = getContextPtr(fctx);
-			if(pContext == nullptr) { return 0; }
+	//		// Get Context
+	//		auto pContext = getContextPtr(fctx);
+	//		if(pContext == nullptr) { return 0; }
 
-			tstring result = PipeJson(*pContext->nodeMessageTypes(address)).dump();
+	//		tstring result = PipeJson(*pContext->nodeMessageTypes(address)).dump();
 
-			duk_push_string(fctx, result.c_str()); // Value stack: [string]
-			duk_json_decode(fctx, -1); // Value stack: [json]
+	//		duk_push_string(fctx, result.c_str()); // Value stack: [string]
+	//		duk_json_decode(fctx, -1); // Value stack: [json]
 
-			return 1;
-		}, 1); // One argument, Value stack: [global][object][function]
+	//		return 1;
+	//	}, 1); // One argument, Value stack: [global][object][function]
 
-		if(duk_put_prop_string(ctx, -2, _T("messages")) == 0) { // Value stack: [global][object]
-			throw tstring(_T("Could not add messages function to scripting context"));
-		}
-	}
+	//	if(duk_put_prop_string(ctx, -2, _T("messages")) == 0) { // Value stack: [global][object]
+	//		throw tstring(_T("Could not add messages function to scripting context"));
+	//	}
+	//}
 
-	// Add info function to the stack
-	{
-		duk_push_c_function(ctx, [](duk_context* fctx) -> int {
-			// Get parameter
-			auto addressPtr = duk_get_string(fctx, -1); // Value stack: [string?]
-			if(addressPtr == NULL) { return 0; }
+	//// Add info function to the stack
+	//{
+	//	duk_push_c_function(ctx, [](duk_context* fctx) -> int {
+	//		// Get parameter
+	//		auto addressPtr = duk_get_string(fctx, -1); // Value stack: [string?]
+	//		if(addressPtr == NULL) { return 0; }
 
-			tstring address = tstring(addressPtr);
-			duk_pop(fctx); // Value stack: 
+	//		tstring address = tstring(addressPtr);
+	//		duk_pop(fctx); // Value stack: 
 
-			// Get Context
-			auto pContext = getContextPtr(fctx);
-			if(pContext == nullptr) { return 0; }
+	//		// Get Context
+	//		auto pContext = getContextPtr(fctx);
+	//		if(pContext == nullptr) { return 0; }
 
-			tstring result = PipeJson(*pContext->nodeInfo(address)).dump();
+	//		tstring result = PipeJson(*pContext->nodeInfo(address)).dump();
 
-			duk_push_string(fctx, result.c_str()); // Value stack: [string]
-			duk_json_decode(fctx, -1); // Value stack: [json]
+	//		duk_push_string(fctx, result.c_str()); // Value stack: [string]
+	//		duk_json_decode(fctx, -1); // Value stack: [json]
 
-			return 1;
-		}, 1); // One argument, Value stack: [global][object][function]
+	//		return 1;
+	//	}, 1); // One argument, Value stack: [global][object][function]
 
-		if(duk_put_prop_string(ctx, -2, _T("info")) == 0) { // Value stack: [global][object]
-			throw tstring(_T("Could not add info function to scripting context"));
-		}
-	}
+	//	if(duk_put_prop_string(ctx, -2, _T("info")) == 0) { // Value stack: [global][object]
+	//		throw tstring(_T("Could not add info function to scripting context"));
+	//	}
+	//}
 
 	// Add set function to the stack
 	{

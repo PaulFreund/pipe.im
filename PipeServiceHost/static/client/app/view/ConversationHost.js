@@ -138,15 +138,15 @@ Ext.define('PipeUI.view.ConversationHost', {
 		createConversation: function (service) {
 			// Get xtype
 			var viewType = 'default';
-			if(service.type_name && service.type_name.length > 0 && PipeUI.view.conversation[service.type_name]) {
-				viewType = service.type_name;
+			if(service.type && service.type.length > 0 && PipeUI.view.conversation[service.type]) {
+				viewType = service.type;
 			}
 
 			// Create new conversation
 			return this.getView().add(new PipeUI.view.conversation[viewType]({
 				tabConfig: {
-					title: service.instance_name,
-					tooltip: service.instance_description
+					title: service.state.name,
+					tooltip: service.state.description
 				},
 				address: service.address
 			}));

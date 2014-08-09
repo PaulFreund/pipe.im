@@ -25,7 +25,7 @@ public:
 	//------------------------------------------------------------------------------------------------------------------
 
 private:
-	std::map<tstring, std::shared_ptr<PipeServiceNode>> _children;
+	std::map<tstring, std::shared_ptr<IPipeExtensionService>> _children;
 	PipeArrayPtr _outgoing;
 	std::map<tstring, PipeCommandFunction> _commands;
 	PipeArrayPtr _commandTypes;
@@ -61,40 +61,40 @@ public:
 
 protected:
 	//------------------------------------------------------------------------------------------------------------------
-	const std::map<tstring, std::shared_ptr<PipeServiceNode>>& children() {
+	const std::map<tstring, std::shared_ptr<IPipeExtensionService>>& children() {
 		return _children;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void infoSetName(const tstring& newName) {
+	void stateSetName(const tstring& newName) {
 		_instance_name = newName;
-		infoUpdated();
+		stateUpdated();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	void infoSetDescription(const tstring& newDescription) {
+	void stateSetDescription(const tstring& newDescription) {
 		_instance_description = newDescription;
-		infoUpdated();
+		stateUpdated();
 	}
 	
 	//------------------------------------------------------------------------------------------------------------------
 
-	void infoSetState(const tstring& key, const tstring& value) {
+	void stateSetInfoState(const tstring& key, const tstring& value) {
 		for(size_t idx = 0, cnt = _state_infos->size(); idx < cnt; idx++) {
 			if((*_state_infos)[idx].object_items()[_T("key")].string_value() == key) {
 				(*_state_infos)[idx].object_items()[_T("value")] = value;
-				infoUpdated();
+				stateUpdated();
 				return;
 			}
 		}
 		_state_infos->push_back(PipeObject { { _T("key"), key}, { _T("value"), value} });
-		infoUpdated();
+		stateUpdated();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	tstring infoGetState(const tstring& key) {
+	tstring stateGetInfoState(const tstring& key) {
 		for(size_t idx = 0, cnt = _state_infos->size(); idx < cnt; idx++) {
 			if((*_state_infos)[idx].object_items()[_T("key")].string_value() == key) {
 				return (*_state_infos)[idx].object_items()[_T("value")].string_value();
@@ -105,11 +105,11 @@ protected:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	void infoDeleteState(const tstring& key) {
+	void stateDeleteInfoState(const tstring& key) {
 		for(size_t idx = 0, cnt = _state_infos->size(); idx < cnt; idx++) {
 			if((*_state_infos)[idx].object_items()[_T("key")].string_value() == key) {
 				_state_infos->erase(begin(*_state_infos)+idx);
-				infoUpdated();
+				stateUpdated();
 				break;
 			}
 		}
@@ -117,8 +117,8 @@ protected:
 	
 	//------------------------------------------------------------------------------------------------------------------
 
-	void infoUpdated() {
-		pushOutgoing(_T(""), _T("node_info_updated"), _address);
+	void stateUpdated() {
+		pushOutgoing(_T(""), _T("state_updated"), *nodeState());
 	}
 
 public:
@@ -136,21 +136,20 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	void addChild(const tstring& address, const std::shared_ptr<PipeServiceNode>& child) {
+	void addChild(const tstring& address, const std::shared_ptr<IPipeExtensionService>& child) {
 		if(_children.count(address))
 			throw tstring(_T("There already is a child with the name \"") + address + _T("\""));
 
 		_children[address] = child;
-
 		pushOutgoing(_T(""), _T("node_added"), address);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	void removeChild(const tstring& name) {
-		if(_children.count(name)) {
-			_children.erase(name);
-			pushOutgoing(_T(""), _T("node_removed"), name);
+	void removeChild(const tstring& address) {
+		if(_children.count(address)) {
+			_children.erase(address);
+			pushOutgoing(_T(""), _T("node_removed"), address);
 		}
 	}
 
@@ -262,76 +261,50 @@ public:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeArrayPtr nodeChildren(const tstring& address) {
+protected:
+	virtual PipeArrayPtr nodeChildren() {
 		PipeArrayPtr children = newArray();
-		if(address == _address) {
-			for(auto&& child : _children) {
-				children->push_back(child.first);
-			}
+		for(auto&& child : _children) {
+			children->push_back(child.first);
 		}
-		else {
-			tstring nextAddress = relativeChildAddress(address);
-			if(_children.count(nextAddress))
-				children = _children[nextAddress]->nodeChildren(address);
-		}
-
 		return children;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeArrayPtr nodeCommandTypes(const tstring& address) {
-		PipeArrayPtr commandTypes = newArray();
-		if(address == _address) {
-			commandTypes = _commandTypes;
-		}
-		else {
-			tstring nextAddress = relativeChildAddress(address);
-			if(_children.count(nextAddress))
-				commandTypes = _children[nextAddress]->nodeCommandTypes(address);
-		}
-
-		return commandTypes;
+	virtual PipeArrayPtr nodeCommandTypes() {
+		return _commandTypes;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeArrayPtr nodeMessageTypes(const tstring& address) {
-		PipeArrayPtr messageTypes = newArray();
-		if(address == _address) {
-			messageTypes = _messageTypes;
-		}
-		else {
-			tstring nextAddress = relativeChildAddress(address);
-			if(_children.count(nextAddress))
-				messageTypes = _children[nextAddress]->nodeMessageTypes(address);
-		}
-
-		return messageTypes;
+	virtual PipeArrayPtr nodeMessageTypes() {
+		return _messageTypes;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeObjectPtr nodeInfo(const tstring& address) {
+	virtual PipeObjectPtr nodeInfo() {
 		PipeObjectPtr info = newObject();
-		if(address == _address) {
-			(*info)[TokenMessageAddress] = _address;
-			(*info)[_T("type_name")] = _type_name;
-			(*info)[_T("type_description")] = _type_description;
-			(*info)[_T("instance_name")] = _instance_name;
-			(*info)[_T("instance_description")] = _instance_description;
-			(*info)[_T("icon")] = _icon;
-			(*info)[_T("state_infos")] = *_state_infos;
-		}
-		else {
-			tstring nextAddress = relativeChildAddress(address);
-			if(_children.count(nextAddress))
-				info = _children[nextAddress]->nodeInfo(address);
-		}
-
+		(*info)[TokenMessageAddress] = _address;
+		(*info)[_T("type")] = _type_name;			
+		(*info)[_T("description")] = _type_description;
+		(*info)[_T("state")] = *nodeState();
+		(*info)[_T("commands")] = *nodeCommandTypes();
+		(*info)[_T("messages")] = *nodeMessageTypes();
 		return info;
 	}
 
+	//------------------------------------------------------------------------------------------------------------------
+
+	virtual PipeObjectPtr nodeState() {
+		PipeObjectPtr state = newObject();
+		(*state)[_T("name")] = _instance_name;
+		(*state)[_T("description")] = _instance_description;
+		(*state)[_T("icon")] = _icon;
+		(*state)[_T("state_infos")] = *_state_infos;
+		return state;
+	}
 	//------------------------------------------------------------------------------------------------------------------
 
 private:
@@ -350,22 +323,27 @@ private:
 	void addBaseCommandTypes() {
 		//--------------------------------------------------------------------------------------------------------------
 		addCommand(_T("children"), _T("Get a list of all child nodes"), [&](PipeObject& message) {
-			pushOutgoing(message[TokenMessageRef].string_value(), _T("children"), *nodeChildren(message[TokenMessageAddress].string_value()));
+			pushOutgoing(message[TokenMessageRef].string_value(), _T("children"), *nodeChildren());
 		});
 
 		//--------------------------------------------------------------------------------------------------------------
 		addCommand(_T("commands"), _T("Get a list of all available commands"), [&](PipeObject& message) {
-			pushOutgoing(message[TokenMessageRef].string_value(), _T("commands"), *nodeCommandTypes(message[TokenMessageAddress].string_value()));
+			pushOutgoing(message[TokenMessageRef].string_value(), _T("commands"), *nodeCommandTypes());
 		});
 
 		//--------------------------------------------------------------------------------------------------------------
 		addCommand(_T("messages"), _T("Get a list of all message types this node can emmit"), [&](PipeObject& message) {
-			pushOutgoing(message[TokenMessageRef].string_value(), _T("messages"), *nodeMessageTypes(message[TokenMessageAddress].string_value()));
+			pushOutgoing(message[TokenMessageRef].string_value(), _T("messages"), *nodeMessageTypes());
 		});
 
 		//--------------------------------------------------------------------------------------------------------------
-		addCommand(_T("info"), _T("Get a list of all child nodes"), [&](PipeObject& message) {
-			pushOutgoing(message[TokenMessageRef].string_value(), _T("info"),*nodeInfo(message[TokenMessageAddress].string_value()));
+		addCommand(_T("info"), _T("Get full information about the node including state"), [&](PipeObject& message) {
+			pushOutgoing(message[TokenMessageRef].string_value(), _T("info"),*nodeInfo());
+		});
+
+		//--------------------------------------------------------------------------------------------------------------
+		addCommand(_T("state"), _T("Get state information about the node"), [&](PipeObject& message) {
+			pushOutgoing(message[TokenMessageRef].string_value(), _T("state"), *nodeState());
 		});
 	}
 
@@ -373,22 +351,15 @@ private:
 
 	void addBaseMessageTypes() {
 		////--------------------------------------------------------------------------------------------------------------
-
-		addMessageType(_T("error"), _T("Error message"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Message")).description(_T("Error message text")));
-
-		////--------------------------------------------------------------------------------------------------------------
-		addMessageType(_T("node_added"), _T("Added node"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Name")).description(_T("Name of the added node")));
-
-		////--------------------------------------------------------------------------------------------------------------
-		addMessageType(_T("node_removed"), _T("Removed node"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Name")).description(_T("Name of the removed node")));
-		
-		////--------------------------------------------------------------------------------------------------------------
-		addMessageType(_T("node_info_updated"), _T("Updated node info"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Name")).description(_T("Name of the updated node")));
-		
-		////--------------------------------------------------------------------------------------------------------------
-		auto children = PipeSchema::Create(PipeSchemaTypeArray).title(_T("Chilren")).description(_T("List of child nodes"));
-		children.items(PipeSchemaTypeString).title(_T("Child")).description(_T("Name of a child node"));
-		addMessageType(_T("children"), _T("List of all child nodes"), children);
+		auto state = PipeSchema::Create(PipeSchemaTypeObject).title(_T("State")).description(_T("State of the node"));
+		state.property(_T("name"), PipeSchemaTypeString).title(_T("Title")).description(_T("Name of the node instance"));
+		state.property(_T("description"), PipeSchemaTypeString).title(_T("Title")).description(_T("Description of the node instance"));
+		state.property(_T("icon"), PipeSchemaTypeString).title(_T("Icon")).description(_T("Node icon"));
+		auto& stateDataState = state.property(_T("state_infos"), PipeSchemaTypeArray).title(_T("State infos")).description(_T("Runtime state information pairs for the node"));
+		auto& stateDataStateItems = stateDataState.items(PipeSchemaTypeObject).title(_T("State info")).description(_T("Runtime state info"));
+		stateDataStateItems.property(_T("key"), PipeSchemaTypeString).title(_T("Key")).description(_T("Name of the state info"));
+		stateDataStateItems.property(_T("value"), PipeSchemaTypeString).title(_T("Value")).description(_T("Value of the state info"));
+		addMessageType(_T("state"), _T("State of the node"), state);
 
 		////--------------------------------------------------------------------------------------------------------------
 		auto commands = PipeSchema::Create(PipeSchemaTypeArray).title(_T("Command types")).description(_T("List of commands this node accepts"));
@@ -409,16 +380,30 @@ private:
 		//--------------------------------------------------------------------------------------------------------------
 		auto info = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Info")).description(_T("Information about the node"));
 		info.property(TokenMessageAddress, PipeSchemaTypeString).title(_T("Address")).description(_T("Address of the node"));
-		info.property(_T("type_name"), PipeSchemaTypeString).title(_T("Type")).description(_T("Unique type identifier of this node"));
-		info.property(_T("type_description"), PipeSchemaTypeString).title(_T("Description")).description(_T("Description of the node type"));
-		info.property(_T("instance_name"), PipeSchemaTypeString).title(_T("Title")).description(_T("Name of the node instance"));
-		info.property(_T("instance_description"), PipeSchemaTypeString).title(_T("Title")).description(_T("Description of the node instance"));
-		info.property(_T("icon"), PipeSchemaTypeString).title(_T("Icon")).description(_T("Node icon identifier"));
-		auto& infoDataState = info.property(_T("state_infos"), PipeSchemaTypeArray).title(_T("State infos")).description(_T("Runtime state information pairs for the node"));
-		auto& infoDataStateItems = infoDataState.items(PipeSchemaTypeObject).title(_T("State info")).description(_T("Runtime state info"));
-		infoDataStateItems.property(_T("key"), PipeSchemaTypeString).title(_T("Key")).description(_T("Name of the state info"));
-		infoDataStateItems.property(_T("value"), PipeSchemaTypeString).title(_T("Value")).description(_T("Value of the state info"));
+		info.property(_T("type"), PipeSchemaTypeString).title(_T("Type")).description(_T("Unique type identifier of this node"));
+		info.property(_T("description"), PipeSchemaTypeString).title(_T("Description")).description(_T("Description of the node type"));
+		info.property(_T("state"), state);
+		info.property(_T("commands"), commands);
+		info.property(_T("messages"), messages);
 		addMessageType(_T("info"), _T("Information about this node"), info);
+
+		//--------------------------------------------------------------------------------------------------------------
+
+		addMessageType(_T("error"), _T("Error message"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Message")).description(_T("Error message text")));
+
+		////--------------------------------------------------------------------------------------------------------------
+		addMessageType(_T("node_added"), _T("Added node"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Address")).description(_T("Address of the added node")));
+
+		////--------------------------------------------------------------------------------------------------------------
+		addMessageType(_T("node_removed"), _T("Removed node"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Address")).description(_T("Address of the removed node")));
+		
+		////--------------------------------------------------------------------------------------------------------------
+		addMessageType(_T("state_updated"), _T("Updated node state"), state);
+		
+		////--------------------------------------------------------------------------------------------------------------
+		auto children = PipeSchema::Create(PipeSchemaTypeArray).title(_T("Chilren")).description(_T("List of child nodes"));
+		children.items(PipeSchemaTypeString).title(_T("Child")).description(_T("Name of a child node"));
+		addMessageType(_T("children"), _T("List of all child nodes"), children);
 	}
 };
 //======================================================================================================================

@@ -248,7 +248,7 @@ void ServiceRoot::initServices() {
 
 	tstring addressServicesProviders = addressServices + TokenAddressSeparator + _T("providers");
 	_serviceServicesProviders = make_shared<PipeServiceNode>(addressServicesProviders, _path, newObject(), _T("service_providers"), _T("Service provider types"), _T("Service providers"), _T("Available service providers"), _T("service_providers"));
-	_serviceServices->addChild(addressServicesProviders, _serviceServicesProviders);
+	_serviceServices->addChild(addressServicesProviders, static_cast<shared_ptr<IPipeExtensionService>>(_serviceServicesProviders));
 
 	// Add providers
 	for(auto& extension : Extensions) {
@@ -332,7 +332,7 @@ void ServiceRoot::initServices() {
 //----------------------------------------------------------------------------------------------------------------------
 
 tstring ServiceRoot::createService(const tstring& type, const tstring& name, PipeObject& settings) {
-	auto children = nodeChildren(TokenPipe);
+	auto children = nodeChildren();
 	for(auto& child : *children) {
 		auto childParts = texplode(child.string_value(), TokenAddressSeparator);
 		if(childParts[1] == name)
@@ -360,15 +360,15 @@ tstring ServiceRoot::createService(const tstring& type, const tstring& name, Pip
 
 		PipeObjectPtr ptrSettings(&settings, [](void*) { return; });
 		tstring addressService = _address + TokenAddressSeparator + name;
-		PipeServiceNode* service = static_cast<PipeServiceNode*>(extension->create(type, addressService, servicePath.toString(), ptrSettings));
+		IPipeExtensionService* service = extension->create(type, addressService, servicePath.toString(), ptrSettings);
 		if(service == nullptr)
 			return _T("Creating service failed");
 
-		addChild(addressService, shared_ptr<PipeServiceNode>(service));
+		addChild(addressService, shared_ptr<IPipeExtensionService>(service));
 
 		tstring addressInstance = _serviceServicesInstances->_address + TokenAddressSeparator + name;
 		auto instance = make_shared<PipeServiceNode>(addressInstance, _path, newObject(), _T("service_instance"), _T("InstanceConnection of a service"), type, _T("A ") + type + _T(" instance"), _T("service_instance_") + type);
-		_serviceServicesInstances->addChild(addressInstance, instance);
+		_serviceServicesInstances->addChild(addressInstance, static_cast<shared_ptr<IPipeExtensionService>>(instance));
 
 		// Delete command
 		{
