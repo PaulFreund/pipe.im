@@ -78,12 +78,12 @@ Ext.define('PipeUI.view.Browser', {
 						}
 					}
 					else {
-						node.data.set('text', msg.data.state.name);
-						node.data.set('typeName', msg.data.type);
-						node.data.set('description', msg.data.description);
-						node.data.set('state', msg.data.state);
-						node.data.set('commands', msg.data.commands);
-						node.data.set('messages', msg.data.messages);
+						node.set('text', msg.data.state.name);
+						node.set('typeName', msg.data.type);
+						node.set('description', msg.data.description);
+						node.set('state', msg.data.state);
+						node.set('commands', msg.data.commands);
+						node.set('messages', msg.data.messages);
 					}
 					break;
 
@@ -92,7 +92,7 @@ Ext.define('PipeUI.view.Browser', {
 					break;
 
 				case 'node_removed':
-					var node = this.getService(msg.address);
+					var node = this.getService(msg.data);
 					if(node) { node.erase(); }
 					break;
 

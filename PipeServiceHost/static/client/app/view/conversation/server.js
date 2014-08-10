@@ -1,5 +1,7 @@
 //======================================================================================================================
 
+// TODO: Find out why highlighting is so screwed up
+
 Ext.define('PipeUI.view.conversation.server', {
 	//------------------------------------------------------------------------------------------------------------------
 
@@ -67,7 +69,7 @@ Ext.define('PipeUI.view.conversation.server', {
 
 		onDisconnected: function () {
 			this.onReceived('Disconnected');
-			Ext.GlobalEvents.fireEvent('connection_connect');
+			//Ext.GlobalEvents.fireEvent('connection_connect');
 		},
 
 		onReceived: function (msg) {

@@ -7,6 +7,15 @@ Ext.define('PipeUI.view.conversation.default', {
 	xtype: 'pipe-conversation-default',
 
 	//------------------------------------------------------------------------------------------------------------------
+
+	statics: {
+		shouldCreate: function (messageType) {
+			// TODO
+			return true;
+		}
+	},
+
+	//------------------------------------------------------------------------------------------------------------------
 	
 	controller: {
 		type: 'conversation.baseController',

@@ -7,6 +7,15 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 	xtype: 'pipe-conversation-purple_contact',
 
 	//------------------------------------------------------------------------------------------------------------------
+
+	statics: {
+		shouldCreate: function (messageType) {
+			// TODO
+			return (messageType === 'message')
+		}
+	},
+
+	//------------------------------------------------------------------------------------------------------------------
 	
 	layout: {
 		type: 'vbox',

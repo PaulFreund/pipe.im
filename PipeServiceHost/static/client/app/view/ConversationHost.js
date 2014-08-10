@@ -43,9 +43,9 @@ Ext.define('PipeUI.view.ConversationHost', {
 
 		onDisconnected: function () {
 			var view = this.getView();
-			if(!view.items || view.items.length > 0) {
-				Ext.Array.forEach(view.items, function (item) {
-					if(item.closable)
+			if(!view.items || !view.items.items || view.items.items.length > 0) {
+				Ext.Array.forEach(view.items.items, function (item) {
+					if(item.address !== 'pipe' && item.closable)
 						item.close();
 				}, this);
 			}
@@ -72,11 +72,25 @@ Ext.define('PipeUI.view.ConversationHost', {
 					if(conv) { conv.close(); }
 					break;
 
-					// Dispatch messages
 				default:
-					this.openConversation(msg.address, false, msg);
-					break;
+					// Check if conversation is already open
+					if(this.getConversation(msg.address)) { break; }
 
+					// Get service
+					var service = this.getService(msg.address);
+					if(!service || !service.data) { break; }
+
+					// Check if conversatoin type exists and has shouldCreate defined
+					var convType = PipeUI.view.conversation[service.data.typeName];
+					if(convType && convType.shouldCreate) {
+						if(convType.shouldCreate(msg.message)) {
+							this.openConversation(msg.address, false, msg);
+						}
+						break;
+					}
+
+					this.openConversation(msg.address, false, msg);		
+					break;
 			}
 		},
 
@@ -94,7 +108,7 @@ Ext.define('PipeUI.view.ConversationHost', {
 			// Try to create new
 			if(!conv) {
 				// Get service for address if possible, add to pendig if not
-				var service = this.getService(address).data;
+				var service = this.getService(address);
 				if(!service) {
 					if(!this.pending[address]) {
 						this.pending[address] = {
@@ -110,7 +124,7 @@ Ext.define('PipeUI.view.ConversationHost', {
 				}
 				else {
 					// Create conversation with service
-					conv = this.createConversation(service);
+					conv = this.createConversation(service.data);
 					if(!conv) { debugger; }
 				}
 
@@ -143,6 +157,7 @@ Ext.define('PipeUI.view.ConversationHost', {
 			}
 
 			// Create new conversation
+			if(!service.state.name) { debugger; }
 			return this.getView().add(new PipeUI.view.conversation[viewType]({
 				tabConfig: {
 					title: service.state.name,
