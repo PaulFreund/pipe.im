@@ -643,8 +643,8 @@ public:
 			PipeObject& msgObj = msg.object_items();
 			msgObj[TokenMessageRef] = _identifier;
 			msgObj[TokenMessageAddress] = address;
-			msgObj[TokenMessageCommand] = _T("command_schema");
-			msgObj[TokenMessageData] = _nextCommandStart;
+			msgObj[TokenMessageCommand] = _T("command");
+			msgObj[TokenMessageData] = fragments[0];
 			_cbOutputMessage(msgObj);
 		}
 		// This message has already been started
@@ -682,7 +682,7 @@ public:
 				return;
 			}
 
-			if(!_nextCommandStart.empty() && obj[TokenMessageMessage].string_value() == _T("command_schema")) {
+			if(!_nextCommandStart.empty() && obj[TokenMessageMessage].string_value() == _T("command")) {
 				newCommand(obj, _nextCommandStart);
 				_nextCommandStart = _T("");
 				return;
@@ -729,9 +729,9 @@ public:
 private:
 	//------------------------------------------------------------------------------------------------------------------
 
-	void newCommand(PipeObject& nodeCommandsMsg, const tstring& commandStart) {
-		tstring address = nodeCommandsMsg[TokenMessageAddress].string_value();
-		PipeArray& nodeCommands = nodeCommandsMsg[TokenMessageData].array_items();
+	void newCommand(PipeObject& nodeCommandMsg, const tstring& commandStart) {
+		tstring address = nodeCommandMsg[TokenMessageAddress].string_value();
+		PipeObject& nodeCommand = nodeCommandMsg[TokenMessageData].object_items();
 		auto&& fragments = texplode(commandStart, _T(' '));
 		if(fragments.size() <= 0) { return; }
 
@@ -748,7 +748,7 @@ private:
 		}
 
 		// Warn when command is ambigous between shell and service
-		if(shellCommand && isPipeCommand(command, nodeCommands)) {
+		if(shellCommand && nodeCommand.count(_T("schema")) == 1) {
 			_cbOutputText(_T("Warning! Command is ambiguous, use !<command> to use shell instead of service or #<command> to explicitly use the service and stop this warning"));
 			shellCommand = false;
 		}
@@ -759,18 +759,13 @@ private:
 			newShellCommand(command, parameter, address);
 		}
 		else {
-			PipeJson* schema = nullptr;
-			for(auto&& addressCommand : nodeCommands) {
-				auto&& cmd = addressCommand.object_items();
-				if(cmd[TokenMessageCommand].string_value() == command)
-					schema = &addressCommand[_T("data_schema")];
-			}
-
-			// Invalid command
-			if(schema == nullptr) {
+			// Unknown command
+			if(nodeCommand.count(_T("schema")) != 1) {
 				_cbOutputText(_T("Error! command not found"));
 				return;
 			}
+
+			PipeJson* schema = &nodeCommand[_T("schema")];
 
 			_sendBuffer = PipeCommandBuffer(_identifier, address, command);
 
@@ -968,18 +963,6 @@ private:
 		}
 
 		//--------------------------------------------------------------------------------------------------------------
-	}
-
-	//------------------------------------------------------------------------------------------------------------------
-
-	bool isPipeCommand(const tstring& commandName, PipeArray& addressCommands) {
-		for(auto& command : addressCommands) {
-			auto& commandObj = command.object_items();
-			if(commandObj[TokenMessageCommand].string_value() == commandName) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------

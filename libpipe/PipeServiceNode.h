@@ -28,6 +28,8 @@ private:
 	std::map<tstring, std::shared_ptr<IPipeExtensionService>> _children;
 	PipeArrayPtr _outgoing;
 	std::map<tstring, PipeCommandFunction> _commands;
+	PipeArrayPtr _baseCommandTypes;
+	PipeArrayPtr _baseMessageTypes;
 	PipeArrayPtr _commandTypes;
 	PipeArrayPtr _messageTypes;
 	std::map<tstring, PipeObject> _commandTypeSchemas;
@@ -48,6 +50,8 @@ public:
 		, _icon(icon)
 		, _settings(settings)
 		, _outgoing(newArray())
+		, _baseCommandTypes(newArray())
+		, _baseMessageTypes(newArray())
 		, _commandTypes(newArray())
 		, _messageTypes(newArray())
 		, _instance_name(instance_name)
@@ -155,44 +159,49 @@ public:
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void addCommand(const tstring& name, const tstring& description, PipeCommandFunction handler) { auto def = PipeObject(); addCommand(name, description, def, handler); }
-	void addCommand(const tstring& name, const tstring& description, PipeObject& commandTypeDefinition, PipeCommandFunction handler) {
-		if(_commands.count(name))
+	void addCommand(const tstring& name, const tstring& description, PipeCommandFunction handler, bool baseCommand = false) { auto def = PipeObject(); addCommand(name, description, def, handler, baseCommand); }
+	void addCommand(const tstring& name, const tstring& description, PipeObject& commandTypeDefinition, PipeCommandFunction handler, bool baseCommand = false) {
+		if(_commandTypeSchemas.count(name))
 		   throw tstring(_T("Command already defined"));
 
-		// Optinally assert that the definition has the right format
-
-		for(auto&& commandType : *_commandTypes) {
-			if(commandType[TokenMessageCommand].string_value() == name)
-				throw tstring(_T("Message type already defined"));
+		// Add command
+		if(baseCommand) {
+			_baseCommandTypes->push_back(PipeObject {
+					{ TokenMessageCommand, name },
+					{ _T("description"), description },
+			});
+		}
+		else {
+			_commandTypes->push_back(PipeObject {
+					{ TokenMessageCommand, name },
+					{ _T("description"), description },
+			});
 		}
 
-		_commandTypes->push_back(PipeObject {
-			{ TokenMessageCommand, name },
-			{ _T("description"), description },
-		});
-
-		_commandTypeSchemas[name] = commandTypeDefinition;
-
+		_commandTypeSchemas[name] = PipeObject { { _T("schema"), commandTypeDefinition } };
 		_commands[name] = handler;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
-	void addMessageType(const tstring& name, const tstring& description, PipeObject& messageTypeDefinition) {
+	void addMessageType(const tstring& name, const tstring& description, PipeObject& messageTypeDefinition, bool baseMessage = false) {
+		if(_messageTypeSchemas.count(name))
+			throw tstring(_T("Message type already defined"));
 
-		// Optinally assert that the definition has the right format
 
-		for(auto&& messageType : *_messageTypes) {
-			if(messageType[TokenMessageMessage].string_value() == name)
-				throw tstring(_T("Message type already defined"));
+		if(baseMessage) {
+			_baseMessageTypes->push_back(PipeObject {
+					{ TokenMessageMessage, name },
+					{ _T("description"), description },
+			});
+		}
+		else {
+			_messageTypes->push_back(PipeObject {
+					{ TokenMessageMessage, name },
+					{ _T("description"), description },
+			});
 		}
 
-		_messageTypes->push_back(PipeObject {
-			{ TokenMessageMessage, name },
-			{ _T("description"), description },
-		});
-
-		_messageTypeSchemas[name] = messageTypeDefinition;
+		_messageTypeSchemas[name] = PipeObject { { _T("schema"), messageTypeDefinition } };
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -275,26 +284,46 @@ protected:
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeArrayPtr nodeCommandTypes() {
+	virtual PipeArrayPtr nodeCommandTypes(bool includeBasic = false) {
+		if(includeBasic) {
+			auto result = newArray();
+			result->insert(begin(*result), begin(*_baseCommandTypes), end(*_baseCommandTypes));
+			result->insert(begin(*result), begin(*_commandTypes), end(*_commandTypes));
+			return result;
+		}
+
 		return _commandTypes;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual PipeArrayPtr nodeMessageTypes() {
+	virtual PipeArrayPtr nodeMessageTypes(bool includeBasic = false) {
+		if(includeBasic) {
+			auto result = newArray();
+			result->insert(begin(*result), begin(*_baseMessageTypes), end(*_baseMessageTypes));
+			result->insert(begin(*result), begin(*_messageTypes), end(*_messageTypes));
+			return result;
+		}
+
 		return _messageTypes;
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 	
-	virtual const PipeObject& nodeCommandType(const tstring& name) {
-		return _commandTypeSchemas[name];
+	virtual const PipeObject nodeCommandType(const tstring& name) {
+		if(_commandTypeSchemas.count(name) == 1)
+			return _commandTypeSchemas[name];
+
+		return PipeObject();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	virtual const PipeObject& nodeMessageType(const tstring& name) {
-		return _messageTypeSchemas[name];
+	virtual const PipeObject nodeMessageType(const tstring& name) {
+		if(_messageTypeSchemas.count(name) == 1)
+			return _messageTypeSchemas[name];
+
+		return PipeObject();
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -340,51 +369,51 @@ private:
 		//--------------------------------------------------------------------------------------------------------------
 		addCommand(_T("children"), _T("Get a list of all child nodes"), [&](PipeObject& message) {
 			pushOutgoing(message[TokenMessageRef].string_value(), _T("children"), *nodeChildren());
-		});
+		}, true);
 
 		//--------------------------------------------------------------------------------------------------------------
-		addCommand(_T("commands"), _T("Get a list of all available commands"), [&](PipeObject& message) {
-			pushOutgoing(message[TokenMessageRef].string_value(), _T("commands"), *nodeCommandTypes());
-		});
+		addCommand(_T("commands"), _T("Get a list of all available commands including base commands"), [&](PipeObject& message) {
+			pushOutgoing(message[TokenMessageRef].string_value(), _T("commands"), *nodeCommandTypes(true));
+		}, true);
 
 		//--------------------------------------------------------------------------------------------------------------
 		auto cmdCommand = PipeSchema::Create(PipeSchemaTypeString).title(_T("Command")).description(_T("Command type name"));
-		addCommand(_T("command_schema"), _T("Get the schema of a command"), cmdCommand, [&](PipeObject& message) {
+		addCommand(_T("command"), _T("Get the schema of a command"), cmdCommand, [&](PipeObject& message) {
 			auto ref = message[TokenMessageRef].string_value();
 
 			if(message.count(TokenMessageData) != 1) {
 				pushOutgoing(ref, _T("error"), _T("Missing command data"));
 			}
 
-			pushOutgoing(ref, _T("command_schema"), nodeCommandType(message[TokenMessageData].string_value()));
-		});
+			pushOutgoing(ref, _T("command"), nodeCommandType(message[TokenMessageData].string_value()));
+		}, true);
 
 		//--------------------------------------------------------------------------------------------------------------
-		addCommand(_T("messages"), _T("Get a list of all message types this node can emmit"), [&](PipeObject& message) {
-			pushOutgoing(message[TokenMessageRef].string_value(), _T("messages"), *nodeMessageTypes());
-		});
+		addCommand(_T("messages"), _T("Get a list of all message types this node can emmit including base messages"), [&](PipeObject& message) {
+			pushOutgoing(message[TokenMessageRef].string_value(), _T("messages"), *nodeMessageTypes(true));
+		}, true);
 
 		//--------------------------------------------------------------------------------------------------------------
 		auto cmdMessage = PipeSchema::Create(PipeSchemaTypeString).title(_T("Message")).description(_T("Message type name"));
-		addCommand(_T("message_schema"), _T("Get the schema of a message"), cmdMessage, [&](PipeObject& message) {
+		addCommand(_T("message"), _T("Get the schema of a message"), cmdMessage, [&](PipeObject& message) {
 			auto ref = message[TokenMessageRef].string_value();
 
 			if(message.count(TokenMessageData) != 1) {
 				pushOutgoing(ref, _T("error"), _T("Missing command data"));
 			}
 
-			pushOutgoing(ref, _T("message_schema"), nodeMessageType(message[TokenMessageData].string_value()));
-		});
+			pushOutgoing(ref, _T("message"), nodeMessageType(message[TokenMessageData].string_value()));
+		}, true);
 
 		//--------------------------------------------------------------------------------------------------------------
 		addCommand(_T("info"), _T("Get full information about the node including state"), [&](PipeObject& message) {
 			pushOutgoing(message[TokenMessageRef].string_value(), _T("info"),*nodeInfo());
-		});
+		}, true);
 
 		//--------------------------------------------------------------------------------------------------------------
 		addCommand(_T("state"), _T("Get state information about the node"), [&](PipeObject& message) {
 			pushOutgoing(message[TokenMessageRef].string_value(), _T("state"), *nodeState());
-		});
+		}, true);
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -399,34 +428,36 @@ private:
 		auto& stateDataStateItems = stateDataState.items(PipeSchemaTypeObject).title(_T("State info")).description(_T("Runtime state info"));
 		stateDataStateItems.property(_T("key"), PipeSchemaTypeString).title(_T("Key")).description(_T("Name of the state info"));
 		stateDataStateItems.property(_T("value"), PipeSchemaTypeString).title(_T("Value")).description(_T("Value of the state info"));
-		addMessageType(_T("state"), _T("State of the node"), state);
+		addMessageType(_T("state"), _T("State of the node"), state, true);
 
 		////--------------------------------------------------------------------------------------------------------------
 		auto commands = PipeSchema::Create(PipeSchemaTypeArray).title(_T("Command types")).description(_T("List of commands this node accepts"));
 		auto& commandsItems = commands.items(PipeSchemaTypeObject).title(_T("Command type")).description(_T("Definition of a command type"));
 		commandsItems.property(TokenMessageCommand, PipeSchemaTypeString).title(_T("Name")).description(_T("Name of the command"));
 		commandsItems.property(_T("description"), PipeSchemaTypeString).title(_T("Description")).description(_T("Description of the command"));
-		addMessageType(_T("commands"), _T("List of all available commands"), commands);
+		addMessageType(_T("commands"), _T("List of all available commands"), commands, true);
 
 		////--------------------------------------------------------------------------------------------------------------
-		auto command_schema = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Command schema")).description(_T("Data schema of the command"));
-		addMessageType(_T("command_schema"), _T("Data schema of a command"), command_schema);
+		auto command = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Command definition")).description(_T("Contains data schema of the command"));
+		command.property(_T("schema"), PipeSchemaTypeObject).title(_T("Command schema")).description(_T("Data schema of the command"));
+		addMessageType(_T("command"), _T("Data schema of a command"), command, true);
 
 		////--------------------------------------------------------------------------------------------------------------
 		auto messages = PipeSchema::Create(PipeSchemaTypeArray).title(_T("Message types")).description(_T("List of messages this node can emmit"));
 		auto& messagesItems = messages.items(PipeSchemaTypeObject).title(_T("Message type")).description(_T("Definition of a message type"));
 		messagesItems.property(TokenMessageMessage, PipeSchemaTypeString).title(_T("Name")).description(_T("Name of the message type"));
 		messagesItems.property(_T("description"), PipeSchemaTypeString).title(_T("Description")).description(_T("Description of the message type"));
-		addMessageType(_T("messages"), _T("List of all message types this node can emmit"), messages);
+		addMessageType(_T("messages"), _T("List of all message types this node can emmit"), messages, true);
 
 		////--------------------------------------------------------------------------------------------------------------
-		auto message_schema = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Message schema")).description(_T("Data schema of the message"));
-		addMessageType(_T("message_schema"), _T("Data schema of a message"), message_schema);
+		auto message = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Message definition")).description(_T("Contains data schema of the message"));
+		message.property(_T("schema"), PipeSchemaTypeObject).title(_T("Message schema")).description(_T("Data schema of the message"));
+		addMessageType(_T("message"), _T("Data schema of a message"), message, true);
 
 		////--------------------------------------------------------------------------------------------------------------
 		auto children = PipeSchema::Create(PipeSchemaTypeArray).title(_T("Chilren")).description(_T("List of child nodes"));
 		children.items(PipeSchemaTypeString).title(_T("Child")).description(_T("Name of a child node"));
-		addMessageType(_T("children"), _T("List of all child nodes"), children);
+		addMessageType(_T("children"), _T("List of all child nodes"), children, true);
 
 		////--------------------------------------------------------------------------------------------------------------
 		auto info = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Info")).description(_T("Information about the node"));
@@ -437,19 +468,19 @@ private:
 		info.property(_T("children"), children);
 		info.property(_T("commands"), commands);
 		info.property(_T("messages"), messages);
-		addMessageType(_T("info"), _T("Information about this node"), info);
+		addMessageType(_T("info"), _T("Information about this node"), info, true);
 
 		////--------------------------------------------------------------------------------------------------------------
-		addMessageType(_T("error"), _T("Error message"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Message")).description(_T("Error message text")));
+		addMessageType(_T("error"), _T("Error message"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Message")).description(_T("Error message text")), true);
 
 		////--------------------------------------------------------------------------------------------------------------
-		addMessageType(_T("node_added"), _T("Added node"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Address")).description(_T("Address of the added node")));
+		addMessageType(_T("node_added"), _T("Added node"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Address")).description(_T("Address of the added node")), true);
 
 		////--------------------------------------------------------------------------------------------------------------
-		addMessageType(_T("node_removed"), _T("Removed node"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Address")).description(_T("Address of the removed node")));
+		addMessageType(_T("node_removed"), _T("Removed node"), PipeSchema::Create(PipeSchemaTypeString).title(_T("Address")).description(_T("Address of the removed node")), true);
 		
 		////--------------------------------------------------------------------------------------------------------------
-		addMessageType(_T("state_updated"), _T("Updated node state"), state);
+		addMessageType(_T("state_updated"), _T("Updated node state"), state, true);
 	}
 };
 //======================================================================================================================
