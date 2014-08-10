@@ -337,7 +337,7 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 
 		pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket connection established")));
 
-		const int bufferSize = 10240;
+		const int bufferSize = 2048;
 		ws.setReceiveBufferSize(bufferSize);
 		ws.setBlocking(false);
 

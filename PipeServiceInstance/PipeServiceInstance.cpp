@@ -48,6 +48,17 @@ PipeServiceInstanceApplication::~PipeServiceInstanceApplication() {}
 
 //----------------------------------------------------------------------------------------------------------------------
 
+vector<uint8_t> createOutgoing(tstring message) {
+	vector<uint8_t> result;
+	uint32_t messageSize = static_cast<uint32_t>(message.length());
+	result.resize(messageSize + sizeof(uint32_t));
+	memcpy(result.data(), &messageSize, sizeof(uint32_t));
+	memcpy(result.data() + sizeof(uint32_t), message.data(), messageSize);
+	return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 	ErrorHandler* origHandler = ErrorHandler::get();
 	ErrorHandler* newHandler = new PipeServiceInstanceErrorHandler();
@@ -80,7 +91,7 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 	LibPipe::init(_resultServices);
 
 	vector<tstring> incoming;
-	vector<tstring> outgoing;
+	vector<vector<uint8_t>> outgoing;
 
 	while(!_shutdown) {
 		try {
@@ -94,13 +105,13 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 			msgAccount[TokenMessageAddress] = _T("pipe_host");
 			msgAccount[TokenMessageMessage] = _T("account");
 			msgAccount[TokenMessageData] = _client;
-			outgoing.push_back(PipeJson(msgAccount).dump());
+			outgoing.push_back(createOutgoing(PipeJson(msgAccount).dump()));
 
 			// Open socket
 			StreamSocket ss(SocketAddress(_address, _port));
 			ss.setBlocking(false);
 
-			const int bufferSize = 10240;
+			const int bufferSize = 2048;
 			ss.setReceiveBufferSize(bufferSize);
 			ubyte buffer[bufferSize];
 			_retryCount = 0;
@@ -154,18 +165,21 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 				// Receive from pipe
 				PipeArrayPtr received = LibPipe::pull();
 				for(auto& ele : *received) {
-					outgoing.push_back(ele.dump());
+					outgoing.push_back(createOutgoing(ele.dump()));
 				}
 
 				// Send to server
 				if(outgoing.size() > 0) {
-					for(auto& message : outgoing) {
-						uint32_t messageSize = static_cast<uint32_t>(message.length());
-						ss.sendBytes(&messageSize, sizeof(uint32_t));
-						ss.sendBytes(message.data(), message.length());
-						logger().information(tstring(_T("[PipeServiceInstanceApplication::main] Message sent: ")) + message);
+					while(!outgoing.empty()) {
+						try {
+							ss.sendBytes(outgoing[0].data(), outgoing[0].size());
+							
+							outgoing.erase(outgoing.begin());
+						}
+						catch(...) {
+							logger().warning(tstring(_T("[PipeServiceInstanceApplication::main] Sending failed")));
+						}
 					}
-					outgoing.clear();
 				}
 			}
 			while(bytesRead != 0);

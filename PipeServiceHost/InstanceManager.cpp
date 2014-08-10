@@ -73,6 +73,17 @@ InstanceConnection::InstanceConnection(const StreamSocket& socket) : TCPServerCo
 
 //----------------------------------------------------------------------------------------------------------------------
 
+vector<uint8_t> createOutgoing(tstring message) {
+	vector<uint8_t> result;
+	uint32_t messageSize = static_cast<uint32_t>(message.length());
+	result.resize(messageSize + sizeof(uint32_t));
+	memcpy(result.data(), &messageSize, sizeof(uint32_t));
+	memcpy(result.data() + sizeof(uint32_t), message.data(), messageSize);
+	return result;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
 void InstanceConnection::run() {
 	PipeServiceHost* pApp = reinterpret_cast<PipeServiceHost*>(&Application::instance());
 	tstring clientName = _T("");
@@ -86,9 +97,9 @@ void InstanceConnection::run() {
 		if(pApp->_debug) { pApp->logger().information(tstring(_T("[InstanceConnection::run] InstanceConnection connection established"))); }
 
 		vector<tstring> incoming;
-		vector<tstring> outgoing;
+		vector<vector<uint8_t>> outgoing;
 
-		const int bufferSize = 10240;
+		const int bufferSize = 2048;
 		ss.setReceiveBufferSize(bufferSize);
 		ubyte buffer[bufferSize];
 
@@ -160,19 +171,23 @@ void InstanceConnection::run() {
 
 			// Get outgoing messages from instance
 			if(client.get() != nullptr) {
-				auto newOutgoing = client->getOutgoing(); // TODO: Inefficeint
-				outgoing.insert(begin(outgoing), begin(newOutgoing), end(newOutgoing));
+				for(auto& message : client->getOutgoing()) {
+					outgoing.push_back(createOutgoing(message));
+				}
 			}
 
 			// Send to server
 			if(outgoing.size() > 0) {
-				for(auto& message : outgoing) {
-					uint32_t messageSize = static_cast<uint32_t>(message.length());
-					ss.sendBytes(&messageSize, sizeof(uint32_t));
-					ss.sendBytes(message.data(), message.length());
-					pApp->logger().information(tstring(_T("[InstanceConnection::run] Message sent: ")) + message);
+				while(!outgoing.empty()) {
+					try {
+						ss.sendBytes(outgoing[0].data(), outgoing[0].size());
+
+						outgoing.erase(outgoing.begin());
+					}
+					catch(...) {
+						pApp->logger().warning(tstring(_T("[InstanceConnection::run] Sending failed")));
+					}
 				}
-				outgoing.clear();
 			}
 		}
 		while(bytesRead != 0);	
