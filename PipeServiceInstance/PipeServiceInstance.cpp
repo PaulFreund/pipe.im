@@ -144,7 +144,7 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 				// Send to pipe
 				if(incoming.size() > 0) {
 					for(auto& message : incoming) {
-						logger().information(tstring(_T("[PipeServiceInstanceApplication::main] Message received: ")) + message);
+						//logger().information(tstring(_T("[PipeServiceInstanceApplication::main] Message received: ")) + message);
 						try {
 							PipeObjectPtr messageObj = parseObject(message);
 							if((*messageObj)[TokenMessageAddress].string_value() == _T("pipe_host")) {
@@ -169,16 +169,13 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 				}
 
 				// Send to server
-				if(outgoing.size() > 0) {
-					while(!outgoing.empty()) {
-						try {
-							ss.sendBytes(outgoing[0].data(), outgoing[0].size());
-							
-							outgoing.erase(outgoing.begin());
-						}
-						catch(...) {
-							logger().warning(tstring(_T("[PipeServiceInstanceApplication::main] Sending failed")));
-						}
+				while(!outgoing.empty()) {
+					try {
+						ss.sendBytes(outgoing[0].data(), outgoing[0].size());
+						outgoing.erase(outgoing.begin());
+					}
+					catch(...) {
+						logger().warning(tstring(_T("[PipeServiceInstanceApplication::main] Sending failed")));
 					}
 				}
 			}

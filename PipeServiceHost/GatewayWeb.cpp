@@ -341,6 +341,8 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 		ws.setReceiveBufferSize(bufferSize);
 		ws.setBlocking(false);
 
+		vector<tstring> currentOutgoing;
+
 		char buffer[bufferSize];
 		int flags;
 		int bytesRead;
@@ -354,7 +356,7 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 
 			// Send to pipe
 			for(auto& message : _incoming) {
-				pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket message received")) + message);
+				//pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket message received")) + message);
 
 				try {
 					if(!associated) {
@@ -434,17 +436,14 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 
 			_incoming.clear();
 
-
-			if(_outgoing.size() > 0) {
-				// Send to client
-				_outgoingMutex.lock();
-				vector<tstring> currentOutgoing = _outgoing; // TOOD: Slow
-				_outgoing.clear();
-				_outgoingMutex.unlock();
-
-				for(auto& message : currentOutgoing) {
-					ws.sendFrame(message.data(), message.length());
-					pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket message sent")) + message);
+			while(!_outgoing.empty()) {
+				try {
+					ws.sendFrame(_outgoing[0].data(), _outgoing[0].length());
+					popOutgoing();
+					//pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket message sent")) + _outgoing[0]);
+				}
+				catch(...) {
+					pApp->logger().warning(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Sending failed")));
 				}
 			}
 		}

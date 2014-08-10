@@ -42,6 +42,12 @@ public:
 		_outgoing.push_back(message);
 		_outgoingMutex.unlock();
 	}
+
+	void popOutgoing() {
+		_outgoingMutex.lock();
+		_outgoing.erase(_outgoing.begin());
+		_outgoingMutex.unlock();
+	}
 };
 
 //======================================================================================================================

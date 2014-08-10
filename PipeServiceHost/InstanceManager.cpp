@@ -130,7 +130,7 @@ void InstanceConnection::run() {
 			if(incoming.size() > 0) {
 				for(auto& message : incoming) {
 					if(message.empty()) { continue; }
-					if(pApp->_debug) { pApp->logger().information(tstring(_T("[InstanceConnection::run] InstanceConnection Message received: ")) + message); }
+					//if(pApp->_debug) { pApp->logger().information(tstring(_T("[InstanceConnection::run] InstanceConnection Message received: ")) + message); }
 					try {
 						if(!associated) {
 							PipeObjectPtr messageObj = parseObject(message);
@@ -181,7 +181,6 @@ void InstanceConnection::run() {
 				while(!outgoing.empty()) {
 					try {
 						ss.sendBytes(outgoing[0].data(), outgoing[0].size());
-
 						outgoing.erase(outgoing.begin());
 					}
 					catch(...) {
