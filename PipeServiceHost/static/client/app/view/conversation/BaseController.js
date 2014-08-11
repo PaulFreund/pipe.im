@@ -9,8 +9,41 @@ Ext.define('PipeUI.view.conversation.BaseController', {
 	//------------------------------------------------------------------------------------------------------------------
 
 	init: function () {
+		var myself = this;
+
 		this.callParent(arguments);
 		this.view.on('activate', this.onActivate, this);
+		
+		if(this.view && this.view.address) {
+
+			var service = this.getService(this.view.address);
+			if(!service || !service.data || !service.data.commands) { return; }
+
+			var toolbarItems = [];
+			for(var command in service.data.commands) {
+				var cmd = service.data.commands[command];
+
+				var cmdFkt = 'on_' + cmd.command;
+				if(this[cmdFkt]) { continue; }
+
+				toolbarItems.push({
+					xtype: 'button',
+					text: cmd.command,
+					tooltip: cmd.description,
+					handler: cmdFkt
+				});
+
+				this[cmdFkt] = function () {
+					myself.send({ address: myself.view.address, command: 'command', data: cmd.command });
+				};
+			}
+
+			this.view.addDocked({
+				xtype: 'toolbar',
+				dock: 'top',
+				items: toolbarItems
+			});
+		}
 	},
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -57,10 +90,28 @@ Ext.define('PipeUI.view.conversation.BaseController', {
 				if(this.onInfo) { this.onInfo(msg.data); }
 				break;
 
+			case 'command':
+				if(msg.data && msg.data.schema) { this.onCommand(msg.data.schema); }
+				break;
+
 			default:
 				if(this.onReceived) { this.onReceived(msg); }
 				break;
 		}
+	},
+
+	onCommand: function (schema) {
+		if(!this.view || !this.view.address) { return; }
+		var myself = this;
+		this.commandWindow = Ext.create('PipeUI.view.dialog.Command', {
+			autoShow: true,
+			schema: schema,
+			onSend: function (command) {
+				command.address = myself.view.address;
+				myself.send(command);
+			}
+		});
+		debugger;
 	},
 
 	//--------------------------------------------------------------------------------------------------------------

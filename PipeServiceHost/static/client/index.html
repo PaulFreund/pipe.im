@@ -10,6 +10,7 @@
 		
 		<script type="text/javascript" src="http://dev.sencha.com/extjs/5.0.1/ext-all-debug.js"></script>
 		<script type="text/javascript" src="http://dev.sencha.com/extjs/5.0.1/packages/ext-theme-crisp/build/ext-theme-crisp.js" defer=""></script>
+		<script type="text/javascript" src="app/lib/jsoneditor.js" defer=""></script>
 
 		<script type="text/javascript">
 			Ext.application({
@@ -33,11 +34,13 @@
 				],
 
 				requires: [
+					'PipeUI.view.dialog.Login',
+					'PipeUI.view.dialog.Command',
 					'PipeUI.view.BaseController',
 					'PipeUI.view.conversation.BaseController'
 				],
 
-				autoCreateViewport: true,
+				autoCreateViewport: true
 			});
 		</script>
 

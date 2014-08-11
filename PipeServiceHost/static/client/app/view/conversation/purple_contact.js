@@ -76,7 +76,7 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 				{
 					xtype: 'button',
 					text: 'Send',
-					handler: 'onSend',
+					handler: 'on_say',
 					margin: '0 0 0 10'
 				}
 			]
@@ -113,11 +113,11 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 
 		onSpecialKey: function (field, e) {
 			if(e.getKey() === e.ENTER) {
-				this.onSend();
+				this.on_say();
 			}
 		},
 
-		onSend: function () {
+		on_say: function () {
 			var textBox = this.lookupReference('sendText');
 			var outgoing = textBox.value;
 			textBox.reset();
