@@ -8,12 +8,6 @@ Ext.define('PipeUI.view.dialog.Command', {
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	constructor: function() {
-		debugger;
-	},
-
-	//------------------------------------------------------------------------------------------------------------------
-
 	title: 'Command',
 	closable: true,
 	resizable: true,
@@ -25,76 +19,52 @@ Ext.define('PipeUI.view.dialog.Command', {
 	//------------------------------------------------------------------------------------------------------------------
 
 	items: {
-		/*
-		xtype: 'form',
-		reference: 'loginForm',
-		url: '/rest/login',
-		defaultType: 'textfield',
-
-		items: [{
-			name: 'account',
-			fieldLabel: 'Account',
-			allowBlank: false,
-			enableKeyEvents: true,
-			listeners: {
-				specialKey: 'onSpecialKey'
-			}
-		}, {
-			name: 'password',
-			inputType: 'password',
-			fieldLabel: 'Password',
-			allowBlank: false,
-			enableKeyEvents: true,
-			listeners: {
-				specialKey: 'onSpecialKey'
-			}
-		}],
-		*/
+		xtype: 'component',
+		height: '90%',
+		width: '90%',
+		id: 'editor_holder'
 	},
 
 	buttons: [{
-		/*
-		text: 'Login',
-		handler: 'onLogin'
-		*/
+		text: 'Send',
+		handler: 'doSend'
 	}],
 
 	//------------------------------------------------------------------------------------------------------------------
 
 	controller: Ext.create('Ext.app.ViewController', {
-		onSpecialKey: function (field, e) {
-			if(e.getKey() === e.ENTER) {
-				this.onLogin();
-			}
+		init: function() {
+			this.view.on('afterrender', this.onAfterRender, this);
+			this.view.on('destroy', this.onDestroy, this);
 		},
 
-		onLogin: function () {
-			var myself = this;
-			var form = this.lookupReference('loginForm').getForm();
-			if(form) {
-				form.submit({
-					success: function (form, action) {
-						myself.fireViewEvent('loginComplete', myself.getView());
-					},
-					failure: function (form, action) {
-						var msg = 'Error';
-						switch(action.failureType) {
-							case Ext.form.action.Action.CLIENT_INVALID:
-								msg = 'Please supply valid login data';
-								break;
-							case Ext.form.action.Action.CONNECT_FAILURE:
-								msg = 'Login failed';
-								if(action.response) { msg += ': ' + action.response.responseText; }
-								break;
-						}
+		onAfterRender: function () {
+			debugger;
+			this.editor = new JSONEditor(document.getElementById('editor_holder'), {
+				ajax: false,
+				no_additional_properties: true,
+				required_by_default: true,
+				disable_edit_json: true,
+				disable_collapse: true,
+				disable_array_reorder: true,
+				disable_properties: true,
+				theme: 'jqueryui',
+				iconlib: 'fontawesome4',
 
-						Ext.Msg.alert('Error', msg);
-					}
-				});
-			}
-			else {
-				Ext.Msg.alert('Error', 'Form could not be found');
-			}
+				schema: this.view.schema,
+			});
+		},
+
+		onDestroy: function() {
+			if(this.editor) { this.editor.destroy(); }
+		},
+
+		doSend: function () {
+			var errors = this.editor.validate();
+			if(errors.length) { debugger; }
+
+			this.view.onSend(this.editor.getValue());
+			
 		}
 	})
 

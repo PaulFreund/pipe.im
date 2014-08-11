@@ -91,7 +91,7 @@ Ext.define('PipeUI.view.conversation.BaseController', {
 				break;
 
 			case 'command':
-				if(msg.data && msg.data.schema) { this.onCommand(msg.data.schema); }
+				if(msg.data && msg.data.name && msg.data.schema) { this.onCommand(msg.data.name, msg.data.schema); }
 				break;
 
 			default:
@@ -100,18 +100,21 @@ Ext.define('PipeUI.view.conversation.BaseController', {
 		}
 	},
 
-	onCommand: function (schema) {
+	onCommand: function (command, schema) {
 		if(!this.view || !this.view.address) { return; }
 		var myself = this;
 		this.commandWindow = Ext.create('PipeUI.view.dialog.Command', {
 			autoShow: true,
 			schema: schema,
-			onSend: function (command) {
-				command.address = myself.view.address;
-				myself.send(command);
+			onSend: function (result) {
+				myself.send({
+					command: command,
+					address: myself.view.address,
+					data: result
+				});
+				myself.commandWindow.destroy();
 			}
 		});
-		debugger;
 	},
 
 	//--------------------------------------------------------------------------------------------------------------

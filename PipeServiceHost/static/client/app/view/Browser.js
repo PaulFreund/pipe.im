@@ -88,7 +88,7 @@ Ext.define('PipeUI.view.Browser', {
 					break;
 
 				case 'node_added':
-					this.send({ address: msg.address, command: 'info' });
+					this.send({ address: msg.data, command: 'info' });
 					break;
 
 				case 'node_removed':

@@ -732,12 +732,18 @@ private:
 	void newCommand(PipeObject& nodeCommandMsg, const tstring& commandStart) {
 		tstring address = nodeCommandMsg[TokenMessageAddress].string_value();
 		PipeObject& nodeCommand = nodeCommandMsg[TokenMessageData].object_items();
+
 		auto&& fragments = texplode(commandStart, _T(' '));
 		if(fragments.size() <= 0) { return; }
 
 		// Get command
 		tstring command = fragments[0];
 		fragments.erase(begin(fragments));
+
+		tstring nodeCommandName = _T("");
+		if(nodeCommand.count(_T("name")) == 1) {
+			nodeCommandName = nodeCommand[_T("name")].string_value();
+		}
 
 		bool shellCommand = isShellCommand(command);
 
@@ -748,7 +754,7 @@ private:
 		}
 
 		// Warn when command is ambigous between shell and service
-		if(shellCommand && nodeCommand.count(_T("schema")) == 1) {
+		if(shellCommand && nodeCommandName == command) {
 			_cbOutputText(_T("Warning! Command is ambiguous, use !<command> to use shell instead of service or #<command> to explicitly use the service and stop this warning"));
 			shellCommand = false;
 		}
@@ -760,7 +766,7 @@ private:
 		}
 		else {
 			// Unknown command
-			if(nodeCommand.count(_T("schema")) != 1) {
+			if(command != nodeCommandName || nodeCommand.count(_T("schema")) != 1) {
 				_cbOutputText(_T("Error! command not found"));
 				return;
 			}

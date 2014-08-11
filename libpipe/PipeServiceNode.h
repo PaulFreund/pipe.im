@@ -178,7 +178,10 @@ public:
 			});
 		}
 
-		_commandTypeSchemas[name] = PipeObject { { _T("schema"), commandTypeDefinition } };
+		_commandTypeSchemas[name] = PipeObject { 
+			{ _T("name"), name },
+			{ _T("schema"), commandTypeDefinition }
+		};
 		_commands[name] = handler;
 	}
 
@@ -201,7 +204,10 @@ public:
 			});
 		}
 
-		_messageTypeSchemas[name] = PipeObject { { _T("schema"), messageTypeDefinition } };
+		_messageTypeSchemas[name] = PipeObject {
+			{ _T("name"), name },
+			{ _T("schema"), messageTypeDefinition } 
+		};
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -439,6 +445,7 @@ private:
 
 		////--------------------------------------------------------------------------------------------------------------
 		auto command = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Command definition")).description(_T("Contains data schema of the command"));
+		command.property(_T("name"), PipeSchemaTypeString).title(_T("Command name")).description(_T("Name for command schema"));
 		command.property(_T("schema"), PipeSchemaTypeObject).title(_T("Command schema")).description(_T("Data schema of the command"));
 		addMessageType(_T("command"), _T("Data schema of a command"), command, true);
 
@@ -451,6 +458,7 @@ private:
 
 		////--------------------------------------------------------------------------------------------------------------
 		auto message = PipeSchema::Create(PipeSchemaTypeObject).title(_T("Message definition")).description(_T("Contains data schema of the message"));
+		message.property(_T("name"), PipeSchemaTypeString).title(_T("Message name")).description(_T("Name for message schema"));
 		message.property(_T("schema"), PipeSchemaTypeObject).title(_T("Message schema")).description(_T("Data schema of the message"));
 		addMessageType(_T("message"), _T("Data schema of a message"), message, true);
 
