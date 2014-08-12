@@ -102,6 +102,13 @@ Ext.define('PipeUI.view.conversation.BaseController', {
 
 	onCommand: function (command, schema) {
 		if(!this.view || !this.view.address) { return; }
+		if(!schema) {
+			this.send({
+				command: command,
+				address: myself.view.address
+			});
+		}
+
 		var myself = this;
 		this.commandWindow = Ext.create('PipeUI.view.dialog.Command', {
 			autoShow: true,
