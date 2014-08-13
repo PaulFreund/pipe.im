@@ -31,7 +31,7 @@ Ext.define('PipeUI.view.ConversationHost', {
 
 		onServiceSelected: function (address) {
 			if(!address) { return; }
-			this.openConversation(address, true);
+			this.updateConversation(address, true);
 		},
 
 		pending: {},
@@ -55,16 +55,9 @@ Ext.define('PipeUI.view.ConversationHost', {
 
 		onMessage: function (msg) {
 			switch(msg.message) {
+				case 'info':
 				case 'children':
 				case 'node_added':
-					break;
-
-				case 'info':
-					// open if pending
-					if(this.pending[msg.address]) {
-						this.openConversation(msg.address, false, msg);
-						break;
-					}
 					break;
 
 				case 'node_removed':
@@ -73,25 +66,67 @@ Ext.define('PipeUI.view.ConversationHost', {
 					break;
 
 				default:
-					// Check if conversation is already open
-					if(this.getConversation(msg.address)) { break; }
-
-					// Get service
-					var service = this.getService(msg.address);
-					if(!service || !service.data) { break; }
-
-					// Check if conversatoin type exists and has shouldCreate defined
-					var convType = PipeUI.view.conversation[service.data.typeName];
-					if(convType && convType.shouldCreate) {
-						if(convType.shouldCreate(msg.message)) {
-							this.openConversation(msg.address, false, msg);
-						}
-						break;
-					}
-
-					this.openConversation(msg.address, false, msg);		
+					this.updateConversation(msg.address, false, msg);
 					break;
 			}
+		},
+
+		onServiceUpdate: function (address) {
+			if(this.pending[address] && this.pending[address].messages.length) {
+				this.updateConversation(address, false);
+			}
+		},
+
+		updateConversation: function(address, activate, msg) {
+			// Add to pending list
+			if(!this.pending[address]) {
+				this.pending[address] = { activate: activate, messages: [] };
+			}
+
+			if(msg) { this.pending[address].messages.push(msg); }
+			this.pending[address].activate = activate;
+
+			// Check if conversation is already open
+			var conv = this.getConversation(address);
+
+			if(!conv) {
+				// If service exists
+				var service = this.getService(address);
+				if(!service || !service.data) { return; }
+
+				var shouldCreate = true;
+				if(msg || this.pending[address].messages.length) {
+					// Check if the conversation type wants to be created
+					var convType = PipeUI.view.conversation[service.data.typeName];
+					if(convType && convType.shouldCreate) {
+						shouldCreate = false;
+						for(var msg in this.pending[address].messages) {
+							if(convType.shouldCreate(this.pending[address].messages[msg].message)) {
+								shouldCreate = true;
+								break;
+							}
+						}
+					}
+				}
+
+				if(!shouldCreate) { return }
+
+				// Creat conversation if requested
+				conv = this.createConversation(service.data);
+
+				// Add messages if any
+				if(conv && conv.controller) {
+					for(var msg in this.pending[address].messages) {
+						conv.controller.onMessage(this.pending[address].messages[msg]);
+					}
+				}
+
+				this.pending[address].messages = [];
+			}
+
+			// Activate conversation if requested
+			if(conv && this.pending[address].activate) { this.getView().setActiveTab(conv); }
+			this.pending[address].activate = false;
 		},
 
 		getConversation: function (address) {
@@ -99,54 +134,6 @@ Ext.define('PipeUI.view.ConversationHost', {
 			return view.items.findBy(function (item, key) {
 				return item.address == address;
 			}, this);
-		},
-
-		openConversation: function (address, activate, message) {
-			// Get probably existing conversation
-			var conv = this.getConversation(address);
-
-			// Try to create new
-			if(!conv) {
-				// Get service for address if possible, add to pendig if not
-				var service = this.getService(address);
-				if(!service) {
-					if(!this.pending[address]) {
-						this.pending[address] = {
-							activate: activate,
-							messages: [message]
-						};
-					}
-					else {
-						this.pending[address].messages.push(message);
-					}
-
-					return;
-				}
-				else {
-					// Create conversation with service
-					conv = this.createConversation(service.data);
-					if(!conv) { debugger; }
-				}
-
-				// Messages to be added to new view
-				var messages = message ? [message] : [];
-
-				// Add pending information
-				if(this.pending[address]) {
-					if(this.pending[address].activate) { activate = true; }
-					if(this.pending[address].messages) { messages = messages.concat(this.pending[address].messages); }
-					delete this.pending[address];
-				}
-
-				// Add messages if any
-				var controller = conv.getController();
-				if(controller) {
-					for(var idx in messages) { controller.onMessage(messages[idx]); }
-				}
-			}
-
-			// Activate if requested
-			if(activate) { this.getView().setActiveTab(conv); }
 		},
 
 		createConversation: function (service) {

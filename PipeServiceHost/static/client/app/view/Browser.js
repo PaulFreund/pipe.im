@@ -68,6 +68,7 @@ Ext.define('PipeUI.view.Browser', {
 							});
 
 							parentNode.appendChild(node);
+							Ext.GlobalEvents.fireEvent('service_update', msg.address, node);
 						}
 
 						// Get info for children
@@ -84,6 +85,7 @@ Ext.define('PipeUI.view.Browser', {
 						node.set('state', msg.data.state);
 						node.set('commands', msg.data.commands);
 						node.set('messages', msg.data.messages);
+						Ext.GlobalEvents.fireEvent('service_update', msg.address, node);
 					}
 					break;
 
