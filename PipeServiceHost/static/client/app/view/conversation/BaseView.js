@@ -14,46 +14,29 @@ Ext.define('PipeUI.view.conversation.BaseView', {
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	gridModel: {
-		fields: [
-			{ name: 'timestamp' },
-			{ name: 'message' },
-		]
-	},
-
-	gridColumns: [
-		{
-			text: 'Timestamp',
-			dataIndex: 'timestamp',
-			flex: 2
+	items: [{
+		xtype: 'grid',
+		reference: 'messages',
+		hideHeaders: true,
+		autoScroll: true,
+		border: false,
+		columnLines: false,
+		enableColumnResize: false,
+		rowLines: false,
+		flex: 1,
+		store: {
+			fields: [
+				{ name: 'message' }
+			]
 		},
-		{
-			text: 'Message',
-			dataIndex: 'message',
-			flex: 20
-		}
-	],
-
-	//------------------------------------------------------------------------------------------------------------------
-
-	initComponent: function () {
-		this.callParent(arguments);
-		this.add([
+		columns: [
 			{
-				xtype: 'grid',
-				reference: 'messages',
-				hideHeaders: true,
-				autoScroll: true,
-				border: false,
-				columnLines: false,
-				enableColumnResize: false,
-				rowLines: false,
-				flex: 1,
-				store: this.gridModel,
-				columns: this.gridColumns,
+				text: 'Message',
+				dataIndex: 'message',
+				flex: 20
 			}
-		]);
-	},
+		],
+	}],
 
 	//------------------------------------------------------------------------------------------------------------------
 
@@ -107,15 +90,41 @@ Ext.define('PipeUI.view.conversation.BaseView', {
 			if(!this.view || !this.view.address) { debugger; }
 			if(msg.address != this.view.address) { return; }
 
-			switch(msg.message) {
-				case 'command':
-					if(msg.data && msg.data.name && msg.data.schema) { this.onCommand(msg.data.name, msg.data.schema); }
-					break;
-
-				default:
-					if(this.onReceived) { this.onReceived(msg); }
-					break;
+			if(msg.message === 'command') {
+				if(msg.data && msg.data.name && msg.data.schema) { this.onCommand(msg.data.name, msg.data.schema); }
+				return;
 			}
+
+			// TODO: Interpret static information about message types this type can receive and act on it
+			// The idea is to have something like this
+			/*
+				{
+					createUnknown: false,
+					filterUnknown: true,
+					types: {
+						message: {
+							filter: false,
+							creates: true,
+							grid_field_layout: {
+								...
+							},
+						}
+					}
+				}
+
+			*/
+			this.addMessage(JSON.stringify(msg));
+			this.highlight();
+		},
+
+		//--------------------------------------------------------------------------------------------------------------
+
+		onActivate: function () {
+			if(this.view && this.view.tab) {
+				try { this.view.tab.setGlyph(0); } catch(e) { }
+			}
+
+			this.scrollToBottom();
 		},
 
 		//--------------------------------------------------------------------------------------------------------------
@@ -158,20 +167,7 @@ Ext.define('PipeUI.view.conversation.BaseView', {
 			var store = this.getMessages();
 			if(!store) { return; }
 
-			store.add({
-				timestamp: Ext.Date.format(new Date(), 'H:i'),
-				message: message
-			});
-
-			this.scrollToBottom();
-		},
-
-		//--------------------------------------------------------------------------------------------------------------
-
-		onActivate: function () {
-			if(this.view && this.view.tab) {
-				try { this.view.tab.setGlyph(0); } catch(e) { }
-			}
+			store.add({message: message });
 
 			this.scrollToBottom();
 		},

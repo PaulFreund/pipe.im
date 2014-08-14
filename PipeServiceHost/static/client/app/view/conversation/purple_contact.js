@@ -9,39 +9,13 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 	//------------------------------------------------------------------------------------------------------------------
 
 	statics: {
+		// TODO: Create complete definitions for message handling and display
+
 		shouldCreate: function (messageType) {
 			// TODO
 			return (messageType === 'message')
 		}
 	},
-
-	//------------------------------------------------------------------------------------------------------------------
-
-	gridModel: {
-		fields: [
-			{ name: 'timestamp' },
-			{ name: 'nick' },
-			{ name: 'message' },
-		]
-	},
-
-	gridColumns: [
-		{
-			text: 'Timestamp',
-			dataIndex: 'timestamp',
-			flex: 2
-		},
-		{
-			text: 'Nick',
-			dataIndex: 'nick',
-			flex: 5
-		},
-		{
-			text: 'Message',
-			dataIndex: 'message',
-			flex: 20
-		}
-	],
 
 	//------------------------------------------------------------------------------------------------------------------
 
@@ -76,17 +50,6 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 	//------------------------------------------------------------------------------------------------------------------
 
 	controller: {
-		onReceived: function (msg) {
-			if(msg.message !== 'message') { return; }
-
-			var sep = msg.data.indexOf(':');
-			var nick = msg.data.substr(0, sep);
-			var message = msg.data.substr(sep + 1);
-
-			this.addMessage(nick, message);
-			this.highlight();
-		},
-
 		onSpecialKey: function (field, e) {
 			if(e.getKey() === e.ENTER) {
 				this.on_say();
@@ -98,22 +61,11 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 			var outgoing = textBox.value;
 			textBox.reset();
 
-			this.send({ address: this.view.address, command: 'say', data: outgoing });
+			// TODO: Missing ref and timestamp?
+			var msg = { address: this.view.address, command: 'say', data: outgoing };
+			this.send(msg);
 
-			this.addMessage('Me', outgoing);
-		},
-
-		addMessage: function (nick, message) {
-			var store = this.getMessages();
-			if(!store) { return; }
-
-			store.add({
-				timestamp: Ext.Date.format(new Date(), 'H:i'),
-				nick: '&lt;' + nick + '&gt;',
-				message: message
-			});
-
-			this.scrollToBottom();
+			this.addMessage(JSON.stringify(msg));
 		}
 	}
 

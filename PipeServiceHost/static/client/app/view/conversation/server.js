@@ -10,16 +10,11 @@ Ext.define('PipeUI.view.conversation.server', {
 	
 	controller: {
 		onSession: function () {
-			this.onReceived('Got Session');
+			this.addMessage('Got Session');
 		},
 
 		onDisconnected: function () {
-			this.onReceived('Disconnected');
-			//Ext.GlobalEvents.fireEvent('connection_connect');
-		},
-
-		onReceived: function (msg) {
-			this.addMessage(JSON.stringify(msg));
+			this.addMessage('Disconnected');
 		}
 	}
 
