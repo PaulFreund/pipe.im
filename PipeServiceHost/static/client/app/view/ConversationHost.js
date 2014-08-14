@@ -95,7 +95,7 @@ Ext.define('PipeUI.view.ConversationHost', {
 				if(!service || !service.data) { return; }
 
 				var shouldCreate = true;
-				if(msg || this.pending[address].messages.length) {
+				if(!activate && (msg || this.pending[address].messages.length)) {
 					// Check if the conversation type wants to be created
 					var convType = PipeUI.view.conversation[service.data.typeName];
 					if(convType && convType.shouldCreate) {
@@ -109,18 +109,19 @@ Ext.define('PipeUI.view.ConversationHost', {
 					}
 				}
 
-				if(!shouldCreate) { return }
+				if(shouldCreate) {
+					// Creat conversation if requested
+					conv = this.createConversation(service.data);
 
-				// Creat conversation if requested
-				conv = this.createConversation(service.data);
-
-				// Add messages if any
-				if(conv && conv.controller) {
-					for(var msg in this.pending[address].messages) {
-						conv.controller.onMessage(this.pending[address].messages[msg]);
+					// Add messages if any
+					if(conv && conv.controller) {
+						for(var msg in this.pending[address].messages) {
+							conv.controller.onMessage(this.pending[address].messages[msg]);
+						}
 					}
 				}
 
+				// Delete pending messages
 				this.pending[address].messages = [];
 			}
 

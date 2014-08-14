@@ -3,7 +3,7 @@
 Ext.define('PipeUI.view.conversation.purple_contact', {
 	//------------------------------------------------------------------------------------------------------------------
 
-	extend: 'Ext.panel.Panel',
+	extend: 'PipeUI.view.conversation.BaseView',
 	xtype: 'pipe-conversation-purple_contact',
 
 	//------------------------------------------------------------------------------------------------------------------
@@ -16,49 +16,39 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 	},
 
 	//------------------------------------------------------------------------------------------------------------------
-	
-	layout: {
-		type: 'vbox',
-		align: 'stretch'
+
+	gridModel: {
+		fields: [
+			{ name: 'timestamp' },
+			{ name: 'nick' },
+			{ name: 'message' },
+		]
 	},
 
-	items: [
+	gridColumns: [
 		{
-			xtype: 'grid',
-			reference: 'messages',
-			hideHeaders: true,
-			autoScroll: true,
-			border: false,
-			columnLines: false,
-			enableColumnResize: false,
-			rowLines: false,
-			flex: 1,
-			store: {
-				fields: [
-					{ name: 'timestamp' },
-					{ name: 'nick' },
-					{ name: 'message' },
-				]
-			},
-			columns: [
-				{
-					text: 'Timestamp',
-					dataIndex: 'timestamp',
-					flex: 2
-				},
-				{
-					text: 'Nick',
-					dataIndex: 'nick',
-					flex: 5
-				},
-				{
-					text: 'Message',
-					dataIndex: 'message',
-					flex: 20
-				}
-			],
+			text: 'Timestamp',
+			dataIndex: 'timestamp',
+			flex: 2
 		},
 		{
+			text: 'Nick',
+			dataIndex: 'nick',
+			flex: 5
+		},
+		{
+			text: 'Message',
+			dataIndex: 'message',
+			flex: 20
+		}
+	],
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	initComponent: function () {
+		this.callParent(arguments);
+
+		this.add({
 			layout: {
 				type: 'hbox',
 				align: 'stretch'
@@ -80,26 +70,12 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 					margin: '0 0 0 10'
 				}
 			]
-		}
-	],
+		});
+	},
 
 	//------------------------------------------------------------------------------------------------------------------
 
 	controller: {
-		type: 'conversation.baseController',
-
-		onActivate: function () {
-			if(this.view && this.view.tab) {
-				try { this.view.tab.setGlyph(0); } catch(e) { }
-			}
-
-			this.scrollToBottom();
-		},
-
-		onInfo: function (info) {
-
-		},
-
 		onReceived: function (msg) {
 			if(msg.message !== 'message') { return; }
 
@@ -138,24 +114,6 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 			});
 
 			this.scrollToBottom();
-		},
-
-		getMessages: function () {
-			var grid = this.lookupReference('messages');
-			if(!grid) { return null; }
-			return grid.getStore();
-		},
-
-		scrollToBottom: function () {
-			var grid = this.lookupReference('messages');
-			if(!grid) { return; }
-			var gridView = grid.getView();
-			if(!gridView) { return; }
-
-			try {
-				gridView.scrollBy(0, 999999, true);
-			}
-			catch(e) { }
 		}
 	}
 
