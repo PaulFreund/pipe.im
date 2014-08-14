@@ -19,7 +19,6 @@ Ext.define('PipeUI.view.BaseController', {
 		this.register('service_removed', this.onServiceRemoved);
 
 		this.register('browser_service_selected', this.onServiceSelected);
-		this.register('server_message', this.onSession);
 
 		if(this.onInit) { this.onInit(); }
 

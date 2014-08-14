@@ -108,20 +108,6 @@ Ext.define('PipeUI.view.conversation.BaseView', {
 			if(msg.address != this.view.address) { return; }
 
 			switch(msg.message) {
-				case 'children':
-				case 'node_added':
-				case 'node_removed':
-					break;
-
-				case 'state':
-				case 'state_updated':
-
-					break;
-
-				case 'info':
-					if(this.onInfo) { this.onInfo(msg.data); }
-					break;
-
 				case 'command':
 					if(msg.data && msg.data.name && msg.data.schema) { this.onCommand(msg.data.name, msg.data.schema); }
 					break;

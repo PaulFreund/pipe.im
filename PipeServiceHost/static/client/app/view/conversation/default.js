@@ -18,9 +18,6 @@ Ext.define('PipeUI.view.conversation.default', {
 	//------------------------------------------------------------------------------------------------------------------
 	
 	controller: {
-		onInfo: function (info) {
-		},
-
 		onReceived: function (msg) {
 		}
 	}

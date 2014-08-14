@@ -536,8 +536,9 @@ struct PipeCommandBuffer {
 	PipeJson instance() {
 		PipeJson msg = PipeJson(PipeObject());
 		PipeObject& msgObj = msg.object_items();
-		msgObj[TokenMessageRef] = identifier;
 		msgObj[TokenMessageAddress] = address;
+		msgObj[TokenMessageTimestamp] = currentTimestamp();
+		msgObj[TokenMessageRef] = identifier;
 		msgObj[TokenMessageCommand] = command;
 
 		if(!data.empty() && data.complete())
@@ -641,8 +642,9 @@ public:
 			_nextCommandStart = timplode(fragments, _T(' '));
 			PipeJson msg = PipeJson(PipeObject());
 			PipeObject& msgObj = msg.object_items();
-			msgObj[TokenMessageRef] = _identifier;
 			msgObj[TokenMessageAddress] = address;
+			msgObj[TokenMessageTimestamp] = currentTimestamp();
+			msgObj[TokenMessageRef] = _identifier;
 			msgObj[TokenMessageCommand] = _T("command");
 			msgObj[TokenMessageData] = fragments[0];
 			_cbOutputMessage(msgObj);
@@ -890,8 +892,9 @@ private:
 			_helpInvoked = true;
 			PipeJson msg = PipeJson(PipeObject());
 			PipeObject& msgObj = msg.object_items();
-			msgObj[TokenMessageRef] = _identifier;
 			msgObj[TokenMessageAddress] = helpAddress;
+			msgObj[TokenMessageTimestamp] = currentTimestamp();
+			msgObj[TokenMessageRef] = _identifier;
 			msgObj[TokenMessageCommand] = _T("commands");
 			_cbOutputMessage(msgObj);
 		}
@@ -922,8 +925,9 @@ private:
 
 			PipeJson msg = PipeJson(PipeObject());
 			PipeObject& msgObj = msg.object_items();
-			msgObj[TokenMessageRef] = _identifier;
 			msgObj[TokenMessageAddress] = lsAddress;
+			msgObj[TokenMessageTimestamp] = currentTimestamp();
+			msgObj[TokenMessageRef] = _identifier;
 			msgObj[TokenMessageCommand] = _T("children");
 			_cbOutputMessage(msgObj);
 		}
@@ -952,8 +956,9 @@ private:
 
 			PipeJson msg = PipeJson(PipeObject());
 			PipeObject& msgObj = msg.object_items();
-			msgObj[TokenMessageRef] = _identifier;
 			msgObj[TokenMessageAddress] = parent;
+			msgObj[TokenMessageTimestamp] = currentTimestamp();
+			msgObj[TokenMessageRef] = _identifier;
 			msgObj[TokenMessageCommand] = _T("children");
 			_cbOutputMessage(msgObj);
 		}

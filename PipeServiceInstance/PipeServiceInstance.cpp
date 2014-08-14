@@ -101,8 +101,9 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 
 			// Add identification to outqueue
 			PipeObject msgAccount;
-			msgAccount[TokenMessageRef] = _T("");
 			msgAccount[TokenMessageAddress] = _T("pipe_host");
+			msgAccount[TokenMessageTimestamp] = currentTimestamp();
+			msgAccount[TokenMessageRef] = _T("");
 			msgAccount[TokenMessageMessage] = _T("account");
 			msgAccount[TokenMessageData] = _client;
 			outgoing.push_back(createOutgoing(PipeJson(msgAccount).dump()));

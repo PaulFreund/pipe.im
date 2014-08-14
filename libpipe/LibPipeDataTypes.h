@@ -68,8 +68,9 @@ const TCHAR     TokenAddressSeparator   = _T('.');
 
 const tstring   TokenPipe               = _T("pipe");
 
-const tstring   TokenMessageRef         = _T("ref");
 const tstring   TokenMessageAddress     = _T("address");
+const tstring   TokenMessageTimestamp   = _T("timestamp");
+const tstring   TokenMessageRef         = _T("ref");
 const tstring   TokenMessageCommand     = _T("command");
 const tstring   TokenMessageMessage     = _T("message");
 const tstring   TokenMessageData        = _T("data");

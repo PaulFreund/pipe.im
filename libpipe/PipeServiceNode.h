@@ -132,10 +132,11 @@ public:
 	void pushOutgoing(const tstring& reference, const tstring& type, PipeJson data) {
 		PipeObject message;
 		message[TokenMessageAddress] = _address;
+		message[TokenMessageTimestamp] = currentTimestamp();
 		message[TokenMessageRef] = reference;
 		message[TokenMessageMessage] = type;
 		message[TokenMessageData] = data;
-
+		
 		_outgoing->push_back(std::move(message));
 	}
 

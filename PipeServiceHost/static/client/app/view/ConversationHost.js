@@ -62,7 +62,6 @@ Ext.define('PipeUI.view.ConversationHost', {
 		onServiceUpdate: function (address, node) {
 			var conv = this.getConversation(address);
 			if(address !== 'pipe' && conv && conv.tab) {
-				debugger;
 				conv.tab.setText(node.data.state.name);
 				conv.tab.setTooltip(node.data.state.description);
 			}

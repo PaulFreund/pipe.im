@@ -20,10 +20,6 @@ Ext.define('PipeUI.view.conversation.server', {
 
 		onReceived: function (msg) {
 			this.addMessage(JSON.stringify(msg));
-		},
-
-		onServerMessage: function (msg) {
-			this.onReceived(msg);
 		}
 	}
 

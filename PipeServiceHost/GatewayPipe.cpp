@@ -147,8 +147,9 @@ void GatewayPipe::addGateway(const tstring& name, const tstring& description) {
 		gatewaySessions[handleName] = make_shared<InstanceSession>(sessionId, account.second, [handleAddress, this](tstring output) {
 			PipeJson msg = PipeJson(PipeObject());
 			PipeObject& msgObj = msg.object_items();
-			msgObj[TokenMessageRef] = GatewayPipe::GatewayPipeAccountName;
 			msgObj[TokenMessageAddress] = handleAddress;
+			msgObj[TokenMessageTimestamp] = currentTimestamp();
+			msgObj[TokenMessageRef] = GatewayPipe::GatewayPipeAccountName;
 			msgObj[TokenMessageCommand] = _T("say");
 			msgObj[TokenMessageData] = output;
 			addOutgoing(msg.dump());
