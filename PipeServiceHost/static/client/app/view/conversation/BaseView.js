@@ -110,24 +110,15 @@ Ext.define('PipeUI.view.conversation.BaseView', {
 			switch(msg.message) {
 				case 'children':
 				case 'node_added':
-				case 'node_info_updated':
 				case 'node_removed':
 					break;
 
 				case 'state':
 				case 'state_updated':
-					if(this.view && this.view.tab && msg.address !== 'pipe') {
-						this.view.tab.setText(msg.data.name);
-						this.view.tab.setTooltip(msg.data.description);
-					}
+
 					break;
 
 				case 'info':
-					if(this.view && this.view.tab && msg.address !== 'pipe') {
-						this.view.tab.setText(msg.data.state.name);
-						this.view.tab.setTooltip(msg.data.state.description);
-					}
-
 					if(this.onInfo) { this.onInfo(msg.data); }
 					break;
 

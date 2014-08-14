@@ -34,11 +34,14 @@ Ext.define('PipeUI.view.ConversationHost', {
 			this.updateConversation(address, true);
 		},
 
+		//--------------------------------------------------------------------------------------------------------------
+
 		pending: {},
+
+		//--------------------------------------------------------------------------------------------------------------
 
 		onSession: function (session) {
 			this.pending = {};
-			this.session = session;
 		},
 
 		onDisconnected: function () {
@@ -49,33 +52,32 @@ Ext.define('PipeUI.view.ConversationHost', {
 						item.close();
 				}, this);
 			}
-			this.session = undefined;
 			this.pending = {};
 		},
 
 		onMessage: function (msg) {
-			switch(msg.message) {
-				case 'info':
-				case 'children':
-				case 'node_added':
-					break;
-
-				case 'node_removed':
-					var conv = this.getConversation(info.address);
-					if(conv) { conv.close(); }
-					break;
-
-				default:
-					this.updateConversation(msg.address, false, msg);
-					break;
-			}
+			this.updateConversation(msg.address, false, msg);
 		},
 
-		onServiceUpdate: function (address) {
+		onServiceUpdate: function (address, node) {
+			var conv = this.getConversation(address);
+			if(address !== 'pipe' && conv && conv.tab) {
+				debugger;
+				conv.tab.setText(node.data.state.name);
+				conv.tab.setTooltip(node.data.state.description);
+			}
+
 			if(this.pending[address] && this.pending[address].messages.length) {
 				this.updateConversation(address, false);
 			}
 		},
+
+		onServiceRemoved: function(address) {
+			var conv = this.getConversation(address);
+			if(conv) { conv.close(); }
+		},
+
+		//--------------------------------------------------------------------------------------------------------------
 
 		updateConversation: function(address, activate, msg) {
 			// Add to pending list

@@ -72,5 +72,6 @@
     <None Include="static\client\app\view\conversation\purple_contact.js" />
     <None Include="static\client\app\view\conversation\server.js" />
     <None Include="static\client\app\view\dialog\Command.js" />
+    <None Include="static\client\app\controller\Services.js" />
   </ItemGroup>
 </Project>

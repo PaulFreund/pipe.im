@@ -9,18 +9,50 @@ Ext.define('PipeUI.view.BaseController', {
 	//------------------------------------------------------------------------------------------------------------------
 
 	init: function () {
-		this.register('connection_session', this.onSession);
-		this.register('connection_disconnected', this.onDisconnected);
-		this.register('connection_message', this.onMessage);
+		this.register('connection_session', this.on_connection_session);
+		this.register('connection_disconnected', this.on_connection_disconnected);
+		this.register('connection_message', this.on_connection_message);
+
+		this.register('connection_error', this.onConnectionError);
+
+		this.register('service_update', this.onServiceUpdate);
+		this.register('service_removed', this.onServiceRemoved);
+
 		this.register('browser_service_selected', this.onServiceSelected);
 		this.register('server_message', this.onSession);
-		this.register('connection_session', this.onServerMessage);
-		this.register('service_update', this.onServiceUpdate);
 
 		if(this.onInit) { this.onInit(); }
 
 		this.view.on('beforedestroy', this.unregister, this);
 
+	},
+
+	//------------------------------------------------------------------------------------------------------------------
+
+	on_connection_session: function (session) {
+		this.session = session;
+		if(this.onSession) { this.onSession(session); }
+	},
+
+	on_connection_disconnected: function () {
+		this.session = undefined;
+		if(this.onDisconnected) { this.onDisconnected(); }
+	},
+
+	on_connection_message: function (msg) {
+		switch(msg.message) {
+			case 'info':
+			case 'state':
+			case 'state_updated':
+			case 'children':
+			case 'node_added':
+			case 'node_removed':
+				break;
+
+			default:
+				if(this.onMessage) { this.onMessage(msg); }
+				break;
+		}
 	},
 
 	//------------------------------------------------------------------------------------------------------------------

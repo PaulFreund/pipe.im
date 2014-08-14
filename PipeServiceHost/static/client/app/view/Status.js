@@ -14,18 +14,7 @@ Ext.define('PipeUI.view.Status', {
 	//------------------------------------------------------------------------------------------------------------------
 
 	controller: {
-		type: 'baseController',
-
-		onSession: function (session) {
-			this.session = session;
-		},
-
-		onDisconnected: function () {
-			this.session = undefined;
-		},
-
-		onMessage: function (msg) {
-		},
+		type: 'baseController'
 	}
 
 	//------------------------------------------------------------------------------------------------------------------
