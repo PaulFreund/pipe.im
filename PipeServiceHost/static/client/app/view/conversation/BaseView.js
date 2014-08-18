@@ -93,13 +93,7 @@ Ext.define('PipeUI.view.conversation.BaseView', {
 				return;
 			}
 
-			// TODO
-			//// Get constants
-			//if(this.view && this.view.self && this.view.self.constants) {
-			//	var constants = this.view.self.constants;
-
-			//}
-			
+			// TODO: Interpret constants and stuff
 
 			this.addMessage(JSON.stringify(msg));
 			this.highlight();
@@ -118,16 +112,9 @@ Ext.define('PipeUI.view.conversation.BaseView', {
 		//--------------------------------------------------------------------------------------------------------------
 
 		onSent: function (msg) {
-
-			// TODO
-			//if(Ext.valueFrom(this.view.shelf.constants))
-			//{
-			//	debugger;
-			//}
-			//if(this.view && this.view.shelf && this.view.self.constants) {
-			//	debugger;
-			//}
-			//debugger;
+			if(res = ph.res(this, 'view.shelf.constants.sent')) {
+				if(res.ignore) { return; }
+			}
 
 			this.addMessage(JSON.stringify(msg));
 		},
@@ -171,6 +158,8 @@ Ext.define('PipeUI.view.conversation.BaseView', {
 		addMessage: function (message) {
 			var store = this.getMessages();
 			if(!store) { return; }
+
+			// TODO: Do something about templating
 
 			store.add({message: message });
 

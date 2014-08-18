@@ -45,9 +45,8 @@ Ext.define('PipeUI.view.ConversationHost', {
 		},
 
 		onDisconnected: function () {
-			var view = this.getView();
-			if(!view.items || !view.items.items || view.items.items.length > 0) {
-				Ext.iterate(view.items.items, function (item) {
+			if(ph.res(this, 'view.items.items')) {
+				Ext.iterate(this.view.items.items, function (item) {
 					if(item.address !== 'pipe' && item.closable)
 						item.close();
 				}, this);

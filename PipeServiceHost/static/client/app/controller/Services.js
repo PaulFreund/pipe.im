@@ -61,7 +61,7 @@ Ext.define('PipeUI.controller.Services', {
 					}
 
 					// Get info for children
-					if(msg.data && msg.data.children && msg.data.children.length > 0) {
+					if(ph.res(msg, 'data.children.length') > 0) {
 						Ext.iterate(msg.data.children, function (child) {
 							this.send({ address: child, command: 'info' });
 						}, this);

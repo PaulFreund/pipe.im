@@ -13,7 +13,10 @@ Ext.define('PipeUI.view.conversation.server', {
 			defaults: {
 				creates: false,
 				show: false
-			}
+			},
+			sent: {
+				ignore: true,
+			},
 		}
 	},
 

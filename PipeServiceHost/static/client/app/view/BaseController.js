@@ -88,7 +88,7 @@ Ext.define('PipeUI.view.BaseController', {
 		if(!root) { return null; }
 
 		var node = root.findChild('address', address, true);
-		if(!node || !node.data || !node.data.address) { return null; }
+		if(!ph.res(node, 'data.address')) { return null; }
 		return node;
 	}
 
