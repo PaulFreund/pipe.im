@@ -7,6 +7,17 @@ Ext.define('PipeUI.view.conversation.server', {
 	xtype: 'pipe-conversation-server',
 
 	//------------------------------------------------------------------------------------------------------------------
+
+	statics: {
+		constants: {
+			defaults: {
+				creates: false,
+				show: false
+			}
+		}
+	},
+
+	//------------------------------------------------------------------------------------------------------------------
 	
 	controller: {
 		onSession: function () {

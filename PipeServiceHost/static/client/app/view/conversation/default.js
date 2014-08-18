@@ -9,9 +9,11 @@ Ext.define('PipeUI.view.conversation.default', {
 	//------------------------------------------------------------------------------------------------------------------
 
 	statics: {
-		shouldCreate: function (messageType) {
-			// TODO
-			return true;
+		constants: {
+			defaults: {
+				creates: false,
+				show: true
+			}
 		}
 	},
 

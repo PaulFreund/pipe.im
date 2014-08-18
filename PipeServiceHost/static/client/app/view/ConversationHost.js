@@ -47,7 +47,7 @@ Ext.define('PipeUI.view.ConversationHost', {
 		onDisconnected: function () {
 			var view = this.getView();
 			if(!view.items || !view.items.items || view.items.items.length > 0) {
-				Ext.Array.forEach(view.items.items, function (item) {
+				Ext.iterate(view.items.items, function (item) {
 					if(item.address !== 'pipe' && item.closable)
 						item.close();
 				}, this);
@@ -95,30 +95,37 @@ Ext.define('PipeUI.view.ConversationHost', {
 				var service = this.getService(address);
 				if(!service || !service.data) { return; }
 
-				var shouldCreate = true;
+				var create = true;
 				if(!activate && (msg || this.pending[address].messages.length)) {
 					// Check if the conversation type wants to be created
 					var convType = PipeUI.view.conversation[service.data.typeName];
-					if(convType && convType.shouldCreate) {
-						shouldCreate = false;
-						for(var msg in this.pending[address].messages) {
-							if(convType.shouldCreate(this.pending[address].messages[msg].message)) {
-								shouldCreate = true;
-								break;
-							}
-						}
+					if(convType && convType.constants) {
+						var constants = convType.constants;
+
+						// Get default for creation
+						create = (constants.defaults && constants.defaults.creates !== undefined) ? constants.defaults.creates : false;
+
+						// Check for every message type
+						Ext.iterate(this.pending[address].messages, function(msg) {
+							if(!constants.types[msg.message]) { return; }
+
+							if(constants.types[msg.message].creates === true) {
+								create = true;
+								return false;
+							}	
+						}, this);
 					}
 				}
 
-				if(shouldCreate) {
+				if(create) {
 					// Creat conversation if requested
 					conv = this.createConversation(service.data);
 
 					// Add messages if any
 					if(conv && conv.controller) {
-						for(var msg in this.pending[address].messages) {
-							conv.controller.onMessage(this.pending[address].messages[msg]);
-						}
+						Ext.iterate(this.pending[address].messages, function(msg) {
+							conv.controller.onMessage(msg);
+						}, this);
 					}
 				}
 

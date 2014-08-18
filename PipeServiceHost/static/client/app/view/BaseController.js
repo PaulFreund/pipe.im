@@ -14,6 +14,7 @@ Ext.define('PipeUI.view.BaseController', {
 		this.register('connection_message', this.on_connection_message);
 
 		this.register('connection_error', this.onConnectionError);
+		this.register('connection_sent', this.onSent);
 
 		this.register('service_update', this.onServiceUpdate);
 		this.register('service_removed', this.onServiceRemoved);
@@ -66,10 +67,9 @@ Ext.define('PipeUI.view.BaseController', {
 	},
 
 	unregister: function () {
-		for(var handler in this.registered) {
-			if(!this.registered.hasOwnProperty(handler)) { continue; }
-			Ext.un(handler, this.registered[handler], this);
-		}
+		Ext.iterate(this.registered, function(handler, index) {
+			Ext.un(index, handler, this);
+		}, this);
 	},
 
 	send: function (data) {
@@ -77,7 +77,7 @@ Ext.define('PipeUI.view.BaseController', {
 	},
 
 	getServices: function () {
-		var store = Ext.StoreManager.lookup('Services');
+		var store = Ext.getStore('Services');
 		if(!store) { return null; }
 
 		return store.getRoot();
@@ -90,7 +90,7 @@ Ext.define('PipeUI.view.BaseController', {
 		var node = root.findChild('address', address, true);
 		if(!node || !node.data || !node.data.address) { return null; }
 		return node;
-	},
+	}
 
 	//------------------------------------------------------------------------------------------------------------------
 });

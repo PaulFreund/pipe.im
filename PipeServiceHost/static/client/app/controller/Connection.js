@@ -123,6 +123,7 @@ Ext.define('PipeUI.controller.Connection', {
 		msg.timestamp = Math.round(new Date().getTime() / 1000);
 		msg.ref = this.session;
 		this.socket.send(JSON.stringify(msg));
+		Ext.GlobalEvents.fireEvent('connection_sent', msg);
 	},
 
 	cleanup: function () {

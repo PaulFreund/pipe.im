@@ -59,11 +59,9 @@ Ext.define('PipeUI.view.conversation.BaseView', {
 			if(!service || !service.data || !service.data.commands) { return; }
 
 			var toolbarItems = [];
-			for(var command in service.data.commands) {
-				var cmd = service.data.commands[command];
-
+			Ext.iterate(service.data.commands, function (cmd) {
 				var cmdFkt = 'on_' + cmd.command;
-				if(this[cmdFkt]) { continue; }
+				if(this[cmdFkt]) { return; }
 
 				toolbarItems.push({
 					xtype: 'button',
@@ -75,7 +73,7 @@ Ext.define('PipeUI.view.conversation.BaseView', {
 				this[cmdFkt] = function () {
 					myself.send({ address: myself.view.address, command: 'command', data: cmd.command });
 				};
-			}
+			}, this);
 
 			this.view.addDocked({
 				xtype: 'toolbar',
@@ -95,24 +93,14 @@ Ext.define('PipeUI.view.conversation.BaseView', {
 				return;
 			}
 
-			// TODO: Interpret static information about message types this type can receive and act on it
-			// The idea is to have something like this
-			/*
-				{
-					createUnknown: false,
-					filterUnknown: true,
-					types: {
-						message: {
-							filter: false,
-							creates: true,
-							grid_field_layout: {
-								...
-							},
-						}
-					}
-				}
+			// TODO
+			//// Get constants
+			//if(this.view && this.view.self && this.view.self.constants) {
+			//	var constants = this.view.self.constants;
 
-			*/
+			//}
+			
+
 			this.addMessage(JSON.stringify(msg));
 			this.highlight();
 		},
@@ -125,6 +113,23 @@ Ext.define('PipeUI.view.conversation.BaseView', {
 			}
 
 			this.scrollToBottom();
+		},
+
+		//--------------------------------------------------------------------------------------------------------------
+
+		onSent: function (msg) {
+
+			// TODO
+			//if(Ext.valueFrom(this.view.shelf.constants))
+			//{
+			//	debugger;
+			//}
+			//if(this.view && this.view.shelf && this.view.self.constants) {
+			//	debugger;
+			//}
+			//debugger;
+
+			this.addMessage(JSON.stringify(msg));
 		},
 
 		//--------------------------------------------------------------------------------------------------------------

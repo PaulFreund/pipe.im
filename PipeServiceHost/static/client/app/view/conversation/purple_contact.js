@@ -9,11 +9,20 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 	//------------------------------------------------------------------------------------------------------------------
 
 	statics: {
-		// TODO: Create complete definitions for message handling and display
-
-		shouldCreate: function (messageType) {
-			// TODO
-			return (messageType === 'message')
+		constants: {
+			defaults: {
+				creates: false,
+				show: false
+			},
+			sent: {
+				ignore: false,
+			},
+			types: {
+				message: {
+					creates: true,
+					show: false,
+				}
+			}
 		}
 	},
 
@@ -61,11 +70,7 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 			var outgoing = textBox.value;
 			textBox.reset();
 
-			// TODO: Missing ref and timestamp?
-			var msg = { address: this.view.address, command: 'say', data: outgoing };
-			this.send(msg);
-
-			this.addMessage(JSON.stringify(msg));
+			this.send({ address: this.view.address, command: 'say', data: outgoing });
 		}
 	}
 
