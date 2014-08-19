@@ -12,9 +12,9 @@ Ext.define('PipeUI.view.BaseController', {
 		this.register('connection_session', this.on_connection_session);
 		this.register('connection_disconnected', this.on_connection_disconnected);
 		this.register('connection_message', this.on_connection_message);
+		this.register('connection_sent', this.on_connection_sent);
 
 		this.register('connection_error', this.onConnectionError);
-		this.register('connection_sent', this.onSent);
 
 		this.register('service_update', this.onServiceUpdate);
 		this.register('service_removed', this.onServiceRemoved);
@@ -51,6 +51,19 @@ Ext.define('PipeUI.view.BaseController', {
 
 			default:
 				if(this.onMessage) { this.onMessage(msg); }
+				break;
+		}
+	},
+
+	on_connection_sent: function(msg) {
+		switch(msg.command) {
+			case 'info':
+			case 'command':
+			case 'message':
+				break;
+
+			default:
+				if(this.onSent) { this.onSent(msg); }
 				break;
 		}
 	},

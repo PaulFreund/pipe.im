@@ -60,6 +60,9 @@ Ext.define('PipeUI.controller.Connection', {
 		Ext.log({ level: 'debug' }, '[Connection::onDisconnected] ' + reason);
 		Ext.GlobalEvents.fireEvent('connection_disconnected');
 		this.cleanup()
+
+		// TODO: This gets executed multiple times, make it not do this
+		// Ext.callback(this.connect, this, [], 5000);
 	},
 
 	onMessage: function (message) {
