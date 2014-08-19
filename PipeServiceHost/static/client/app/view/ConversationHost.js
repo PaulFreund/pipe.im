@@ -45,8 +45,8 @@ Ext.define('PipeUI.view.ConversationHost', {
 		},
 
 		onDisconnected: function () {
-			if(ph.res(this, 'view.items.items')) {
-				Ext.iterate(this.view.items.items, function (item) {
+			if((resItems = ph.res(this, 'view.items.items')) !== null) {
+				Ext.iterate(resItems, function (item) {
 					if(item.address !== 'pipe' && item.closable)
 						item.close();
 				}, this);
@@ -96,22 +96,23 @@ Ext.define('PipeUI.view.ConversationHost', {
 
 				var create = true;
 				if(!activate && (msg || this.pending[address].messages.length)) {
-					// Check if the conversation type wants to be created
-					var convType = PipeUI.view.conversation[service.data.typeName];
-					if(convType && convType.constants) {
-						var constants = convType.constants;
 
-						// Get default for creation
-						create = (constants.defaults && constants.defaults.creates !== undefined) ? constants.defaults.creates : false;
+					// Check if the conversation type wants to be created
+					if((resConst = ph.res(PipeUI, 'view.conversation.' + service.data.typeName + '.constants.messages')) !== null) {
+
+						// Get default
+						if((resDefault = ph.res(resConst, 'defaults.creates')) !== null) {
+							create = resDefault;
+						}
 
 						// Check for every message type
-						Ext.iterate(this.pending[address].messages, function(msg) {
-							if(!constants.types[msg.message]) { return; }
-
-							if(constants.types[msg.message].creates === true) {
-								create = true;
-								return false;
-							}	
+						Ext.iterate(this.pending[address].messages, function (msg) {
+							if((resType = ph.res(resConst, msg.message + '.creates')) !== null) {
+								if(resType) {
+									create = true;
+									return false;
+								}
+							}
 						}, this);
 					}
 				}

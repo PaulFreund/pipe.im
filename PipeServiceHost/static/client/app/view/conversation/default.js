@@ -12,7 +12,8 @@ Ext.define('PipeUI.view.conversation.default', {
 		constants: {
 			defaults: {
 				creates: false,
-				show: true
+				show: true,
+				sent: true
 			}
 		}
 	},

@@ -10,17 +10,23 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 
 	statics: {
 		constants: {
-			defaults: {
-				creates: false,
-				show: false
+			commands: {
+				defaults: {
+					show: true
+				},
+				say: {
+					show: true
+				}
 			},
-			sent: {
-				ignore: false,
-			},
-			types: {
+			messages: {
+				defaults: {
+					creates: false,
+					show: false
+				},
 				message: {
 					creates: true,
-					show: false,
+					show: true,
+					sent: false
 				}
 			}
 		}

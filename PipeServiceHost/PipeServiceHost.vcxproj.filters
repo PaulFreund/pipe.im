@@ -74,5 +74,9 @@
     <None Include="static\client\app\view\dialog\Command.js" />
     <None Include="static\client\app\controller\Services.js" />
     <None Include="static\client\app\lib\PipeHelper.js" />
+    <None Include="static\client\index.html" />
+    <None Include="static\shell\admin.html" />
+    <None Include="static\shell\index.html" />
+    <None Include="static\index.html" />
   </ItemGroup>
 </Project>

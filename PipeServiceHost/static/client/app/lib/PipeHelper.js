@@ -7,7 +7,7 @@ ph = {
 				obj = obj[part];
 			}
 			else {
-				return undefined;
+				return null;
 			}
 		}
 

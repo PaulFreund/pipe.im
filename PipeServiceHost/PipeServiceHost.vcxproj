@@ -120,6 +120,10 @@
     <None Include="static\client\app\view\conversation\purple_contact.js" />
     <None Include="static\client\app\view\conversation\server.js" />
     <None Include="static\client\app\view\dialog\Command.js" />
+    <None Include="static\client\index.html" />
+    <None Include="static\index.html" />
+    <None Include="static\shell\admin.html" />
+    <None Include="static\shell\index.html" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
