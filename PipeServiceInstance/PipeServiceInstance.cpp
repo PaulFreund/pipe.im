@@ -38,6 +38,8 @@ PipeServiceInstanceApplication::PipeServiceInstanceApplication()
 		, _help(false)
 		, _retryLimit(10)
 		, _retryCount(0)
+		, _retryLimitSend(10)
+		, _retryCountSend(0) 
 {
 	setUnixOptions(true);
 }
@@ -174,9 +176,16 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 					try {
 						ss.sendBytes(outgoing[0].data(), outgoing[0].size());
 						outgoing.erase(outgoing.begin());
+						_retryCountSend = 0;
 					}
 					catch(...) {
 						logger().warning(tstring(_T("[PipeServiceInstanceApplication::main] Sending failed")));
+						if(_retryCountSend >= _retryLimitSend) {
+							throw tstring(_T("Send retry exceeded limit"));
+						}
+						else {
+							_retryCountSend++;
+						}
 					}
 				}
 			}
@@ -184,6 +193,12 @@ int PipeServiceInstanceApplication::main(const vector<tstring>& args) {
 		}
 		catch(exception e) {
 			logger().warning(tstring(_T("[PipeServiceInstanceApplication::main] Exception: ")) + e.what());
+		}
+		catch(tstring e) {
+			logger().warning(tstring(_T("[PipeServiceInstanceApplication::main] Error: ")) + e);
+		}
+		catch(...) {
+			logger().warning(tstring(_T("[PipeServiceInstanceApplication::main] Unknown error")));
 		}
 
 		logger().warning(tstring(_T("[PipeServiceInstanceApplication::main] Connection lost")));

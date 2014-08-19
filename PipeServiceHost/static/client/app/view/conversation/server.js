@@ -10,11 +10,17 @@ Ext.define('PipeUI.view.conversation.server', {
 
 	statics: {
 		constants: {
-			defaults: {
-				creates: false,
-				show: false,
-				sent: false
+			commands: {
+				defaults: {
+					show: false
+				}
 			},
+			messages: {
+				defaults: {
+					creates: false,
+					show: false
+				}
+			}
 		}
 	},
 

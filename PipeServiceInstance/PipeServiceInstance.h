@@ -26,6 +26,10 @@ private:
 
 	const int _retryLimit;
 	int _retryCount;
+
+	const int _retryLimitSend;
+	int _retryCountSend;
+
 	bool _shutdown;
 
 

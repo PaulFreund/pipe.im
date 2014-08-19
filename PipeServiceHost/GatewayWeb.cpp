@@ -275,7 +275,7 @@ void GatewayWebHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 		uri += _T("index.html");
 
 	File requestPath(pApp->_staticdir + uri);
-	pApp->logger().information(tstring(_T("[GatewayWebHandlerPage::handleRequest] File requested: ")) + requestPath.path());
+	//pApp->logger().information(tstring(_T("[GatewayWebHandlerPage::handleRequest] File requested: ")) + requestPath.path()); // TODO: Decide
 	if(requestPath.exists() && requestPath.canRead()) {
 		auto extension = Path(requestPath.path()).getExtension();
 		try {
@@ -294,7 +294,7 @@ void GatewayWebHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 			response.setContentType(contentType);
 			std::ifstream fileStream(requestPath.path());
 			Poco::StreamCopier::copyStream(fileStream, response.send());
-			pApp->logger().information(tstring(_T("[GatewayWebHandlerPage::handleRequest] File response: ")) + requestPath.path());
+			//pApp->logger().information(tstring(_T("[GatewayWebHandlerPage::handleRequest] File response: ")) + requestPath.path()); // TODO: Decide
 		}
 		catch(exception e) {
 			response.setStatus(HTTPResponse::HTTP_INTERNAL_SERVER_ERROR);
@@ -315,7 +315,10 @@ void GatewayWebHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 
 //======================================================================================================================
 
-GatewayWebHandlerSocket::GatewayWebHandlerSocket() {}
+GatewayWebHandlerSocket::GatewayWebHandlerSocket() 
+	: _retryLimitSend(10)
+	, _retryCountSend(0) 
+{}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -440,10 +443,17 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 				try {
 					ws.sendFrame(_outgoing[0].data(), _outgoing[0].length());
 					popOutgoing();
+					_retryCountSend = 0;
 					//pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket message sent")) + _outgoing[0]);
 				}
 				catch(...) {
 					pApp->logger().warning(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Sending failed")));
+					if(_retryCountSend >= _retryLimitSend) {
+						throw tstring(_T("Send retry exceeded limit"));
+					}
+					else {
+						_retryCountSend++;
+					}
 				}
 			}
 		}
@@ -465,7 +475,12 @@ void GatewayWebHandlerSocket::handleRequest(HTTPServerRequest& request, HTTPServ
 				break;
 		}
 		pApp->logger().warning(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket error: ")) + e.displayText());
-
+	}
+	catch(tstring e) {
+		pApp->logger().warning(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Error: ")) + e);
+	}
+	catch(...) {
+		pApp->logger().warning(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Unknown error")));
 	}
 
 	pApp->logger().information(tstring(_T("[GatewayWebHandlerSocket::handleRequest] Websocket connection lost")));

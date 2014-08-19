@@ -14,6 +14,10 @@
 //======================================================================================================================
 
 class InstanceConnection : public Poco::Net::TCPServerConnection {
+private:
+	const int _retryLimitSend;
+	int _retryCountSend;
+
 public:
 	InstanceConnection(const Poco::Net::StreamSocket& s);
 

@@ -69,7 +69,10 @@ void InstanceSession::accountIncomingAdd(const tstring& message) {
 
 //======================================================================================================================
 
-InstanceConnection::InstanceConnection(const StreamSocket& socket) : TCPServerConnection(socket) {}
+InstanceConnection::InstanceConnection(const StreamSocket& socket) : TCPServerConnection(socket) 
+	, _retryLimitSend(10)
+	, _retryCountSend(0) 
+{}
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -182,9 +185,16 @@ void InstanceConnection::run() {
 					try {
 						ss.sendBytes(outgoing[0].data(), outgoing[0].size());
 						outgoing.erase(outgoing.begin());
+						_retryCountSend = 0;
 					}
 					catch(...) {
 						pApp->logger().warning(tstring(_T("[InstanceConnection::run] Sending failed")));
+						if(_retryCountSend >= _retryLimitSend) {
+							throw tstring(_T("Send retry exceeded limit"));
+						}
+						else {
+							_retryCountSend++;
+						}
 					}
 				}
 			}
@@ -196,6 +206,9 @@ void InstanceConnection::run() {
 	}
 	catch(exception e) {
 		pApp->logger().warning(tstring(_T("[InstanceConnection::run] Exception: ")) + e.what());
+	}
+	catch(...) {
+		pApp->logger().warning(tstring(_T("[InstanceConnection::run] Unknown error")));
 	}
 
 	if(client.get() != nullptr) {	client->setConnection(nullptr); }

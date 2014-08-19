@@ -32,6 +32,9 @@ private:
 	std::vector<tstring> _incoming;
 	std::vector<tstring> _outgoing;
 
+	const int _retryLimitSend;
+	int _retryCountSend;
+
 public:
 	GatewayWebHandlerSocket();
 	~GatewayWebHandlerSocket();
