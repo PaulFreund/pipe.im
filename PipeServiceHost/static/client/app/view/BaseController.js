@@ -14,8 +14,6 @@ Ext.define('PipeUI.view.BaseController', {
 		this.register('connection_message', this.on_connection_message);
 		this.register('connection_sent', this.on_connection_sent);
 
-		this.register('connection_error', this.onConnectionError);
-
 		this.register('service_update', this.onServiceUpdate);
 		this.register('service_removed', this.onServiceRemoved);
 

@@ -9,7 +9,6 @@ Ext.define('PipeUI.controller.Connection', {
 		listen: {
 			global: {
 				connection_connect: 'connect',
-				connection_disconnect: 'disconnect',
 				connection_send: 'send',
 			}
 		}
@@ -53,7 +52,7 @@ Ext.define('PipeUI.controller.Connection', {
 	onConnectionError: function () {
 		Ext.log({ level: 'debug' }, '[Connection::onConnectionError]');
 		Ext.GlobalEvents.fireEvent('connection_connectionError');
-		this.onDisconnected();
+		this.onDisconnected(0, 'onConnectionError', false);
 	},
 
 	onDisconnected: function (code, reason, wasClean) {
@@ -61,6 +60,7 @@ Ext.define('PipeUI.controller.Connection', {
 		Ext.GlobalEvents.fireEvent('connection_disconnected');
 		this.cleanup()
 
+		debugger;
 		// TODO: This gets executed multiple times, make it not do this
 		// Ext.callback(this.connect, this, [], 5000);
 	},
@@ -101,11 +101,6 @@ Ext.define('PipeUI.controller.Connection', {
 				self.onUnauthenticated();
 			}
 		});
-	},
-
-	disconnect: function () {
-		Ext.log({ level: 'debug' }, '[Connection::disconnect]');
-		this.onDisconnected();
 	},
 
 	connect: function () {
