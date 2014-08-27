@@ -18,28 +18,40 @@ Ext.define('PipeUI.controller.Connection', {
 	// Events
 
 	onLaunch: function () {
-		this.isAuthenticated();
+		this.checkAuthenticated();
+
+		Ext.interval(function () {
+			try {
+				this.checkAuthenticated();
+			}
+			catch(e) {}
+		}, 5000, this, []);
 	},
 
 	onUnauthenticated: function () {
-		Ext.log({ level: 'debug' }, '[Connection::onUnauthenticated]');
-		Ext.GlobalEvents.fireEvent('connection_unauthenticated');
+		if(this.loginWindow) { return; }
+
 		this.loginWindow = Ext.create('PipeUI.view.dialog.Login', {
 			autoShow: true,
 			listeners: {
 				scope: this,
 				loginComplete: function () {
-					this.isAuthenticated();
+					this.checkAuthenticated();
 				}
 			}
 		});
 	},
 
 	onAuthenticated: function () {
-		Ext.log({ level: 'debug' }, '[Session::onAuthenticated]');
-		if (this.loginWindow) { this.loginWindow.destroy(); }
-		Ext.GlobalEvents.fireEvent('connection_authenticated');
-		this.connect();
+		if(this.loginWindow) {
+			this.loginWindow.destroy();
+			this.loginWindow = undefined;
+		}
+
+		// If we don't have a socket or the socket is closed, try connecting
+		if(!this.socket || this.socket.readyState === WebSocket.CLOSED) {
+			this.connect();
+		}
 	},
 
 	onConnected: function () {
@@ -59,10 +71,6 @@ Ext.define('PipeUI.controller.Connection', {
 		Ext.log({ level: 'debug' }, '[Connection::onDisconnected] ' + reason);
 		Ext.GlobalEvents.fireEvent('connection_disconnected');
 		this.cleanup()
-
-		debugger;
-		// TODO: This gets executed multiple times, make it not do this
-		// Ext.callback(this.connect, this, [], 5000);
 	},
 
 	onMessage: function (message) {
@@ -85,8 +93,7 @@ Ext.define('PipeUI.controller.Connection', {
 	//------------------------------------------------------------------------------------------------------------------
 	// Methods
 
-	isAuthenticated: function () {
-		Ext.log({ level: 'debug' }, '[Connection::isAuthenticated]');
+	checkAuthenticated: function () {
 		var self = this;
 		Ext.Ajax.request({
 			url: '/rest/authenticated',
