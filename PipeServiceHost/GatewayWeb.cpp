@@ -280,19 +280,17 @@ void GatewayWebHandlerPage::handleRequest(HTTPServerRequest& request, HTTPServer
 		auto extension = Path(requestPath.path()).getExtension();
 		try {
 			tstring contentType;
-			if(extension == _T("html") || extension == _T("htm"))
-				contentType = _T("text/html");
-			else if(extension == _T("js"))
-				contentType = _T("text/javascript");
-			else if(extension == _T("css"))
-				contentType = _T("text/css");
-			else if(extension == _T("json"))
-				contentType = _T("application/json");
-			else
-				contentType = _T("");
+			if(extension == _T("html") || extension == _T("htm")) { contentType = _T("text/html"); }
+			else if(extension == _T("js")) { contentType = _T("text/javascript"); }
+			else if(extension == _T("jpeg") || extension == _T("jpg")) { contentType = _T("image/jpeg"); }
+			else if(extension == _T("png")) { contentType = _T("image/png"); }
+			else if(extension == _T("gif")) { contentType = _T("image/gif"); }
+			else if(extension == _T("css")) { contentType = _T("text/css"); }
+			else if(extension == _T("json")) { contentType = _T("application/json"); }
+			else { contentType = _T(""); }
 
 			response.setContentType(contentType);
-			std::ifstream fileStream(requestPath.path());
+			std::ifstream fileStream(requestPath.path(), std::ios::binary);
 			Poco::StreamCopier::copyStream(fileStream, response.send());
 			//pApp->logger().information(tstring(_T("[GatewayWebHandlerPage::handleRequest] File response: ")) + requestPath.path()); // TODO: Decide
 		}
