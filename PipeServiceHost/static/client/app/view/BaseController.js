@@ -68,7 +68,7 @@ Ext.define('PipeUI.view.BaseController', {
 
 	//------------------------------------------------------------------------------------------------------------------
 
-	registered: [],
+	registered: {},
 
 	register: function(event, fn) {
 		if(fn) {
@@ -78,7 +78,7 @@ Ext.define('PipeUI.view.BaseController', {
 	},
 
 	unregister: function () {
-		Ext.iterate(this.registered, function(handler, index) {
+		Ext.iterate(this.registered, function (index, handler) {
 			Ext.un(index, handler, this);
 		}, this);
 	},
