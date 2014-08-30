@@ -10,12 +10,25 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 
 	statics: {
 		constants: {
+			renderers: {
+				message: function (msg) {
+					var res = '';
+					// Add Date
+					res += '[' + ph.timeString(msg.timestamp) + '] ';
+
+					if(msg.command && msg.command === 'say') { res += 'Me: ' }
+					res += msg.data;
+
+					return res;
+				},
+			},
 			commands: {
 				defaults: {
 					show: true
 				},
 				say: {
-					show: true
+					show: true,
+					renderer: 'message'
 				}
 			},
 			messages: {
@@ -26,7 +39,8 @@ Ext.define('PipeUI.view.conversation.purple_contact', {
 				message: {
 					creates: true,
 					show: true,
-					sent: false
+					sent: false,
+					renderer: 'message'
 				}
 			}
 		}

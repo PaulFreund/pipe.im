@@ -12,5 +12,20 @@ ph = {
 		}
 
 		return obj;
+	},
+
+	timeString: function (timestamp) {
+		// UNIX timestamp * 1000 = JS timestamp
+		var time = new Date(parseInt(timestamp) * 1000);
+		var hours = time.getHours();
+		var minutes = time.getMinutes();
+
+		var res = '';
+		if(hours < 10) { res += '0'; }
+		res += hours;
+		res += ':';
+		if(minutes < 10) { res += '0'; }
+		res += minutes;
+		return res;
 	}
 };

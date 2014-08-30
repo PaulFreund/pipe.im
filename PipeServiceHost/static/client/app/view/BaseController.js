@@ -79,7 +79,7 @@ Ext.define('PipeUI.view.BaseController', {
 
 	unregister: function () {
 		Ext.iterate(this.registered, function (index, handler) {
-			Ext.un(index, handler, this);
+ 			Ext.un(index, handler, this);
 		}, this);
 	},
 

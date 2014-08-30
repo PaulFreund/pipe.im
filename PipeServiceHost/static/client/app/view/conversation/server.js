@@ -28,13 +28,23 @@ Ext.define('PipeUI.view.conversation.server', {
 	
 	controller: {
 		onSession: function () {
-			this.addMessage('Got Session');
+			this.addMessage(this.createMessage('Got Session'));
 		},
 
 		onDisconnected: function () {
-			this.addMessage('Disconnected');
+			this.addMessage(this.createMessage('Disconnected'));
+		},
+
+		createMessage: function(text) {
+			return {
+				address: 'pipeui.server',
+				timestamp: Math.round(new Date().getTime() / 1000),
+				ref: this.session,
+				message: 'status',
+				data: text
+			};
 		}
-	}
+	},
 
 	//------------------------------------------------------------------------------------------------------------------
 });

@@ -39,7 +39,6 @@ Ext.define('PipeUI.view.dialog.Command', {
 		},
 
 		onAfterRender: function () {
-			debugger;
 			this.editor = new JSONEditor(document.getElementById('editor_holder'), {
 				ajax: false,
 				no_additional_properties: true,
