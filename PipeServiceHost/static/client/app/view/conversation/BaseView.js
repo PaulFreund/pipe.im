@@ -120,6 +120,9 @@ Ext.define('PipeUI.view.conversation.BaseView', {
 		//--------------------------------------------------------------------------------------------------------------
 
 		onSent: function (msg) {
+			if(!this.view || !this.view.address) { debugger; }
+			if(msg.address != this.view.address) { return; }
+
 			var show = false;
 			if((resConst = ph.res(this, 'view.self.constants.commands')) !== null) {
 				if((resDefault = ph.res(resConst, 'defaults.show')) !== null) { show = resDefault; }
