@@ -45,18 +45,6 @@ find_path(PURPLE_INCLUDE_DIR NAMES "purple.h" PATH_SUFFIXES libpurple )
 include_directories(${PURPLE_INCLUDE_DIR})
 target_link_libraries(PipeExtensionPurple ${PURPLE_LIBRARY})
 
-
-#-------------------------------------------------------------------------------
-# POCO
-
-find_library(POCO_FOUNDATION NAMES PocoFoundation)
-
-set(POCO_LIBRARIES
-        ${POCO_FOUNDATION}
-)
-
-target_link_libraries (PipeExtensionPurple ${POCO_LIBRARIES})
-
 #-------------------------------------------------------------------------------
 # Installation
 

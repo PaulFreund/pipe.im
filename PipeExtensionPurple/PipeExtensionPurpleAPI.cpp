@@ -3,8 +3,8 @@
 #include "CommonHeader.h"
 #include "PipeExtensionPurple.h"
 #include "PurpleInterface.h"
+
 using namespace std;
-using namespace Poco; // TODO: Remove
 
 //======================================================================================================================
 
@@ -25,11 +25,11 @@ PIPE_EXTENSION_ITF void PipeExtensionSetPath(PipeExtensionStr path) {
 	try {
 		if(tstring(path).empty()) { throw tstring(_T("Empty path supplied")); }
 
-		Path extensionDataPath;
-		extensionDataPath.parseDirectory(tstring(path));
-		extensionDataPath.append(_T("purple"));
+		tstring purplePath(path);
+		if(!endsWith(purplePath, PathSeparator)) { purplePath += PathSeparator; }
+		purplePath += _T("purple");
 
-		PipeExtensionPurple::ExtensionInstancePath = extensionDataPath.toString();
+		PipeExtensionPurple::ExtensionInstancePath = purplePath;
 
 		PipeExtensionPurple::Purple = make_shared<PurpleInterface>(&PipeExtensionPurple::ExtensionInstance, PipeExtensionPurple::ExtensionInstancePath);
 	}

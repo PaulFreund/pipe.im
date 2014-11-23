@@ -77,6 +77,7 @@
     <ClInclude Include="PipeServiceNode.h">
       <Filter>PipeExtension\Wrapper</Filter>
     </ClInclude>
+    <ClInclude Include="FileHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LibPipeAPI.cpp">
@@ -94,5 +95,6 @@
     <ClCompile Include="PipeScript.cpp">
       <Filter>LibPipe\Base</Filter>
     </ClCompile>
+    <ClCompile Include="FileHelper.cpp" />
   </ItemGroup>
 </Project>

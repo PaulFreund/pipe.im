@@ -81,3 +81,37 @@ const tstring TokenBoolTrue     = _T("true");
 const tstring TokenBoolFalse    = _T("false");
 
 //======================================================================================================================
+
+#if defined(_WIN32) || defined(_WIN64) || defined(_WIN32_WCE)
+	const tstring PathSeparator = _T("\\");
+
+	#if defined(_DEBUG)
+		const tstring LibrarySuffix = _T("d.dll");
+	#else
+		const tstring LibrarySuffix = _T(".dll");
+	#endif
+#else
+	const tstring PathSeparator = _T("/");
+
+	#if defined(__APPLE__)
+		#if defined(_DEBUG)
+			const tstring LibrarySuffix = _T("d.dylib");
+		#else
+			const tstring LibrarySuffix = _T(".dylib");
+		#endif
+	#elif defined(__CYGWIN__)
+		#if defined(_DEBUG)
+			const tstring LibrarySuffix = _T("d.dll");
+		#else
+			const tstring LibrarySuffix = _T(".dll");
+		#endif
+	#else
+		#if defined(_DEBUG)
+			const tstring LibrarySuffix = _T("d.so");
+		#else
+			const tstring LibrarySuffix = _T(".so");
+		#endif
+	#endif
+#endif
+
+//======================================================================================================================

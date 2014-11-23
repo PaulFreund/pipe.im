@@ -5,7 +5,6 @@
 #include "PipeExtensionInstance.h"
 
 using namespace std;
-using namespace Poco; // TODO: Remove
 
 //======================================================================================================================
 
@@ -99,9 +98,9 @@ LIBPIPE_ITF void LibPipeSetPath(LibPipeStr path) {
 LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 	try {
 		if(InstancePath.empty()) { throw tstring(_T("Empty or invalid path supplied")); }
-		File extensionPath(path);
+		tstring extensionPath(path);
 
-		if(!extensionPath.exists() || !extensionPath.canRead())
+		if(!fileExists(extensionPath) || !extensionPath.canRead())
 			return;
 
 		if(extensionPath.isDirectory()) {

@@ -5,7 +5,6 @@
 #include "LibPipe.h"
 
 using namespace std;
-using namespace Poco; // TODO: Remove
 
 std::vector<std::shared_ptr<PipeExtensionInstance>> ServiceRoot::Extensions;
 
@@ -34,14 +33,14 @@ ServiceRoot::ServiceRoot(const tstring& path, PipeObjectPtr settings)
 	initScripts();
 	initServices();
 
-	File pathObj(path);
+	tstring pathStr(path);
 	
 	// Create directory if it does not exist
-	if(!pathObj.exists()) { try { pathObj.createDirectories(); } catch(...) {}
+	if(!fileExists(pathStr)) { try { pathObj.createDirectories(); } catch(...) {}
 	}
 	
 	// Load configuration or display error
-	if(!pathObj.exists() || !pathObj.isDirectory() || !pathObj.canRead() || !pathObj.canWrite()) {
+	if(!fileExists(pathStr) || !pathObj.isDirectory() || !pathObj.canRead() || !pathObj.canWrite()) {
 		pushOutgoing(_T(""), _T("error"), _T("InstanceConnection path location is invalid. Config can not be loaded or saved"));
 	}
 	else {
@@ -172,9 +171,8 @@ void ServiceRoot::loadConfig() {
 
 bool ServiceRoot::readConfig() {
 	tstring path = configPath();
-	File configFile(path);
 
-	if(!configFile.exists() || !configFile.canRead())
+	if(!fileExists(path) || !configFile.canRead())
 		return false;
 
 	try {
@@ -199,9 +197,8 @@ bool ServiceRoot::readConfig() {
 
 void ServiceRoot::writeConfig() {
 	tstring path = configPath();
-	File configFile(path);
 
-	if(!configFile.exists()) {
+	if(!fileExists(path)) {
 		try {
 			configFile.createFile();
 		}
@@ -211,7 +208,7 @@ void ServiceRoot::writeConfig() {
 		}
 	}
 
-	if(!configFile.exists() || !configFile.canWrite()) {
+	if(!fileExists(path) || !configFile.canWrite()) {
 		pushOutgoing(_T(""), _T("error"), _T("Can not save pipe config, file is not writable"));
 		return;
 	}

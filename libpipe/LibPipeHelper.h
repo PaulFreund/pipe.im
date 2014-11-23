@@ -84,6 +84,15 @@ inline bool startsWith(const tstring& heystack, const tstring& needle) {
 	return (heystack.substr(0, needle.length()) == needle);
 }
 
+//======================================================================================================================
+
+inline bool endsWith(const tstring& heystack, const tstring& needle) {
+	if(heystack.length() < needle.length()) { return false; }
+	return (heystack.substr(heystack.length() - needle.length(), needle.length()) == needle);
+}
+
+//======================================================================================================================
+
 inline tstring currentTimestamp() {
 	time_t timestamp;
 	time(&timestamp);

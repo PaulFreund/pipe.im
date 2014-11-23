@@ -9,16 +9,11 @@
 
 //======================================================================================================================
 
-#include <Poco/DirectoryIterator.h>
-#include <Poco/SharedLibrary.h>
-#include <Poco/String.h>
-
-//======================================================================================================================
-
 #include <libpipe/LibPipeAPI.h>
 #include <libpipe/PipeExtensionAPI.h>
 #include <libpipe/PipeExtensionInterface.h>
 #include <libpipe/PipeServiceNode.h>
+#include <libpipe/FileHelper.h>
 
 //======================================================================================================================
 
