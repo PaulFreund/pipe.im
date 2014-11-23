@@ -13,7 +13,7 @@
 #include <libpipe/PipeExtensionAPI.h>
 #include <libpipe/PipeExtensionInterface.h>
 #include <libpipe/PipeServiceNode.h>
-#include <libpipe/FileHelper.h>
+#include <libpipe/PlatformHelper.h>
 
 //======================================================================================================================
 

@@ -6,7 +6,7 @@
 
 #include "LibPipeDataTypes.h"
 #include "LibPipeHelper.h"
-#include "FileHelper.h"
+#include "PlatformHelper.h"
 #include "PipeSchema.h"
 
 //======================================================================================================================

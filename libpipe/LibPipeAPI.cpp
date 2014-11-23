@@ -44,7 +44,7 @@ void loadExtension(const tstring& path) {
 		return;
 
 	auto ext = path.substr(path.length() - suffix.length(), string::npos);
-	if(!File(path).isFile() || ext != suffix)
+	if(!fileIsFile(path) || ext != suffix)
 		return;
 
 	SharedLibrary library(path);
@@ -103,7 +103,7 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 		if(!fileExists(extensionPath) || !extensionPath.canRead())
 			return;
 
-		if(extensionPath.isDirectory()) {
+		if(fileIsDirectory(extensionPath)) {
 			for(DirectoryIterator it(extensionPath), itEnd; it != itEnd; ++it) {
 				loadExtension(it->path());
 			}

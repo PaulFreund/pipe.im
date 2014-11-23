@@ -40,7 +40,7 @@ ServiceRoot::ServiceRoot(const tstring& path, PipeObjectPtr settings)
 	}
 	
 	// Load configuration or display error
-	if(!fileExists(pathStr) || !pathObj.isDirectory() || !pathObj.canRead() || !pathObj.canWrite()) {
+	if(!fileExists(pathStr) || !fileIsDirectory(pathStr) || !fileCanRead(pathStr) || !fileCanWrite(pathStr)) {
 		pushOutgoing(_T(""), _T("error"), _T("InstanceConnection path location is invalid. Config can not be loaded or saved"));
 	}
 	else {
@@ -172,7 +172,7 @@ void ServiceRoot::loadConfig() {
 bool ServiceRoot::readConfig() {
 	tstring path = configPath();
 
-	if(!fileExists(path) || !configFile.canRead())
+	if(!fileExists(path) || !fileCanRead(path))
 		return false;
 
 	try {
@@ -208,7 +208,7 @@ void ServiceRoot::writeConfig() {
 		}
 	}
 
-	if(!fileExists(path) || !configFile.canWrite()) {
+	if(!fileExists(path) || !fileCanWrite(path)) {
 		pushOutgoing(_T(""), _T("error"), _T("Can not save pipe config, file is not writable"));
 		return;
 	}
