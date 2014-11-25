@@ -103,6 +103,7 @@
 	#include <sys/stat.h>
 	#include <dirent.h>
 	#include <dlfcn.h>
+	#include <fcntl.h>
 
 	bool fileExists(const tstring& path) {
 		if(path.empty()) { return false; }
