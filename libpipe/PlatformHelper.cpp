@@ -98,9 +98,11 @@
 	}
 
 #else
+	#include <unistd.h>
 	#include <sys/types.h>
 	#include <sys/stat.h>
 	#include <dirent.h>
+	#include <dlfcn.h>
 
 	bool fileExists(const tstring& path) {
 		if(path.empty()) { return false; }
@@ -157,7 +159,7 @@
 	bool fileCreateFile(const tstring& path) {
 		if(path.empty()) { return false; }
 
-		int n = open(_path.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+		int n = open(path.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 		if (n != -1) {
 			close(n);
 			return true;
