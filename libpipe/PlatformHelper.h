@@ -14,4 +14,9 @@ bool fileCreateDirectory(const tstring& path);
 bool fileCreateDirectories(const tstring& path);
 std::vector<tstring> fileDirectoryContents(const tstring& path);
 
+void* libraryLoad(const tstring& path);
+void libraryUnload(void* handle);
+bool libraryHasSymbol(void* handle, const tstring& name);
+void* libraryGetSymbol(void* handle, const tstring& name);
+
 //======================================================================================================================

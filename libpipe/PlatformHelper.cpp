@@ -83,6 +83,20 @@
 		return std::move(result);
 	}
 
+	void* libraryLoad(const tstring& path) {
+		if(path.empty()) { return nullptr; }
+		return LoadLibrary(path.c_str());
+	}
+
+	void libraryUnload(void* handle) {
+		if(handle == nullptr) { return; }
+		FreeLibrary((HMODULE)handle);
+	}
+
+	void* libraryGetSymbol(void* handle, const tstring& name) {
+		return (void*)GetProcAddress((HMODULE)handle, name.c_str());
+	}
+
 #else
 	#include <sys/types.h>
 	#include <sys/stat.h>
@@ -184,6 +198,20 @@
 		return std::move(result);
 	}
 
+	void* libraryLoad(const tstring& path) {
+		if(path.empty()) { return nullptr; }
+		return _handle = dlopen(path.c_str(), RTLD_LAZY);
+	}
+
+	void libraryUnload(void* handle) {
+		if(handle == nullptr) { return; }
+		dlclose(handle);
+	}
+
+	void* libraryGetSymbol(void* handle, const tstring& name) {
+		return (void*)dlsym(handle, name.c_str());
+	}
+
 #endif
 
 bool fileIsFile(const tstring& path) {
@@ -203,6 +231,10 @@ bool fileCreateDirectories(const tstring& path) {
 	else {
 		return false;
 	}
+}
+
+bool libraryHasSymbol(void* handle, const tstring& name) {
+	return (libraryGetSymbol(handle, name) != nullptr);
 }
 
 //======================================================================================================================

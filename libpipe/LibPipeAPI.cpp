@@ -25,56 +25,57 @@ void publishError(tstring error) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-//void* loadExtensionSymbol(SharedLibrary& library, const tstring& name) {
-//	if(!library.hasSymbol(name))
-//		throw tstring(_T("LibPipeLoadExtensions: library ") + library.getPath() + _T(" is missing symbol ") + name);
-//
-//	void* symbol = library.getSymbol(name);
-//	if(symbol == nullptr)
-//		throw tstring(_T("LibPipeLoadExtensions: library ") + library.getPath() + _T(" returned invalid symbol ") + name);
-//
-//	return symbol;
-//}
+void* loadExtensionSymbol(void* library, const tstring& path, const tstring& name) {
+	if(!libraryHasSymbol(library, name))
+		throw tstring(_T("LibPipeLoadExtensions: library ") + path + _T(" is missing symbol ") + name);
+
+	void* symbol = libraryGetSymbol(library, name);
+	if(symbol == nullptr)
+		throw tstring(_T("LibPipeLoadExtensions: library ") + path + _T(" returned invalid symbol ") + name);
+
+	return symbol;
+}
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void loadExtension(const tstring& path) {
-	/*
-	auto suffix = SharedLibrary::suffix();
-	if(path.length() <= suffix.length())
+	if(path.length() <= LibrarySuffix.length())
 		return;
 
-	auto ext = path.substr(path.length() - suffix.length(), string::npos);
-	if(!fileIsFile(path) || ext != suffix)
+	auto ext = path.substr(path.length() - LibrarySuffix.length(), string::npos);
+	if(!fileIsFile(path) || ext != LibrarySuffix)
 		return;
 
-	SharedLibrary library(path);
-	if(!library.isLoaded())
-		return;
+	void* library = libraryLoad(path);
+	if(library == nullptr) { return; }
 
-	if(!library.hasSymbol(NamePipeExtensionGetServiceTypes))
+	if(!libraryHasSymbol(library, NamePipeExtensionGetServiceTypes))
 		return;
 
 	PipeExtensionFunctions extensionFunctions;
 	try {
-		extensionFunctions.fktPipeExtensionSetErrorCallback = reinterpret_cast<FktPipeExtensionSetErrorCallback>    (loadExtensionSymbol(library, NamePipeExtensionSetErrorCallback ));
-		extensionFunctions.fktPipeExtensionSetPath          = reinterpret_cast<FktPipeExtensionSetPath>             (loadExtensionSymbol(library, NamePipeExtensionSetPath          ));
+		extensionFunctions.fktPipeExtensionSetErrorCallback = reinterpret_cast<FktPipeExtensionSetErrorCallback>    (loadExtensionSymbol(library, path, NamePipeExtensionSetErrorCallback ));
+		extensionFunctions.fktPipeExtensionSetPath          = reinterpret_cast<FktPipeExtensionSetPath>             (loadExtensionSymbol(library, path, NamePipeExtensionSetPath          ));
 
-		extensionFunctions.fktPipeExtensionGetServiceTypes  = reinterpret_cast<FktPipeExtensionGetServiceTypes>     (loadExtensionSymbol(library, NamePipeExtensionGetServiceTypes  ));
-		extensionFunctions.fktPipeExtensionServiceCreate    = reinterpret_cast<FktPipeExtensionServiceCreate>       (loadExtensionSymbol(library, NamePipeExtensionServiceCreate    ));
-		extensionFunctions.fktPipeExtensionServiceDestroy   = reinterpret_cast<FktPipeExtensionServiceDestroy>      (loadExtensionSymbol(library, NamePipeExtensionServiceDestroy   ));
+		extensionFunctions.fktPipeExtensionGetServiceTypes  = reinterpret_cast<FktPipeExtensionGetServiceTypes>     (loadExtensionSymbol(library, path, NamePipeExtensionGetServiceTypes  ));
+		extensionFunctions.fktPipeExtensionServiceCreate    = reinterpret_cast<FktPipeExtensionServiceCreate>       (loadExtensionSymbol(library, path, NamePipeExtensionServiceCreate    ));
+		extensionFunctions.fktPipeExtensionServiceDestroy   = reinterpret_cast<FktPipeExtensionServiceDestroy>      (loadExtensionSymbol(library, path, NamePipeExtensionServiceDestroy   ));
 
-		extensionFunctions.fktPipeExtensionProcess          = reinterpret_cast<FktPipeExtensionProcess>             (loadExtensionSymbol(library, NamePipeExtensionProcess          ));
+		extensionFunctions.fktPipeExtensionProcess          = reinterpret_cast<FktPipeExtensionProcess>             (loadExtensionSymbol(library, path, NamePipeExtensionProcess          ));
 
-		extensionFunctions.fktPipeExtensionServicePush      = reinterpret_cast<FktPipeExtensionServicePush>         (loadExtensionSymbol(library, NamePipeExtensionServicePush      ));
-		extensionFunctions.fktPipeExtensionServicePull      = reinterpret_cast<FktPipeExtensionServicePull>         (loadExtensionSymbol(library, NamePipeExtensionServicePull      ));
+		extensionFunctions.fktPipeExtensionServicePush      = reinterpret_cast<FktPipeExtensionServicePush>         (loadExtensionSymbol(library, path, NamePipeExtensionServicePush      ));
+		extensionFunctions.fktPipeExtensionServicePull      = reinterpret_cast<FktPipeExtensionServicePull>         (loadExtensionSymbol(library, path, NamePipeExtensionServicePull      ));
 	}
-	catch(tstring error) { publishError(error); }
-	catch(...) { return; }
-
+	catch(tstring error) { 
+		publishError(error); 
+		libraryUnload(library);
+	}
+	catch(...) { 
+		libraryUnload(library);
+		return;
+	}
 
 	ServiceRoot::Extensions.push_back(make_shared<PipeExtensionInstance>(extensionFunctions, InstancePath));
-	*/
 }
 
 //======================================================================================================================
