@@ -203,7 +203,7 @@
 
 	void* libraryLoad(const tstring& path) {
 		if(path.empty()) { return nullptr; }
-		return _handle = dlopen(path.c_str(), RTLD_LAZY);
+		return dlopen(path.c_str(), RTLD_LAZY);
 	}
 
 	void libraryUnload(void* handle) {
