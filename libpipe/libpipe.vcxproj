@@ -90,7 +90,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="FileHelper.cpp" />
+    <ClCompile Include="PlatformHelper.cpp" />
     <ClCompile Include="LibPipeAPI.cpp" />
     <ClCompile Include="PipeScript.cpp" />
     <ClCompile Include="ServiceRoot.cpp" />
@@ -98,7 +98,7 @@
   <ItemGroup>
     <ClInclude Include="CommonHeader.h" />
     <ClInclude Include="duktape.h" />
-    <ClInclude Include="FileHelper.h" />
+    <ClInclude Include="PlatformHelper.h" />
     <ClInclude Include="json11.h" />
     <ClInclude Include="LibPipeDataTypes.h" />
     <ClInclude Include="LibPipeHelper.h" />

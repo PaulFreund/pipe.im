@@ -36,7 +36,7 @@ ServiceRoot::ServiceRoot(const tstring& path, PipeObjectPtr settings)
 	tstring pathStr(path);
 	
 	// Create directory if it does not exist
-	if(!fileExists(pathStr)) { try { pathObj.createDirectories(); } catch(...) {}
+	if(!fileExists(pathStr)) { try { fileCreateDirectories(pathStr); } catch(...) {}
 	}
 	
 	// Load configuration or display error
@@ -200,7 +200,7 @@ void ServiceRoot::writeConfig() {
 
 	if(!fileExists(path)) {
 		try {
-			configFile.createFile();
+			fileCreateFile(path);
 		}
 		catch(...) {
 			pushOutgoing(_T(""), _T("error"), _T("Can not create pipe config file"));
@@ -226,14 +226,13 @@ void ServiceRoot::writeConfig() {
 //----------------------------------------------------------------------------------------------------------------------
 
 tstring ServiceRoot::configPath() {
-	Path configFilePath;
-	configFilePath.parseDirectory(_path);
-	configFilePath.setFileName(_address);
-	configFilePath.setExtension(_T("json"));
 
-	File configFile(configFilePath.toString());
+	tstring configFilePath = _path;
+	if(!endsWith(configFilePath, PathSeparator)) { configFilePath += PathSeparator; }
+	configFilePath += _address;
+	configFilePath += _T(".json");
 
-	return configFile.path();
+	return configFilePath;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -351,13 +350,14 @@ tstring ServiceRoot::createService(const tstring& type, const tstring& name, Pip
 		if(!found)
 			return _T("Service type could not be found");
 
-		Path servicePath;
-		servicePath.parseDirectory(_path);
-		servicePath.pushDirectory(name);
+
+		tstring servicePath = _path;
+		if(!endsWith(servicePath, PathSeparator)) { servicePath += PathSeparator; }
+		servicePath += name;
 
 		PipeObjectPtr ptrSettings(&settings, [](void*) { return; });
 		tstring addressService = _address + TokenAddressSeparator + name;
-		IPipeExtensionService* service = extension->create(type, addressService, servicePath.toString(), ptrSettings);
+		IPipeExtensionService* service = extension->create(type, addressService, servicePath, ptrSettings);
 		if(service == nullptr)
 			return _T("Creating service failed");
 

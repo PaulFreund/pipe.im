@@ -25,7 +25,7 @@ PIPE_EXTENSION_ITF void PipeExtensionSetPath(PipeExtensionStr path) {
 	try {
 		if(tstring(path).empty()) { throw tstring(_T("Empty path supplied")); }
 
-		tstring purplePath(path);
+		tstring purplePath = path;
 		if(!endsWith(purplePath, PathSeparator)) { purplePath += PathSeparator; }
 		purplePath += _T("purple");
 

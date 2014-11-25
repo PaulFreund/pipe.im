@@ -25,20 +25,21 @@ void publishError(tstring error) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void* loadExtensionSymbol(SharedLibrary& library, const tstring& name) {
-	if(!library.hasSymbol(name))
-		throw tstring(_T("LibPipeLoadExtensions: library ") + library.getPath() + _T(" is missing symbol ") + name);
-
-	void* symbol = library.getSymbol(name);
-	if(symbol == nullptr)
-		throw tstring(_T("LibPipeLoadExtensions: library ") + library.getPath() + _T(" returned invalid symbol ") + name);
-
-	return symbol;
-}
+//void* loadExtensionSymbol(SharedLibrary& library, const tstring& name) {
+//	if(!library.hasSymbol(name))
+//		throw tstring(_T("LibPipeLoadExtensions: library ") + library.getPath() + _T(" is missing symbol ") + name);
+//
+//	void* symbol = library.getSymbol(name);
+//	if(symbol == nullptr)
+//		throw tstring(_T("LibPipeLoadExtensions: library ") + library.getPath() + _T(" returned invalid symbol ") + name);
+//
+//	return symbol;
+//}
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void loadExtension(const tstring& path) {
+	/*
 	auto suffix = SharedLibrary::suffix();
 	if(path.length() <= suffix.length())
 		return;
@@ -73,6 +74,7 @@ void loadExtension(const tstring& path) {
 
 
 	ServiceRoot::Extensions.push_back(make_shared<PipeExtensionInstance>(extensionFunctions, InstancePath));
+	*/
 }
 
 //======================================================================================================================
@@ -100,16 +102,16 @@ LIBPIPE_ITF void LibPipeLoadExtensions(LibPipeStr path) {
 		if(InstancePath.empty()) { throw tstring(_T("Empty or invalid path supplied")); }
 		tstring extensionPath(path);
 
-		if(!fileExists(extensionPath) || !extensionPath.canRead())
+		if(!fileExists(extensionPath) || !fileCanRead(extensionPath))
 			return;
 
 		if(fileIsDirectory(extensionPath)) {
-			for(DirectoryIterator it(extensionPath), itEnd; it != itEnd; ++it) {
-				loadExtension(it->path());
+			for(auto&& file: fileDirectoryContents(extensionPath)) {
+				loadExtension(file);
 			}
 		}
 		else {
-			loadExtension(extensionPath.path());
+			loadExtension(extensionPath);
 		}
 	}
 	catch(tstring error) { publishError(_T("LibPipeLoadExtensions: ") + error); }

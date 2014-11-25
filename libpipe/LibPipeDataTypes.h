@@ -84,6 +84,7 @@ const tstring TokenBoolFalse    = _T("false");
 
 #if defined(_WIN32) || defined(_WIN64) || defined(_WIN32_WCE)
 	const tstring PathSeparator = _T("\\");
+	const TCHAR PathSeparatorChar = _T('\\');
 
 	#if defined(_DEBUG)
 		const tstring LibrarySuffix = _T("d.dll");
@@ -92,6 +93,7 @@ const tstring TokenBoolFalse    = _T("false");
 	#endif
 #else
 	const tstring PathSeparator = _T("/");
+	const TCHAR PathSeparatorChar = _T('/');
 
 	#if defined(__APPLE__)
 		#if defined(_DEBUG)

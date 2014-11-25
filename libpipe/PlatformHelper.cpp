@@ -8,12 +8,12 @@
 #if defined(_WIN32) || defined(_WIN64) || defined(_WIN32_WCE)
 	#include <Windows.h>
 
-	bool fileExists(tstring& path) {
+	bool fileExists(const tstring& path) {
 		if(path.empty()) { return false; }
 		return (GetFileAttributes(path.c_str()) != 0xFFFFFFFF);
 	}
 
-	bool fileIsDirectory(tstring& path) {
+	bool fileIsDirectory(const tstring& path) {
 		if(path.empty()) { return false; }
 
 		DWORD attr = GetFileAttributes(path.c_str());
@@ -21,7 +21,7 @@
 		return (attr & FILE_ATTRIBUTE_DIRECTORY) != 0;
 	}
 
-	bool fileCanRead(tstring& path) {
+	bool fileCanRead(const tstring& path) {
 		if(path.empty()) { return false; }
 
 		DWORD attr = GetFileAttributes(path.c_str());
@@ -29,7 +29,7 @@
 		return true;
 	}
 
-	bool fileCanWrite(tstring& path) {
+	bool fileCanWrite(const tstring& path) {
 		if(path.empty()) { return false; }
 
 		DWORD attr = GetFileAttributes(path.c_str());
@@ -37,17 +37,64 @@
 		return (attr & FILE_ATTRIBUTE_READONLY) == 0;
 	}
 
+	bool fileCreateFile(const tstring& path) {
+		if(path.empty()) { return false; }
+
+		HANDLE hFile = CreateFile(path.c_str(), GENERIC_WRITE, 0, 0, CREATE_NEW, 0, 0);
+		if(hFile != INVALID_HANDLE_VALUE) {
+			CloseHandle(hFile);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool fileCreateDirectory(const tstring& path) {
+		if(path.empty()) { return false; }
+
+		if(fileExists(path) && fileIsDirectory(path))
+			return false;
+
+		if(CreateDirectory(path.c_str(), 0) == 0)
+			return false;
+
+		return true;
+	}
+
+	std::vector<tstring> fileDirectoryContents(const tstring& path) {
+
+		if(path.empty()) { return {}; }
+		tstring findPath = path;
+		if(!endsWith(findPath, PathSeparator)) { findPath += PathSeparator; }
+		findPath.append("*");
+
+		WIN32_FIND_DATA findData;
+		auto handle = FindFirstFile(findPath.c_str(), &findData);
+		if(handle == INVALID_HANDLE_VALUE) { return {}; }
+
+		std::vector<tstring> result;
+		tstring current;
+		do {
+			current = tstring(findData.cFileName);
+			if(!current.empty() && current != _T(".") && current != _T("..")) { result.push_back(path + PathSeparator + current); }
+		}
+		while(FindNextFile(handle, &findData) != 0);
+
+		return std::move(result);
+	}
+
 #else
 	#include <sys/types.h>
 	#include <sys/stat.h>
+	#include <dirent.h>
 
-	bool fileExists(tstring& path) {
+	bool fileExists(const tstring& path) {
 		if(path.empty()) { return false; }
 		struct stat st;
 		return stat(path.c_str(), &st) == 0;
 	}
 
-	bool fileIsDirectory(tstring& path) {
+	bool fileIsDirectory(const tstring& path) {
 		if(path.empty()) { return false; }
 		struct stat st;
 		if(stat(path.c_str(), &st) == 0)
@@ -56,7 +103,7 @@
 		return false;
 	}
 
-	bool fileCanRead(tstring& path) {
+	bool fileCanRead(const tstring& path) {
 		if(path.empty()) { return false; }
 		struct stat st;
 		if (stat(path.c_str(), &st) == 0) {
@@ -74,7 +121,7 @@
 		return false;
 	}
 
-	bool fileCanWrite(tstring& path) {
+	bool fileCanWrite(const tstring& path) {
 		if(path.empty()) { return false; }
 		struct stat st;
 		if (stat(path.c_str(), &st) == 0)
@@ -92,12 +139,70 @@
 
 		return false;
 	}
+
+	bool fileCreateFile(const tstring& path) {
+		if(path.empty()) { return false; }
+
+		int n = open(_path.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+		if (n != -1) {
+			close(n);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool fileCreateDirectory(const tstring& path) {
+		if(path.empty()) { return false; }
+
+		if (fileExists(path) && fileIsDirectory(path))
+			return false;
+
+		if (mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) != 0) 
+			return false;
+
+		return true;
+	}
+
+	std::vector<tstring> fileDirectoryContents(const tstring& path) {
+		if(path.empty()) { return {}; }
+
+		tstring findPath = path;
+		if(!endsWith(findPath, PathSeparator)) { findPath += PathSeparator; }
+
+		DIR* directory = opendir(findPath.c_str());
+		if (!directory) { return {}; }
+
+		std::vector<tstring> result;
+		struct dirent* entry = nullptr;
+		while(entry = readdir(directory)) {
+			tstring current = tstring(entry->d_name);
+			if(!current.empty() && current != _T(".") && current != _T("..")) { result.push_back(path + PathSeparator + current); }
+		}
+
+		closedir(directory);
+		return std::move(result);
+	}
+
 #endif
 
-bool fileIsFile(tstring& path) {
+bool fileIsFile(const tstring& path) {
 	if(path.empty()) { return false; }
 
 	return fileExists(path) && !fileIsDirectory(path);
+}
+
+bool fileCreateDirectories(const tstring& path) {
+	if(fileExists(path)) { return true; }
+
+	auto pathParts = texplode(path, PathSeparatorChar);
+	pathParts.pop_back();
+	if(fileCreateDirectories(timplode(pathParts, PathSeparatorChar))) {
+		return fileCreateDirectory(path);
+	}
+	else {
+		return false;
+	}
 }
 
 //======================================================================================================================
